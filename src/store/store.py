@@ -1,6 +1,12 @@
+from models.plateau import Plateau
+
 class Store:
     def __init__(self, reducer):
-        self.state = {}
+        self.state = {
+            'plateau': Plateau(),
+            'joueurs': [],  # Initialiser avec une liste vide ou les joueurs initiaux
+            'historique': []  # Liste de Coup
+        }
         self.reducer = reducer
         self.subscribers = []
     

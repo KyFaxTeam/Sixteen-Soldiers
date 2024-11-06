@@ -77,9 +77,45 @@ Le store contient l'état global de l'application et les fonctions de dispatch e
 
 Les vues sont responsables de l'affichage de l'état de l'application. Elles sont organisées par entité, comme le plateau (`plateau_view.py`), les joueurs (`joueur_view.py`) et l'historique (`historique_view.py`).
 
+- `base_view.py`: Classe de base définissant l'interface commune pour toutes les vues
+  ```python
+  class BaseView:
+      def subscribe(self, store)
+      def update(self, state)
+  ```
+
+- `main_view.py`: Gère la fenêtre principale et coordonne les sous-vues
+  - Configuration de la fenêtre
+  - Gestion de la disposition (layout)
+  - Orchestration des sous-vues
+
+- Sous-vues spécialisées :
+  - `plateau_view.py`: Affichage et interaction avec le plateau
+  - `joueur_view.py`: Informations et contrôles du joueur
+  - `historique_view.py`: Affichage de l'historique des coups
+
 ### Dossier `models`
 
-Ce dossier contient les modèles de données utilisés dans l'application, comme le plateau de jeu (`plateau.py`), les joueurs (`joueur.py`), les coups (`coup.py`) et les sauvegardes (`sauvegarde.py`).
+
+Ce dossier contient les modèles de données utilisés dans l'application :
+
+- `plateau.py`: Implémentation du plateau de jeu
+### Coordonnées du plateau
+
+Le système de coordonnées utilise des tuples (x, y) où :
+- x : représente la ligne (0-5 du haut vers le bas)
+- y : représente la colonne (0-2)
+- Les positions non valides sont exclues de la structure
+
+
+- `joueur.py`: Gestion des joueurs
+- `coup.py`: Représentation des coups
+- `sauvegarde.py`: Gestion des sauvegardes
+
+
+
+
+
 
 ### Dossier `utils`
 
@@ -133,5 +169,22 @@ Battle_of_sixteen/
    - `.gitignore`: Liste des fichiers et dossiers à ignorer par Git.
    - `requirements.txt`: Liste des dépendances Python du projet.
    - `README.md`: Documentation générale du projet.
+
+
+## Flux de données
+
+1. L'utilisateur interagit avec une vue
+2. La vue dispatch une action via le store
+3. Le reducer approprié traite l'action et met à jour l'état
+4. Le store notifie toutes les vues abonnées
+5. Les vues se mettent à jour avec le nouvel état
+
+
+ 
+
+## Dépendances
+```
+customtkinter==5.2.0
+```
 
 

@@ -1,24 +1,16 @@
-def ajouterCoup(historique, coup):
-    """
-    Ajoute un coup à l'historique.
-    
-    Args:
-        historique (list): Liste des coups joués.
-        coup (Coup): Coup à ajouter à l'historique.
-    
-    Returns:
-        list: Nouvel historique avec le coup ajouté.
-    """
-    pass
+from typing import List, Dict
+from models.coup import Coup
 
-def annulerCoup(historique):
+
+
+def historique_reducer(state: Dict, action: Dict) -> Dict:
     """
-    Annule le dernier coup joué.
-    
-    Args:
-        historique (list): Liste des coups joués.
-    
-    Returns:
-        list: Nouvel historique avec le dernier coup annulé.
+    Gère les modifications liées à l'historique des coups.
     """
-    pass
+    match action['type']:
+        case 'ADD_MOVE':
+            return {**state, 'historique': state['historique'] + [action['coup']]}
+        case 'UNDO_MOVE':
+            return {**state, 'historique': state['historique'][:-1]}
+        case _:
+            return state

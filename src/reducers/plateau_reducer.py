@@ -1,26 +1,24 @@
-def deplacerPion(plateau, position_depart, position_arrivee):
-    """
-    Modifie la position d'un pion sur le plateau.
-    
-    Args:
-        plateau (Plateau): Représentation actuelle du plateau de jeu.
-        position_depart (tuple): Position de départ du pion (x, y).
-        position_arrivee (tuple): Position d'arrivée du pion (x, y).
-    
-    Returns:
-        Plateau: Nouveau plateau avec la position du pion mise à jour.
-    """
-    pass
+from typing import Dict, Tuple
+from models.plateau import Plateau
 
-def capturerPion(plateau, position_capturee):
+def plateau_reducer(state: Dict, action: Dict) -> Dict:
     """
-    Retire un pion adverse du plateau.
-    
-    Args:
-        plateau (Plateau): Représentation actuelle du plateau de jeu.
-        position_capturee (tuple): Position du pion à capturer (x, y).
-    
-    Returns:
-        Plateau: Nouveau plateau avec le pion capturé retiré.
+    Gère les modifications du plateau.
     """
-    pass
+    plateau = state['plateau']
+    match action['type']:
+        case 'MOVE_PIECE':
+            from_pos = action['from_pos']
+            to_pos = action['to_pos']
+            if plateau.is_valid_move(from_pos, to_pos):
+                plateau.move_piece(from_pos, to_pos)
+
+            return {**state, 'plateau': plateau}
+        
+        case 'CAPTURE_PIECE':
+            pos = action['pos']
+            if plateau.pieces[pos] != 0:
+                plateau.capture_piece(pos)
+            return {**state, 'plateau': plateau}
+        case _:
+            return state
