@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime
 from typing import Tuple, List
-from .coup import Coup
+from .move import Move
 
 class Sauvegarde:
     """Gère la sauvegarde et le chargement des parties de Sixteen Soldiers"""
@@ -17,12 +17,11 @@ class Sauvegarde:
             "version": "1.0"
         }
 
-    def sauvegarder_partie(self, etat_plateau: dict, historique_coups: List[Coup]) -> bool:
+    def sauvegarder_partie(self, etat_plateau: dict, historique_coups: List[Move]) -> bool:
         """Sauvegarde l'état actuel de la partie"""
         try:
             donnees = {
                 "metadata": self.metadata,
-                "etat_plateau": etat_plateau,
                 "historique_coups": [coup.to_dict() for coup in historique_coups]
             }
 
@@ -38,7 +37,7 @@ class Sauvegarde:
             return False
 
     @classmethod
-    def charger_partie(cls, nom_fichier: str) -> Tuple[dict, List[Coup]]:
+    def charger_partie(cls, nom_fichier: str) ->  List[Move]:
         """Charge une partie sauvegardée"""
         try:
             # Obtenir le chemin de base du projet pour localiser le fichier de sauvegarde
@@ -49,11 +48,11 @@ class Sauvegarde:
                 donnees = json.load(f)
 
             historique_coups = [
-                Coup.from_dict(coup_dict)
+                Move.from_dict(coup_dict)
                 for coup_dict in donnees["historique_coups"]
             ]
 
-            return donnees["etat_plateau"], historique_coups
+            return  historique_coups
         except Exception as e:
             print(f"Erreur lors du chargement: {e}")
             return None, None

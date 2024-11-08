@@ -1,5 +1,5 @@
 import pickle
-from models.joueur import Joueur
+from models.player import Player
 from typing import Dict
 
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Tuple, Optional
 
 @dataclass
-class Coup:
+class Move:
     """Représente un coup joué dans la partie Sixteen Soldiers"""
     from_pos: Tuple[int, int]
     to_pos: Tuple[int, int]
@@ -29,6 +29,6 @@ class Coup:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'Coup':
+    def from_dict(cls, data: dict) -> 'Move':
         """Crée une instance de Coup à partir d'un dictionnaire"""
         return cls(**data)

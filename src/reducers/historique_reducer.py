@@ -1,5 +1,5 @@
 from typing import List, Dict
-from models.coup import Coup
+from models.move import Move
 
 
 
