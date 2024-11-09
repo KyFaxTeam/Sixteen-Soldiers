@@ -3,7 +3,6 @@ from models.sauvegarde import Sauvegarde
 from views.base_view import BaseView
 from views.game_board import GameBoard
 from views.sauvegarde_view import SauvegardeView
-from .plateau_view import PlateauView
 from .joueur_view import JoueurView
 from .historique_view import HistoriqueView
 

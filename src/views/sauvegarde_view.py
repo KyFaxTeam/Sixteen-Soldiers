@@ -1,18 +1,16 @@
 from models.sauvegarde import Sauvegarde
 from views.base_view import BaseView
 from views.joueur_view import JoueurView
-from views.plateau_view import PlateauView
 import customtkinter as ctk
 
 class SauvegardeView(BaseView):
     """Vue pour la sauvegarde et le chargement de la partie"""
     
-    def __init__(self, master, plateau_view: PlateauView, joueur_view: JoueurView, sauvegarde: Sauvegarde):
+    def __init__(self, master, sauvegarde: Sauvegarde):
         super().__init__(master)
         self.frame.pack(fill="both", padx=10, pady=10)
         
-        self.plateau_view = plateau_view
-        self.joueur_view = joueur_view
+        
         self.sauvegarde = sauvegarde
         
         # S'abonner aux changements d'état pour mise à jour après chargement
