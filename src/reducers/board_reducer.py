@@ -1,10 +1,11 @@
 from typing import Dict, Tuple
-from models.plateau import Plateau
+from models.board import Plateau
 
 def plateau_reducer(state: Dict, action: Dict) -> Dict:
     """
     Gère les modifications du plateau.
     """
+    
     plateau = state['plateau']
     match action['type']:
         case 'MOVE_PIECE':

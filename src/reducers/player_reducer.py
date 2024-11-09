@@ -1,6 +1,6 @@
 from typing import Dict, List
-from models.joueur import Joueur
-from models.coup import Coup
+from models.player import Player
+from models.move import Move
 
 def initialize_players(state: Dict) -> Dict:
     """
@@ -13,8 +13,8 @@ def initialize_players(state: Dict) -> Dict:
         dict: État mis à jour avec les joueurs initialisés.
     """
     joueurs = [
-        Joueur(id="red", nom="Joueur Rouge", couleur="red"),
-        Joueur(id="green", nom="Joueur Vert", couleur="green")
+        Player(id="red", nom="Joueur Rouge", couleur="red"),
+        Player(id="green", nom="Joueur Vert", couleur="green")
     ]
     pass
 def change_current_player(state: Dict) -> Dict:
@@ -41,7 +41,7 @@ def is_game_over(state: Dict) -> bool:
     """
     joueurs = state["joueurs"]
     pass
-def get_winner(state: Dict) -> Joueur:
+def get_winner(state: Dict) -> Player:
     """
     Retourne le joueur gagnant.
    
@@ -53,7 +53,7 @@ def get_winner(state: Dict) -> Joueur:
     """
     joueurs = state["joueurs"]
     pass
-def get_current_player(state: Dict) -> Joueur:
+def get_current_player(state: Dict) -> Player:
     """
     Retourne le joueur courant.
    
@@ -89,7 +89,7 @@ def joueur_reducer(state: Dict, action: Dict) -> Dict:
             return state
         case 'PLAY_MOVE':
             joueur = next(j for j in state["joueurs"] if j.id == action["joueur_id"])
-            coup = Coup(action["from_pos"], action["to_pos"], joueur.id, action["timestamp"])
+            coup = Move(action["from_pos"], action["to_pos"], joueur.id, action["timestamp"])
             joueur.jouer_coup(coup)
             return state
         case _:

@@ -1,11 +1,14 @@
-from models.plateau import Plateau
+from models.board import Plateau
+from models.time_manager import TimeManager
 
 class Store:
     def __init__(self, reducer):
         self.state = {
             'plateau': Plateau(),
-            'joueurs': [],  # Initialiser avec une liste vide ou les joueurs initiaux
-            'historique': []  # Liste de Coup
+            'time_manager': TimeManager(),
+            'joueurs': [], 
+            'historique': [],  
+            
         }
         self.reducer = reducer
         self.subscribers = []
