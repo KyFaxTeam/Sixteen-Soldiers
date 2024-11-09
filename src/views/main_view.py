@@ -30,8 +30,8 @@ class MainView(BaseView):
         self.historique_view = HistoriqueView(self.right_panel)
         
         # Initialize Sauvegarde (Store) and SauvegardeView
-        self.sauvegarde = Sauvegarde()
-        self.sauvegarde_view = SauvegardeView(self.left_panel, self.plateau_view, self.joueur_view, self.sauvegarde)
+        #self.sauvegarde = Sauvegarde()
+        #self.sauvegarde_view = SauvegardeView(self.left_panel, self.plateau_view, self.joueur_view, self.sauvegarde)
         
     def run(self):
         """Start the application"""
