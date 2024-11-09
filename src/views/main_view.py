@@ -1,8 +1,8 @@
 import customtkinter as ctk
 from models.sauvegarde import Sauvegarde
 from views.base_view import BaseView
+from views.game_board import GameBoard
 from views.sauvegarde_view import SauvegardeView
-from .plateau_view import PlateauView
 from .joueur_view import JoueurView
 from .historique_view import HistoriqueView
 
@@ -26,14 +26,18 @@ class MainView(BaseView):
         
         # Initialize sub-views
         self.joueur_view = JoueurView(self.left_panel)
-        self.plateau_view = PlateauView(self.center_panel)
+        self.plateau_view = GameBoard(self.center_panel)
         self.historique_view = HistoriqueView(self.right_panel)
         
         # Initialize Sauvegarde (Store) and SauvegardeView
+
         #self.sauvegarde = Sauvegarde()
+
         #self.sauvegarde_view = SauvegardeView(self.left_panel, self.plateau_view, self.joueur_view, self.sauvegarde)
         
     def run(self):
         """Start the application"""
+        self.plateau_view._move_soldier_in_bord(0, (200, 200))
         self.window.mainloop()
+        
 

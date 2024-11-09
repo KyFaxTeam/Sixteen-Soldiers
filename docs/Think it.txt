@@ -1,0 +1,19 @@
+On doit afficher également le nombre de coups du joueur
+
+Devrions nous ajouter la sauvegarde du temps des joueurs lors de la sauvegarde des coups ?
+
+Le coup pour une capture multiple devrait être en une seule fois parce que c'est plus facile de faire undo ainsi
+
+
+Agent.choose_action() 
+-> renvoie une action (dictionnaire) 
+-> action transmise au store 
+-> reducer traite l'action 
+-> état mis à jour
+
+Problème de chemin global
+# Obtenir le chemin de base du projet, deux niveaux au-dessus de ce fichier
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+       
+
+

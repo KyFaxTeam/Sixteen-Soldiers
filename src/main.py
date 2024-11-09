@@ -1,8 +1,8 @@
 import customtkinter as ctk
 from views.main_view import MainView
 from store.store import Store
-from reducers.plateau_reducer import plateau_reducer
-from reducers.joueur_reducer import joueur_reducer
+from reducers.board_reducer import plateau_reducer
+from reducers.player_reducer import joueur_reducer
 from reducers.historique_reducer import historique_reducer
 
 def main():
