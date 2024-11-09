@@ -47,6 +47,7 @@ src/
 │   ├── validator.py
 │   ├── historique.py
 │   └── sauvegarde.py
+│   └── constants.py
 competition/
 │       ├── tournament.py
 │       ├── league.py

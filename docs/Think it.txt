@@ -11,4 +11,9 @@ Agent.choose_action()
 -> reducer traite l'action 
 -> état mis à jour
 
+Problème de chemin global
+# Obtenir le chemin de base du projet, deux niveaux au-dessus de ce fichier
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+       
+
 
