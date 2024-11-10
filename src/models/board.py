@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple, Set
 
-class Plateau:
+class GameBoard:
     def __init__(self):
         # Définir la structure du plateau comme un graphe
         # Chaque position est identifiée par ses coordonnées (x, y)

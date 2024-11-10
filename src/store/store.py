@@ -1,10 +1,10 @@
-from models.board import Plateau
+from models.board import GameBoard
 from models.time_manager import TimeManager
 
 class Store:
     def __init__(self, reducer):
         self.state = {
-            'plateau': Plateau(),
+            'plateau': GameBoard(),
             'time_manager': TimeManager(),
             'joueurs': [], 
             'historique': [],  

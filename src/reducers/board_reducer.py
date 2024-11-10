@@ -1,5 +1,5 @@
 from typing import Dict, Tuple
-from models.board import Plateau
+from models.board import GameBoard
 
 def plateau_reducer(state: Dict, action: Dict) -> Dict:
     """
