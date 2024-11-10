@@ -1,11 +1,18 @@
 import customtkinter as ctk
+from views.historique_view import HistoriqueView
 from views.main_view import MainView
 from store.store import Store
 from reducers.board_reducer import plateau_reducer
 from reducers.player_reducer import joueur_reducer
 from reducers.historique_reducer import historique_reducer
+from utils.theme import ThemeManager
 
+
+    
 def main():
+    # Initialisation du thème
+    ThemeManager.setup_theme()
+    
     # Créer le store Flux/Redux
     store = Store(
         reducer=lambda state, action: {
@@ -21,6 +28,6 @@ def main():
     app.run()
 
 if __name__ == "__main__":
-    ctk.set_appearance_mode("System")
-    ctk.set_default_color_theme("blue")
+    #ctk.set_appearance_mode("System")
+    #ctk.set_default_color_theme("blue")
     main()
