@@ -1,19 +1,42 @@
 import customtkinter as ctk
-from views.Left_Column.player_view import PlayerView
+
 from views.game_board import GameBoard
 from views.historique_view import HistoriqueView
 from views.base_view import BaseView
 from views.Left_Column.players_column import PlayersColumn
+from .historique_view import HistoriqueView
+from .home_view import HomeView
 
 class MainView(BaseView):
-    def __init__(self, master: any = None):
-        # Configure main window if no master is provided
-        if master is None:
-            self.window = ctk.CTk()
-            self.window.title("Sixteen Soldiers")
-            self.window.geometry("1200x800")
-            master = self.window
+    """Main window of the application"""
+
+    def __init__(self):
+        # Configure main window
+        self.window = ctk.CTk()
+        self.window.title("Sixteen Soldiers")
+        self.window.geometry("400x300")
         
+        # Initialize HomeView and set callback functions for the buttons
+        self.home_view = HomeView(self.window, self.start_new_game, self.review_match)
+        self.home_view.show()
+
+
+    def start_new_game(self):
+        """Start a new game and switch to game board view"""
+        self.home_view.hide()  # Hide the home screen
+        self.window.geometry("1200x800")
+        self.create_main_layout()  # Initialize main layout and sub-views
+        
+
+    def review_match(self):
+        """Review a match and switch to history view"""
+        self.home_view.hide()  # Hide the home screen
+        self.window.geometry("1200x800")
+        self.create_main_layout()  # Initialize main layout and sub-views
+        
+
+    def create_main_layout(self):
+        """Create the main layout and initialize sub-views only when needed"""
         # Create main container frame
         self.main_container = ctk.CTkFrame(master)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
@@ -35,7 +58,6 @@ class MainView(BaseView):
         
         # Game board view
         self.game_board = GameBoard(self.center_column)
-        # Assumons que GameBoard gère son propre affichage
         
         # Right column - Move history and settings
         self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
@@ -43,10 +65,7 @@ class MainView(BaseView):
         
         # Historique view
         self.historique_view = HistoriqueView(self.right_column)
-        # Assumons que HistoriqueView gère son propre affichage
         
-        
-
     def run(self):
         """Start the application"""
         if hasattr(self, 'window'):
@@ -64,3 +83,4 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'historique_view'):
             self.historique_view.update(state)
+
