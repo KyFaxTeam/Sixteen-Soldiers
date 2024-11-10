@@ -51,26 +51,11 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=10)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
         self.center_column.grid(row=0, column=1, sticky="nsew")
-        
-
-        # Initialize sub-views
-        self.joueur_view = JoueurView(self.left_panel)
-        self.plateau_view = GameBoard(self.center_panel)
-        self.historique_view = HistoriqueView(self.right_panel)
-
-        # Initialize SettingsView
-        self.settings_view = SettingsView(self.right_panel)
-        
-        # Initialize Sauvegarde (Store) and SauvegardeView
-
-        #self.sauvegarde = Sauvegarde()
-
-        #self.sauvegarde_view = SauvegardeView(self.left_panel, self.plateau_view, self.joueur_view, self.sauvegarde)
         
         # Game board view
         self.game_board = GameBoard(self.center_column)
@@ -81,6 +66,7 @@ class MainView(BaseView):
         
         # Historique view
         self.historique_view = HistoriqueView(self.right_column)
+        self.settings_view = SettingsView(self.right_column)
         
     def run(self):
         """Start the application"""
