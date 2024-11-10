@@ -68,6 +68,11 @@ class MainView(BaseView):
         self.historique_view = HistoriqueView(self.right_column)
         self.settings_view = SettingsView(self.right_column)
         
+        # Ajouter des mouvements factices pour tester
+        self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
+        self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
+        self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+        
     def run(self):
         """Start the application"""
         if hasattr(self, 'window'):
