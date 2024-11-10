@@ -10,3 +10,4 @@ class Assets:
       img_blue_soldier = ASSETS_DIR / "images/blue_soldier.png"
       
       icon_play = ASSETS_DIR / "images/play_icon.png"
+      icon_refresh = ASSETS_DIR / "images/refresh_icon.png"

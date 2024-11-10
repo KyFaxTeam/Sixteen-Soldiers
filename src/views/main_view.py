@@ -5,6 +5,7 @@ from views.game_board import GameBoard
 from views.sauvegarde_view import SauvegardeView
 from .joueur_view import JoueurView
 from .historique_view import HistoriqueView
+from .setting_view import SettingsView
 
 class MainView(BaseView):
     """Main window of the application"""
@@ -28,6 +29,9 @@ class MainView(BaseView):
         self.joueur_view = JoueurView(self.left_panel)
         self.plateau_view = GameBoard(self.center_panel)
         self.historique_view = HistoriqueView(self.right_panel)
+
+        # Initialize SettingsView
+        self.settings_view = SettingsView(self.right_panel)
         
         # Initialize Sauvegarde (Store) and SauvegardeView
 
