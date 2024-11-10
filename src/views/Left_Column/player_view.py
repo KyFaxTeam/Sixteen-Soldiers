@@ -1,3 +1,6 @@
+import os
+from models.assets.index import Assets
+import random
 from utils.theme import ThemeManager
 import customtkinter as ctk
 from typing import Optional
@@ -34,13 +37,14 @@ class PlayerView(BaseView):
         self.avatar_container.grid(row=0, column=0, sticky="ew", padx=15, pady=(15, 5))
         self.avatar_container.grid_propagate(False)
         
-        # Enhanced avatar
+        # Enhanced avatar with random image
+        self.avatar_image = self.load_random_avatar()
         self.avatar = ctk.CTkLabel(
             self.avatar_container,
             text="",
             image=ctk.CTkImage(
-                light_image=self.create_enhanced_avatar(ThemeManager.get_color("surface")),
-                dark_image=self.create_enhanced_avatar(ThemeManager.get_color("background")),
+                light_image=self.avatar_image,
+                dark_image=self.avatar_image,
                 size=(60, 60)
             )
         )
@@ -126,33 +130,20 @@ class PlayerView(BaseView):
             corner_radius=ThemeManager.CORNER_RADIUS["button"]
         )
         self.select_button.pack(pady=10)
+        
+    def load_random_avatar(self):
+        """Loads a random avatar from the assets/avatar directory"""
+        avatar_dir = Assets.dir_avatar
+        avatar_files = [f for f in os.listdir(avatar_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        
+        if avatar_files:
+            random_avatar = random.choice(avatar_files)
+            avatar_path = os.path.join(avatar_dir, random_avatar)
+            return Image.open(avatar_path).convert('RGBA')
+        else:
+            # Fallback to create_enhanced_avatar if no images are found
+            return self.create_enhanced_avatar(ThemeManager.get_color("surface"))
 
-    def create_enhanced_avatar(self, bg_color: str):
-        """Creates an enhanced avatar with better styling"""
-        img = Image.new('RGB', (120, 120), color=bg_color)
-        draw = ImageDraw.Draw(img)
-        
-        # Outer circle (subtle glow)
-        draw.ellipse([10, 10, 110, 110], 
-                    fill=ThemeManager.get_color("primary_variant"))
-        
-        # Inner circle (main avatar)
-        draw.ellipse([15, 15, 105, 105], 
-                    fill=bg_color,
-                    outline=ThemeManager.get_color("primary"),
-                    width=3)
-        
-        # Add simple face outline
-        draw.ellipse([45, 35, 75, 65],  # Head
-                    outline=ThemeManager.get_color("text"),
-                    width=2)
-        draw.arc([35, 55, 85, 85],  # Smile
-                180, 0,
-                fill=ThemeManager.get_color("text"),
-                width=2)
-        
-        return ImageOps.contain(img, (60, 60))
-        
     def update(self, state: dict):
         """Updates the interface with new state"""
         if self.store:
@@ -175,8 +166,8 @@ class PlayerView(BaseView):
         
         self.avatar.configure(
             image=ctk.CTkImage(
-                light_image=self.create_enhanced_avatar(ThemeManager.get_color("surface")),
-                dark_image=self.create_enhanced_avatar(ThemeManager.get_color("background")),
+                light_image=self.avatar_image,
+                dark_image=self.avatar_image,
                 size=(60, 60)
             )
         )
