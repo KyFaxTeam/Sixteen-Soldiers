@@ -4,8 +4,14 @@ from store.store import Store
 from reducers.board_reducer import plateau_reducer
 from reducers.player_reducer import joueur_reducer
 from reducers.historique_reducer import historique_reducer
+from utils.theme import ThemeManager
 
+
+    
 def main():
+    # Initialisation du thème
+    ThemeManager.setup_theme()
+    
     # Créer le store Flux/Redux
     store = Store(
         reducer=lambda state, action: {

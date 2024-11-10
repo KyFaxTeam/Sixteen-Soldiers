@@ -14,6 +14,8 @@ Agent.choose_action()
 Problème de chemin global
 # Obtenir le chemin de base du projet, deux niveaux au-dessus de ce fichier
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-       
+    
+Ce qui serait fun c'est de pouvoir envoyer ces matchs à quelqu'un pour qu'il le rejoue
+Voir alors comment sont sauvegardé les fichiers de matchs
 
 
