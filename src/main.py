@@ -27,20 +27,6 @@ def main():
     app.subscribe(store)
     app.run()
 
-    # Créer la fenêtre principale
-    root = ctk.CTk()
-    root.title("HistoriqueView Simulation")
-    root.geometry("600x400")
-
-    # Créer une instance de HistoriqueView
-    historique_view = HistoriqueView(root)
-    historique_view.frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-    # Ajouter des mouvements factices pour tester
-    historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
-    historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
-    historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
-
 if __name__ == "__main__":
     #ctk.set_appearance_mode("System")
     #ctk.set_default_color_theme("blue")
