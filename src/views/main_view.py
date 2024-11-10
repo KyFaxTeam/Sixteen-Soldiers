@@ -5,7 +5,6 @@ from views.historique_view import HistoriqueView
 from views.base_view import BaseView
 from views.Left_Column.players_column import PlayersColumn
 from .historique_view import HistoriqueView
-from .setting_view import SettingsView
 from .home_view import HomeView
 
 class MainView(BaseView):
@@ -56,21 +55,6 @@ class MainView(BaseView):
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
         self.center_column.grid(row=0, column=1, sticky="nsew")
-        
-
-        # Initialize sub-views
-        self.joueur_view = JoueurView(self.left_panel)
-        self.plateau_view = GameBoard(self.center_panel)
-        self.historique_view = HistoriqueView(self.right_panel)
-
-        # Initialize SettingsView
-        self.settings_view = SettingsView(self.right_panel)
-        
-        # Initialize Sauvegarde (Store) and SauvegardeView
-
-        #self.sauvegarde = Sauvegarde()
-
-        #self.sauvegarde_view = SauvegardeView(self.left_panel, self.plateau_view, self.joueur_view, self.sauvegarde)
         
         # Game board view
         self.game_board = GameBoard(self.center_column)
