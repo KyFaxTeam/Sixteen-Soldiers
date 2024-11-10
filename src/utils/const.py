@@ -10,7 +10,7 @@ DATA_DIR = ROOT_DIR / "data"
 PADDING = 50
 
 # Gap between elements on the game board
-GAP = 100
+GAP = 65
 
 # Thickness of the lines on the game board
 LINE_THICKNESS = 4

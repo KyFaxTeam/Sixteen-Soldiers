@@ -169,7 +169,7 @@ class GameBoard(BaseView):
         )
         self.reset_button.pack(side="left")
         
-    def _move_soldier_offest(self):
+    def _move_soldier_offset(self):
         ...
         
     def _remove_soldier(self):
