@@ -59,7 +59,10 @@ class MainView(BaseView):
         
         # Game board view
         self.game_board = GameBoard(self.center_column)
-        
+        # Ajouter des mouvements factices pour tester
+        self.game_board._move_soldier_in_bord(0, (200, 200))
+
+
         # Right column - Move history and settings
         self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
@@ -67,7 +70,7 @@ class MainView(BaseView):
         # Historique view
         self.historique_view = HistoriqueView(self.right_column)
         self.settings_view = SettingsView(self.right_column)
-        
+
         # Ajouter des mouvements factices pour tester
         self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
         self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
