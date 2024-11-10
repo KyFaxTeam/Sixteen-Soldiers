@@ -1,6 +1,6 @@
 from models.sauvegarde import Sauvegarde
 from views.base_view import BaseView
-from views.joueur_view import JoueurView
+from views.Left_Column.player_view import PlayerView
 import customtkinter as ctk
 
 class SauvegardeView(BaseView):
