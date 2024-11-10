@@ -51,7 +51,7 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=10)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)

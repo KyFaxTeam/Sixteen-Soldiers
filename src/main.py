@@ -42,6 +42,6 @@ def main():
     historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
 
 if __name__ == "__main__":
-    ctk.set_appearance_mode("System")
-    ctk.set_default_color_theme("blue")
+    #ctk.set_appearance_mode("System")
+    #ctk.set_default_color_theme("blue")
     main()
