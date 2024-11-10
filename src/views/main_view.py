@@ -38,7 +38,7 @@ class MainView(BaseView):
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
         # Create main container frame
-        self.main_container = ctk.CTkFrame(master)
+        self.main_container = ctk.CTkFrame(self.window)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
         
         # Content frame with 3 columns
