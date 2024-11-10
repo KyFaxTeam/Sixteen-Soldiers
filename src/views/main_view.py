@@ -5,6 +5,7 @@ from views.historique_view import HistoriqueView
 from views.base_view import BaseView
 from views.Left_Column.players_column import PlayersColumn
 from .historique_view import HistoriqueView
+from .setting_view import SettingsView
 from .home_view import HomeView
 
 class MainView(BaseView):
@@ -50,7 +51,7 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=10)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
@@ -65,6 +66,7 @@ class MainView(BaseView):
         
         # Historique view
         self.historique_view = HistoriqueView(self.right_column)
+        self.settings_view = SettingsView(self.right_column)
         
     def run(self):
         """Start the application"""
