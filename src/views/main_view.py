@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
 from views.game_board import GameBoard
-from views.historique_view import HistoriqueView
+from views.history_view import HistoryView
 from views.base_view import BaseView
 from views.Left_Column.players_column import PlayersColumn
-from .historique_view import HistoriqueView
+from .history_view import HistoryView
 from .setting_view import SettingsView
 from .home_view import HomeView
 
@@ -12,21 +12,28 @@ class MainView(BaseView):
     """Main window of the application"""
 
     def __init__(self):
-        # Configure main window
+        # Initialize main window
         self.window = ctk.CTk()
         self.window.title("Sixteen Soldiers")
         self.window.geometry("400x300")
         
-        # Initialize HomeView and set callback functions for the buttons
+        # Initialize all component references as None
+        self.players_column = None
+        self.game_board = None
+        self.historique_view = None
+        self.settings_view = None
+        self.is_game_started = False
+        
+        # Initialize HomeView
         self.home_view = HomeView(self.window, self.start_new_game, self.review_match)
         self.home_view.show()
-
-
+        
     def start_new_game(self):
         """Start a new game and switch to game board view"""
         self.home_view.hide()  # Hide the home screen
         self.window.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
+        self.is_game_started = True
         
 
     def review_match(self):
@@ -68,7 +75,7 @@ class MainView(BaseView):
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
         # Historique view
-        self.historique_view = HistoriqueView(self.right_column)
+        self.historique_view = HistoryView(self.right_column)
         self.settings_view = SettingsView(self.right_column)
 
         # Ajouter des mouvements factices pour tester
@@ -87,8 +94,15 @@ class MainView(BaseView):
         pass
 
     def update(self, state: dict):
-        """Update the view with new state"""
-        self.players_column.update(state)
+        """
+        Update the view with new state.
+        Only updates components if the game has started.
+        """
+        if not self.is_game_started:
+            return  # Skip updates while in splash screen
+            
+        if self.players_column:
+            self.players_column.update(state)
         if hasattr(self, 'game_board'):
             self.game_board.update(state)
         if hasattr(self, 'historique_view'):
