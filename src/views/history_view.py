@@ -4,7 +4,7 @@ from views.base_view import BaseView
 from PIL import Image
 from models.assets.index import Assets
 
-class HistoriqueView(BaseView):
+class HistoryView(BaseView):
     """View for game history and settings"""
     def __init__(self, master):
         super().__init__(master)

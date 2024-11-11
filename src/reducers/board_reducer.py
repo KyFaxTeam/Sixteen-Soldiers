@@ -1,25 +1,32 @@
 from typing import Dict, Tuple
-from models.board import GameBoard
+from models.board import Board
 
-def plateau_reducer(state: Dict, action: Dict) -> Dict:
+def board_reducer(state: Dict, action: Dict) -> Dict:
     """
-    Gère les modifications du plateau.
+    Gère les modifications du board.
     """
+    # Ensure we have a valid state
+    if state is None or 'board' not in state:
+        return state if state else {}
     
-    plateau = state['plateau']
+    board = state['board']
+    if board is None:
+        board = Board()
+        state = {**state, 'board': board}
+    
     match action['type']:
         case 'MOVE_PIECE':
             from_pos = action['from_pos']
             to_pos = action['to_pos']
-            if plateau.is_valid_move(from_pos, to_pos):
-                plateau.move_piece(from_pos, to_pos)
+            if board.is_valid_move(from_pos, to_pos):
+                board.move_piece(from_pos, to_pos)
 
-            return {**state, 'plateau': plateau}
+            return {**state, 'board': board}
         
         case 'CAPTURE_PIECE':
             pos = action['pos']
-            if plateau.pieces[pos] != 0:
-                plateau.capture_piece(pos)
-            return {**state, 'plateau': plateau}
+            if board.pieces[pos] != 0:
+                board.capture_piece(pos)
+            return {**state, 'board': board}
         case _:
             return state

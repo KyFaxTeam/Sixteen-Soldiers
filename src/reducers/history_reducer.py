@@ -3,7 +3,7 @@ from models.move import Move
 
 
 
-def historique_reducer(state: Dict, action: Dict) -> Dict:
+def history_reducer(state: Dict, action: Dict) -> Dict:
     """
     Gère les modifications liées à l'historique des coups.
     """
