@@ -16,7 +16,10 @@ def initialize_players(state: Dict) -> Dict:
         Player(id="red", nom="Joueur Rouge", couleur="red"),
         Player(id="green", nom="Joueur Vert", couleur="green")
     ]
-    pass
+    state = state.copy()
+    state["players"] = joueurs
+    return state
+
 def change_current_player(state: Dict) -> Dict:
     """
     Passe au joueur suivant.
@@ -27,8 +30,13 @@ def change_current_player(state: Dict) -> Dict:
     Returns:
         dict: État mis à jour avec le joueur courant changé.
     """
-    joueurs = state["joueurs"]
-    pass
+    nouveaux_joueurs = state["players"]
+    index = state.get("current_player_index", 0)
+    index = (index + 1) % len(nouveaux_joueurs)
+    state = state.copy()
+    state["current_player_index"] = index
+    return state
+
 def is_game_over(state: Dict) -> bool:
     """
     Vérifie si la partie est terminée.
@@ -39,8 +47,8 @@ def is_game_over(state: Dict) -> bool:
     Returns:
         bool: True si la partie est terminée, False sinon.
     """
-    joueurs = state["joueurs"]
-    pass
+    return state.get("game_over", False)
+
 def get_winner(state: Dict) -> Player:
     """
     Retourne le joueur gagnant.
@@ -49,10 +57,10 @@ def get_winner(state: Dict) -> Player:
         state (dict): État actuel du jeu.
    
     Returns:
-        Joueur: Joueur gagnant.
+        Player: Joueur gagnant.
     """
-    joueurs = state["joueurs"]
-    pass
+    return state.get("winner", None)
+
 def get_current_player(state: Dict) -> Player:
     """
     Retourne le joueur courant.
@@ -61,12 +69,12 @@ def get_current_player(state: Dict) -> Player:
         state (dict): État actuel du jeu.
    
     Returns:
-        Joueur: Joueur courant.
+        Player: Joueur courant.
     """
-    joueurs = state["joueurs"]
-    pass
+    index = state.get("current_player_index", 0)
+    return state["players"][index]
 
-def joueur_reducer(state: Dict, action: Dict) -> Dict:
+def player_reducer(state: Dict, action: Dict) -> Dict:
     """
     Gère les modifications liées aux joueurs.
     """
@@ -76,19 +84,19 @@ def joueur_reducer(state: Dict, action: Dict) -> Dict:
         case 'CHANGE_CURRENT_PLAYER':
             return change_current_player(state)
         case 'CAPTURE_PIECE':
-            joueur = next(j for j in state["joueurs"] if j.id == action["joueur_id"])
+            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
             joueur.capturer_piece()
             return state
         case 'LOSE_PIECE':
-            joueur = next(j for j in state["joueurs"] if j.id == action["joueur_id"])
+            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
             joueur.perdre_piece()
             return state
         case 'FINISH_GAME':
-            for joueur in state["joueurs"]:
+            for joueur in state["players"]:
                 joueur.conclure_partie()
             return state
         case 'PLAY_MOVE':
-            joueur = next(j for j in state["joueurs"] if j.id == action["joueur_id"])
+            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
             coup = Move(action["from_pos"], action["to_pos"], joueur.id, action["timestamp"])
             joueur.jouer_coup(coup)
             return state

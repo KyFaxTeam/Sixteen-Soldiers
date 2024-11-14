@@ -23,12 +23,6 @@ def update_player_time(player_id: str, elapsed_time: float) -> Dict:
         "elapsed_time": elapsed_time
     }
 
-def set_player_name(player, new_name):
-    return {
-        "type": "SET_PLAYER_NAME",
-        "player": player,
-        "new_name": new_name
-    }
 
 def set_player_color(player, new_color):
     return {

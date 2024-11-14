@@ -4,20 +4,21 @@ from agents.base_agent import BaseAgent
 from models.board import Board
 from models.player import Player
 
-
 class RandomAgent(BaseAgent):
     """
     AI agent that plays random valid moves, inherits from BaseAgent.
     """
     
-    def __init__(self, name: str = "RandomAgent"):
+    def __init__(self, id: str, nom: str, couleur: str):
         """
         Initialize the random agent.
         
         Args:
-            name: The name of the agent
+            id: The ID of the player
+            nom: The name of the player
+            couleur: The color of the player
         """
-        super().__init__(name)
+        super().__init__(id, nom, couleur)
         self.rng = random.Random()
     
     def choose_action(self, board: Board, player: Player) -> Dict:

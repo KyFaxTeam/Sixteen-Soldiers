@@ -16,26 +16,26 @@ class Stats:
 class Player:
     """Represents a player in the Sixteen Soldiers game"""
     id: str
-    name: str
-    color: str
+    nom: str
+    couleur: str
     remaining_pieces: int = 16
     stats: Stats = field(default_factory=Stats)
     is_active: bool = False
     
     
-    def __init__(self, id: str, name: str, color: str, allowing_time: float):
+    def __init__(self, id: str, nom: str, couleur: str):
         """
         Initialize a player with the given parameters
         
         Args:
             id: Unique identifier for the player
-            name: Player's name
-            color: Player's color
+            nom: Player's name
+            couleur: Player's color
             allowing_time: Total time allowed for the game in seconds
         """
         self.id = id
-        self.name = name
-        self.color = color
+        self.nom = nom
+        self.couleur = couleur
         self.remaining_pieces = 16
         self.stats = Stats()
         self.is_active = False
@@ -63,7 +63,25 @@ class Player:
             self.stats.average_time_per_move = (
                 self.time_control.allowing_time - self.time_control.remaining_time
             ) / self.stats.total_moves
-    
-    
-    
-    
+
+    def to_dict(self):
+        """Convert Player object to dictionary"""
+        return {
+            "id": self.id,
+            "nom": self.nom,
+            "couleur": self.couleur,
+            "remaining_pieces": self.remaining_pieces,
+            "stats": {
+                "wins": self.stats.wins,
+                "losses": self.stats.losses,
+                "draws": self.stats.draws,
+                "total_games": self.stats.total_games,
+                "total_moves": self.stats.total_moves,
+                "average_time_per_move": self.stats.average_time_per_move,
+            },
+            "is_active": self.is_active,
+        }
+
+
+
+

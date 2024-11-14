@@ -34,6 +34,10 @@ COLORS = {
     "GREEN": "#00FF00"
 }
 
+POLICE = {
+    "Poppins" : "Poppins"
+}
+
 # Temps et délais
 TIMINGS = {
     "AI_MOVE_DELAY": 1000,  # ms

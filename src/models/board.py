@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple, Set
 
-class GameBoard:
+class Board:
     def __init__(self):
         # Définir la structure du plateau comme un graphe
         # Chaque position est identifiée par ses coordonnées (x, y)
@@ -99,3 +99,34 @@ class GameBoard:
 
         """
         pass
+    
+    def get_valid_actions(self, player: int) -> List[Dict]:
+        """
+        Renvoie les actions valides pour un joueur donné.
+
+        Args:
+            
+            player (int): Joueur actuel (1 = rouge, 2 = vert).
+
+        Returns:
+            list: Liste des actions valides.
+        """
+        pass
+
+
+    def to_dict(self):
+        """Convert Board object to dictionary"""
+        return {
+            "positions": self.positions,
+            "pieces": self.pieces,
+            # Add other necessary fields
+        }
+    
+    def from_dict(cls, data: dict):
+        """Create Board object from dictionary"""
+        board = cls()
+        board.positions = data["positions"]
+        board.pieces = data["pieces"]
+        # Initialize other fields
+        return board
+    
