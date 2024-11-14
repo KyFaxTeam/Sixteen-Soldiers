@@ -80,6 +80,15 @@ class HistoryView(BaseView):
             move_frame_data["frame"].destroy()
         self.move_frames.clear()
 
+    def update(self, state):
+        """Met à jour l'historique des coups"""
+        if "history" in state and state["history"]:
+            last_move = state["history"][-1]
+            self.add_move(
+                move_text=f"Move from {last_move['from_pos']} to {last_move['to_pos']}", 
+                move_data=last_move
+            )
+
 # Exemple de HistoriqueView corrigé
 # class HistoriqueView(BaseView):
 #     """View for game history and settings"""

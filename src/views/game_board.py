@@ -179,5 +179,13 @@ class GameBoard(BaseView):
         
     def _update_board(self):
         ...
-        
     
+    def update(self, state):
+        """Met à jour le plateau en fonction du nouvel état"""
+        if "board" in state:
+            board = state["board"]
+            # Mettre à jour les positions des pièces
+            for pos, piece_type in board.pieces.items():
+                # Logique de mise à jour visuelle du plateau
+                pass
+
