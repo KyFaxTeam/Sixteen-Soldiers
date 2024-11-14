@@ -1,6 +1,17 @@
+from dataclasses import dataclass
 from typing import List, Dict
 from models.board import Board
 from models.player import Player
+
+@dataclass
+class AgentStats:
+    """Agent statistics"""
+    wins: int = 0
+    losses: int = 0
+    draws: int = 0
+    total_games: int = 0
+    total_moves: int = 0
+    average_time_per_move: float = 0.0
 
 class BaseAgent:
     """
@@ -18,7 +29,7 @@ class BaseAgent:
         """
         self.player = player  # Composition instead of inheritance
         self.name = name
-        self.total_moves = 0
+        self.stats = AgentStats()
         self.total_time = 0.0
     
     def choose_action(self, board: Board, player: Player) -> Dict:
@@ -52,5 +63,16 @@ class BaseAgent:
     
     def reset_stats(self) -> None:
         """Reset the agent's statistics."""
-        self.total_moves = 0
+        self.stats = AgentStats()
         self.total_time = 0.0
+
+    def conclude_game(self, is_winner: bool) -> None:
+        """Updates agent statistics after game conclusion"""
+        self.stats.total_games += 1
+        if is_winner:
+            self.stats.wins += 1
+        else:
+            self.stats.losses += 1
+            
+        if self.stats.total_moves > 0:
+            self.stats.average_time_per_move = self.total_time / self.stats.total_moves
