@@ -16,32 +16,25 @@ class Stats:
 class Player:
     """Represents a player in the Sixteen Soldiers game"""
     id: str
-    nom: str
-    couleur: str
+    color: str  # Renamed from couleur for consistency
     remaining_pieces: int = 16
     stats: Stats = field(default_factory=Stats)
     is_active: bool = False
     
-    
-    def __init__(self, id: str, nom: str, couleur: str):
+    def __init__(self, id: str, color: str):
         """
         Initialize a player with the given parameters
         
         Args:
             id: Unique identifier for the player
-            nom: Player's name
-            couleur: Player's color
-            allowing_time: Total time allowed for the game in seconds
+            color: Player's color
         """
         self.id = id
-        self.nom = nom
-        self.couleur = couleur
+        self.color = color
         self.remaining_pieces = 16
         self.stats = Stats()
         self.is_active = False
-       
-        
-    
+
     def lose_piece(self) -> None:
         """Decrements the number of remaining pieces"""
         self.remaining_pieces = max(0, self.remaining_pieces - 1)
@@ -68,17 +61,9 @@ class Player:
         """Convert Player object to dictionary"""
         return {
             "id": self.id,
-            "nom": self.nom,
-            "couleur": self.couleur,
+            "color": self.color,
             "remaining_pieces": self.remaining_pieces,
-            "stats": {
-                "wins": self.stats.wins,
-                "losses": self.stats.losses,
-                "draws": self.stats.draws,
-                "total_games": self.stats.total_games,
-                "total_moves": self.stats.total_moves,
-                "average_time_per_move": self.stats.average_time_per_move,
-            },
+            "stats": self.stats.__dict__,
             "is_active": self.is_active,
         }
 

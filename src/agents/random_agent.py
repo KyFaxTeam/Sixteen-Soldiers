@@ -9,16 +9,15 @@ class RandomAgent(BaseAgent):
     AI agent that plays random valid moves, inherits from BaseAgent.
     """
     
-    def __init__(self, id: str, nom: str, couleur: str):
+    def __init__(self, player: Player, name: str):
         """
         Initialize the random agent.
         
         Args:
-            id: The ID of the player
-            nom: The name of the player
-            couleur: The color of the player
+            player: The player instance
+            name: The agent's name
         """
-        super().__init__(id, nom, couleur)
+        super().__init__(player, name)
         self.rng = random.Random()
     
     def choose_action(self, board: Board, player: Player) -> Dict:

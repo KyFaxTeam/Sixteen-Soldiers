@@ -8,14 +8,16 @@ class BaseAgent:
     Provides an interface for agents to choose actions based on the current game state.
     """
     
-    def __init__(self, player: Player):
+    def __init__(self, player: Player, name: str):
         """
         Initialize the base agent.
         
         Args:
             player: The player instance
+            name: The agent's name
         """
         self.player = player  # Composition instead of inheritance
+        self.name = name
         self.total_moves = 0
         self.total_time = 0.0
     

@@ -9,11 +9,11 @@ def initialize_players(state: Dict) -> Dict:
     """
     joueurs = [
         Player(id=PLAYER_CONFIG["PLAYER_1"], 
-               nom="Joueur Rouge", 
-               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
+               name="Joueur Rouge", 
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
         Player(id=PLAYER_CONFIG["PLAYER_2"], 
-               nom="Joueur Bleu", 
-               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
+               name="Joueur Bleu", 
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
     ]
     state = state.copy()
     state["players"] = joueurs
