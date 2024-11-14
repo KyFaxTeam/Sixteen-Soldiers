@@ -1,13 +1,13 @@
 import customtkinter as ctk
 
-from .home_view import HomeView
+from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
 from views.game_board import GameBoard
-from views.after_game_view import AfterGameView
-from views.history_view import HistoryView
+from views.Others_Windows.after_game_view import AfterGameView
+from views.Right_Column.history_view import HistoryView
 from views.Left_Column.players_column import PlayersColumn
-from .history_view import HistoryView
-from .setting_view import SettingsView
+from .Right_Column.history_view import HistoryView
+from .Right_Column.setting_view import SettingsView
 
 
 class MainView(BaseView):

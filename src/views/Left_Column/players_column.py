@@ -29,7 +29,7 @@ class PlayersColumn(BaseView):
         self.vs_label = ctk.CTkLabel(
             self.vs_container,
             text="VS",
-            font=("Poppins", 16, "bold")  # Set font directly
+            font=ctk.CTkFont(size=16, weight="bold")
         )
         self.vs_label.grid(row=0, column=0)
 

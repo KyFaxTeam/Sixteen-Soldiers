@@ -21,7 +21,7 @@ class HistoryView(BaseView):
         self.title = ctk.CTkLabel(
             self.title_frame,
             text="📜 History",
-            font=("Poppins", 11, "bold")
+            font=ctk.CTkFont(size=11, weight="bold")
         )
         self.title.pack(pady=(5, 5))
 
@@ -40,15 +40,16 @@ class HistoryView(BaseView):
         # Label pour le texte du mouvement
         move_label = ctk.CTkLabel(
             move_frame,
-            text=f"• {move_text}",
-            anchor="w"
+            text=move_text,
+            font=ctk.CTkFont(size=10)
         )
         move_label.pack(side="left", padx=(5, 10))
 
         # Bouton de replay pour ce mouvement spécifique
         replay_button = ctk.CTkButton(
             move_frame,
-            text="↻",
+            text="Replay",
+            font=ctk.CTkFont(size=10),
             width=30,
             height=30,
             command=lambda: self.replay_move(move_data)
