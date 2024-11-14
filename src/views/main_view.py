@@ -1,11 +1,13 @@
 import customtkinter as ctk
 
-from views.game_board import GameBoard
-from views.historique_view import HistoriqueView
-from views.base_view import BaseView
-from views.Left_Column.players_column import PlayersColumn
-from .historique_view import HistoriqueView
 from .home_view import HomeView
+from views.base_view import BaseView
+from views.game_board import GameBoard
+from .historique_view import HistoriqueView
+from views.after_game_view import AfterGameView
+from views.historique_view import HistoriqueView
+from views.Left_Column.players_column import PlayersColumn
+
 
 class MainView(BaseView):
     """Main window of the application"""
@@ -19,6 +21,13 @@ class MainView(BaseView):
         # Initialize HomeView and set callback functions for the buttons
         self.home_view = HomeView(self.window, self.start_new_game, self.review_match)
         self.home_view.show()
+        self.winner_data = {
+            # "profile_img": "path/to/profile_image.png",  # Provide a real image path
+            "team_pseudo": "Team A",
+            "ai_name": "AI-1",
+            "remaining_time": "25",
+            "remaining_pawns": 3
+        }
 
 
     def start_new_game(self):
@@ -32,7 +41,7 @@ class MainView(BaseView):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
         self.window.geometry("1200x800")
-        self.create_main_layout()  # Initialize main layout and sub-views
+        self.show_after_game_view()  # Initialize main layout and sub-views
         
 
     def create_main_layout(self):
@@ -65,6 +74,43 @@ class MainView(BaseView):
         
         # Historique view
         self.historique_view = HistoriqueView(self.right_column)
+
+    def check_game_end_condition(self):
+        """Placeholder condition to trigger AfterGameView"""
+        game_ended = True  # Replace this with real game-end logic
+        if game_ended:
+            self.show_after_game_view()
+
+    def show_after_game_view(self):
+        """Show AfterGameView with winner details"""
+        self.after_game_view = AfterGameView(
+            self.window,
+            winner_data=self.winner_data,
+            on_restart=self.restart_game,
+            on_save=self.save_game
+        )
+
+    def restart_game(self):
+        """Reset the game and return to HomeView"""
+        # Close any existing AfterGameView if open
+        if hasattr(self, 'after_game_view'):
+            self.after_game_view.destroy()
+            del self.after_game_view
+
+        # Reset the main layout (clear current game views if necessary)
+        if hasattr(self, 'main_container'):
+            self.main_container.pack_forget()
+            del self.main_container
+
+        # Resize window for HomeView
+        self.window.geometry("400x300")
+        
+        # Show HomeView again
+        self.home_view.show()
+
+    def save_game(self):
+        """Save the game (implementation needed)"""
+        print("Game saved.")
         
     def run(self):
         """Start the application"""
