@@ -9,11 +9,11 @@ def initialize_players(state: Dict) -> Dict:
     """
     joueurs = [
         Player(id=PLAYER_CONFIG["PLAYER_1"], 
-               nom="Joueur Rouge", 
-               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
+               
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
         Player(id=PLAYER_CONFIG["PLAYER_2"], 
-               nom="Joueur Bleu", 
-               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
+               
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
     ]
     state = state.copy()
     state["players"] = joueurs
@@ -70,10 +70,9 @@ def player_reducer(state: Dict, action: Dict) -> Dict:
     Gère les modifications liées aux joueurs.
     """
     match action['type']:
-        case 'INITIALIZE_PLAYERS':
-            return initialize_players(state)
         case 'CHANGE_CURRENT_PLAYER':
             return change_current_player(state)
+        # Supprimer le case 'INITIALIZE_PLAYERS'
         case 'CAPTURE_PIECE':
             joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
             joueur.capturer_piece()

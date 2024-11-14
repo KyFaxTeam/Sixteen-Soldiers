@@ -2,22 +2,22 @@ from typing import List, Dict
 from models.board import Board
 from models.player import Player
 
-class BaseAgent(Player):
+class BaseAgent:
     """
     Base class for AI agents in the Sixteen Soldiers game.
     Provides an interface for agents to choose actions based on the current game state.
     """
     
-    def __init__(self, id: str, nom: str, couleur: str):
+    def __init__(self, player: Player, name: str):
         """
         Initialize the base agent.
         
         Args:
-            id: The ID of the player
-            nom: The name of the player
-            couleur: The color of the player
+            player: The player instance
+            name: The agent's name
         """
-        super().__init__(id, nom, couleur)
+        self.player = player  # Composition instead of inheritance
+        self.name = name
         self.total_moves = 0
         self.total_time = 0.0
     

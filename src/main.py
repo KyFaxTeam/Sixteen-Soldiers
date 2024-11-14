@@ -1,33 +1,31 @@
+from models.player import Player
 from views.main_view import MainView
 from store.store import Store
 from reducers.index import root_reducer
 from utils.theme import ThemeManager
 from agents.random_agent import RandomAgent
 from utils.game_runner import GameRunner
-from utils.const import PLAYER_CONFIG
+from reducers.player_reducer import initialize_players
 
 
 def main():
-    
     ThemeManager.setup_theme()
     
-    # Create two random agents with different IDs (1 and -1)
+    # Initialize empty state and add players
+    initial_state = {}
+    initial_state = initialize_players(initial_state)
+    
+    # Create agents using the initialized players
     agent1 = RandomAgent(
-        id=PLAYER_CONFIG["PLAYER_1"],
-        nom="Agent Rouge", 
-        couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]
+        player=initial_state["players"][0],
+        name="Random Agent"
     )
     agent2 = RandomAgent(
-        id=PLAYER_CONFIG["PLAYER_2"],
-        nom="Agent Bleu", 
-        couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]]
+        player=initial_state["players"][1],
+        name="Random Agent"
     )
     
-    # Initialize store with minimal initial state
-    initial_state = {
-        "players": [agent1, agent2]  # Only initialize players, rest will be handled by INITIALIZE_GAME
-    }
-    
+    # Create store with initial state
     store = Store(
         initial_state=initial_state,
         reducer=root_reducer
