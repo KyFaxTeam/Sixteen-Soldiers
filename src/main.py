@@ -5,7 +5,6 @@ from reducers.index import root_reducer
 from utils.theme import ThemeManager
 from agents.random_agent import RandomAgent
 from utils.game_runner import GameRunner
-from utils.const import PLAYER_CONFIG
 from reducers.player_reducer import initialize_players
 
 
@@ -19,11 +18,11 @@ def main():
     # Create agents using the initialized players
     agent1 = RandomAgent(
         player=initial_state["players"][0],
-        name="Agent Rouge"
+        name="Random Agent"
     )
     agent2 = RandomAgent(
         player=initial_state["players"][1],
-        name="Agent Bleu"
+        name="Random Agent"
     )
     
     # Create store with initial state

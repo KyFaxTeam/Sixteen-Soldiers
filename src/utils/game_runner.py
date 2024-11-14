@@ -64,5 +64,5 @@ class GameRunner:
                 time.sleep(delay)
                 
             except ValueError:
-                print(f"No valid moves for {current_player.nom}")
+                print(f"No valid moves for {current_player.id}")
                 break
