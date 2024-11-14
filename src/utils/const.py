@@ -5,7 +5,7 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"
 THEMES_DIR = ROOT_DIR / "themes"
-THEME_PATH = THEMES_DIR / 'coffee.json'
+THEME_PATH = THEMES_DIR / 'MoonlitSky.json'
 
 # Padding around the game board
 PADDING = 50
@@ -38,10 +38,6 @@ COLORS = {
     "WHITE": "#FFFFFF",
     "BLACK": "#000000",
     "GREEN": "#00FF00"
-}
-
-POLICE = {
-    "Poppins" : "Poppins"
 }
 
 # Temps et délais

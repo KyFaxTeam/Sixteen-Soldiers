@@ -72,14 +72,14 @@ class PlayerView(BaseView):
         self.timer_icon = ctk.CTkLabel(
             self.timer_frame,
             text="⏱️",
-            font=("Arial", 14)
+            font=ctk.CTkFont(size=14)
         )
         self.timer_icon.pack(side="left", padx=(0, 5))
 
         self.timer_label = ctk.CTkLabel(
             self.timer_frame,
             text="120s",
-            font=("Poppins", 14, "bold")  # Set font directly
+            font=ctk.CTkFont(size=14, weight="bold")
         )
         self.timer_label.pack(side="left")
         
@@ -93,14 +93,14 @@ class PlayerView(BaseView):
         self.pieces_icon = ctk.CTkLabel(
             self.pieces_frame,
             text="♟️",
-            font=("Arial", 14)
+            font=ctk.CTkFont(size=14)
         )
         self.pieces_icon.pack(side="left", padx=(0, 5))
 
         self.pieces_label = ctk.CTkLabel(
             self.pieces_frame,
             text="13",
-            font=("Poppins", 14, "bold")  # Set font directly
+            font=ctk.CTkFont(size=14, weight="bold")
         )
         self.pieces_label.pack(side="left")
         
@@ -108,7 +108,7 @@ class PlayerView(BaseView):
         self.name_label = ctk.CTkLabel(
             self.info_frame,
             text="Pseudo",
-            font=("Poppins", 12)  # Set font directly
+            font=ctk.CTkFont(size=12)
         )
         self.name_label.pack(pady=5)
         
@@ -116,7 +116,7 @@ class PlayerView(BaseView):
         self.select_button = ctk.CTkButton(
             self.info_frame,
             text="Select",
-            font=("Poppins", 10),  # Set font directly
+            font=ctk.CTkFont(size=10),
             width=100,
             height=32,
             corner_radius=6  # Set corner_radius directly
