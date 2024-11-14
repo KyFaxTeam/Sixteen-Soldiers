@@ -1,20 +1,19 @@
 from typing import Dict, List
 from models.player import Player
 from models.move import Move
+from utils.const import PLAYER_CONFIG
 
 def initialize_players(state: Dict) -> Dict:
     """
     Initialise les joueurs avec leurs pions sur le plateau.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        dict: État mis à jour avec les joueurs initialisés.
     """
     joueurs = [
-        Player(id="red", nom="Joueur Rouge", couleur="red"),
-        Player(id="green", nom="Joueur Vert", couleur="green")
+        Player(id=PLAYER_CONFIG["PLAYER_1"], 
+               nom="Joueur Rouge", 
+               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
+        Player(id=PLAYER_CONFIG["PLAYER_2"], 
+               nom="Joueur Bleu", 
+               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
     ]
     state = state.copy()
     state["players"] = joueurs

@@ -20,9 +20,13 @@ SOLDIER_SIZE = (45, 45)
 
 # Configuration du jeu
 PLAYER_CONFIG = {
-    "RED": "red",
-    "BLUE": "blue",
-    "INITIAL_PAWNS": 16
+    "PLAYER_1": 1,
+    "PLAYER_2": -1,
+    "INITIAL_PAWNS": 16,
+    "COLORS": {
+        1: "red",
+        -1: "blue"
+    }
 }
 
 # Couleurs  

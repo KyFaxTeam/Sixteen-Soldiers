@@ -1,4 +1,5 @@
 from typing import Dict, List, Tuple, Set
+from utils.const import PLAYER_CONFIG
 
 class Board:
     def __init__(self):
@@ -32,17 +33,17 @@ class Board:
         }
         
         # Stocker l'état des pions dans un dictionnaire
-        # 0 = vide, 1 = rouge, 2 = vert
+        # 0 = vide, 1 = joueur 1, -1 = joueur 2
         self.pieces: Dict[Tuple[int, int], int] = {pos: 0 for pos in self.positions}
         
         # Placer les pions initiaux
-        # Pions rouges (haut)
+        # Pions du joueur 1 (haut)
         for pos in [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1)]:
-            self.pieces[pos] = 1
+            self.pieces[pos] = PLAYER_CONFIG["PLAYER_1"]
             
-        # Pions verts (bas)
+        # Pions du joueur 2 (bas)
         for pos in [(3, 2), (4, 0), (4, 1), (4, 2), (5, 0), (5, 1), (5, 2), (3, 1)]:
-            self.pieces[pos] = 2
+            self.pieces[pos] = PLAYER_CONFIG["PLAYER_2"]
     
     
 
@@ -100,16 +101,12 @@ class Board:
         """
         pass
     
-    def get_valid_actions(self, player: int) -> List[Dict]:
+    def get_valid_actions(self, player_id: int) -> List[Dict]:
         """
         Renvoie les actions valides pour un joueur donné.
 
         Args:
-            
-            player (int): Joueur actuel (1 = rouge, 2 = vert).
-
-        Returns:
-            list: Liste des actions valides.
+            player_id (int): ID du joueur (1 ou -1)
         """
         pass
 
@@ -129,4 +126,3 @@ class Board:
         board.pieces = data["pieces"]
         # Initialize other fields
         return board
-    
