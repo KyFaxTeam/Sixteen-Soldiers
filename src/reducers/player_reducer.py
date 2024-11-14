@@ -70,10 +70,9 @@ def player_reducer(state: Dict, action: Dict) -> Dict:
     Gère les modifications liées aux joueurs.
     """
     match action['type']:
-        case 'INITIALIZE_PLAYERS':
-            return initialize_players(state)
         case 'CHANGE_CURRENT_PLAYER':
             return change_current_player(state)
+        # Supprimer le case 'INITIALIZE_PLAYERS'
         case 'CAPTURE_PIECE':
             joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
             joueur.capturer_piece()

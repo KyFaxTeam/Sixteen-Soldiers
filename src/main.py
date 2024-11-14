@@ -1,3 +1,4 @@
+from models.player import Player
 from views.main_view import MainView
 from store.store import Store
 from reducers.index import root_reducer
@@ -11,21 +12,25 @@ def main():
     
     ThemeManager.setup_theme()
     
-    # Create two random agents with different IDs (1 and -1)
-    agent1 = RandomAgent(
+    # Créer d'abord les Players
+    player1 = Player(
         id=PLAYER_CONFIG["PLAYER_1"],
-        nom="Agent Rouge", 
+        nom="Joueur Rouge", 
         couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]
     )
-    agent2 = RandomAgent(
+    player2 = Player(
         id=PLAYER_CONFIG["PLAYER_2"],
-        nom="Agent Bleu", 
+        nom="Joueur Bleu", 
         couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]]
     )
     
+    # Puis créer les agents qui utilisent ces players
+    agent1 = RandomAgent(player1)
+    agent2 = RandomAgent(player2)
+    
     # Initialize store with minimal initial state
     initial_state = {
-        "players": [agent1, agent2]  # Only initialize players, rest will be handled by INITIALIZE_GAME
+        "players": [player1, player2]  # On stocke les Players, pas les Agents
     }
     
     store = Store(
