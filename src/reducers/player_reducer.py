@@ -21,19 +21,11 @@ def initialize_players(state: Dict) -> Dict:
 
 def change_current_player(state: Dict) -> Dict:
     """
-    Passe au joueur suivant.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        dict: État mis à jour avec le joueur courant changé.
+    Passe au joueur suivant en inversant le signe (-1 → 1 ou 1 → -1)
     """
-    nouveaux_joueurs = state["players"]
-    index = state.get("current_player_index", 0)
-    index = (index + 1) % len(nouveaux_joueurs)
     state = state.copy()
-    state["current_player_index"] = index
+    current_player = state.get("current_player", PLAYER_CONFIG["PLAYER_1"])
+    state["current_player"] = -current_player
     return state
 
 def is_game_over(state: Dict) -> bool:

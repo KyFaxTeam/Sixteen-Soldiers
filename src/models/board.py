@@ -34,7 +34,7 @@ class Board:
         
         # Stocker l'état des pions dans un dictionnaire
         # 0 = vide, 1 = joueur 1, -1 = joueur 2
-        self.pieces: Dict[Tuple[int, int], int] = {pos: 0 for pos in self.positions}
+        self.pieces: Dict[Tuple[int, int], int] = {pos: PLAYER_CONFIG["EMPTY"] for pos in self.positions}
         
         # Placer les pions initiaux
         # Pions du joueur 1 (haut)
