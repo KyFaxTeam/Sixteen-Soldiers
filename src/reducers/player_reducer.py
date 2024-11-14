@@ -1,6 +1,5 @@
-from typing import Dict, List
+from typing import Dict
 from models.player import Player
-from models.move import Move
 from utils.const import PLAYER_CONFIG
 
 def initialize_players(state: Dict) -> Dict:
@@ -28,42 +27,6 @@ def change_current_player(state: Dict) -> Dict:
     state["current_player"] = -current_player
     return state
 
-def is_game_over(state: Dict) -> bool:
-    """
-    Vérifie si la partie est terminée.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        bool: True si la partie est terminée, False sinon.
-    """
-    return state.get("game_over", False)
-
-def get_winner(state: Dict) -> Player:
-    """
-    Retourne le joueur gagnant.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        Player: Joueur gagnant.
-    """
-    return state.get("winner", None)
-
-def get_current_player(state: Dict) -> Player:
-    """
-    Retourne le joueur courant.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        Player: Joueur courant.
-    """
-    index = state.get("current_player_index", 0)
-    return state["players"][index]
 
 def player_reducer(state: Dict, action: Dict) -> Dict:
     """

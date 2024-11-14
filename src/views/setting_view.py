@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from utils.audio import Sounds 
 from views.base_view import BaseView
+from utils.const import THEMES_DIR, THEME_PATH
 
 class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
@@ -101,14 +102,17 @@ class SettingsView(BaseView):
             self.sounds.unpause()
 
     def _on_theme_change(self, value):
-        """Gère le changement de thème"""
+        """Handle theme change"""
         print(f"Theme changed to: {value}")
         if value == "Dark":
             ctk.set_appearance_mode("dark")
+            ctk.set_default_color_theme(THEME_PATH)
         elif value == "Light":
             ctk.set_appearance_mode("light")
+            ctk.set_default_color_theme(THEME_PATH)
         else:  # System
             ctk.set_appearance_mode("system")
+            # You can set a default theme for 'system' mode if needed
 
     def get_settings(self):
         """Retourne les paramètres actuels"""
@@ -117,8 +121,8 @@ class SettingsView(BaseView):
             "sound": self.sound_control.get(),
             "theme": self.theme_control.get()
         }
-
     def load_settings(self, settings: dict):
+        
         """Charge des paramètres"""
         if "speed" in settings:
             self.speed_slider.set(settings["speed"])
@@ -126,3 +130,5 @@ class SettingsView(BaseView):
             self.sound_control.set(settings["sound"])
         if "theme" in settings:
             self.theme_control.set(settings["theme"])
+
+ 

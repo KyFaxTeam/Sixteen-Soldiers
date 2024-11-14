@@ -1,16 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List,  Dict
 
 
-@dataclass
-class Stats:
-    """Player statistics"""
-    wins: int = 0
-    losses: int = 0
-    draws: int = 0
-    total_games: int = 0
-    total_moves: int = 0
-    average_time_per_move: float = 0.0
 
 @dataclass
 class Player:
