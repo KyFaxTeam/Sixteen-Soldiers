@@ -1,20 +1,19 @@
 from typing import Dict, List
 from models.player import Player
 from models.move import Move
+from utils.const import PLAYER_CONFIG
 
 def initialize_players(state: Dict) -> Dict:
     """
     Initialise les joueurs avec leurs pions sur le plateau.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        dict: État mis à jour avec les joueurs initialisés.
     """
     joueurs = [
-        Player(id="red", nom="Joueur Rouge", couleur="red"),
-        Player(id="green", nom="Joueur Vert", couleur="green")
+        Player(id=PLAYER_CONFIG["PLAYER_1"], 
+               nom="Joueur Rouge", 
+               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
+        Player(id=PLAYER_CONFIG["PLAYER_2"], 
+               nom="Joueur Bleu", 
+               couleur=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
     ]
     state = state.copy()
     state["players"] = joueurs
@@ -22,19 +21,11 @@ def initialize_players(state: Dict) -> Dict:
 
 def change_current_player(state: Dict) -> Dict:
     """
-    Passe au joueur suivant.
-   
-    Args:
-        state (dict): État actuel du jeu.
-   
-    Returns:
-        dict: État mis à jour avec le joueur courant changé.
+    Passe au joueur suivant en inversant le signe (-1 → 1 ou 1 → -1)
     """
-    nouveaux_joueurs = state["players"]
-    index = state.get("current_player_index", 0)
-    index = (index + 1) % len(nouveaux_joueurs)
     state = state.copy()
-    state["current_player_index"] = index
+    current_player = state.get("current_player", PLAYER_CONFIG["PLAYER_1"])
+    state["current_player"] = -current_player
     return state
 
 def is_game_over(state: Dict) -> bool:

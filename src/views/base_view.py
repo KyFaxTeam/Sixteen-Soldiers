@@ -14,5 +14,9 @@ class BaseView:
         store.subscribe(self.update)
     
     def update(self, state):
-        """Update view based on new state"""
-        raise NotImplementedError("Subclasses must implement update method")
+        """
+        Méthode abstraite à implémenter par les sous-classes
+        Args:
+            state (Dict): État global du store
+        """
+        pass  # Changed from raise NotImplementedError to allow optional implementation
