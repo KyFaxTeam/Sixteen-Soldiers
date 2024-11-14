@@ -12,7 +12,7 @@ def main():
     
     # Create two random agents with different names
     agent1 = RandomAgent(id="red", nom="Agent Rouge", couleur="red")
-    agent2 = RandomAgent(id="green", nom="Agent Vert", couleur="green")
+    agent2 = RandomAgent(id="blue", nom="Agent Bleu", couleur="blue")
     
     # Initialize store with minimal initial state
     initial_state = {
