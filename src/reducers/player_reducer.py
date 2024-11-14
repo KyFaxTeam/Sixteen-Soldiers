@@ -72,23 +72,9 @@ def player_reducer(state: Dict, action: Dict) -> Dict:
     match action['type']:
         case 'CHANGE_CURRENT_PLAYER':
             return change_current_player(state)
-        # Supprimer le case 'INITIALIZE_PLAYERS'
-        case 'CAPTURE_PIECE':
-            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
-            joueur.capturer_piece()
-            return state
         case 'LOSE_PIECE':
-            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
-            joueur.perdre_piece()
-            return state
-        case 'FINISH_GAME':
-            for joueur in state["players"]:
-                joueur.conclure_partie()
-            return state
-        case 'PLAY_MOVE':
-            joueur = next(j for j in state["players"] if j.id == action["joueur_id"])
-            coup = Move(action["from_pos"], action["to_pos"], joueur.id, action["timestamp"])
-            joueur.jouer_coup(coup)
+            joueur = next(j for j in state["players"] if j.id == action["player_id"])  # Changé de joueur_id à player_id
+            joueur.lose_piece()
             return state
         case _:
             return state
