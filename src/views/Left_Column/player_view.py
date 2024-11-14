@@ -1,27 +1,25 @@
 import os
 from models.assets.index import Assets
 import random
-from utils.theme import ThemeManager
+# Removed ThemeManager import
+# from utils.theme_manager import ThemeManager
 import customtkinter as ctk
 from typing import Optional
 from views.base_view import BaseView
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image
 
 class PlayerView(BaseView):
     def __init__(self, master: any, store: Optional[any] = None):
         super().__init__(master)
         self.store = store
         
-        # Configure main frame
-        self.frame.configure(fg_color=ThemeManager.get_color("background"))
-        
-        # Player card frame
+        # Optional: Configure frame without ThemeManager
+        # self.frame.configure(fg_color=ThemeManager.theme["CTkFrame"]["fg_color"])
+        # If you don't need to set fg_color explicitly, you can remove the line
+
         self.joueur_frame = ctk.CTkFrame(
             self.frame,
-            corner_radius=ThemeManager.CORNER_RADIUS["frame"],
-            fg_color=ThemeManager.get_color("surface"),
-            border_width=ThemeManager.BORDER_WIDTH["frame"],
-            border_color=ThemeManager.get_color("border")
+            corner_radius=6  # Set corner_radius directly
         )
         self.joueur_frame.pack(padx=10, pady=10, fill="both", expand=True)
         
@@ -57,15 +55,14 @@ class PlayerView(BaseView):
         )
         self.info_frame.grid(row=1, column=0, sticky="ew", padx=15, pady=5)
         
-        # Stats container (Timer and Pieces)
+        # Stats container without custom color
         self.stats_container = ctk.CTkFrame(
             self.info_frame,
-            fg_color=ThemeManager.get_color("surface_variant"),
-            corner_radius=ThemeManager.CORNER_RADIUS["card"]
+            corner_radius=6  # Set corner_radius directly
         )
         self.stats_container.pack(fill="x", pady=5)
         
-        # Timer with icon (using emoji as placeholder)
+        # Timer with icon
         self.timer_frame = ctk.CTkFrame(
             self.stats_container,
             fg_color="transparent"
@@ -78,12 +75,11 @@ class PlayerView(BaseView):
             font=("Arial", 14)
         )
         self.timer_icon.pack(side="left", padx=(0, 5))
-        
+
         self.timer_label = ctk.CTkLabel(
             self.timer_frame,
             text="120s",
-            font=ThemeManager.get_font("heading"),
-            text_color=ThemeManager.get_color("text")
+            font=("Poppins", 14, "bold")  # Set font directly
         )
         self.timer_label.pack(side="left")
         
@@ -100,34 +96,30 @@ class PlayerView(BaseView):
             font=("Arial", 14)
         )
         self.pieces_icon.pack(side="left", padx=(0, 5))
-        
+
         self.pieces_label = ctk.CTkLabel(
             self.pieces_frame,
             text="13",
-            font=ThemeManager.get_font("heading"),
-            text_color=ThemeManager.get_color("text")
+            font=("Poppins", 14, "bold")  # Set font directly
         )
         self.pieces_label.pack(side="left")
         
-        # Player name with enhanced style
+        # Player name
         self.name_label = ctk.CTkLabel(
             self.info_frame,
             text="Pseudo",
-            font=ThemeManager.get_font("subheading"),
-            text_color=ThemeManager.get_color("text_secondary")
+            font=("Poppins", 12)  # Set font directly
         )
         self.name_label.pack(pady=5)
         
-        # Enhanced select button
+        # Select button
         self.select_button = ctk.CTkButton(
             self.info_frame,
             text="Select",
-            font=ThemeManager.get_font("button"),
+            font=("Poppins", 10),  # Set font directly
             width=100,
             height=32,
-            fg_color=ThemeManager.get_color("primary"),
-            hover_color=ThemeManager.get_color("primary_hover"),
-            corner_radius=ThemeManager.CORNER_RADIUS["button"]
+            corner_radius=6  # Set corner_radius directly
         )
         self.select_button.pack(pady=10)
         
@@ -141,8 +133,9 @@ class PlayerView(BaseView):
             avatar_path = os.path.join(avatar_dir, random_avatar)
             return Image.open(avatar_path).convert('RGBA')
         else:
-            # Fallback to create_enhanced_avatar if no images are found
-            return self.create_enhanced_avatar(ThemeManager.get_color("surface"))
+            # Fallback if no images are found
+            fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))  # Gray placeholder
+            return fallback_image
 
     def update(self, state: dict):
         """Updates the interface with new state"""
@@ -152,32 +145,4 @@ class PlayerView(BaseView):
             self.pieces_label.configure(text=str(joueur.get('pieces', 0)))
             self.name_label.configure(text=joueur.get('name', 'Pseudo'))
             
-    def update_theme(self):
-        """Updates colors and styles on theme change"""
-        self.frame.configure(fg_color=ThemeManager.get_color("background"))
-        self.joueur_frame.configure(
-            fg_color=ThemeManager.get_color("surface"),
-            border_color=ThemeManager.get_color("border")
-        )
-        
-        self.stats_container.configure(
-            fg_color=ThemeManager.get_color("surface_variant")
-        )
-        
-        self.avatar.configure(
-            image=ctk.CTkImage(
-                light_image=self.avatar_image,
-                dark_image=self.avatar_image,
-                size=(60, 60)
-            )
-        )
-        
-        for label in [self.timer_label, self.pieces_label]:
-            label.configure(text_color=ThemeManager.get_color("text"))
-        
-        self.name_label.configure(text_color=ThemeManager.get_color("text_secondary"))
-        
-        self.select_button.configure(
-            fg_color=ThemeManager.get_color("primary"),
-            hover_color=ThemeManager.get_color("primary_hover")
-        )
+    # Removed the update_theme_colors method

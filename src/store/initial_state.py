@@ -1,22 +1,23 @@
-import customtkinter as ctk
+
 from models.player import Player
 from views.main_view import MainView
 from store.store import Store
 from reducers.index import root_reducer
-from utils.const import THEMES_DIR, THEME_PATH
+from utils.theme_manager import ThemeManager
 from agents.random_agent import RandomAgent
 from utils.game_runner import GameRunner
 from reducers.player_reducer import initialize_players
 
 
 def main():
-    # Configure le thème par défaut et le mode d'apparence
-    ctk.set_default_color_theme(THEME_PATH)
-    ctk.set_appearance_mode("System")  # ou "Dark", "Light" selon votre préférence
+    ThemeManager.setup_theme()
     
     # Initialize empty state and add players
     initial_state = {}
     initial_state = initialize_players(initial_state)
+    
+    # Add theme to initial state
+    initial_state["theme"] = "dark"
     
     # Create agents using the initialized players
     agent1 = RandomAgent(

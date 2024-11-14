@@ -1,6 +1,5 @@
 from typing import Dict
 from models.player import Player
-from models.move import Move
 from utils.const import PLAYER_CONFIG
 
 def initialize_players(state: Dict) -> Dict:
