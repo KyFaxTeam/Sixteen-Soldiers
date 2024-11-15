@@ -21,7 +21,7 @@ class HistoryView(BaseView):
         self.title = ctk.CTkLabel(
             self.title_frame,
             text="📜 History",
-            font=("Poppins", 11, "bold")
+            font=ctk.CTkFont(size=11, weight="bold")
         )
         self.title.pack(pady=(5, 5))
 
@@ -40,15 +40,16 @@ class HistoryView(BaseView):
         # Label pour le texte du mouvement
         move_label = ctk.CTkLabel(
             move_frame,
-            text=f"• {move_text}",
-            anchor="w"
+            text=move_text,
+            font=ctk.CTkFont(size=10)
         )
         move_label.pack(side="left", padx=(5, 10))
 
         # Bouton de replay pour ce mouvement spécifique
         replay_button = ctk.CTkButton(
             move_frame,
-            text="↻",
+            text="Replay",
+            font=ctk.CTkFont(size=10),
             width=30,
             height=30,
             command=lambda: self.replay_move(move_data)
@@ -79,6 +80,15 @@ class HistoryView(BaseView):
         for move_frame_data in self.move_frames:
             move_frame_data["frame"].destroy()
         self.move_frames.clear()
+
+    def update(self, state):
+        """Met à jour l'historique des coups"""
+        if "history" in state and state["history"]:
+            last_move = state["history"][-1]
+            self.add_move(
+                move_text=f"Move from {last_move['from_pos']} to {last_move['to_pos']}", 
+                move_data=last_move
+            )
 
 # Exemple de HistoriqueView corrigé
 # class HistoriqueView(BaseView):

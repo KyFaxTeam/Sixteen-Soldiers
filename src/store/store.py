@@ -1,6 +1,16 @@
-from models.board import Board
-from models.time_manager import TimeManager
-from typing import Any, Callable, Dict, List
+
+from typing import  Callable, Dict, List
+
+# STATE_STRUCTURE: TypedDict = {
+#         "board": Board,          # Plateau de jeu
+#         "time_manager": TimeManager,  # Gestionnaire de temps
+#         "game_over": bool,       # True si partie terminée
+#         "current_player_index": int,  # Index du joueur courant (0 ou 1)
+#         "winner": Optional[str], # ID du gagnant ou None
+#         "players": List[Player], # Liste des 2 joueurs
+#         "history": List[dict]    # Historique des coups
+#     }
+
 
 class Store:
     def __init__(self, initial_state: Dict, reducer: Callable[[Dict, Dict], Dict]):

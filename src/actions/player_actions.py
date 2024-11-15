@@ -15,18 +15,10 @@ def initialize_players(player1_time: float, player2_time: float) -> Dict:
         "player2_time": player2_time
     }
 
-def update_player_time(player_id: str, elapsed_time: float) -> Dict:
-    """Creates an action to update a player's time"""
+def lose_piece(player_id: str) -> Dict:
+    """Creates an action to decrement a player's piece count"""
     return {
-        "type": "UPDATE_PLAYER_TIME",
-        "player_id": player_id,
-        "elapsed_time": elapsed_time
+        "type": "LOSE_PIECE",
+        "player_id": player_id
     }
 
-
-def set_player_color(player, new_color):
-    return {
-        "type": "SET_PLAYER_COLOR",
-        "player": player,
-        "new_color": new_color
-    }

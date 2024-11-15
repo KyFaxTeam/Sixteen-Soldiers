@@ -4,18 +4,10 @@ Devrions nous ajouter la sauvegarde du temps des joueurs lors de la sauvegarde d
 
 Le coup pour une capture multiple devrait être en une seule fois parce que c'est plus facile de faire undo ainsi
 
-
-Agent.choose_action() 
--> renvoie une action (dictionnaire) 
--> action transmise au store 
--> reducer traite l'action 
--> état mis à jour
-
-Problème de chemin global
-# Obtenir le chemin de base du projet, deux niveaux au-dessus de ce fichier
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
 Ce qui serait fun c'est de pouvoir envoyer ces matchs à quelqu'un pour qu'il le rejoue
 Voir alors comment sont sauvegardé les fichiers de matchs
+
+Dans player_view, à quoi sert update_theme si les couleurs sont déjà définies en focntion du theme_manager.current_theme ?
+
 
 
