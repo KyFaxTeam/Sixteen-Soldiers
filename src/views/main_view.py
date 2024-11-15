@@ -30,7 +30,7 @@ class MainView(BaseView):
         self.home_view = HomeView(self.window, self.start_new_game, self.review_match)
         self.home_view.show()
         self.winner_data = {
-            # "profile_img": "path/to/profile_image.png",  # Provide a real image path
+            "profile_img": "assets/images/kyfax_logo-removebg-preview.png",  # Provide a real image path
             "team_pseudo": "Team A",
             "ai_name": "AI-1",
             "remaining_time": "25",
