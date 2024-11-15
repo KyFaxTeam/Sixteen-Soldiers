@@ -11,6 +11,7 @@ class Stats:
     total_games: int = 0
     total_moves: int = 0
     average_time_per_move: float = 0.0
+    
 
 @dataclass
 class Player:

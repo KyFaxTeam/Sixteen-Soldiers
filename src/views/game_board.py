@@ -21,11 +21,11 @@ class GameBoard(BaseView):
         self.canvas = tk.Canvas(self.main_container, 
                                     width= 4 * GAP + 2 * PADDING, 
                                     height= 8 * GAP + 2 * PADDING, 
-                                    bg="#131630")
+                                    bg="#2d2d2e")
 
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container)
-        self.button_frame.pack(side="bottom", padx=5, pady=5)
+        self.button_frame.pack( padx=5, pady=5)
         
         self.canvas.pack()
         self.red_soldiers = []
