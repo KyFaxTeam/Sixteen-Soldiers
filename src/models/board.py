@@ -129,4 +129,3 @@ class Board:
         board.pieces = data["pieces"]
         # Initialize other fields
         return board
-    

@@ -1,24 +1,35 @@
+from dataclasses import dataclass
 from typing import List, Dict
 from models.board import Board
 from models.player import Player
 
-class BaseAgent(Player):
+@dataclass
+class AgentStats:
+    """Agent statistics"""
+    wins: int = 0
+    losses: int = 0
+    draws: int = 0
+    total_games: int = 0
+    total_moves: int = 0
+    average_time_per_move: float = 0.0
+
+class BaseAgent:
     """
     Base class for AI agents in the Sixteen Soldiers game.
     Provides an interface for agents to choose actions based on the current game state.
     """
     
-    def __init__(self, id: str, nom: str, couleur: str):
+    def __init__(self, player: Player, name: str):
         """
         Initialize the base agent.
         
         Args:
-            id: The ID of the player
-            nom: The name of the player
-            couleur: The color of the player
+            player: The player instance
+            name: The agent's name
         """
-        super().__init__(id, nom, couleur)
-        self.total_moves = 0
+        self.player = player  # Composition instead of inheritance
+        self.name = name
+        self.stats = AgentStats()
         self.total_time = 0.0
     
     def choose_action(self, board: Board, player: Player) -> Dict:
@@ -52,5 +63,16 @@ class BaseAgent(Player):
     
     def reset_stats(self) -> None:
         """Reset the agent's statistics."""
-        self.total_moves = 0
+        self.stats = AgentStats()
         self.total_time = 0.0
+
+    def conclude_game(self, is_winner: bool) -> None:
+        """Updates agent statistics after game conclusion"""
+        self.stats.total_games += 1
+        if is_winner:
+            self.stats.wins += 1
+        else:
+            self.stats.losses += 1
+            
+        if self.stats.total_moves > 0:
+            self.stats.average_time_per_move = self.total_time / self.stats.total_moves

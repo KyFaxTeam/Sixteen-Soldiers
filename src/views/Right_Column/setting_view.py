@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from utils.audio import Sounds 
 from views.base_view import BaseView
+from utils.const import THEME_PATH
 
 class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
@@ -14,7 +15,7 @@ class SettingsView(BaseView):
         self.title = ctk.CTkLabel(
             self.frame,
             text="⚙️ Settings",
-            font=("Poppins", 12, "bold"),
+            font=ctk.CTkFont(size=12, weight="bold")
         )
         self.title.pack(pady=(5, 5))
 
@@ -25,7 +26,7 @@ class SettingsView(BaseView):
         self.speed_label = ctk.CTkLabel(
             self.speed_section,
             text="⏩ Speed",
-            font=("Poppins", 11),
+            font=ctk.CTkFont(size=11),
             text_color="#cccccc"
         )
         self.speed_label.pack(anchor="w", padx=10, pady=5)
@@ -46,7 +47,7 @@ class SettingsView(BaseView):
         self.sound_label = ctk.CTkLabel(
             self.sound_section,
             text="🔊 Sound",
-            font=("Poppins", 11),
+            font=ctk.CTkFont(size=11),
             text_color="#cccccc"
         )
         self.sound_label.pack(anchor="w", padx=10, pady=5)
@@ -56,7 +57,7 @@ class SettingsView(BaseView):
             self.sound_section,
             values=["Off", "On"],
             command=self._on_sound_change,
-            font=("Poppins", 8)
+            font=ctk.CTkFont(size=8)
         )
         self.sound_control.pack(padx=15, pady=(0, 10))
         self.sound_control.set("On")  # Valeur par défaut
@@ -68,7 +69,7 @@ class SettingsView(BaseView):
         self.theme_label = ctk.CTkLabel(
             self.theme_section,
             text="🌓 Appearance",
-            font=("Poppins", 11),
+            font=ctk.CTkFont(size=11),
             text_color="#cccccc"
         )
         self.theme_label.pack(anchor="w", padx=10, pady=5)
@@ -78,7 +79,7 @@ class SettingsView(BaseView):
             self.theme_section,
             values=["Light", "Dark", "System"],
             command=self._on_theme_change,
-            font=("Poppins", 8)
+            font=ctk.CTkFont(size=8)
         )
         self.theme_control.pack(padx=15, pady=(0, 10))
         self.theme_control.set("System")  # Valeur par défaut
@@ -101,14 +102,17 @@ class SettingsView(BaseView):
             self.sounds.unpause()
 
     def _on_theme_change(self, value):
-        """Gère le changement de thème"""
+        """Handle theme change"""
         print(f"Theme changed to: {value}")
         if value == "Dark":
             ctk.set_appearance_mode("dark")
+            ctk.set_default_color_theme(THEME_PATH)
         elif value == "Light":
             ctk.set_appearance_mode("light")
+            ctk.set_default_color_theme(THEME_PATH)
         else:  # System
             ctk.set_appearance_mode("system")
+            # You can set a default theme for 'system' mode if needed
 
     def get_settings(self):
         """Retourne les paramètres actuels"""
@@ -117,8 +121,8 @@ class SettingsView(BaseView):
             "sound": self.sound_control.get(),
             "theme": self.theme_control.get()
         }
-
     def load_settings(self, settings: dict):
+        
         """Charge des paramètres"""
         if "speed" in settings:
             self.speed_slider.set(settings["speed"])
@@ -126,3 +130,4 @@ class SettingsView(BaseView):
             self.sound_control.set(settings["sound"])
         if "theme" in settings:
             self.theme_control.set(settings["theme"])
+

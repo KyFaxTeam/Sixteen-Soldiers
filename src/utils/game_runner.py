@@ -21,15 +21,15 @@ class GameRunner:
         self.store.dispatch({
             "type": "INITIALIZE_TIME_CONTROL",
             "time_limits": {
-                "red": time_limit,
-                "green": time_limit
+                agent1.player.id: time_limit,
+                agent2.player.id: time_limit
             }
         })
         
         while not self.store.get_state().get("game_over", False):
             current_state = self.store.get_state()
             current_player = current_state["players"][current_state.get("current_player_index", 0)]
-            current_agent = agent1 if current_player.id == "red" else agent2
+            current_agent = agent1 if current_player.id == agent1.player.id else agent2
             
             # Record start time for the move
             start_time = time.time()
@@ -64,5 +64,5 @@ class GameRunner:
                 time.sleep(delay)
                 
             except ValueError:
-                print(f"No valid moves for {current_player.nom}")
+                print(f"No valid moves for {current_player.id}")
                 break
