@@ -13,11 +13,14 @@ from .Right_Column.setting_view import SettingsView
 class MainView(BaseView):
     """Main window of the application"""
 
-    def __init__(self):
-        # Initialize main window
-        self.window = ctk.CTk()
-        self.window.title("Sixteen Soldiers")
-        self.window.geometry("400x300")
+    def __init__(self, master, store, agent1, agent2):
+        super().__init__(master)
+        self.store = store
+        self.agent1 = agent1
+        self.agent2 = agent2
+        # Utilisez self.master au lieu de créer une nouvelle fenêtre
+        self.master.title("Sixteen Soldiers")
+        self.master.geometry("400x300")
         
         # Initialize all component references as None
         self.players_column = None
@@ -26,9 +29,12 @@ class MainView(BaseView):
         self.settings_view = None
         self.is_game_started = False
         
+         #Lancer un nouveau jeu
+        self.start_new_game()
         # Initialize HomeView
-        self.home_view = HomeView(self.window, self.start_new_game, self.review_match)
-        self.home_view.show()
+        # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
+        # self.home_view.show()
+        
         self.winner_data = {
             "profile_img": "assets/images/kyfax_logo-removebg-preview.png",  # Provide a real image path
             "team_pseudo": "Team A",
@@ -39,8 +45,8 @@ class MainView(BaseView):
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
-        self.home_view.hide()  # Hide the home screen
-        self.window.geometry("1200x800")
+        #self.home_view.hide()  # Hide the home screen
+        self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True
         
@@ -48,14 +54,14 @@ class MainView(BaseView):
     def review_match(self):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
-        self.window.geometry("1200x800")
+        self.master.geometry("1200x800")
         self.show_after_game_view()  # Initialize main layout and sub-views
         
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
         # Create main container frame
-        self.main_container = ctk.CTkFrame(self.window)
+        self.main_container = ctk.CTkFrame(self.master)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
         
         # Content frame with 3 columns
@@ -66,7 +72,7 @@ class MainView(BaseView):
         self.content.grid_columnconfigure(2, weight=1)  # Right column
         
         # Left column - Players
-        self.players_column = PlayersColumn(self.content)
+        self.players_column = PlayersColumn(self.content, self.store)
         self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
@@ -74,7 +80,8 @@ class MainView(BaseView):
         self.center_column.grid(row=0, column=1, sticky="nsew")
         
         # Game board view
-        self.game_board = GameBoard(self.center_column)
+        self.game_board = GameBoard(self.center_column, self.store, self.agent1, self.agent2)
+        
         # Ajouter des mouvements factices pour tester
         self.game_board._move_soldier_in_bord(0, (200, 200))
 
@@ -101,7 +108,7 @@ class MainView(BaseView):
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
         self.after_game_view = AfterGameView(
-            self.window,
+            self.master,
             winner_data=self.winner_data,
             on_restart=self.restart_game,
             on_save=self.save_game
@@ -120,7 +127,7 @@ class MainView(BaseView):
             del self.main_container
 
         # Resize window for HomeView
-        self.window.geometry("400x300")
+        self.master.geometry("400x300")
         
         # Show HomeView again
         self.home_view.show()
@@ -130,9 +137,7 @@ class MainView(BaseView):
         print("Game saved.")
         
     def run(self):
-        """Start the application"""
-        if hasattr(self, 'window'):
-            self.window.mainloop()
+        self.master.mainloop()
 
     def update_theme(self):
         """Update the theme for all components"""
@@ -153,4 +158,3 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'historique_view'):
             self.historique_view.update(state)
-

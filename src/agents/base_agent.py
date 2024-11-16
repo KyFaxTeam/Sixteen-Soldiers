@@ -48,18 +48,18 @@ class BaseAgent:
         """
         raise NotImplementedError("This method must be implemented by subclasses")
     
-    def get_valid_moves(self, board: Board, player: Player) -> List[Dict]:
-        """
-        Get all valid moves for the current player.
+    # def get_valid_moves(self, board: Board, player: Player) -> List[Dict]:
+    #     """
+    #     Get all valid moves for the current player.
         
-        Args:
-            board: Current game board state
-            player: Current player
+    #     Args:
+    #         board: Current game board state
+    #         player: Current player
             
-        Returns:
-            List of valid actions
-        """
-        return board.get_valid_actions(player)
+    #     Returns:
+    #         List of valid actions
+    #     """
+    #     return board.get_valid_actions(player)
     
     def reset_stats(self) -> None:
         """Reset the agent's statistics."""

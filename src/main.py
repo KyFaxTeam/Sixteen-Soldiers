@@ -18,6 +18,15 @@ def main():
     initial_state = {}
     initial_state = initialize_players(initial_state)
     
+    # Créez la fenêtre principale
+    root = ctk.CTk()
+    
+    # Create store with initial state
+    store = Store(
+        initial_state=initial_state,
+        reducer=root_reducer
+    )
+    
     # Create agents using the initialized players
     agent1 = RandomAgent(
         player=initial_state["players"][0],
@@ -28,25 +37,16 @@ def main():
         name="Random Agent"
     )
     
-    # Create store with initial state
-    store = Store(
-        initial_state=initial_state,
-        reducer=root_reducer
-    )
-    
-    # Create main window
-    app = MainView()
+    # Créez la vue principale en passant 'root' comme 'master'
+    app = MainView(root, store, agent1, agent2)
     app.subscribe(store)
     
-    # Start the game between agents
-    runner = GameRunner(store)
-    runner.run_player_game(agent1, agent2)
-
+    app.run()
     # Comment faire alors pour relancer le jeu, recréer les agents 
     # à partir des ia sélectionnées dans l'interface ?
     
-    # Run the GUI
-    app.run()
+   
+    
 
 if __name__ == "__main__":
     main()

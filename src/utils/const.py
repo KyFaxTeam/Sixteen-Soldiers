@@ -11,7 +11,7 @@ THEME_PATH = THEMES_DIR / 'MoonlitSky.json'
 PADDING = 50
 
 # Gap between elements on the game board
-GAP = 80
+GAP = 90
 
 # Thickness of the lines on the game board
 LINE_THICKNESS = 4
