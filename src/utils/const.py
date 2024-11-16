@@ -11,7 +11,7 @@ THEME_PATH = THEMES_DIR / 'MoonlitSky.json'
 PADDING = 50
 
 # Gap between elements on the game board
-GAP = 100
+GAP = 75
 
 # Thickness of the lines on the game board
 LINE_THICKNESS = 4
@@ -44,5 +44,11 @@ COLORS = {
 TIMINGS = {
     "AI_MOVE_DELAY": 1000,  # ms
     "ANIMATION_SPEED": 500   # ms
+}
+
+# Initial values for the game
+INITIAL_VALUES = {
+    "TIMER": 120,  # Initial timer value in seconds
+    "PIECES_COUNT": 13  # Initial pieces count
 }
 
