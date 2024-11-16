@@ -34,10 +34,10 @@ def main():
         reducer=root_reducer
     )
     
-    # Create main window
+    # Create main window and ensure all child views are subscribed
     app = MainView()
     app.subscribe(store)
-    
+
     # Start the game between agents
     runner = GameRunner(store)
     runner.run_player_game(agent1, agent2)
