@@ -1,5 +1,6 @@
 from typing import Dict
 from models.time_manager import TimeManager
+from utils.const import INITIAL_VALUES
 
 def time_reducer(state: Dict, action: Dict) -> Dict:
     if state is None:
@@ -7,25 +8,20 @@ def time_reducer(state: Dict, action: Dict) -> Dict:
     
     state = state.copy()
     
-    if action["type"] == "UPDATE_TIME":
-        player_id = action["player_id"]
-        elapsed = action["elapsed_time"]
-        
-        if "time_manager" not in state or state["time_manager"] is None:
-            #déclencher une erreur
-            raise ValueError("TimeManager is not initialized")
+    match action["type"]:
+        case "UPDATE_TIME":
+            if "time_manager" not in state or state["time_manager"] is None:
+                raise ValueError("TimeManager is not initialized")
+                
+            state["time_manager"].update_player_time(
+                action["player_id"], 
+                action["elapsed_time"]
+            )
             
-        state["time_manager"].update_player_time(player_id, elapsed)
-        
-    elif action["type"] == "INITIALIZE_TIME_CONTROL":
-        # Supposant que l'action peut inclure un 'increment' optionnel
-        increment = action.get("increment", 0.0)
-        state["time_manager"].set_time_limits(action["time_limits"], increment)
-    
-    elif action["type"] == "END_GAME":
-        # Optionnel : Finaliser le TimeManager si nécessaire
-        pass
-    
-    # ... implémenter d'autres actions liées au temps si nécessaire ...
-    
+        case "INITIALIZE_TIME_CONTROL":
+            # Utilise directement INITIAL_VALUES['TIMER'] pour tous les joueurs
+            state["time_manager"].set_time_limits(
+                {player_id: INITIAL_VALUES['TIMER'] for player_id in action["time_limits"].keys()}
+            )
+            
     return state

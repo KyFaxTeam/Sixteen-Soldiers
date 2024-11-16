@@ -154,3 +154,4 @@ class MainView(BaseView):
         if hasattr(self, 'historique_view'):
             self.historique_view.update(state)
 
+ 
