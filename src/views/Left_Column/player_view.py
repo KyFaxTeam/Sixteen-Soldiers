@@ -15,7 +15,7 @@ class PlayerView(BaseView):
         self.player = agent.player
         self.store = store
         if store:
-            self.subscribe(store)
+           # self.subscribe(store) inutile, le main_view est déjà subscribe dans main.py
             initial_state = store.get_state()
             initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.player.id)
             initial_soldier_count = sum(

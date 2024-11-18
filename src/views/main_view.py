@@ -100,10 +100,7 @@ class MainView(BaseView):
         # Game board view
         self.game_board = GameBoard(self.center_column, self.store, self.agent1, self.agent2)
         
-        # Ajouter des mouvements factices pour tester
-        self.game_board._move_soldier_in_bord(0, (200, 200))
-
-
+        
         # Right column - Move history and settings
         self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))

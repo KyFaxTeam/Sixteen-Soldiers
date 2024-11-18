@@ -3,9 +3,10 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
-from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE
+from utils.const import GAP, LINE_THICKNESS, PADDING, PLAYER_CONFIG, SOLDIER_SIZE
 from utils.game_runner import GameRunner
 from views.base_view import BaseView
+from utils.board_utils import BoardUtils  # Ajouter cet import
 
 
 class GameBoard(BaseView):
@@ -35,13 +36,14 @@ class GameBoard(BaseView):
         self.canvas.pack()
         self.red_soldiers = []
         self.blue_soldiers = []
+        # Initialiser previous_soldiers avec l'état initial du plateau
+        self.previous_soldiers = store.get_state()["board"].soldiers.copy()
         self.sounds = Sounds()
         self._init_board()
         
         # Ajoutez un bouton "Play"
         self.play_button = ctk.CTkButton(self.button_frame, text="Play", command=self.start_game)
         self.play_button.pack()
-        self.current_positions = {}  # Stocke les positions actuelles des pièces
         
     def _init_board(self):
         self.__draw_board()
@@ -178,73 +180,116 @@ class GameBoard(BaseView):
         )
         self.reset_button.pack(side="left")
         
-    def _move_soldier_offset(self):
-        ...
-        
-    def _remove_soldier(self):
-        # for piece in red_pieces:
-        #     self.canvas.delete(piece)
-        ...
-        
-    def _update_board(self):
-        ...
+    
     
     def update(self, state):
         """Met à jour le plateau en fonction du nouvel état"""
         if not state.get("board"):
             return
             
-        # board = state["board"]
-        # current_player = state.get("current_player_index", 0)
+        board = state["board"]
+        new_soldiers = board.soldiers
         
-        # # Mettre à jour les positions des pièces
-        # for position, soldier in board.soldiers.items():
-        #     if position not in self.current_positions:
-        #         # Nouvelle pièce à ajouter
-        #         if soldier == -1:  # Rouge
-        #             piece = self.canvas.create_image(
-        #                 position[0], position[1],
-        #                 image=self.frame.red_soldier_icon
-        #             )
-        #             self.red_soldiers.append(piece)
-        #         else:  # Bleu
-        #             piece = self.canvas.create_image(
-        #                 position[0], position[1],
-        #                 image=self.frame.blue_soldier_icon
-        #             )
-        #             self.blue_soldiers.append(piece)
-        #         self.current_positions[position] = piece
-        #     else:
-        #         # Déplacer la pièce existante
-        #         piece = self.current_positions[position]
-        #         current_pos = self.canvas.coords(piece)
-        #         if current_pos != position:
-        #             self._move_soldier_in_bord(
-        #                 self.red_soldiers.index(piece) if piece in self.red_soldiers else self.blue_soldiers.index(piece),
-        #                 position
-        #             )
-        
-        # # Supprimer les pièces qui ne sont plus sur le plateau
-        # current_pieces = set(board.soldiers.keys())
-        # for pos in list(self.current_positions.keys()):
-        #     if pos not in current_pieces:
-        #         piece = self.current_positions[pos]
-        #         self.canvas.delete(piece)
-        #         if piece in self.red_soldiers:
-        #             self.red_soldiers.remove(piece)
-        #         else:
-        #             self.blue_soldiers.remove(piece)
-        #         del self.current_positions[pos]
-        
-        # Mettre à jour l'interface si nécessaire
+        # Ne comparer que si previous_soldiers existe déjà
+        self._diff_and_update(self.previous_soldiers, new_soldiers)
+        print()
+        # Mettre à jour l'état précédent
+        self.previous_soldiers = new_soldiers.copy()
+
+        # Mettre à jour l'interface
         self.canvas.update_idletasks()
         
-        # Mise à jour du bouton Play en fonction de l'état du jeu
+        # Mise à jour du bouton Play
         if state.get("game_over"):
             self.play_button.configure(state="disabled")
         else:
             self.play_button.configure(state="normal")
-    
+
+    def _diff_and_update(self, old_soldiers, new_soldiers):
+        """Compare l'ancien et le nouvel état des soldats et met à jour le canvas."""
+        
+        # Détecter les ajouts et les mouvements
+        for pos, soldier in new_soldiers.items():
+            old_soldier = old_soldiers.get(pos, 0)
+            if soldier != old_soldier:
+                if soldier != PLAYER_CONFIG["EMPTY"]:
+                    if old_soldier == PLAYER_CONFIG["EMPTY"]:
+                        # Nouveau soldat ajouté
+                        self._add_soldier(pos, soldier)
+                    else:
+                        # Soldat déplacé ou changé de type
+                        self._move_soldier(old_soldiers, pos, soldier)
+        
+        # Détecter les suppressions
+        for pos, soldier in old_soldiers.items():
+            if pos not in new_soldiers or new_soldiers[pos] == PLAYER_CONFIG["EMPTY"]:
+                if soldier != PLAYER_CONFIG["EMPTY"]:
+                    self._remove_soldier(pos, soldier)
+
+    def _add_soldier(self, pos, soldier):
+        """Ajoute un soldat au canvas."""
+        print(f"Action: Ajouter un soldat à la position {pos} pour le joueur {PLAYER_CONFIG['COLORS'][soldier]}")
+        canvas_x, canvas_y = BoardUtils.algebraic_to_gameboard(pos)
+        if soldier == PLAYER_CONFIG["PLAYER_1"]:
+            piece = self.canvas.create_image(canvas_x, canvas_y, image=self.frame.red_soldier_icon)
+            self.red_soldiers.append(piece)
+        elif soldier == PLAYER_CONFIG["PLAYER_2"]:
+            piece = self.canvas.create_image(canvas_x, canvas_y, image=self.frame.blue_soldier_icon)
+            self.blue_soldiers.append(piece)
+
+    def _remove_soldier(self, pos, soldier):
+        """Supprime un soldat du canvas."""
+        print(f"Action: Supprimer un soldat à la position {pos} pour le joueur {PLAYER_CONFIG['COLORS'][soldier]}")
+        soldiers_list = self.red_soldiers if soldier == PLAYER_CONFIG["PLAYER_1"] else self.blue_soldiers
+        piece = next((s for s in soldiers_list if self._get_position(s) == pos), None)
+        if piece:
+            self.canvas.delete(piece)
+            soldiers_list.remove(piece)
+
+    def _move_soldier(self, old_soldiers, new_pos, soldier):
+        """Déplace un soldat de sa position précédente vers une nouvelle position."""
+        print(f"Action: Déplacer un soldat pour le joueur {PLAYER_CONFIG['COLORS'][soldier]} vers la position {new_pos}")
+        old_pos = next((pos for pos, s in old_soldiers.items() if s == soldier and new_pos not in old_soldiers.get(pos, PLAYER_CONFIG["EMPTY"])), None)
+        if old_pos:
+            piece = next((s for s in (self.red_soldiers if soldier == PLAYER_CONFIG["PLAYER_1"] else self.blue_soldiers)
+                         if self._get_position(s) == old_pos), None)
+            if piece:
+                target_x, target_y = BoardUtils.algebraic_to_gameboard(new_pos)
+                self._move_soldier_in_bord(self._get_piece_index(piece), (target_x, target_y))
+                soldiers_list = self.red_soldiers if soldier == PLAYER_CONFIG["PLAYER_1"] else self.blue_soldiers
+                soldiers_list.remove(piece)
+                soldiers_list.append(piece)
+
+    def _get_position(self, piece):
+        """Retourne la position algébrique d'un soldat à partir de son ID canvas."""
+        coords = self.canvas.coords(piece)
+        cartesian = (coords[0] - PADDING) // GAP, (coords[1] - PADDING) // GAP
+        # Convertir cartésien en algébrique
+        letter = chr(int(cartesian[0]) + ord('a'))
+        number = str(int(cartesian[1]) + 1)
+        return f"{letter}{number}"
+
+    def _get_piece_index(self, piece):
+        """Retourne l'index d'un soldat dans sa liste respective."""
+        if piece in self.red_soldiers:
+            return self.red_soldiers.index(piece)
+        elif piece in self.blue_soldiers:
+            return self.blue_soldiers.index(piece)
+        return -1
+
     def start_game(self):
-        runner = GameRunner(self.store)
-        runner.run_player_game(self.agent1, self.agent2)
+        """Démarre le jeu en mode automatique avec les agents"""
+        # Désactiver le bouton pendant le jeu
+        self.play_button.configure(state="disabled")
+        
+        # Lancer le jeu dans un thread séparé pour ne pas bloquer l'interface
+        import threading
+        def run_game():
+            runner = GameRunner(self.store)
+            runner.run_player_game(self.agent1, self.agent2)
+            # Réactiver le bouton une fois le jeu terminé
+            self.play_button.configure(state="normal")
+            
+        game_thread = threading.Thread(target=run_game)
+        game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
+        game_thread.start()
