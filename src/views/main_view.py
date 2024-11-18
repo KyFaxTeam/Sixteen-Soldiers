@@ -32,9 +32,7 @@ class MainView(BaseView):
         self.settings_view = None
         self.is_game_started = False
         
-        #update of the store of mainview
-        self.subscribe(store)
-
+        
          #Lancer un nouveau jeu
         #self.start_new_game()
         # Initialize HomeView
