@@ -1,12 +1,13 @@
 from typing import Any
 import time
 from agents.base_agent import BaseAgent
+from utils.const import INITIAL_VALUES
 
 class GameRunner:
     def __init__(self, store: Any):
         self.store = store
 
-    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5, time_limit: float = 600):
+    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5, time_limit: float = INITIAL_VALUES['TIMER']):
         """
         Run a game between two AI agents with time control
         

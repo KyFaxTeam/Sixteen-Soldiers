@@ -36,12 +36,13 @@ def main():
         player=initial_state["players"][1],
         name="Random Agent"
     )
-    
+
     # Créez la vue principale en passant 'root' comme 'master'
     app = MainView(root, store, agent1, agent2)
     app.subscribe(store)
     
     app.run()
+
     # Comment faire alors pour relancer le jeu, recréer les agents 
     # à partir des ia sélectionnées dans l'interface ?
     
