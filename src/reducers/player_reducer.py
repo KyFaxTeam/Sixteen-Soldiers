@@ -33,6 +33,8 @@ def player_reducer(state: Dict, action: Dict) -> Dict:
     Gère les modifications liées aux joueurs.
     """
     match action['type']:
+        case 'INITIALIZE_PLAYERS':
+            return initialize_players(state)
         case 'CHANGE_CURRENT_PLAYER':
             return change_current_player(state)
         case 'LOSE_PIECE':

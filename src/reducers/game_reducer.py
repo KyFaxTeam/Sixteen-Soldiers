@@ -18,12 +18,13 @@ def initialize_game(state: Dict) -> Dict:
     
     new_state = state.copy()
     new_state.update({
-        "board": Board(),
-        "time_manager": TimeManager(),
+        "board": new_state.get("board", Board()),
+        "time_manager": new_state.get("time_manager",TimeManager()),
+        "players": new_state.get("players", []), # Preserve existing players if any
         "game_over": False,
         "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
         "winner": None,
-        "players": new_state.get("players", [])  # Preserve existing players if any
+        "history": []
     })
     return new_state
 

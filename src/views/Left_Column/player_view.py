@@ -8,17 +8,22 @@ from PIL import Image
 
 
 class PlayerView(BaseView):
-    def __init__(self, master: any, store: Optional[any] = None):
+    def __init__(self, master: any, agent, store: Optional[any] = None):
         super().__init__(master)
+        self.agent = agent
+        self.player = agent.player
         self.store = store
         if store:
             self.subscribe(store)
             initial_state = store.get_state()
-            initial_time = initial_state.get("time_manager", {}).get_remaining_time(initial_state["players"][0].id)
-            initial_pieces = len([p for p in initial_state["board"].pieces if p.player_id == initial_state["players"][0].id])
+            initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.player.id)
+            initial_soldier_count = sum(
+                1 for value in initial_state["board"].soldiers.values()
+                if value == self.player.id
+            )
         else:
             initial_time = "---"
-            initial_pieces = "---"
+            initial_soldier_count = "---"
         
 
         self.joueur_frame = ctk.CTkFrame(
@@ -108,7 +113,7 @@ class PlayerView(BaseView):
 
         self.pieces_label = ctk.CTkLabel(
             self.pieces_frame,
-            text=str(initial_pieces),
+            text=str(initial_soldier_count),
             font=ctk.CTkFont(size=14, weight="bold")
         )
         self.pieces_label.pack(side="left")
@@ -116,7 +121,7 @@ class PlayerView(BaseView):
         # Player name
         self.name_label = ctk.CTkLabel(
             self.info_frame,
-            text="Select an agent",  # Changed default text to prompt user
+            text=self.agent.name or 'Select an agent',
             font=ctk.CTkFont(size=12)
         )
         self.name_label.pack(pady=5)
@@ -176,18 +181,19 @@ class PlayerView(BaseView):
         """Handle agent selection"""
         # Update the name label with the selected agent
         self.name_label.configure(text=agent_name)
-        
-        # Update the store with the selected agent
+
+        # Update the agent's name
+        self.agent.name = agent_name
+
+        # Optionally, dispatch an action if needed
         if self.store:
             self.store.dispatch({
                 'type': 'SELECT_AGENT',
-                'agent': agent_name,
-                'joueur': {
-                    'name': agent_name  # Include the name in the joueur update
-                }
+                'player_id': self.player.id,
+                'agent_name': agent_name
             })
-        
-        # Optionally hide the dropdown after selection
+
+        # Hide the dropdown menu
         self.toggle_agent_dropdown()
 
     def load_random_avatar(self):
@@ -229,15 +235,17 @@ class PlayerView(BaseView):
         
         # Update timer from time manager
         if 'time_manager' in state:
-            remaining_time = state['time_manager'].get_remaining_time(current_player.id)
+            remaining_time = state['time_manager'].get_remaining_time(self.player.id)
             self.timer_label.configure(text=f"{int(remaining_time)}s")
         
         # Update pieces count from board state
         if 'board' in state:
-            pieces_count = sum(1 for piece in state['board'].pieces 
-                             if piece.player_id == current_player.id)
-            self.pieces_label.configure(text=str(pieces_count))
+            soldier_count = sum(
+                1 for value in state['board'].soldiers.values()
+                if value == self.player.id
+            )
+            self.pieces_label.configure(text=str(soldier_count))
         
         # Update player name if no agent selection is in progress
         if not self.agent_dropdown:
-            self.name_label.configure(text=current_player.name or 'Select an agent')
+            self.name_label.configure(text=self.agent.name or 'Select an agent')

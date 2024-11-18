@@ -3,7 +3,7 @@ from views.base_view import BaseView
 from views.Left_Column.player_view import PlayerView
 
 class PlayersColumn(BaseView):
-    def __init__(self, master: any, store: any):
+    def __init__(self, master: any, store: any, agent1, agent2):
         super().__init__(master)
         self.store = store
         
@@ -20,7 +20,7 @@ class PlayersColumn(BaseView):
         self.main_container.grid_columnconfigure(0, weight=1)
 
         # Player 1
-        self.player1 = PlayerView(self.main_container, self.store)
+        self.player1 = PlayerView(self.main_container, agent=agent1, store=store)
         self.player1.frame.grid(row=0, column=0, sticky="nsew", pady=(5, 0))
 
         # VS Label container
@@ -35,7 +35,7 @@ class PlayersColumn(BaseView):
         self.vs_label.pack(expand=True)
 
         # Player 2
-        self.player2 = PlayerView(self.main_container, self.store)
+        self.player2 = PlayerView(self.main_container, agent=agent2, store=store)
         self.player2.frame.grid(row=2, column=0, sticky="nsew", pady=(0, 5))
 
     def update(self, state: dict):

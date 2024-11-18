@@ -7,6 +7,11 @@ def change_current_player(new_player):
         "new_player": new_player
     }
 
+def initialize_players_action():
+    return {
+        "type": "INITIALIZE_PLAYERS"
+    }
+
 def initialize_players(player1_time: float, player2_time: float) -> Dict:
     """Creates an action to initialize players with time controls"""
     return {
