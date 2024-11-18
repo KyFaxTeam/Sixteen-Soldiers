@@ -1,6 +1,6 @@
 from pathlib import Path
 
-# Chemins de base du projet
+# Base paths for the project
 ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"

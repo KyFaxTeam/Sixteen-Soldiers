@@ -1,4 +1,6 @@
 import customtkinter as ctk
+from PIL import Image  # Add this import if not already present
+from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
 
 from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
@@ -36,7 +38,10 @@ class MainView(BaseView):
         self.home_view.show()
         
         self.winner_data = {
-            "profile_img": "assets/images/kyfax_logo-removebg-preview.png",  # Provide a real image path
+            "profile_img": ctk.CTkImage(
+                Image.open(ASSETS_DIR / "images" / "kyfax_logo-removebg-preview.png"),
+                size=(100, 100)  # Adjust size as needed
+            ),
             "team_pseudo": "Team A",
             "ai_name": "AI-1",
             "remaining_time": "25",
@@ -55,8 +60,16 @@ class MainView(BaseView):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
-        self.show_after_game_view()  # Initialize main layout and sub-views
+        # Initialize or load state as needed
+        # For example, you might load a saved game state here
+        self.load_saved_game_state()
+        self.show_after_game_view()
         
+    def load_saved_game_state(self):
+        """Load a saved game state for review"""
+        # Implement logic to load a saved game state
+        # Ensure that self.store.state has the necessary data
+        pass
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
@@ -110,7 +123,6 @@ class MainView(BaseView):
         self.after_game_view = AfterGameView(
             self.master,
             store=self.store,
-            winner_data=self.winner_data,
             on_restart=self.restart_game,
             on_save=self.save_game
         )
