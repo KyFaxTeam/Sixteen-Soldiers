@@ -24,7 +24,6 @@ def initialize_game(state: Dict) -> Dict:
         "game_over": False,
         "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
         "winner": {},
-
         "history": []
 
     })

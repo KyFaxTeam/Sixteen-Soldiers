@@ -7,7 +7,7 @@ class GameRunner:
     def __init__(self, store: Any):
         self.store = store
 
-    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5, time_limit: float = INITIAL_VALUES['TIMER']):
+    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.6, time_limit: float = INITIAL_VALUES['TIMER']):
         """
         Run a game between two AI agents with time control
         
@@ -19,13 +19,7 @@ class GameRunner:
         """
         # Initialize game and time control
         self.store.dispatch({"type": "INITIALIZE_GAME"})
-        self.store.dispatch({
-            "type": "INITIALIZE_TIME_CONTROL",
-            "time_limits": {
-                agent1.player.id: time_limit,
-                agent2.player.id: time_limit
-            }
-        })
+        
         
         while not self.store.get_state().get("game_over", False):
             current_state = self.store.get_state()

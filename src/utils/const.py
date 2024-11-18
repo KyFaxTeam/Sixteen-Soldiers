@@ -49,7 +49,7 @@ TIMINGS = {
 
 # Initial values for the game
 INITIAL_VALUES = {
-    "TIMER": 120,  # Initial timer value in seconds
+    "TIMER": 30,  # Initial timer value in seconds
     "PIECES_COUNT": 16  # Initial pieces count
 }
 
