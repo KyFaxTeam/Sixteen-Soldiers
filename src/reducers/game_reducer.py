@@ -15,7 +15,7 @@ def initialize_game(state: Dict) -> Dict:
          if player.id == PLAYER_CONFIG["PLAYER_1"]), 
         0  # default to 0 if not found
     )
-    
+    # winner = {name: agent.name, avatar : ..., remaining_soldiers : agent..., ai_name :...., time_remaining : TimeManager[]..., }
     new_state = state.copy()
     new_state.update({
         "board": new_state.get("board", Board()),
@@ -24,7 +24,9 @@ def initialize_game(state: Dict) -> Dict:
         "game_over": False,
         "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
         "winner": None,
+
         "history": []
+
     })
     return new_state
 
