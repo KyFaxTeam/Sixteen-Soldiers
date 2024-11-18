@@ -1,3 +1,6 @@
+import re
+
+
 def is_valid_move(board, player, from_pos, to_pos):
     """
     Validates if a piece movement is legal.
@@ -94,3 +97,6 @@ def get_valid_captures(board, player, pos):
         list: List of valid capture positions (x, y).
     """
     pass
+
+def is_valid_algebraic_coord(coord: str):
+    return re.match(r'^[a-h][0-5]$', coord)

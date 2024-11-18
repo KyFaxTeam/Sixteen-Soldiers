@@ -1,40 +1,41 @@
 import customtkinter as ctk
 from views.base_view import BaseView
 from views.Left_Column.player_view import PlayerView
-# Removed ThemeManager import
-# from utils.theme_manager import ThemeManager
 
 class PlayersColumn(BaseView):
-    def __init__(self, master: any):
+    def __init__(self, master: any, store: any):
         super().__init__(master)
+        self.store = store
         
         self.frame.configure(fg_color="transparent")
         
-        # Configure grid weights
-        self.frame.grid_rowconfigure(0, weight=40)
-        self.frame.grid_rowconfigure(1, weight=30)
-        self.frame.grid_rowconfigure(2, weight=40)
-        self.frame.grid_columnconfigure(0, weight=1)
+        # Créez un conteneur principal qui utilisera grid
+        self.main_container = ctk.CTkFrame(self.frame)
+        self.main_container.pack(expand=True, fill="both")
+        
+        # Configure grid weights pour le main_container
+        self.main_container.grid_rowconfigure(0, weight=40)
+        self.main_container.grid_rowconfigure(1, weight=30)
+        self.main_container.grid_rowconfigure(2, weight=40)
+        self.main_container.grid_columnconfigure(0, weight=1)
 
         # Player 1
-        self.player1 = PlayerView(self.frame)
+        self.player1 = PlayerView(self.main_container, self.store)
         self.player1.frame.grid(row=0, column=0, sticky="nsew", pady=(5, 0))
 
-        # VS Label container with transparent background
-        self.vs_container = ctk.CTkFrame(self.frame, fg_color="transparent")
+        # VS Label container
+        self.vs_container = ctk.CTkFrame(self.main_container, fg_color="transparent")
         self.vs_container.grid(row=1, column=0, sticky="nsew")
-        self.vs_container.grid_columnconfigure(0, weight=1)
-        self.vs_container.grid_rowconfigure(0, weight=1)
         
         self.vs_label = ctk.CTkLabel(
             self.vs_container,
             text="VS",
             font=ctk.CTkFont(size=16, weight="bold")
         )
-        self.vs_label.grid(row=0, column=0)
+        self.vs_label.pack(expand=True)
 
         # Player 2
-        self.player2 = PlayerView(self.frame)
+        self.player2 = PlayerView(self.main_container, self.store)
         self.player2.frame.grid(row=2, column=0, sticky="nsew", pady=(0, 5))
 
     def update(self, state: dict):

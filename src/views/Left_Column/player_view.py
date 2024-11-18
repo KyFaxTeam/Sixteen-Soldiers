@@ -20,6 +20,7 @@ class PlayerView(BaseView):
             initial_time = "---"
             initial_pieces = "---"
         
+
         self.joueur_frame = ctk.CTkFrame(
             self.frame,
             corner_radius=6
@@ -37,18 +38,24 @@ class PlayerView(BaseView):
         self.avatar_container.grid(row=0, column=0, sticky="ew", padx=15, pady=(15, 5))
         self.avatar_container.grid_propagate(False)
         
+        # Stockez l'image comme attribut de classe pour éviter qu'elle ne soit collectée
+        self._avatar_image = None
+        self._avatar_ctk_image = None
+        
         # Enhanced avatar with random image
         self.avatar_image = self.load_random_avatar()
-        self.avatar = ctk.CTkLabel(
-            self.avatar_container,
-            text="",
-            image=ctk.CTkImage(
+        if self.avatar_image:
+            self.avatar_ctk_image = ctk.CTkImage(
                 light_image=self.avatar_image,
                 dark_image=self.avatar_image,
                 size=(60, 60)
             )
-        )
-        self.avatar.place(relx=0.5, rely=0.5, anchor="center")
+            self.avatar = ctk.CTkLabel(
+                self.avatar_container,
+                text="",
+                image=self.avatar_ctk_image
+            )
+            self.avatar.place(relx=0.5, rely=0.5, anchor="center")
         
         # Info section
         self.info_frame = ctk.CTkFrame(
@@ -191,9 +198,19 @@ class PlayerView(BaseView):
         if avatar_files:
             random_avatar = random.choice(avatar_files)
             avatar_path = os.path.join(avatar_dir, random_avatar)
-            return Image.open(avatar_path).convert('RGBA')
+            print(f"Loading avatar image from: {avatar_path}")  # Debugging line
+            try:
+                image = Image.open(avatar_path).convert('RGBA')
+                return image
+            except Exception as e:
+                print(f"Error loading image: {e}")
+                return None
         else:
-            fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))
+
+            print("No avatar images found in the directory.")  # Debugging line
+            # Fallback if no images are found
+            fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))  # Gray placeholder
+
             return fallback_image
 
     def update(self, state: dict):

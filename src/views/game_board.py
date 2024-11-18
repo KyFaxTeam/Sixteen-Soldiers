@@ -4,13 +4,18 @@ from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
 from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE
+from utils.game_runner import GameRunner
 from views.base_view import BaseView
 
 
 class GameBoard(BaseView):
     
-    def __init__(self, master):
+    def __init__(self, master, store, agent1, agent2):
+        # store.state['board']
         super().__init__(master)
+        self.store = store
+        self.agent1 = agent1
+        self.agent2 = agent2
         self.frame.pack(expand=True, fill="both")
         
         # Créer un conteneur pour le canvas et les boutons
@@ -33,6 +38,10 @@ class GameBoard(BaseView):
         self.sounds = Sounds()
         self._init_board()
         
+        # Ajoutez un bouton "Play"
+        self.play_button = ctk.CTkButton(self.button_frame, text="Play", command=self.start_game)
+        self.play_button.pack()
+        self.current_positions = {}  # Stocke les positions actuelles des pièces
         
     def _init_board(self):
         self.__draw_board()
@@ -182,10 +191,60 @@ class GameBoard(BaseView):
     
     def update(self, state):
         """Met à jour le plateau en fonction du nouvel état"""
-        if "board" in state:
-            board = state["board"]
-            # Mettre à jour les positions des pièces
-            for pos, piece_type in board.pieces.items():
-                # Logique de mise à jour visuelle du plateau
-                pass
-
+        if not state.get("board"):
+            return
+            
+        # board = state["board"]
+        # current_player = state.get("current_player_index", 0)
+        
+        # # Mettre à jour les positions des pièces
+        # for position, soldier in board.soldiers.items():
+        #     if position not in self.current_positions:
+        #         # Nouvelle pièce à ajouter
+        #         if soldier == -1:  # Rouge
+        #             piece = self.canvas.create_image(
+        #                 position[0], position[1],
+        #                 image=self.frame.red_soldier_icon
+        #             )
+        #             self.red_soldiers.append(piece)
+        #         else:  # Bleu
+        #             piece = self.canvas.create_image(
+        #                 position[0], position[1],
+        #                 image=self.frame.blue_soldier_icon
+        #             )
+        #             self.blue_soldiers.append(piece)
+        #         self.current_positions[position] = piece
+        #     else:
+        #         # Déplacer la pièce existante
+        #         piece = self.current_positions[position]
+        #         current_pos = self.canvas.coords(piece)
+        #         if current_pos != position:
+        #             self._move_soldier_in_bord(
+        #                 self.red_soldiers.index(piece) if piece in self.red_soldiers else self.blue_soldiers.index(piece),
+        #                 position
+        #             )
+        
+        # # Supprimer les pièces qui ne sont plus sur le plateau
+        # current_pieces = set(board.soldiers.keys())
+        # for pos in list(self.current_positions.keys()):
+        #     if pos not in current_pieces:
+        #         piece = self.current_positions[pos]
+        #         self.canvas.delete(piece)
+        #         if piece in self.red_soldiers:
+        #             self.red_soldiers.remove(piece)
+        #         else:
+        #             self.blue_soldiers.remove(piece)
+        #         del self.current_positions[pos]
+        
+        # Mettre à jour l'interface si nécessaire
+        self.canvas.update_idletasks()
+        
+        # Mise à jour du bouton Play en fonction de l'état du jeu
+        if state.get("game_over"):
+            self.play_button.configure(state="disabled")
+        else:
+            self.play_button.configure(state="normal")
+    
+    def start_game(self):
+        runner = GameRunner(self.store)
+        runner.run_player_game(self.agent1, self.agent2)

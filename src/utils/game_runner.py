@@ -37,7 +37,9 @@ class GameRunner:
             
             try:
                 # Get and execute agent's action
-                action = current_agent.choose_action(current_state["board"], current_player)
+                action = current_agent.choose_action(board=current_state["board"])
+                print(action)
+                
                 self.store.dispatch(action)
                 
                 # Calculate elapsed time and update time manager
@@ -64,6 +66,8 @@ class GameRunner:
                 # Add delay for visualization
                 time.sleep(delay)
                 
-            except ValueError:
-                print(f"No valid moves for {current_player.id}")
-                break
+            except Exception as error:
+                raise Exception(error)
+                # print(f"Error : {error}")
+                # break
+            

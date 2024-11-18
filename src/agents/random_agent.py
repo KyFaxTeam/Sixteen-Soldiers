@@ -9,7 +9,7 @@ class RandomAgent(BaseAgent):
     AI agent that plays random valid moves, inherits from BaseAgent.
     """
     
-    def __init__(self, player: Player, name: str):
+    def __init__(self, player: Player, name: str = "Random Agent"):
         """
         Initialize the random agent.
         
@@ -20,7 +20,7 @@ class RandomAgent(BaseAgent):
         super().__init__(player, name)
         self.rng = random.Random()
     
-    def choose_action(self, board: Board, player: Player) -> Dict:
+    def choose_action(self, board: Board) -> Dict:
         """
         Choose a random action from valid moves and captures for the player.
         
@@ -34,7 +34,7 @@ class RandomAgent(BaseAgent):
         Raises:
             ValueError: If no valid moves are available
         """
-        valid_actions = self.get_valid_moves(board, player)
+        valid_actions = board.get_valid_actions(player=self.player.id)
         
         if not valid_actions:
             raise ValueError("No valid moves available")

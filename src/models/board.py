@@ -1,11 +1,13 @@
 from typing import Dict, List, Tuple, Set
 
+from actions.board_actions import BoardAction
+
 class Board:
     def __init__(self):
         # Définir la structure du plateau comme un graphe
         # Chaque position est identifiée par ses coordonnées algébriques
         # et stocke ses connexions avec les autres positions
-        self.board_graph: Dict[str, Set[str]] = {
+        self.battle_field: Dict[str, Set[str]] = {
             'a1' : ['a3', 'b2'],
             'a3' : ['a1', 'a5', 'b3'],
             'a5' : ['a3', 'b4'],
@@ -55,33 +57,49 @@ class Board:
         
         # Stocker l'état des pions dans un dictionnaire
         # 0 = vide, 1 = rouge, 2 = vert
-        # self.pieces: Dict[Tuple[int, int], int] = {pos: 0 for pos in self.positions}
+        self.soldiers: Dict[str, int] = {pos: 0 for pos in self.battle_field.keys()}
         
         # # Placer les pions initiaux
         # # Pions rouges (haut)
-        # for pos in [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1)]:
+        for pos in ['a1', 'a3', 'a5', 'b2', 'b3', 'b4', 'c1', 'c2', 'c3', 'c4', 'c5', 'd1', 'd2', 'd3', 'd4', 'd5']:
+            self.soldiers[pos] = 1
         #     self.pieces[pos] = 1
             
-        # # Pions verts (bas)
-        # for pos in [(3, 2), (4, 0), (4, 1), (4, 2), (5, 0), (5, 1), (5, 2), (3, 1)]:
-        #     self.pieces[pos] = 2
-    
-    def get_all_node(self):
-        return self.board_graph.keys()
+        # # Pions bleus (bas)
+        for pos in ['f1', 'f2', 'f3', 'f4', 'f5', 'g1', 'g2', 'g3', 'g4', 'g5', 'h2', 'h3', 'h4', 'i1', 'i3', 'i5']:
+            self.soldiers[pos] = -1
     
     def get_piece(self, pos: Tuple[int, int]) -> int:
         pass
 
-    def is_valid_move(self, from_pos: Tuple[int, int], to_pos: Tuple[int, int]) -> bool:
-        pass
-
-    def move_piece(self, from_pos: Tuple[int, int], to_pos: Tuple[int, int]) -> bool:
-        pass
+    def is_valid_move(self, action) -> bool:
+        
+        # TODO : assertion
+        # TODO : 
+        if action['type'] == "MOVE_SOLDIER":
+            ...
+        
+        if self.soldiers[action['from']] != action['soldier']:
+            return False
+        if self.soldiers[action['to']] != 0:
+            return False
+        
+        return True
 
     def evaluate_position(self) -> float:
         pass
+    
+    def make_move(self, action):
+        match action['type']:
+            case 'MOVE_SOLDIER':
+                if self.is_valid_move(action=action):
+                    self.__move_soldier(from_=action['from'], to=action['to'], soldier=action['soldier'])
+            
+            case 'CAPTURE_SOLDIER':
+                if self.is_valid_move(action=action):
+                    self.__capture_soldier(from_=action['from'], to=action['to'], captured_soldier=action['captured_soldier'])
 
-    def move_piece(self, from_pos: Tuple[int, int], to_pos: Tuple[int, int]) -> bool:
+    def __move_soldier(self, from_: str, to: str, soldier: int):
         """
         Déplace un pion sur le plateau.
     
@@ -93,10 +111,11 @@ class Board:
         Returns:
             dict: État mis à jour avec le pion déplacé.
         """
-   
-        pass
+        self.soldiers[from_] = 0
+        self.soldiers[to] = soldier
+        
 
-    def capture_piece(self, pos: Tuple[int, int]) -> bool:
+    def __capture_soldier(self, from_: str, to:str, captured_soldier=str) -> bool:
         """
         Capture un pion sur le plateau.
     
@@ -123,6 +142,7 @@ class Board:
         pass
     
     def get_valid_actions(self, player: int) -> List[Dict]:
+        
         """
         Renvoie les actions valides pour un joueur donné.
 
@@ -133,7 +153,36 @@ class Board:
         Returns:
             list: Liste des actions valides.
         """
-        pass
+        
+        assert player == -1 or player == 1 , "Invalid Player"
+
+        valid_positions = []
+        
+        empty_positions = [node  for node, player in self.soldiers.items() if player == 0 ]
+
+        for empty_position in empty_positions:
+            empty_position_neighbors = self.battle_field[empty_position]
+            
+            for neighbor in empty_position_neighbors :
+                if self.soldiers[neighbor] == player:
+                    # Le joeur peut accéder à une cellule vide
+                    valid_positions.append(BoardAction.move_soldier(
+                        from_ = neighbor, 
+                        to = empty_position,
+                        soldier=player
+                        ))
+                    
+                if self.soldiers[neighbor] == player * -1:
+                    # On vérifie si un soldat à du vide derrière un ennemi
+                    for neighbor_neighbor in self.battle_field[neighbor]:
+                        if self.soldiers[neighbor_neighbor] ==  player :
+                            valid_positions.append(BoardAction.capture_soldier(
+                                captured_soldier = neighbor,
+                                from_ = neighbor_neighbor,
+                                to = empty_position,
+                                soldier=player
+                            ))
+        return valid_positions
 
 
     def to_dict(self):

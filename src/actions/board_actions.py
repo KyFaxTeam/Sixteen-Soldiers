@@ -1,34 +1,41 @@
-def move_piece(piece, from_position, to_position):
-    return {
-        "type": "MOVE_PIECE",
-        "piece": piece,
-        "from_position": from_position,
-        "to_position": to_position
-    }
+class BoardAction:
+    @staticmethod
+    def move_soldier(from_: str, to: str, soldier: int):
+        return {
+            "type": "MOVE_SOLDIER",
+            "soldier" : soldier,
+            "from": from_,
+            "to": to
+        }
+        
+    @staticmethod
+    def capture_soldier(from_: str, to: str, soldier: int, captured_soldier: str):
+        return {
+            "type": "CAPTURE_SOLDIER",
+            'soldier': soldier,
+            'from' : from_,
+            'to' : to,
+            "captured_soldier": captured_soldier,
+        }
 
-def capture_piece(captured_piece, capturing_piece, position):
-    return {
-        "type": "CAPTURE_PIECE",
-        "captured_piece": captured_piece,
-        "capturing_piece": capturing_piece,
-        "position": position
-    }
+    @staticmethod
+    def add_soldier(soldier, position):
+        return {
+            "type": "ADD_SOLDIER",
+            "soldier": soldier,
+            "position": position
+        }
 
-def add_piece(piece, position):
-    return {
-        "type": "ADD_PIECE",
-        "piece": piece,
-        "position": position
-    }
+    @staticmethod
+    def remove_soldier(soldier, position):
+        return {
+            "type": "REMOVE_SOLDIER",
+            "soldier": soldier,
+            "position": position
+        }
 
-def remove_piece(piece, position):
-    return {
-        "type": "REMOVE_PIECE",
-        "piece": piece,
-        "position": position
-    }
-
-def reset_board():
-    return {
-        "type": "RESET_BOARD"
-    }
+    @staticmethod
+    def reset_board():
+        return {
+            "type": "RESET_BOARD"
+        }
