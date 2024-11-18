@@ -91,8 +91,8 @@ class MainView(BaseView):
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
         # Historique view
-        self.historique_view = HistoryView(self.right_column)
-        self.settings_view = SettingsView(self.right_column)
+        self.historique_view = HistoryView(self.right_column, self.store)
+        self.settings_view = SettingsView(self.right_column, self.store)
 
         # Ajouter des mouvements factices pour tester
         self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
@@ -109,6 +109,7 @@ class MainView(BaseView):
         """Show AfterGameView with winner details"""
         self.after_game_view = AfterGameView(
             self.master,
+            store=self.store,
             winner_data=self.winner_data,
             on_restart=self.restart_game,
             on_save=self.save_game

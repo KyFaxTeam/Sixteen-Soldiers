@@ -1,9 +1,16 @@
 import customtkinter as ctk
 from PIL import Image, ImageTk
+from views.base_view import BaseView
 
-class AfterGameView(ctk.CTkToplevel):
-    def __init__(self, master, winner_data, on_restart, on_save):
-        super().__init__(master)
+class AfterGameView(ctk.CTkToplevel, BaseView):
+    def __init__(self, master, store, on_restart, on_save):
+        ctk.CTkToplevel.__init__(self, master)
+        BaseView.__init__(self, self)
+        self.store = store
+        self.on_restart = on_restart
+        self.on_save = on_save
+        if self.store:
+            self.subscribe(self.store)
         
         # Configure window to overshadow MainView
         self.title("Game Over")
@@ -11,6 +18,10 @@ class AfterGameView(ctk.CTkToplevel):
         self.transient(master)
         self.grab_set()  # Block interaction with MainView
 
+        # Fetch winner's data from store
+        state = self.store.get_state()
+        winner_data = self.get_winner_data(state)
+        
         # Winner's data
         profile_img_path = winner_data.get("profile_img")
         team_pseudo = winner_data.get("team_pseudo", "Unknown")
@@ -60,3 +71,32 @@ class AfterGameView(ctk.CTkToplevel):
         # Save button
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=on_save, width=50)
         save_button.grid(row=0, column=4, padx=(75, 0))
+
+    def get_winner_data(self, state):
+        """Extract winner data from the state"""
+        winner_player = state.get("winner")
+        if not winner_player:
+            return {}
+        # Assuming winner_player has necessary attributes
+        winner_data = {
+            "profile_img": winner_player.profile_img,
+            "team_pseudo": winner_player.team_pseudo,
+            "ai_name": winner_player.agent_name,
+            "remaining_time": self.get_remaining_time(winner_player.id),
+            "remaining_pawns": self.get_remaining_pawns(winner_player.id)
+        }
+        return winner_data
+
+    def get_remaining_time(self, player_id):
+        # ...existing code or new logic...
+        pass
+    
+    def get_remaining_pawns(self, player_id):
+
+        # ...existing code or new logic...
+        pass
+
+    def update(self, state):
+        """Update the view when the state changes"""
+        # ...update logic if needed...
+        pass
