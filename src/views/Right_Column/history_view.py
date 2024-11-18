@@ -8,6 +8,7 @@ class HistoryView(BaseView):
     """View for game history and settings"""
     def __init__(self, master, store=None):
         super().__init__(master)
+        self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
         if self.store:
             self.subscribe(self.store)
@@ -96,3 +97,9 @@ class HistoryView(BaseView):
         # Populate with new move history
         for move in move_history:
             self.add_move(move['description'], move)
+
+# If you have any images being used, ensure they're wrapped with ctk.CTkImage
+# Example:
+# image = Image.open(image_path)
+# ctk_image = ctk.CTkImage(image, size=(width, height))
+# some_widget.configure(image=ctk_image)

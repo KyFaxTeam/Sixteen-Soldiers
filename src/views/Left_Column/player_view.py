@@ -10,6 +10,7 @@ from PIL import Image
 class PlayerView(BaseView):
     def __init__(self, master: any, agent, store: Optional[any] = None):
         super().__init__(master)
+        self.frame = ctk.CTkFrame(self.master)
         self.agent = agent
         self.player = agent.player
         self.store = store
@@ -51,8 +52,7 @@ class PlayerView(BaseView):
         self.avatar_image = self.load_random_avatar()
         if self.avatar_image:
             self.avatar_ctk_image = ctk.CTkImage(
-                light_image=self.avatar_image,
-                dark_image=self.avatar_image,
+                self.avatar_image,
                 size=(60, 60)
             )
             self.avatar = ctk.CTkLabel(

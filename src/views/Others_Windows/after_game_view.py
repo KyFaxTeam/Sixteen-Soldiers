@@ -1,11 +1,12 @@
+import os  # Import os module for path operations
 import customtkinter as ctk
-from PIL import Image, ImageTk
+from PIL import Image
 from views.base_view import BaseView
+from utils.const import ASSETS_DIR  # Import ASSETS_DIR
 
-class AfterGameView(ctk.CTkToplevel, BaseView):
+class AfterGameView(ctk.CTkToplevel):
     def __init__(self, master, store, on_restart, on_save):
-        ctk.CTkToplevel.__init__(self, master)
-        BaseView.__init__(self, self)
+        super().__init__(master)
         self.store = store
         self.on_restart = on_restart
         self.on_save = on_save
@@ -35,8 +36,10 @@ class AfterGameView(ctk.CTkToplevel, BaseView):
         # Display profile picture
         self.profile_image = ctk.CTkLabel(self, text="")
         if profile_img_path:
-            image = Image.open(profile_img_path).resize((100, 100))
-            self.photo = ImageTk.PhotoImage(image)
+            # Use os.path.join to construct the full path
+            profile_img_full_path = os.path.join(ASSETS_DIR, profile_img_path)
+            image = Image.open(profile_img_full_path)
+            self.photo = ctk.CTkImage(image, size=(100, 100))
             self.profile_image.configure(image=self.photo)
         self.profile_image.pack(pady=(0, 5))
 
@@ -53,8 +56,9 @@ class AfterGameView(ctk.CTkToplevel, BaseView):
         time_label.grid(row=0, column=0, padx=10)
 
         # Display pawns remaining icon
-        pawns_image = Image.open("assets/images/red_soldier.png").resize((20, 20))  # Assuming icon size of 20x20 pixels
-        self.pawns_photo = ImageTk.PhotoImage(pawns_image)
+        pawns_image_path = os.path.join(ASSETS_DIR, "images", "red_soldier.png")
+        pawns_image = Image.open(pawns_image_path)
+        self.pawns_photo = ctk.CTkImage(pawns_image, size=(20, 20))
         pawns_label = ctk.CTkLabel(bottom_frame, image=self.pawns_photo, text="")  # Display as icon only
         pawns_label.grid(row=0, column=1, padx=((25, 0)))
 
@@ -63,8 +67,9 @@ class AfterGameView(ctk.CTkToplevel, BaseView):
         remaining_pawns_label.grid(row=0, column=2, padx=(0, 15))
 
         # Restart button with icon
-        restart_image = Image.open("assets/images/refresh.png").resize((25, 25))  # Adjust icon size as needed
-        self.restart_photo = ImageTk.PhotoImage(restart_image)
+        restart_image_path = os.path.join(ASSETS_DIR, "images", "refresh.png")
+        restart_image = Image.open(restart_image_path).resize((25, 25))  # Adjust icon size as needed
+        self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
         restart_button = ctk.CTkButton(bottom_frame, image=self.restart_photo, text="", command=on_restart, width=30, height=30)
         restart_button.grid(row=0, column=3, padx=(30, 25))
 
@@ -72,29 +77,64 @@ class AfterGameView(ctk.CTkToplevel, BaseView):
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=on_save, width=50)
         save_button.grid(row=0, column=4, padx=(75, 0))
 
+    def subscribe(self, store):
+        self.store = store
+        store.subscribe(self.update)
+
     def get_winner_data(self, state):
         """Extract winner data from the state"""
-        winner_player = state.get("winner")
+        winner_id = state.get("winner")
+        if not winner_id:
+            return {
+                "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
+                "team_pseudo": "Team A",
+                "ai_name": "AI-1",
+                "remaining_time": "25",
+                "remaining_pawns": 3
+            }
+        # Retrieve the winner player object using the winner_id
+        players = state.get("players", [])
+        winner_player = next(
+            (player for player in players if player.id == winner_id),
+            None
+        )
         if not winner_player:
-            return {}
-        # Assuming winner_player has necessary attributes
+            return {
+                "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
+                "team_pseudo": "Unknown",
+                "ai_name": "AI",
+                "remaining_time": "00:00",
+                "remaining_pawns": 0
+            }
+        # Create winner data dictionary
         winner_data = {
-            "profile_img": winner_player.profile_img,
-            "team_pseudo": winner_player.team_pseudo,
-            "ai_name": winner_player.agent_name,
+            "profile_img": getattr(winner_player, "profile_img", os.path.join("images", "kyfax_logo-removebg-preview.png")),
+            "team_pseudo": getattr(winner_player, "team_pseudo", "Unknown"),
+            "ai_name": getattr(winner_player, "agent_name", "AI"),
             "remaining_time": self.get_remaining_time(winner_player.id),
-            "remaining_pawns": self.get_remaining_pawns(winner_player.id)
+            "remaining_pawns": self.get_remaining_pawns(winner_player.id),
         }
         return winner_data
 
     def get_remaining_time(self, player_id):
         # ...existing code or new logic...
-        pass
+        if player_id:
+            time_manager = self.store.get_state().get("time_manager")
+            if time_manager:
+                return time_manager.get_remaining_time(player_id)
+        return "00:00"
     
     def get_remaining_pawns(self, player_id):
-
         # ...existing code or new logic...
-        pass
+        if player_id:
+            board = self.store.get_state().get("board")
+            if board:
+                soldier_count = sum(
+                    1 for position, owner in board.soldiers.items()
+                    if owner == player_id
+                )
+                return soldier_count
+        return 0
 
     def update(self, state):
         """Update the view when the state changes"""

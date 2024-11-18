@@ -23,7 +23,7 @@ def initialize_game(state: Dict) -> Dict:
         "players": new_state.get("players", []), # Preserve existing players if any
         "game_over": False,
         "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
-        "winner": None,
+        "winner": {},
 
         "history": []
 
@@ -40,7 +40,22 @@ def end_game(state: Dict, winner_id: str) -> Dict:
     """End the game and set winner"""
     new_state = state.copy()
     new_state["game_over"] = True
-    new_state["winner"] = winner_id
+    # Find the winner player object
+    winner_player = next(
+        (player for player in state.get("players", []) if player.id == winner_id),
+        None
+    )
+    # Store the winner player data in the state
+    if winner_player:
+        new_state["winner"] = {
+            "id": winner_player.id,
+            "profile_img": winner_player.profile_img,  # Ensure this attribute exists
+            "team_pseudo": winner_player.team_pseudo,  # Ensure this attribute exists
+            "agent_name": winner_player.agent_name,    # Ensure this attribute exists
+            # Add any other necessary attributes
+        }
+    else:
+        new_state["winner"] = {}
     return new_state
 
 def game_reducer(state: Dict, action: Dict) -> Dict:
