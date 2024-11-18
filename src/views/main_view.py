@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import time
 from PIL import Image  # Add this import if not already present
 from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
 
@@ -31,6 +32,9 @@ class MainView(BaseView):
         self.settings_view = None
         self.is_game_started = False
         
+        #update of the store of mainview
+        self.subscribe(store)
+
          #Lancer un nouveau jeu
         #self.start_new_game()
         # Initialize HomeView
@@ -54,7 +58,8 @@ class MainView(BaseView):
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True
-        
+        if self.store.state["game_over"]:
+            self.show_after_game_view()
 
     def review_match(self):
         """Review a match and switch to history view"""
@@ -111,12 +116,6 @@ class MainView(BaseView):
         self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
         self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
         self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
-
-    def check_game_end_condition(self):
-        """Placeholder condition to trigger AfterGameView"""
-        game_ended = True  # Replace this with real game-end logic
-        if game_ended:
-            self.show_after_game_view()
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""

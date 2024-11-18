@@ -19,6 +19,7 @@ def main():
     # Initialize empty state
     initial_state = {
         "board": Board(),
+        "game_over": False
     }
     
     # Créez la fenêtre principale
