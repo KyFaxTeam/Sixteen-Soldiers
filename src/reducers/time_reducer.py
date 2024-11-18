@@ -19,9 +19,13 @@ def time_reducer(state: Dict, action: Dict) -> Dict:
             )
             
         case "INITIALIZE_TIME_CONTROL":
-            # Utilise directement INITIAL_VALUES['TIMER'] pour tous les joueurs
-            state["time_manager"].set_time_limits(
-                {player_id: INITIAL_VALUES['TIMER'] for player_id in action["time_limits"].keys()}
-            )
+            state["time_manager"] = TimeManager()
+            time_limits = action.get("time_limits", {})
+            
+            # Si time_limits est vide ou None, utilise INITIAL_VALUES['TIMER'] pour les deux joueurs
+            if not time_limits:
+                time_limits = {1: INITIAL_VALUES['TIMER'], -1: INITIAL_VALUES['TIMER']}
+            
+            state["time_manager"].set_time_limits(time_limits)
             
     return state

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List,  Dict
+from typing import List, Dict
 
 
 
@@ -33,6 +33,10 @@ class Player:
             "color": self.color,
             "remaining_pieces": self.remaining_pieces,
         }
+
+    def count_pieces(self, board) -> int:
+        """Count remaining pieces for this player on the board"""
+        return sum(1 for value in board.soldiers.values() if value == self.id)
 
 
 

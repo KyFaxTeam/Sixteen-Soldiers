@@ -72,7 +72,7 @@ class MainView(BaseView):
         self.content.grid_columnconfigure(2, weight=1)  # Right column
         
         # Left column - Players
-        self.players_column = PlayersColumn(self.content, self.store)
+        self.players_column = PlayersColumn(self.content, self.store, self.agent1, self.agent2)
         self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
