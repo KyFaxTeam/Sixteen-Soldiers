@@ -6,9 +6,9 @@ class BaseView:
     """Base class for all views in the application"""
     def __init__(self, master):
         self.master = master
+        self.store = None
         # Créez un frame pour les vues qui nécessitent un conteneur
         self.frame = ctk.CTkFrame(self.master)
-        self.store = None
     
     def subscribe(self, store):
         self.store = store

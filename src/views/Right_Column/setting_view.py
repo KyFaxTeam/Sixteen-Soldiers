@@ -5,8 +5,11 @@ from utils.const import THEME_PATH
 
 class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
-    def __init__(self, master):
+    def __init__(self, master, store=None):
         super().__init__(master)
+        self.store = store
+        if self.store:
+            self.subscribe(self.store)
         self.frame.configure(corner_radius=10)
         self.frame.pack(fill="both", expand=True, padx=10, pady=10)
         self.sounds = Sounds()
@@ -130,4 +133,8 @@ class SettingsView(BaseView):
             self.sound_control.set(settings["sound"])
         if "theme" in settings:
             self.theme_control.set(settings["theme"])
+
+    def update(self, state):
+        """Update settings view based on the state"""
+        # ...update logic if needed...
 
