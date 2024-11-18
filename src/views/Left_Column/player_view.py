@@ -10,7 +10,7 @@ from PIL import Image
 class PlayerView(BaseView):
     def __init__(self, master: any, agent, store: Optional[any] = None):
         super().__init__(master)
-        self.frame = ctk.CTkFrame(self.master)
+        
         self.agent = agent
         self.player = agent.player
         self.store = store

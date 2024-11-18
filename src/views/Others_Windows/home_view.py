@@ -6,7 +6,7 @@ class HomeView(BaseView):
     
     def __init__(self, master, on_new_game, on_review_match):
         super().__init__(master)
-        
+        self.frame = ctk.CTkFrame(self.master)
         self.frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Title label

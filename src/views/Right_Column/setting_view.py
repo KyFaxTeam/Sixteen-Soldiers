@@ -7,6 +7,7 @@ class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
     def __init__(self, master, store=None):
         super().__init__(master)
+        self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
         if self.store:
             self.subscribe(self.store)

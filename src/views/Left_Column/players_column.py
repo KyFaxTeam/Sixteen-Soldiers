@@ -6,7 +6,7 @@ class PlayersColumn(BaseView):
     def __init__(self, master: any, store: any, agent1, agent2):
         super().__init__(master)
         self.store = store
-        
+        self.frame = ctk.CTkFrame(self.master)
         self.frame.configure(fg_color="transparent")
         
         # Créez un conteneur principal qui utilisera grid
