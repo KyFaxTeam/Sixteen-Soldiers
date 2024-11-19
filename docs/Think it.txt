@@ -7,7 +7,13 @@ Le coup pour une capture multiple devrait être en une seule fois parce que c'es
 Ce qui serait fun c'est de pouvoir envoyer ces matchs à quelqu'un pour qu'il le rejoue
 Voir alors comment sont sauvegardé les fichiers de matchs
 
-Dans player_view, à quoi sert update_theme si les couleurs sont déjà définies en focntion du theme_manager.current_theme ?
+Il faudrait simplifier plus tard le update de game_board en regardant juste dans l'historique le dernier coup l
 
 
+Le delay doit être proportionnel au temps pris par l'ia pour jouer
 
+Implémenter un système de logs plus robuste
+
+Faire le SELECT_AGENT dans game_reducer
+
+Ajouter la distinction du background pour le current_player

@@ -45,6 +45,11 @@ class GameBoard(BaseView):
         self.play_button = ctk.CTkButton(self.button_frame, text="Play", command=self.start_game)
         self.play_button.pack()
         
+        # Add pause button to the button frame
+        self.pause_button = ctk.CTkButton(
+            master=self.button_frame, text="Pause", command=self.toggle_pause)
+        self.pause_button.pack(side="left", padx=5)
+        
     def _init_board(self):
         self.__draw_board()
         self._draw_pieces()
@@ -293,3 +298,12 @@ class GameBoard(BaseView):
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
         game_thread.start()
+        
+    def toggle_pause(self):
+        """Toggle the game's paused state."""
+        if not self.store.get_state().get('is_game_paused', False):
+            self.store.dispatch({'type': 'PAUSE_GAME'})
+            self.pause_button.configure(text="Resume")
+        else:
+            self.store.dispatch({'type': 'RESUME_GAME'})
+            self.pause_button.configure(text="Pause")

@@ -1,13 +1,12 @@
 from typing import Any
 import time
 from agents.base_agent import BaseAgent
-from utils.const import INITIAL_VALUES
 
 class GameRunner:
     def __init__(self, store: Any):
         self.store = store
 
-    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.6, time_limit: float = INITIAL_VALUES['TIMER']):
+    def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.6):
         """
         Run a game between two AI agents with time control
         
@@ -22,6 +21,10 @@ class GameRunner:
         
         
         while not self.store.get_state().get("game_over", False):
+            # Check if the game is paused
+            while self.store.get_state().get("is_game_paused", False):
+                time.sleep(0.1)  # Pause execution briefly
+                
             current_state = self.store.get_state()
             current_player = current_state["players"][current_state.get("current_player_index", 0)]
             current_agent = agent1 if current_player.id == agent1.player.id else agent2
@@ -64,4 +67,4 @@ class GameRunner:
                 raise Exception(error)
                 # print(f"Error : {error}")
                 # break
-            
+

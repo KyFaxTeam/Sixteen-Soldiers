@@ -111,6 +111,20 @@ class MainView(BaseView):
         self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
         self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
         self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+        
+        # Add pause button
+        self.pause_button = ctk.CTkButton(
+            self.button_frame, text="Pause", command=self.toggle_pause)
+        self.pause_button.pack(side="left", padx=5)
+
+    def toggle_pause(self):
+        """Toggle the game's paused state."""
+        if not self.store.get_state().get('is_game_paused', False):
+            self.store.dispatch({'type': 'PAUSE_GAME'})
+            self.pause_button.configure(text="Resume")
+        else:
+            self.store.dispatch({'type': 'RESUME_GAME'})
+            self.pause_button.configure(text="Pause")
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""

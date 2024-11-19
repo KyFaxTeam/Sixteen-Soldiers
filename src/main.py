@@ -1,13 +1,12 @@
 import customtkinter as ctk
 
 from models.board import Board
+from models.player import Player
 from views.main_view import MainView
 from store.store import Store
 from reducers.index import root_reducer
-from utils.const import THEME_PATH
+from utils.const import PLAYER_CONFIG, THEME_PATH
 from agents.random_agent import RandomAgent
-
-from actions.player_actions import initialize_players_action
 from actions.time_actions import initialize_time_control_action
 
 
@@ -19,9 +18,15 @@ def main():
     # Initialize empty state
     initial_state = {
         "board": Board(),
-        "game_over": False
+        "game_over": False,
+        "joueurs": [
+        Player(id=PLAYER_CONFIG["PLAYER_1"], 
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_1"]]),
+        Player(id=PLAYER_CONFIG["PLAYER_2"], 
+               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
+    ]
     }
-    
+   
     # Créez la fenêtre principale
     root = ctk.CTk()
     
@@ -32,7 +37,7 @@ def main():
     )
     
     # Initialize game state using dispatch
-    store.dispatch(initialize_players_action())
+    
     store.dispatch(initialize_time_control_action({}))
     
     # Create agents using store's state

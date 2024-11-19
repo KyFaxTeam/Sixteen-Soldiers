@@ -57,6 +57,18 @@ def end_game(state: Dict, winner_id: str) -> Dict:
         new_state["winner"] = {}
     return new_state
 
+def pause_game(state: Dict) -> Dict:
+    """Pause the game."""
+    new_state = state.copy()
+    new_state['is_game_paused'] = True
+    return new_state
+
+def resume_game(state: Dict) -> Dict:
+    """Resume the game."""
+    new_state = state.copy()
+    new_state['is_game_paused'] = False
+    return new_state
+
 def game_reducer(state: Dict, action: Dict) -> Dict:
     """Main game state reducer"""
     # Ensure we have a valid state
@@ -70,5 +82,9 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return change_current_player(state)
         case "END_GAME":
             return end_game(state, action.get("winner_id"))
+        case "PAUSE_GAME":
+            return pause_game(state)
+        case "RESUME_GAME":
+            return resume_game(state)
         case _:
             return state
