@@ -56,6 +56,22 @@ def get_move_count(state: Dict) -> int:
     """
     return len(get_history(state))
 
+
+def get_move_player_count(state: Dict, player_id: int) -> int:
+    """
+    Get total number of moves in history for a specific player
+    
+    Args:
+        state (Dict): Current state
+        player_id (int): ID of the player to count moves for
+
+    Returns:
+        int: Number of moves made by the specified player
+    """
+    history = get_history(state)
+    return sum(1 for move_dict in history if Move.from_dict(move_dict).player_id == player_id)
+
+
 def can_undo(state: Dict) -> bool:
     """
     Check if undo operation is possible
