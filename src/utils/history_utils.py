@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-from ..models.move import Move
+from models.move import Move
 
 def get_history(state: Dict) -> List[Dict]:
     """

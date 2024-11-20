@@ -5,6 +5,8 @@ env/
 ENV/
 __pycache__/
 
+utils/__pycache__
+
 # Fichiers spécifiques à l'IDE (PyCharm, VSCode, etc.)
 .idea/
 .vscode/
