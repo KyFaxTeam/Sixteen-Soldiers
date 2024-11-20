@@ -1,9 +1,9 @@
 # history_reducer.py
 from typing import List, Dict, Optional
 from copy import deepcopy
-from ..actions.history_actions import *
-from ..utils.history_utils import *
-from ..models.move import Move
+from actions.history_actions import *
+from utils.history_utils import *
+from models.move import Move
 
 def history_reducer(state: Dict, action: Optional[Dict] = None) -> Dict:
     """
