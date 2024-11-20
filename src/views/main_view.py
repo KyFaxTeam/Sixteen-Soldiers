@@ -1,7 +1,10 @@
+import datetime
 import os
 import json
 import customtkinter as ctk
-from datetime import datetime
+from PIL import Image  # Add this import if not already present
+from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
+import logging
 
 from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
@@ -32,6 +35,7 @@ class MainView(BaseView):
         self.settings_view = None
         self.is_game_started = False
         
+        self.logger = logging.getLogger(__name__)
         
          #Lancer un nouveau jeu
         #self.start_new_game()
@@ -45,13 +49,14 @@ class MainView(BaseView):
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True
-        if self.store.state["game_over"]:
+        if self.store.state["is_game_over"]:
             self.show_after_game_view()
 
     def review_match(self):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
+        self.create_main_layout()  # Ensure the main layout is created
         # Initialize or load state as needed
         # For example, you might load a saved game state here
         self.load_saved_game_state()
@@ -65,6 +70,10 @@ class MainView(BaseView):
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
+        # Destroy existing frames if they exist
+        if hasattr(self, 'main_container'):
+            self.main_container.destroy()
+
         # Create main container frame
         self.main_container = ctk.CTkFrame(self.master)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
@@ -97,9 +106,25 @@ class MainView(BaseView):
         self.settings_view = SettingsView(self.right_column, self.store)
 
         # Ajouter des mouvements factices pour tester
-        self.history_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
-        self.history_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
-        self.history_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+        self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
+        self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
+        self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+
+    def toggle_pause(self):
+        """Toggle the game's paused state."""
+        current_state = self.store.get_state()
+        is_paused = current_state.get('is_game_paused', False)
+        
+        if not is_paused:
+            self.logger.info("Game paused")
+            self.store.dispatch({'type': 'PAUSE_GAME'})
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Resume")
+        else:
+            self.logger.info("Game resumed")
+            self.store.dispatch({'type': 'RESUME_GAME'})
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Pause")
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
@@ -129,11 +154,11 @@ class MainView(BaseView):
         self.home_view.show()
 
     def save_game(self):
+    
         """Save the game history to a JSON file with metadata and a timestamped filename"""
         # Get the game history from the state
         history = self.store.state.get("history", [])
-
-        
+        self.logger.info("Game saved.")
 
         # Add metadata as the first element
         metadata = {
