@@ -1,7 +1,7 @@
+import os
+import json
 import customtkinter as ctk
-import time
-from PIL import Image  # Add this import if not already present
-from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
+from datetime import datetime
 
 from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
@@ -38,17 +38,6 @@ class MainView(BaseView):
         # Initialize HomeView
         self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
         self.home_view.show()
-        
-        self.winner_data = {
-            "profile_img": ctk.CTkImage(
-                Image.open(ASSETS_DIR / "images" / "kyfax_logo-removebg-preview.png"),
-                size=(100, 100)  # Adjust size as needed
-            ),
-            "team_pseudo": "Team A",
-            "ai_name": "AI-1",
-            "remaining_time": "25",
-            "remaining_pawns": 3
-        }
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
@@ -140,8 +129,51 @@ class MainView(BaseView):
         self.home_view.show()
 
     def save_game(self):
-        """Save the game (implementation needed)"""
-        print("Game saved.")
+        """Save the game history to a JSON file with metadata and a timestamped filename"""
+        # Get the game history from the state
+        history = self.store.state.get("history", [])
+
+        
+
+        # Add metadata as the first element
+        metadata = {
+            "players": [
+                {
+                    "pseudo": "Player 1",
+                    "ai_name": "AI-1",
+                    "profile": "path/to/player1_profile.png",
+                    "id": "player1_id"
+                },
+                {
+                    "pseudo": "Player 2",
+                    "ai_name": "AI-2",
+                    "profile": "path/to/player2_profile.png",
+                    "id": "player2_id"
+                }
+            ],
+            "game_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        history_with_metadata = [metadata] + history
+
+        # Convert the history (with metadata) to JSON format
+        history_json = json.dumps(history_with_metadata, indent=4)
+        
+        # Define the folder and timestamped file path
+        save_folder = os.path.join(os.getcwd(), "saved_game")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_file = os.path.join(save_folder, f"game_{timestamp}.json")
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+        
+        # Save the JSON data to the file
+        try:
+            with open(save_file, "w", encoding="utf-8") as file:
+                file.write(history_json)
+            print(f"Game saved successfully to {save_file}")
+        except Exception as e:
+            print(f"An error occurred while saving the game: {e}")
         
     def run(self):
         self.master.mainloop()
