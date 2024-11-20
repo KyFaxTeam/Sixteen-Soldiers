@@ -33,6 +33,7 @@ class GameRunner:
                 # Get and execute agent's action
                 action = current_agent.choose_action(board=current_state["board"])
                 print(action)
+                current_state['last_board_action'] = action
                 
                 self.store.dispatch(action)
                 

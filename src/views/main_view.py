@@ -34,10 +34,11 @@ class MainView(BaseView):
         
         
          #Lancer un nouveau jeu
-        #self.start_new_game()
-        # Initialize HomeView
-        self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
-        self.home_view.show()
+        self.start_new_game()
+        
+        # # Initialize HomeView
+        # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
+        # self.home_view.show()
         
         self.winner_data = {
             "profile_img": ctk.CTkImage(
@@ -52,7 +53,7 @@ class MainView(BaseView):
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
-        self.home_view.hide()  # Hide the home screen
+        #•self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True

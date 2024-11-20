@@ -24,7 +24,8 @@ def initialize_game(state: Dict) -> Dict:
         "game_over": False,
         "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
         "winner": {},
-        "history": []
+        "history": [],
+        "last_board_action": None
 
     })
     return new_state
@@ -32,7 +33,7 @@ def initialize_game(state: Dict) -> Dict:
 def change_current_player(state: Dict) -> Dict:
     """Switch to next player"""
     new_state = state.copy()
-    new_state["current_player_index"] = (state["current_player_index"] + 1) % 2
+    new_state["current_player_index"] = state["current_player_index"] * -1
     return new_state
 
 def end_game(state: Dict, winner_id: str) -> Dict:
