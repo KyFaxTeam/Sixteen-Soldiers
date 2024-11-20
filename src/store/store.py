@@ -22,26 +22,25 @@ class StateModel:
         Player(id=PLAYER_CONFIG["PLAYER_2"], 
               color=PLAYER_CONFIG["COLORS"][PLAYER_CONFIG["PLAYER_2"]])
     ])
+    agents: Dict[str, Dict] = field(default_factory=dict)
 
 class Store:
     def __init__(self, reducer: Callable[[Dict, Dict], Dict]):
         self.state = StateModel().__dict__
         self.reducer = reducer
         self.subscribers: List[Callable[[Dict], None]] = []
-        self.agents: Dict[str, Dict] = {}  # Stocker les agents sous forme de dictionnaires
     
     def register_agent(self, agent: BaseAgent):
-        """Enregistre un nouvel agent sous forme de dictionnaire"""
-        self.agents[agent.name] = agent.to_dict()
+        """Enregistre un nouvel agent dans le state avec un ID unique"""
+        current_agents = self.state.get("agents", {})
+        new_agent_id = len(current_agents)
+        agent.set_agent_id(new_agent_id)
         
-    def get_agent_info(self, agent_name: str) -> Dict:
-        """Récupère les informations d'un agent par son nom"""
-        return self.agents.get(agent_name)
-    
-    def get_all_agents_info(self) -> Dict[str, Dict]:
-        """Récupère les informations de tous les agents"""
-        return self.agents
-
+        self.dispatch({
+            "type": "REGISTER_AGENT",
+            "agent": agent.to_dict()
+        })
+        
     def get_state(self) -> Dict:
         return self.state
     

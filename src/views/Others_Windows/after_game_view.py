@@ -83,38 +83,32 @@ class AfterGameView(ctk.CTkToplevel):
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
-        winner_id = state.get("winner")
-        if not winner_id:
-            return {
-                "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
-                "team_pseudo": "Team A",
-                "ai_name": "AI-1",
-                "remaining_time": "25",
-                "remaining_pawns": 3
-            }
-        # Retrieve the winner player object using the winner_id
-        players = state.get("players", [])
-        winner_player = next(
-            (player for player in players if player.id == winner_id),
-            None
-        )
-        if not winner_player:
-            return {
-                "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
-                "team_pseudo": "Unknown",
-                "ai_name": "AI",
-                "remaining_time": "00:00",
-                "remaining_pawns": 0
-            }
-        # Create winner data dictionary
-        winner_data = {
-            "profile_img": getattr(winner_player, "profile_img", os.path.join("images", "kyfax_logo-removebg-preview.png")),
-            "team_pseudo": getattr(winner_player, "team_pseudo", "Unknown"),
-            "ai_name": getattr(winner_player, "agent_name", "AI"),
-            "remaining_time": self.get_remaining_time(winner_player.id),
-            "remaining_pawns": self.get_remaining_pawns(winner_player.id),
+        winner_agent_id = state.get("winner")
+        if winner_agent_id is None:
+            return self._get_default_winner_data()
+            
+        agents = state.get("agents", {})
+        winner_data = agents.get(winner_agent_id)
+        
+        if not winner_data:
+            return self._get_default_winner_data()
+        
+        return {
+            "profile_img": winner_data["profile_img"],
+            "team_pseudo": winner_data["team_pseudo"],
+            "ai_name": winner_data["name"],
+            "remaining_time": self.get_remaining_time(winner_data["player_id"]),
+            "remaining_pawns": self.get_remaining_pawns(winner_data["player_id"])
         }
-        return winner_data
+
+    def _get_default_winner_data(self):
+        return {
+            "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
+            "team_pseudo": "Unknown",
+            "ai_name": "AI",
+            "remaining_time": "00:00",
+            "remaining_pawns": 0
+        }
 
     def get_remaining_time(self, player_id):
         # ...existing code or new logic...

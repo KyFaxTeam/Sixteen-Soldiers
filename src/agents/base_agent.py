@@ -1,9 +1,12 @@
 import logging
 import time
+import random
+import os
 from dataclasses import dataclass, field
 from typing import List, Dict
 from models.board import Board
 from models.player import Player
+from models.assets.index import Assets
 
 @dataclass
 class MatchPerformance:
@@ -36,6 +39,23 @@ class BaseAgent:
         self.name = name
         self.stats = AgentStats()
         self.logger = logging.getLogger(__name__)
+        self.profile_img = self._get_random_avatar()
+        self.team_pseudo = f"Team {name}"  # Default team name
+        self.agent_id = None  # Will be set when registered in store
+        
+    def set_agent_id(self, agent_id: int):
+        """Set the unique ID for this agent instance"""
+        self.agent_id = agent_id
+    
+    def _get_random_avatar(self) -> str:
+        """Gets a random avatar path from assets"""
+        avatar_dir = Assets.dir_avatar
+        avatar_files = [f for f in os.listdir(avatar_dir) 
+                       if f.endswith(('.png', '.jpg', '.jpeg'))]
+        
+        if avatar_files:
+            return os.path.join(avatar_dir, random.choice(avatar_files))
+        return ""  # Return empty string if no avatar found
     
     def choose_action(self, board: Board, time_limit: float) -> Dict:
         """
@@ -101,7 +121,11 @@ class BaseAgent:
     def to_dict(self) -> Dict:
         """Convert the agent to a dictionary representation."""
         return {
+            "id": self.agent_id,  # Added agent_id
             "name": self.name,
+            "profile_img": self.profile_img,
+            "team_pseudo": self.team_pseudo,
+            "player_id": self.player.id,  # Added to link with player
             "stats": {
                 "total_games": self.stats.total_games,
                 "performances": [performance.__dict__ for performance in self.stats.performances]

@@ -18,6 +18,7 @@ class RandomAgent(BaseAgent):
             name: The agent's name
         """
         super().__init__(player, name)
+        self.team_pseudo = f"Random Warriors {id(self)}"  # Unique team name
         self.rng = random.Random()
     
     def choose_action(self, board: Board) -> Dict:

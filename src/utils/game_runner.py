@@ -20,7 +20,7 @@ class GameRunner:
                 time.sleep(0.1)  # Pause execution briefly
                 
             current_state = self.store.get_state()
-            current_player = current_state["players"][current_state.get("current_player_index", 0)]
+            current_player = current_state["players"][current_state.get("current_player")]
             current_agent = agent1 if current_player.id == agent1.player.id else agent2
             
             # Record start time for the move
@@ -33,16 +33,16 @@ class GameRunner:
                 elapsed_time = time.time() - start_time
                 self.logger.debug(f"Agent action: {action}")
 
-
                 if action['type'] == 'NO_OP':
-                    self.logger.info(f"{current_agent.name} has no valid moves. Passing turn.")
-                    self.store.dispatch({'type': 'PASS_TURN', 'player_id': current_player.id})
+                    self.logger.info(f"{current_agent.name} has no valid moves. Ramdom_agent action.")
+                    # ici implémenter le random dans les actions disponibles ou plus simple appeler la fonction choose_action de Random
+                   # self.store.dispatch({'type': 'PASS_TURN', 'player_id': current_player.id})
                 else:
                     # Validate the action
                     if not current_state["board"].is_valid_move(action):
                         raise ValueError("Agent attempted an invalid move")
+                    # Dispatch the action - board_reducer and player_reducer will both handle it
                     self.store.dispatch(action)
-
                 
                 self.store.dispatch({
                     "type": "UPDATE_TIME",
@@ -83,7 +83,7 @@ class GameRunner:
         winner_id = self.store.get_state().get("winner", {}).get("id")
         total_number_of_moves = len(self.store.get_state().get('history', []))
         match_times = self.store.get_state().get('time_manager', [])
-        agent1.conclude_game(is_winner=(agent1.player.id == winner_id), opponent_name=agent2.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent1.player.id))
+        agent1.conclude_game(is_wwinner=(agent1.player.id == winner_id), opponent_name=agent2.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent1.player.id))
         agent2.conclude_game(is_winner=(agent2.player.id == winner_id), opponent_name=agent1.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent2.player.id))
         
         # Update agent info in the store after game ends
