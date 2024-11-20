@@ -28,7 +28,7 @@ class MainView(BaseView):
         # Initialize all component references as None
         self.players_column = None
         self.game_board = None
-        self.historique_view = None
+        self.history_view = None
         self.settings_view = None
         self.is_game_started = False
         
@@ -93,13 +93,13 @@ class MainView(BaseView):
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
         # Historique view
-        self.historique_view = HistoryView(self.right_column, self.store)
+        self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
 
         # Ajouter des mouvements factices pour tester
-        self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
-        self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
-        self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+        self.history_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
+        self.history_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
+        self.history_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
@@ -191,10 +191,10 @@ class MainView(BaseView):
         if not self.is_game_started:
             return  # Skip updates while in splash screen
             
-        if self.players_column:
+        if hasattr (self, 'players_column'):
             self.players_column.update(state)
         if hasattr(self, 'game_board'):
             self.game_board.update(state)
-        if hasattr(self, 'historique_view'):
-            self.historique_view.update(state)
+        if hasattr(self, 'history_view'):
+            self.history_view.update(state)
 

@@ -10,8 +10,7 @@ class HistoryView(BaseView):
         super().__init__(master)
         self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
-        if self.store:
-            self.subscribe(self.store)
+        
         self.frame.configure(corner_radius=10)
         self.frame.pack(fill="both", padx=10, pady=10)
 
@@ -87,7 +86,7 @@ class HistoryView(BaseView):
 
     def update(self, state):
         """Updates the move history based on the state"""
-        if 'move_history' in state:
+        if 'history' in state:
             self.refresh_history(state['move_history'])
 
     def refresh_history(self, move_history):
