@@ -158,6 +158,53 @@ class TestHistoryManagement(unittest.TestCase):
         state = history_reducer(self.initial_state, {"type": "REDO_MOVE"})
         self.assertEqual(len(get_history(state)), 0)
 
+    def test_get_move_player_count(self):
+        """Test counting moves for a specific player"""
+        state = self.initial_state
+        
+        # Add moves for different players
+        state = history_reducer(state, {
+            "type": "ADD_MOVE_TO_HISTORY",
+            "payload": {
+                "from_pos": "A1",
+                "to_pos": "B2",
+                "player_id": 1,
+                "timestamp": int(datetime.now().timestamp()),
+                "piece_capturee": None
+            }
+        })
+        
+        state = history_reducer(state, {
+            "type": "ADD_MOVE_TO_HISTORY",
+            "payload": {
+                "from_pos": "B2",
+                "to_pos": "C3",
+                "player_id": 2,
+                "timestamp": int(datetime.now().timestamp()),
+                "piece_capturee": None
+            }
+        })
+        
+        state = history_reducer(state, {
+            "type": "ADD_MOVE_TO_HISTORY",
+            "payload": {
+                "from_pos": "D4",
+                "to_pos": "E5",
+                "player_id": 1,
+                "timestamp": int(datetime.now().timestamp()),
+                "piece_capturee": None
+            }
+        })
+        
+        # Test player move counts
+        player_1_moves = get_move_player_count(state, 1)
+        player_2_moves = get_move_player_count(state, 2)
+        non_existent_player_moves = get_move_player_count(state, 3)
+        
+        self.assertEqual(player_1_moves, 2)
+        self.assertEqual(player_2_moves, 1)
+        self.assertEqual(non_existent_player_moves, 0)
+
 if __name__ == '__main__':
     unittest.main()
 
