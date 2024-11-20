@@ -17,3 +17,15 @@ Implémenter un système de logs plus robuste
 Faire le SELECT_AGENT dans game_reducer
 
 Ajouter la distinction du background pour le current_player
+
+Une distinction du background de la ligne de history_view quand on tape sur le replay avec la couleur du joueur
+
+Pourquoi ne pas faire une correspondance entre le player_index et l'id du player
+
+Faire des dataclass pour le state dans store.py
+
+Revoir le nombre de coups divisé par deux pour avoir le nombre de moves d'un agent
+
+Ajouter le bouton pour set le time limit dans l'iinterface
+
+Les agents devraient être uniquement choisis dans l'interface

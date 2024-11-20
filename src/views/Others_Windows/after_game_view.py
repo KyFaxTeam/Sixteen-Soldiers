@@ -1,7 +1,6 @@
 import os  # Import os module for path operations
 import customtkinter as ctk
 from PIL import Image
-from views.base_view import BaseView
 from utils.const import ASSETS_DIR  # Import ASSETS_DIR
 
 class AfterGameView(ctk.CTkToplevel):
@@ -130,7 +129,7 @@ class AfterGameView(ctk.CTkToplevel):
                 return soldier_count
         return 0
 
-    def update(self, state):
-        """Update the view when the state changes"""
-        # ...update logic if needed...
-        pass
+    # def update(self, state):
+    #     """Update the view when the state changes"""
+    #     # ...update logic if needed...
+    #     pass
