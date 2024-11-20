@@ -2,7 +2,7 @@ import logging
 from typing import Dict
 from models.board import Board
 from models.time_manager import TimeManager
-from utils.const import PLAYER_CONFIG
+from utils.const import PLAYER_CONFIG, INITIAL_VALUES
 
 logger = logging.getLogger(__name__)
 
@@ -15,14 +15,21 @@ def initialize_game(state: Dict) -> Dict:
         if player.id == PLAYER_CONFIG["PLAYER_1"]
     )
     
+    # Create and initialize TimeManager
+    time_manager = TimeManager()
+    time_manager.set_time_limits({
+        PLAYER_CONFIG["PLAYER_1"]: INITIAL_VALUES["TIMER"],
+        PLAYER_CONFIG["PLAYER_2"]: INITIAL_VALUES["TIMER"]
+    })
+    
     # Reset all values to initial state
     new_state = state.copy()
     new_state.update({
-        "board": Board(),  # Board constructor handles piece placement
-        "time_manager": TimeManager(),
-        "is_game_over": False,  # Renommé de game_over à is_game_over
+        "board": Board(),
+        "time_manager": time_manager,
+        "is_game_over": False,
         "is_game_paused": False,
-        "current_player": player_1_index,  # Renommé de current_player_index à current_player
+        "current_player": player_1_index,
         "winner": {},
         "history": []
     })

@@ -50,9 +50,8 @@ class GameRunner:
                     "elapsed_time": elapsed_time
                 })
                 
-                # Check for timeout
-                remaining_time = current_state["time_manager"].get_remaining_time(current_player.id)
-                if (remaining_time <= 0):
+                # Check for timeout using is_time_up
+                if current_state["time_manager"].is_time_up(current_player.id):
                     self.store.dispatch({
                         "type": "END_GAME",
                         "reason": "timeout",

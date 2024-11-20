@@ -32,15 +32,6 @@ def main():
         reducer=root_reducer
     )
     
-    # Initialize game state using dispatch - exemple avec un temps personnalisé
-    store.dispatch(initialize_time_control_action({
-        # Optional: specify custom time limits
-        # "time_limits": {
-        #     PLAYER_CONFIG["PLAYER_1"]: 60,  # 60 secondes pour joueur 1
-        #     PLAYER_CONFIG["PLAYER_2"]: 45   # 45 secondes pour joueur 2
-        # }
-    }))
-    
     # Create and register agents
     agent1 = RandomAgent(
         player=store.get_state()["players"][0],
