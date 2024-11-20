@@ -2,6 +2,7 @@ import customtkinter as ctk
 import time
 from PIL import Image  # Add this import if not already present
 from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
+import logging
 
 from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
@@ -32,6 +33,7 @@ class MainView(BaseView):
         self.settings_view = None
         self.is_game_started = False
         
+        self.logger = logging.getLogger(__name__)
         
          #Lancer un nouveau jeu
         #self.start_new_game()
@@ -63,6 +65,7 @@ class MainView(BaseView):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
+        self.create_main_layout()  # Ensure the main layout is created
         # Initialize or load state as needed
         # For example, you might load a saved game state here
         self.load_saved_game_state()
@@ -76,6 +79,10 @@ class MainView(BaseView):
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
+        # Destroy existing frames if they exist
+        if hasattr(self, 'main_container'):
+            self.main_container.destroy()
+
         # Create main container frame
         self.main_container = ctk.CTkFrame(self.master)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
@@ -112,28 +119,30 @@ class MainView(BaseView):
         self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
         self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
         
-        # Add pause button
-        self.pause_button = ctk.CTkButton(
-            self.button_frame, text="Pause", command=self.toggle_pause)
-        self.pause_button.pack(side="left", padx=5)
-
     def toggle_pause(self):
         """Toggle the game's paused state."""
-        if not self.store.get_state().get('is_game_paused', False):
+        current_state = self.store.get_state()
+        is_paused = current_state.get('is_game_paused', False)
+        
+        if not is_paused:
+            self.logger.info("Game paused")
             self.store.dispatch({'type': 'PAUSE_GAME'})
-            self.pause_button.configure(text="Resume")
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Resume")
         else:
+            self.logger.info("Game resumed")
             self.store.dispatch({'type': 'RESUME_GAME'})
-            self.pause_button.configure(text="Pause")
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Pause")
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
-        self.after_game_view = AfterGameView(
-            self.master,
-            store=self.store,
-            on_restart=self.restart_game,
-            on_save=self.save_game
-        )
+        # Hide current main layout if necessary
+        if hasattr(self, 'main_container'):
+            self.main_container.pack_forget()
+        # Initialize AfterGameView
+        self.after_game_view = AfterGameView(self.master, self.store, self.winner_data)
+        self.after_game_view.show()
 
     def restart_game(self):
         """Reset the game and return to HomeView"""
@@ -154,8 +163,7 @@ class MainView(BaseView):
         self.home_view.show()
 
     def save_game(self):
-        """Save the game (implementation needed)"""
-        print("Game saved.")
+        self.logger.info("Game saved.")
         
     def run(self):
         self.master.mainloop()
@@ -179,4 +187,6 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'historique_view'):
             self.historique_view.update(state)
+        
+        
 

@@ -22,11 +22,10 @@ class RandomAgent(BaseAgent):
     
     def choose_action(self, board: Board) -> Dict:
         """
-        Choose a random action from valid moves and captures for the player.
+        Choose a random action from valid moves.
         
         Args:
             board: Current game board state
-            player: Player for whom to choose the action
             
         Returns:
             Randomly chosen valid action for the player
@@ -34,13 +33,31 @@ class RandomAgent(BaseAgent):
         Raises:
             ValueError: If no valid moves are available
         """
-        valid_actions = board.get_valid_actions(player=self.player.id)
-        
-        if not valid_actions:
-            raise ValueError("No valid moves available")
-            
-        return self.rng.choice(valid_actions)
+        try:
+            valid_actions = board.get_valid_actions(player=self.player.id)
+            if not valid_actions:
+                self.logger.info(f"No valid moves available for {self.name}")
+                return {'type': 'NO_OP', 'player_id': self.player.id}
+            return self.rng.choice(valid_actions)
+        except Exception as e:
+            self.logger.error(f"Error choosing action: {e}")
+            raise
     
+    def _select_action(self, board: Board, valid_actions: List[Dict], time_limit: float) -> Dict:
+        """
+        Randomly choose an action from valid actions.
+        
+        Args:
+            board: Current game board state
+            valid_actions: List of valid actions
+            time_limit: Time limit for choosing an action
+            
+        Returns:
+            Randomly chosen valid action
+        """
+        action = self.rng.choice(valid_actions)
+        return action
+
     def set_seed(self, seed: int) -> None:
         """
         Set the random seed for reproducibility.

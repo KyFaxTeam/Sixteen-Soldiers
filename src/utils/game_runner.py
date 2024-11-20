@@ -1,24 +1,18 @@
 from typing import Any
 import time
+import logging
 from agents.base_agent import BaseAgent
 
 class GameRunner:
     def __init__(self, store: Any):
         self.store = store
+        self.logger = logging.getLogger(__name__)
 
     def run_player_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.6):
         """
-        Run a game between two AI agents with time control
-        
-        Args:
-            agent1: First agent (red player)
-            agent2: Second agent (green player)
-            delay: Delay between moves for visualization
-            time_limit: Time limit per player in seconds (default 10 minutes)
+        Run a game between two AI agents
         """
-        # Initialize game and time control
         self.store.dispatch({"type": "INITIALIZE_GAME"})
-        
         
         while not self.store.get_state().get("game_over", False):
             # Check if the game is paused
@@ -33,14 +27,23 @@ class GameRunner:
             start_time = time.time()
             
             try:
-                # Get and execute agent's action
+                # Get and execute agent's action (removed time_limit parameter)
                 action = current_agent.choose_action(board=current_state["board"])
-                print(action)
-                
-                self.store.dispatch(action)
-                
                 # Calculate elapsed time and update time manager
                 elapsed_time = time.time() - start_time
+                self.logger.debug(f"Agent action: {action}")
+
+
+                if action['type'] == 'NO_OP':
+                    self.logger.info(f"{current_agent.name} has no valid moves. Passing turn.")
+                    self.store.dispatch({'type': 'PASS_TURN', 'player_id': current_player.id})
+                else:
+                    # Validate the action
+                    if not current_state["board"].is_valid_move(action):
+                        raise ValueError("Agent attempted an invalid move")
+                    self.store.dispatch(action)
+
+                
                 self.store.dispatch({
                     "type": "UPDATE_TIME",
                     "player_id": current_player.id,
@@ -49,7 +52,7 @@ class GameRunner:
                 
                 # Check for timeout
                 remaining_time = current_state["time_manager"].get_remaining_time(current_player.id)
-                if remaining_time <= 0:
+                if (remaining_time <= 0):
                     self.store.dispatch({
                         "type": "END_GAME",
                         "reason": "timeout",
@@ -63,8 +66,27 @@ class GameRunner:
                 # Add delay for visualization
                 time.sleep(delay)
                 
-            except Exception as error:
-                raise Exception(error)
-                # print(f"Error : {error}")
-                # break
+                
+                
+            except Exception as e:
+                self.logger.error(f"Error occurred during agent's turn: {e}")
+                self.store.dispatch({
+                    "type": "END_GAME",
+                    "reason": "error",
+                    "loser": current_player.id,
+                    "error": str(e)
+                })
+                break
 
+        self.logger.info("Game over")
+        
+        # Determine the winner and update agent stats
+        winner_id = self.store.get_state().get("winner", {}).get("id")
+        total_number_of_moves = len(self.store.get_state().get('history', []))
+        match_times = self.store.get_state().get('time_manager', [])
+        agent1.conclude_game(is_winner=(agent1.player.id == winner_id), opponent_name=agent2.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent1.player.id))
+        agent2.conclude_game(is_winner=(agent2.player.id == winner_id), opponent_name=agent1.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent2.player.id))
+        
+        # Update agent info in the store after game ends
+        self.store.register_agent(agent1)
+        self.store.register_agent(agent2)
