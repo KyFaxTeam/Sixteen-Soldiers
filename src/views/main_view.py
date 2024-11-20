@@ -58,7 +58,7 @@ class MainView(BaseView):
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True
-        if self.store.state["game_over"]:
+        if self.store.state["is_game_over"]:
             self.show_after_game_view()
 
     def review_match(self):

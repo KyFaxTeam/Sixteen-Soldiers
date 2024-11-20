@@ -20,9 +20,9 @@ def initialize_game(state: Dict) -> Dict:
     new_state.update({
         "board": Board(),  # Board constructor handles piece placement
         "time_manager": TimeManager(),
-        "game_over": False,
+        "is_game_over": False,  # Renommé de game_over à is_game_over
         "is_game_paused": False,
-        "current_player_index": player_1_index,
+        "current_player": player_1_index,  # Renommé de current_player_index à current_player
         "winner": {},
         "history": []
     })
@@ -31,14 +31,14 @@ def initialize_game(state: Dict) -> Dict:
 
 def change_current_player(state: Dict) -> Dict:
     new_state = state.copy()
-    new_state["current_player_index"] = (state["current_player_index"] + 1) % 2
-    logger.info(f"Changed current player to index {new_state['current_player_index']}")
+    new_state["current_player"] = (state["current_player"] + 1) % 2  # Renommé de current_player_index à current_player
+    logger.info(f"Changed current player to index {new_state['current_player']}")
     return new_state
 
 def end_game(state: Dict, winner_id: str) -> Dict:
     logger.info(f"Ending game. Winner ID: {winner_id}")
     new_state = state.copy()
-    new_state["game_over"] = True
+    new_state["is_game_over"] = True  # Renommé de game_over à is_game_over
     # Find the winner player object
     winner_player = next(
         (player for player in state.get("players", []) if player.id == winner_id),

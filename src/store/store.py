@@ -11,9 +11,9 @@ from utils.const import PLAYER_CONFIG
 class StateModel:
     board: Board = field(default_factory=Board)
     time_manager: TimeManager = field(default_factory=TimeManager)  # Remove custom initialization
-    game_over: bool = False
+    is_game_over: bool = False  # Renommé de game_over à is_game_over
     is_game_paused: bool = False
-    current_player_index: int = 0
+    current_player: int = 0  # Renommé de current_player_index à current_player
     winner: Dict = field(default_factory=dict)
     history: List = field(default_factory=list)
     players: List[Player] = field(default_factory=lambda: [

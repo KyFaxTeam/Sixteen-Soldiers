@@ -203,17 +203,12 @@ class GameBoard(BaseView):
         board = state["board"]
         new_soldiers = board.soldiers
         
-        # Ne comparer que si previous_soldiers existe déjà
         self._diff_and_update(self.previous_soldiers, new_soldiers)
-        print()
-        # Mettre à jour l'état précédent
         self.previous_soldiers = new_soldiers.copy()
 
-        # Mettre à jour l'interface
         self.canvas.update_idletasks()
         
-        # Mise à jour du bouton Play
-        if state.get("game_over"):
+        if state.get("is_game_over"):  # Renommé de game_over à is_game_over
             self.play_button.configure(state="disabled")
         else:
             self.play_button.configure(state="normal")
