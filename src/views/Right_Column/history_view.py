@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+import logging
 from views.base_view import BaseView
 from PIL import Image
 from models.assets.index import Assets
@@ -10,6 +11,8 @@ class HistoryView(BaseView):
         super().__init__(master)
         self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
+
+        self.logger = logging.getLogger(__name__)
         
         self.frame.configure(corner_radius=10)
         self.frame.pack(fill="both", padx=10, pady=10)
@@ -29,7 +32,7 @@ class HistoryView(BaseView):
         self.title.pack(pady=(5, 5))
 
         # Container pour l'historique des mouvements
-        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=350)
+        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=300)
         self.moves_container.pack(fill="both", expand=True)
 
         # Liste pour garder une référence aux mouvements
@@ -85,9 +88,33 @@ class HistoryView(BaseView):
         self.move_frames.clear()
 
     def update(self, state):
-        """Updates the move history based on the state"""
-        if 'history' in state:
-            self.refresh_history(state['move_history'])
+        """Updates the move history by adding only new moves"""
+        try:
+            self.logger.info("Starting HistoryView update")
+            
+            if 'history' not in state:
+                self.logger.warning("No history in state")
+                return
+                
+            current_moves = len(self.move_frames)
+            history_moves = len(state['history'])
+            
+            self.logger.debug(f"Current moves: {current_moves}, History moves: {history_moves}")
+            
+            if history_moves > current_moves:
+                self.logger.info(f"Adding {history_moves - current_moves} new moves")
+                for move in state['history'][current_moves:]:
+                    move_text = f"{move['pos'][0]} → {move['pos'][1]}"
+
+                    self.add_move(move_text, move)
+                    
+        except Exception as e:
+            self.logger.error(f"Error in update: {str(e)}")
+
+    # def update(self, state):
+    #     """Updates the move history based on the state"""
+    #     if 'history' in state:
+    #         self.refresh_history(state['history'])
 
     def refresh_history(self, move_history):
         """Clears and repopulates the history view"""
