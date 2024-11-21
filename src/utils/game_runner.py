@@ -2,9 +2,10 @@ from typing import Any
 import time
 import logging
 from agents.base_agent import BaseAgent
+from store.store import Store
 
 class GameRunner:
-    def __init__(self, store: Any):
+    def __init__(self, store: Store):
         self.store = store
         self.logger = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ class GameRunner:
                     self.logger.info(f"{current_agent.name} has no valid moves. Ramdom_agent action.")
                     # ici implémenter le random dans les actions disponibles ou plus simple appeler la fonction choose_action de Random
                    # self.store.dispatch({'type': 'PASS_TURN', 'player_id': current_player.id})
+
+
+                   # Say bro, at the end here, you return a random 'action' variable, right ?
+
                 else:
                     # Validate the action
                     if not current_state["board"].is_valid_move(action):
@@ -49,6 +54,19 @@ class GameRunner:
                     "player_id": current_player.id,
                     "elapsed_time": elapsed_time
                 })
+
+                # Record the move in history
+                self.store.dispatch({
+                    "type": "ADD_MOVE_TO_HISTORY",
+                    "payload": {
+                        "from_pos": action["from"],
+                        "to_pos": action["to"],
+                        "player_id": current_player.id,
+                        "piece_capturee": action.get("piece_capturee"),
+                        "timestamp": elapsed_time
+                    }
+                })
+                            
                 
                 # Check for timeout using is_time_up
                 if current_state["time_manager"].is_time_up(current_player.id):
