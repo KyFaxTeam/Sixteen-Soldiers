@@ -32,6 +32,8 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     for name, reducer in reducers:
         try:
             new_state = reducer(new_state, action)
+            if action['type'] in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
+                logger.info(f"Action done :{action}")
         except Exception as e:
             logger.error(f"Error in {name}_reducer: {e}")
             return None
