@@ -19,8 +19,6 @@ def capture_soldier(state:Dict, action:Dict ) -> Dict:
     new_state['board'].soldiers[action['from_pos']] = Soldier.EMPTY
     new_state['board'].soldiers[action['to_pos']] = action['soldier_value']
     new_state['board'].soldiers[action['captured_soldier']] = Soldier.EMPTY
-
-
     return new_state
 
     

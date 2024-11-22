@@ -11,7 +11,7 @@ class GameRunner:
         self.store :Store = store
         self.logger = getLogger(__name__)
 
-    def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.):
+    def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """
         Run a game between two AI agents
         """
