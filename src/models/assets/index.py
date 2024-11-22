@@ -11,5 +11,6 @@ class Assets:
       
       icon_play = ASSETS_DIR / "images/play_icon.png"
       icon_refresh = ASSETS_DIR / "images/refresh_icon.png"
+      icon_pause = ASSETS_DIR / "images/pause_icon.png"
 
       dir_avatar = ASSETS_DIR / "avatars"

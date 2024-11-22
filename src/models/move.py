@@ -5,6 +5,7 @@ from utils.const import Soldier
 
 @dataclass
 class Move:
+    
     """Représente un mouvement dans le jeu de sixteen-soldiers"""
     pos: List[str]  # Liste des coordonnées [départ, arrivée]
     soldier_value: Soldier
