@@ -14,9 +14,6 @@ class Soldier(Enum):
     BLUE = 1
     EMPTY = -1
 
-class Player(Enum):
-    RED = 0
-    BLUE = 1
 
 
 # Padding around the game board
