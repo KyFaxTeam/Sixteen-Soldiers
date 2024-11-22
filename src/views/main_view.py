@@ -99,20 +99,8 @@ class MainView(BaseView):
         self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
 
-<<<<<<< HEAD
-=======
-        # # Ajouter des mouvements factices pour tester
-        # self.history_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
-        # self.history_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
-        # self.history_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
 
-    def toggle_pause(self):
-        """Toggle the game's paused state."""
-        current_state = self.store.get_state()
-        is_paused = current_state.get('is_game_paused', False)
->>>>>>> 9ab01c74cd96efcd9515ae33c8a8c5386bc02eda
-        
-   
+
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""

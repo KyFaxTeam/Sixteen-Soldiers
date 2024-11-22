@@ -1,11 +1,6 @@
 import logging
 import customtkinter as ctk
-<<<<<<< HEAD
 
-=======
-import tkinter as tk
-import logging
->>>>>>> 9ab01c74cd96efcd9515ae33c8a8c5386bc02eda
 from views.base_view import BaseView
 
 
@@ -91,11 +86,6 @@ class HistoryView(BaseView):
     def update(self, state):
         """Updates the move history by adding only new moves"""
         try:
-<<<<<<< HEAD
-=======
-            self.logger.info("Starting HistoryView update")
->>>>>>> 9ab01c74cd96efcd9515ae33c8a8c5386bc02eda
-            
             if 'history' not in state:
                 self.logger.warning("No history in state")
                 return
@@ -109,19 +99,6 @@ class HistoryView(BaseView):
                 self.logger.info(f"Adding {history_moves - current_moves} new moves")
                 for move in state['history'][current_moves:]:
                     move_text = f"{move['pos'][0]} → {move['pos'][1]}"
-<<<<<<< HEAD
-=======
-
-                    self.add_move(move_text, move)
-                    
-        except Exception as e:
-            self.logger.error(f"Error in update: {str(e)}")
-
-    # def update(self, state):
-    #     """Updates the move history based on the state"""
-    #     if 'history' in state:
-    #         self.refresh_history(state['history'])
->>>>>>> 9ab01c74cd96efcd9515ae33c8a8c5386bc02eda
 
                     self.add_move(move_text, move)
                     
