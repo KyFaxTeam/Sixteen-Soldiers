@@ -34,19 +34,10 @@ class MainView(BaseView):
        
         
         self.logger = logging.getLogger(__name__)
-        
-<<<<<<< HEAD
-         #Lancer un nouveau jeu
         self.start_new_game()
-        
-        # # Initialize HomeView
+        # Initialize HomeView
         # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
         # self.home_view.show()
-=======
-        # Initialize HomeView
-        self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
-        self.home_view.show()
->>>>>>> 61b1aab8ff66409a262fbd94eff948bb1ce8bade
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
