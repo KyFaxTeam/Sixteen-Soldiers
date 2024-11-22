@@ -1,4 +1,3 @@
-
 from typing import Dict, Optional
 from models.player import Player
 
@@ -12,7 +11,7 @@ def get_current_player(state: Dict) -> Player:
     Returns:
         Player: Joueur courant.
     """
-    index = state.get("current_player_index", 0)
+    index = state.get("current_player", 0)  # Renommé de current_player_index à current_player
     return state["players"][index]
 
 def get_winner(state: Dict) -> Optional[Player]:
@@ -37,4 +36,4 @@ def is_game_over(state: Dict) -> bool:
     Returns:
         bool: True si la partie est terminée, False sinon.
     """
-    return state.get("game_over", False)
+    return state.get("is_game_over", False)  # Renommé de game_over à is_game_over

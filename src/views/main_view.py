@@ -1,7 +1,10 @@
+import datetime
+import os
+import json
 import customtkinter as ctk
-import time
 from PIL import Image  # Add this import if not already present
 from utils.const import ASSETS_DIR  # Ensure ASSETS_DIR is imported
+import logging
 
 from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
@@ -28,10 +31,11 @@ class MainView(BaseView):
         # Initialize all component references as None
         self.players_column = None
         self.game_board = None
-        self.historique_view = None
+        self.history_view = None
         self.settings_view = None
         self.is_game_started = False
         
+        self.logger = logging.getLogger(__name__)
         
          #Lancer un nouveau jeu
         self.start_new_game()
@@ -40,30 +44,20 @@ class MainView(BaseView):
         # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
         # self.home_view.show()
         
-        self.winner_data = {
-            "profile_img": ctk.CTkImage(
-                Image.open(ASSETS_DIR / "images" / "kyfax_logo-removebg-preview.png"),
-                size=(100, 100)  # Adjust size as needed
-            ),
-            "team_pseudo": "Team A",
-            "ai_name": "AI-1",
-            "remaining_time": "25",
-            "remaining_pawns": 3
-        }
-        
     def start_new_game(self):
         """Start a new game and switch to game board view"""
         #•self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
         self.is_game_started = True
-        if self.store.state["game_over"]:
+        if self.store.state["is_game_over"]:
             self.show_after_game_view()
 
     def review_match(self):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
+        self.create_main_layout()  # Ensure the main layout is created
         # Initialize or load state as needed
         # For example, you might load a saved game state here
         self.load_saved_game_state()
@@ -77,6 +71,10 @@ class MainView(BaseView):
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
+        # Destroy existing frames if they exist
+        if hasattr(self, 'main_container'):
+            self.main_container.destroy()
+
         # Create main container frame
         self.main_container = ctk.CTkFrame(self.master)
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
@@ -104,14 +102,30 @@ class MainView(BaseView):
         self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
-        # Historique view
-        self.historique_view = HistoryView(self.right_column, self.store)
+        # History view
+        self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
 
-        # Ajouter des mouvements factices pour tester
-        self.historique_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
-        self.historique_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
-        self.historique_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+        # # Ajouter des mouvements factices pour tester
+        # self.history_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
+        # self.history_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
+        # self.history_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+
+    def toggle_pause(self):
+        """Toggle the game's paused state."""
+        current_state = self.store.get_state()
+        is_paused = current_state.get('is_game_paused', False)
+        
+        if not is_paused:
+            self.logger.info("Game paused")
+            self.store.dispatch({'type': 'PAUSE_GAME'})
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Resume")
+        else:
+            self.logger.info("Game resumed")
+            self.store.dispatch({'type': 'RESUME_GAME'})
+            if hasattr(self, 'game_board'):
+                self.game_board.pause_button.configure(text="Pause")
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
@@ -141,8 +155,51 @@ class MainView(BaseView):
         self.home_view.show()
 
     def save_game(self):
-        """Save the game (implementation needed)"""
-        print("Game saved.")
+    
+        """Save the game history to a JSON file with metadata and a timestamped filename"""
+        # Get the game history from the state
+        history = self.store.state.get("history", [])
+        self.logger.info("Game saved.")
+
+        # Add metadata as the first element
+        metadata = {
+            "players": [
+                {
+                    "pseudo": "Player 1",
+                    "ai_name": "AI-1",
+                    "profile": "path/to/player1_profile.png",
+                    "id": "player1_id"
+                },
+                {
+                    "pseudo": "Player 2",
+                    "ai_name": "AI-2",
+                    "profile": "path/to/player2_profile.png",
+                    "id": "player2_id"
+                }
+            ],
+            "game_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        history_with_metadata = [metadata] + history
+
+        # Convert the history (with metadata) to JSON format
+        history_json = json.dumps(history_with_metadata, indent=4)
+        
+        # Define the folder and timestamped file path
+        save_folder = os.path.join(os.getcwd(), "saved_game")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_file = os.path.join(save_folder, f"game_{timestamp}.json")
+        
+        # Create the folder if it doesn't exist
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+        
+        # Save the JSON data to the file
+        try:
+            with open(save_file, "w", encoding="utf-8") as file:
+                file.write(history_json)
+            print(f"Game saved successfully to {save_file}")
+        except Exception as e:
+            print(f"An error occurred while saving the game: {e}")
         
     def run(self):
         self.master.mainloop()
@@ -160,10 +217,10 @@ class MainView(BaseView):
         if not self.is_game_started:
             return  # Skip updates while in splash screen
             
-        if self.players_column:
+        if hasattr (self, 'players_column'):
             self.players_column.update(state)
         if hasattr(self, 'game_board'):
             self.game_board.update(state)
-        if hasattr(self, 'historique_view'):
-            self.historique_view.update(state)
+        if hasattr(self, 'history_view'):
+            self.history_view.update(state)
 

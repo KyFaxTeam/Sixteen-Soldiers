@@ -3,10 +3,11 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
-from utils.const import GAP, LINE_THICKNESS, PADDING, PLAYER_CONFIG, SOLDIER_SIZE
+from utils.const import GAP, LINE_THICKNESS, PADDING,  SOLDIER_SIZE
 from utils.game_runner import GameRunner
 from views.base_view import BaseView
 from utils.board_utils import BoardUtils  # Ajouter cet import
+import logging
 
 
 class GameBoard(BaseView):
@@ -269,16 +270,20 @@ class GameBoard(BaseView):
 
     def start_game(self):
         """Démarre le jeu en mode automatique avec les agents"""
-        # Désactiver le bouton pendant le jeu
+        self.logger.info("Starting game from Play button")
         self.play_button.configure(state="disabled")
         
         # Lancer le jeu dans un thread séparé pour ne pas bloquer l'interface
         import threading
         def run_game():
-            runner = GameRunner(self.store)
-            runner.run_player_game(self.agent1, self.agent2)
-            # Réactiver le bouton une fois le jeu terminé
-            self.play_button.configure(state="normal")
+            try:
+                runner = GameRunner(self.store)
+                runner.run_player_game(self.agent1, self.agent2)
+            except Exception as e:
+                self.logger.error(f"Error during game execution: {e}")
+            finally:
+                # Réactiver le bouton une fois le jeu terminé
+                self.play_button.configure(state="normal")
             
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine

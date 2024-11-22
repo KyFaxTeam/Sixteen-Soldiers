@@ -1,6 +1,8 @@
+import logging
 from typing import Dict, List, Tuple, Set
 
 from actions.board_actions import BoardAction
+from utils.const import PLAYER_CONFIG
 
 class Board:
     def __init__(self):
@@ -56,48 +58,78 @@ class Board:
         }
         
         # Stocker l'état des pions dans un dictionnaire
-        # 0 = vide, 1 = rouge, 2 = vert
-        self.soldiers: Dict[str, int] = {pos: 0 for pos in self.battle_field.keys()}
+        # -1 = vide, 0 = rouge, 1 = bleu
+        self.soldiers: Dict[str, int] = {pos: PLAYER_CONFIG["EMPTY"] for pos in self.battle_field.keys()}
         
-        # # Placer les pions initiaux
-        # # Pions rouges (haut)
+        # Placer les pions initiaux
+        # Pions rouges (haut)
         for pos in ['a1', 'a3', 'a5', 'b2', 'b3', 'b4', 'c1', 'c2', 'c3', 'c4', 'c5', 'd1', 'd2', 'd3', 'd4', 'd5']:
-            self.soldiers[pos] = 1
-        #     self.pieces[pos] = 1
+            self.soldiers[pos] = PLAYER_CONFIG["PLAYER_1"]
             
-        # # Pions bleus (bas)
+        # Pions bleus (bas)
         for pos in ['f1', 'f2', 'f3', 'f4', 'f5', 'g1', 'g2', 'g3', 'g4', 'g5', 'h2', 'h3', 'h4', 'i1', 'i3', 'i5']:
-            self.soldiers[pos] = -1
+            self.soldiers[pos] = PLAYER_CONFIG["PLAYER_2"]
+
+        self.logger = logging.getLogger(__name__)
     
     def get_piece(self, pos: Tuple[int, int]) -> int:
         pass
 
     def is_valid_move(self, action) -> bool:
-        
-        # TODO : assertion
-        # TODO : 
-        if action['type'] == "MOVE_SOLDIER":
-            ...
-        
+        # Ignore validation for non-move actions
+        if action['type'] not in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
+            return True
+
+        # Validate that 'action' is a dictionary with required keys
+        if not isinstance(action, dict):
+            self.logger.error("Invalid action format")
+            return False
+            
+        required_keys = ['type', 'from', 'to', 'soldier']
+        for key in required_keys:
+            if key not in action:
+                self.logger.error(f"Action missing key: {key}")
+                return False
+
+        # Validate action type
+        if action['type'] not in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
+            self.logger.error(f"Invalid action type: {action['type']}")
+            return False
+
+        # Validate positions exist on board
+        if action['from'] not in self.soldiers or action['to'] not in self.soldiers:
+            self.logger.error("Invalid positions in action")
+            return False
+
+        # Validate soldier ownership
         if self.soldiers[action['from']] != action['soldier']:
+            self.logger.error("Soldier not present at the from position")
             return False
-        if self.soldiers[action['to']] != 0:
+
+        # Validate destination is empty
+        if self.soldiers[action['to']] != PLAYER_CONFIG["EMPTY"]:
+            self.logger.error("Destination position is not empty")
             return False
-        
+
         return True
 
     def evaluate_position(self) -> float:
         pass
     
     def make_move(self, action):
-        match action['type']:
-            case 'MOVE_SOLDIER':
-                if self.is_valid_move(action=action):
+        try:
+            self.logger.info(f"Executing action: {action}")
+            if not self.is_valid_move(action):
+                raise ValueError("Invalid move attempted")
+
+            match action['type']:
+                case 'MOVE_SOLDIER':
                     self.__move_soldier(from_=action['from'], to=action['to'], soldier=action['soldier'])
-            
-            case 'CAPTURE_SOLDIER':
-                if self.is_valid_move(action=action):
+                case 'CAPTURE_SOLDIER':
                     self.__capture_soldier(from_=action['from'], to=action['to'], captured_soldier=action['captured_soldier'])
+        except Exception as e:
+            self.logger.error(f"Error executing move: {e}")
+            # Optionally, re-raise or handle the exception as needed
 
     def __move_soldier(self, from_: str, to: str, soldier: int):
         """
@@ -142,48 +174,47 @@ class Board:
         pass
     
     def get_valid_actions(self, player: int) -> List[Dict]:
-        
         """
         Renvoie les actions valides pour un joueur donné.
 
         Args:
-            
-            player (int): Joueur actuel (1 = rouge, 2 = vert).
+            player (int): Joueur actuel (0 = rouge, 1 = bleu).
 
         Returns:
             list: Liste des actions valides.
         """
         
-        assert player == -1 or player == 1 , "Invalid Player"
+        assert player == PLAYER_CONFIG["PLAYER_1"] or player == PLAYER_CONFIG["PLAYER_2"], "Invalid Player"
 
-        valid_positions = []
+        valid_actions = []
         
-        empty_positions = [node  for node, player in self.soldiers.items() if player == 0 ]
+        # Trouver toutes les positions vides
+        empty_positions = [pos for pos, occupant in self.soldiers.items() if occupant == PLAYER_CONFIG["EMPTY"]]
 
-        for empty_position in empty_positions:
-            empty_position_neighbors = self.battle_field[empty_position]
+        for empty_pos in empty_positions:
+            # Trouver les voisins de la position vide
+            neighbors = self.battle_field[empty_pos]
             
-            for neighbor in empty_position_neighbors :
+            for neighbor in neighbors:
                 if self.soldiers[neighbor] == player:
-                    # Le joeur peut accéder à une cellule vide
-                    valid_positions.append(BoardAction.move_soldier(
-                        from_ = neighbor, 
-                        to = empty_position,
+                    # Le joueur peut déplacer un soldat vers une cellule vide
+                    valid_actions.append(BoardAction.move_soldier(
+                        from_=neighbor, 
+                        to=empty_pos,
                         soldier=player
-                        ))
-                    
-                if self.soldiers[neighbor] == player * -1:
-                    # On vérifie si un soldat à du vide derrière un ennemi
-                    for neighbor_neighbor in self.battle_field[neighbor]:
-                        if self.soldiers[neighbor_neighbor] ==  player :
-                            valid_positions.append(BoardAction.capture_soldier(
-                                captured_soldier = neighbor,
-                                from_ = neighbor_neighbor,
-                                to = empty_position,
+                    ))
+                # L'adversaire est maintenant l'autre index (0 ou 1)
+                elif self.soldiers[neighbor] == (0 if player == 1 else 1):
+                    # Vérifier si un soldat peut capturer un ennemi
+                    for next_neighbor in self.battle_field[neighbor]:
+                        if self.soldiers[next_neighbor] == player:
+                            valid_actions.append(BoardAction.capture_soldier(
+                                captured_soldier=neighbor,
+                                from_=next_neighbor,
+                                to=empty_pos,
                                 soldier=player
                             ))
-        return valid_positions
-
+        return valid_actions
 
     def to_dict(self):
         """Convert Board object to dictionary"""

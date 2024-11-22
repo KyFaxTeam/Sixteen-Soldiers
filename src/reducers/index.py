@@ -16,14 +16,9 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     
     # Apply reducers in sequence
     new_state = game_reducer(new_state, action)
-    
     new_state = BoardReducer.board_reducer(new_state, action)
-    
     new_state = player_reducer(new_state, action)
-    
     new_state = history_reducer(new_state, action)
-   
     new_state = time_reducer(new_state, action)
-    
     
     return new_state

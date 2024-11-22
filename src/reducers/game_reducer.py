@@ -1,65 +1,75 @@
+import logging
 from typing import Dict
 from models.board import Board
 from models.time_manager import TimeManager
-from utils.const import PLAYER_CONFIG
+from utils.const import PLAYER_CONFIG, INITIAL_VALUES
+
+logger = logging.getLogger(__name__)
 
 def initialize_game(state: Dict) -> Dict:
-    """Initialize the game state"""
-    # Ensure we have a valid state to work with
-    if state is None:
-        state = {}
+    logger.info("Initializing game state")
     
-    # Trouver l'index du PLAYER_1 dans la liste des joueurs
-    player_1_index = next(
-        (i for i, player in enumerate(state.get("players", [])) 
-         if player.id == PLAYER_CONFIG["PLAYER_1"]), 
-        0  # default to 0 if not found
-    )
-    # winner = {name: agent.name, avatar : ..., remaining_soldiers : agent..., ai_name :...., time_remaining : TimeManager[]..., }
+    # Find PLAYER_1 index
+    player_1 = PLAYER_CONFIG["PLAYER_1"]
+    
+    # Create and initialize TimeManager
+    time_manager = TimeManager()
+    time_manager.set_time_limits({
+        PLAYER_CONFIG["PLAYER_1"]: INITIAL_VALUES["TIMER"],
+        PLAYER_CONFIG["PLAYER_2"]: INITIAL_VALUES["TIMER"]
+    })
+    
+    # Reset all values to initial state
     new_state = state.copy()
     new_state.update({
-        "board": new_state.get("board", Board()),
-        "time_manager": new_state.get("time_manager",TimeManager()),
-        "players": new_state.get("players", []), # Preserve existing players if any
-        "game_over": False,
-        "current_player_index": player_1_index,  # Utiliser l'index du PLAYER_1
+        "board": Board(),
+        "time_manager": time_manager,
+        "is_game_over": False,
+        "is_game_paused": False,
+        "current_player": player_1,
         "winner": {},
-        "history": [],
-        "last_board_action": None
-
+        "history": []
     })
+    
     return new_state
 
 def change_current_player(state: Dict) -> Dict:
-    """Switch to next player"""
     new_state = state.copy()
-    new_state["current_player_index"] = state["current_player_index"] * -1
+    new_state["current_player"] = (state["current_player"] + 1) % 2  # Renommé de current_player_index à current_player
+    logger.info(f"Changed current player to index {new_state['current_player']}")
     return new_state
 
 def end_game(state: Dict, winner_id: str) -> Dict:
-    """End the game and set winner"""
+    logger.info(f"Ending game. Winner ID: {winner_id}")
     new_state = state.copy()
-    new_state["game_over"] = True
-    # Find the winner player object
-    winner_player = next(
-        (player for player in state.get("players", []) if player.id == winner_id),
+    new_state["is_game_over"] = True
+
+    # Find the winner agent ID based on player_id
+    winner_agent_id = next(
+        (agent_id for agent_id, agent in state.get("agents", {}).items()
+         if agent["player_id"] == winner_id),
         None
     )
-    # Store the winner player data in the state
-    if winner_player:
-        new_state["winner"] = {
-            "id": winner_player.id,
-            "profile_img": winner_player.profile_img,  # Ensure this attribute exists
-            "team_pseudo": winner_player.team_pseudo,  # Ensure this attribute exists
-            "agent_name": winner_player.agent_name,    # Ensure this attribute exists
-            # Add any other necessary attributes
-        }
-    else:
-        new_state["winner"] = {}
+
+    new_state["winner"] = winner_agent_id  # Store only the agent ID
+    return new_state
+
+def pause_game(state: Dict) -> Dict:
+    """Pause the game."""
+    new_state = state.copy()
+    new_state['is_game_paused'] = True
+    logger.info("Game state: Paused")
+    return new_state
+
+def resume_game(state: Dict) -> Dict:
+    """Resume the game."""
+    new_state = state.copy()
+    new_state['is_game_paused'] = False
+    logger.info("Game state: Resumed")
     return new_state
 
 def game_reducer(state: Dict, action: Dict) -> Dict:
-    """Main game state reducer"""
+    logger.debug(f"Reducer received action: {action}")
     # Ensure we have a valid state
     if state is None:
         state = {}
@@ -71,5 +81,14 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return change_current_player(state)
         case "END_GAME":
             return end_game(state, action.get("winner_id"))
+        case "PAUSE_GAME":
+            return pause_game(state)
+        case "RESUME_GAME":
+            return resume_game(state)
+        case "REGISTER_AGENT":
+            new_state = state.copy()
+            new_state["agents"] = new_state.get("agents", {})
+            new_state["agents"][action["agent"]["name"]] = action["agent"]
+            return new_state
         case _:
             return state
