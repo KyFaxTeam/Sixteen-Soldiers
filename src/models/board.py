@@ -72,7 +72,6 @@ class Board:
         
     def get_valid_actions(self, soldier_value: Soldier) -> List[Dict]:
 
-
         valid_actions = []
         opponent = Soldier.BLUE if soldier_value == Soldier.RED else Soldier.RED
         

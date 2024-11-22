@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
+from models.move import Move
 from utils.audio import Sounds
 from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
 from utils.game_utils import GameRunner
@@ -34,7 +35,7 @@ class GameBoard(BaseView):
 
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container)
-        self.button_frame.pack( padx=5, pady=5)
+        self.button_frame.pack(padx=5, pady=5)
         
         self.canvas.pack()
         self.red_soldiers = []
@@ -46,18 +47,18 @@ class GameBoard(BaseView):
         self._init_board()
         
         # Ajoutez un bouton "Play"
-        self.play_button = ctk.CTkButton(
-            self.button_frame, 
-            text="Play", 
-            command=self.start_game,
-            state="normal"  # S'assurer que le bouton est actif au début
-        )
-        self.play_button.pack()
+        # self.play_button = ctk.CTkButton(
+        #     self.button_frame, 
+        #     text="Play", 
+        #     command=self.start_game,
+        #     state="normal"  # S'assurer que le bouton est actif au début
+        # )
+        # self.play_button.pack()
         
         # Add pause button to the button frame
-        self.pause_button = ctk.CTkButton(
-            master=self.button_frame, text="Pause", command=self.toggle_pause)
-        self.pause_button.pack(side="left", padx=5)
+        # self.pause_button = ctk.CTkButton(
+        #     master=self.button_frame, text="Pause", command=self.toggle_pause)
+        # self.pause_button.pack(side="left", padx=5)
         
         self.logger = logging.getLogger(__name__)
         self.previous_move = None  # Ajouter cet attribut
@@ -136,8 +137,31 @@ class GameBoard(BaseView):
             
                 
             self.canvas.update_idletasks()
+    
+    def _decor(self):
+        """Initialise les boutons de contrôle"""
+        # Bouton de réinitialisation
+        self.play_button = ctk.CTkButton(
+            master=self.button_frame, text='Play',
+            image=ctk.CTkImage(
+                light_image=Image.open(Assets.icon_play), size=(20, 20)),
+            compound="left", command=self.start_game, width=120, height=32,
+            corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
+        )
+        
+        self.pause_button = ctk.CTkButton(
+            master=self.button_frame, text="Pause", 
+            image=ctk.CTkImage(
+                light_image=Image.open(Assets.icon_pause), size=(20, 20)),
+            compound="left", width=120, height=32, corner_radius=8, fg_color="#3B3B3B", hover_color="#131630",
+            command=self.toggle_pause)
+        
+        self.play_button.pack(side="left", padx=5)
+        self.pause_button.pack(side="left")
+
+    
             
-    def _move_soldier_in_board(self, piece_index, target: tuple, steps=50, delay=10):
+    def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
         # TODO: impl assertion
         """
         Déplace un pion de sa position actuelle vers (target_x, target_y) en plusieurs étapes.
@@ -149,99 +173,99 @@ class GameBoard(BaseView):
             delay: Délai entre chaque étape en millisecondes
         """
         self.canvas.update_idletasks()
-        target_x, target_y = target
         
-        piece = self.red_soldiers[piece_index]
         
-        # Vérifier que le soldat existe
-        if not self.canvas.find_withtag(piece):
+        if soldier_id is None:
             self.logger.error(f"""
-            Error: Soldier {piece_index} does not exist on canvas
-            From: _move_soldier_in_board
-            """)
+                              Error: Soldier not found at position {soldier_position}
+                              From: _move_soldier_in_board
+                              """)
             return
             
         # Récupérer les coordonnées actuelles
-        coords = self.canvas.coords(self.red_soldiers[piece_index])
-            
+        coords = self.canvas.coords(soldier_id)
+        print("Coords: ", coords, "ooooooooooooooooooooooooooooo")
+        
         current_x, current_y = coords
-        delta_x = (target_x - current_x) / steps
-        delta_y = (target_y - current_y) / steps
+        target_x, target_y = target
+        
+        dh = (target_x - current_x) / steps
+        dv = (target_y - current_y) / steps
+        
+        print("From: ", current_x, current_y, "To: ", target_x, target_y, "Delta: ", dh, dv, '******************')
         
         def step_move(step):
             if step < steps:
                 # Déplace le pion de façon incrémentale
-                self.canvas.move(piece, delta_x, delta_y)
+                self.canvas.move(soldier_id, dh, dv)
                 # Re-appeler la fonction après un délai
                 self.frame.after(delay, lambda: step_move(step + 1))
             else:
                 # Ajuste les coordonnées finales pour être exactes
-                self.canvas.coords(piece, target_x, target_y)
+                self.canvas.coords(soldier_id, target_x, target_y)
         
         # Lancer l'animation
         step_move(0)
+    
+    def _get_piece_id(self, position: tuple, player: int):
+        """Retourne l'ID du soldat à partir de sa position et du joueur."""
+        soldiers = self.red_soldiers if player == 0 else self.blue_soldiers
+        for piece in soldiers:
+            coords = self.canvas.coords(piece)
+            if tuple(coords) == position:
+                return piece
+        return None
         
     
-    def _make_action(self, action) :
-
-        from_ = BoardUtils.algebraic_to_gameboard(action['from'])
-        to = BoardUtils.algebraic_to_gameboard(action['to'])
-        soldier = action['soldier']
+    def _make_action(self, action: dict) :
+        """Effectue une action sur le plateau de jeu."""
+        from_pos = action["pos"][-2] if len(action["pos"]) >= 2 else action["pos"][0]
+        to_pos = action["pos"][-1]
+        player = action["soldier_value"].value
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
         '''
             -1 -> red
-            1 -> blue
+             1 -> blue
         '''
-        print(".................................")
-        soldier_id = self._get_piece_id(from_, player=soldier)
+        soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos), player=player)
         
         if soldier_id is None:
-            print('_________________________________', *from_)
             return 
+
+        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos), player=player)
         
-        if soldier == -1 :
-            ...
-        else:
-            ...
-        
-        match action['type']:
-            case 'MOVE_SOLDIER':
-                print(*from_, "///////////////", *to, "***"*20)
-                self._move_soldier_in_bord(soldier_id, to)
-                exit()
-            case 'CAPTURE_SOLDIER':
-                # self._move_soldier_in_bord(soldier_id, to)
-                # self._remove_soldier(soldier_id, player=soldier)
-                ...
+        is_capture = action.get("captured_soldier") is not None
+        if is_capture:
+            captured_soldier = action["captured_soldier"]
+            print("Capture: ", captured_soldier)
+            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=player)
+            if captured_id is not None:
+                self.canvas.delete(captured_id)
+            
+        # match action['type']:
+        #     case 'MOVE_SOLDIER':
+        #         print(*from_pos, "///////////////", *to_pos, "***"*20)
+        #         self._move_soldier_in_bord(soldier_id, to_pos)
+        #         exit()
+        #     case 'CAPTURE_SOLDIER':
+        #         # self._move_soldier_in_bord(soldier_id, to)
+        #         # self._remove_soldier(soldier_id, player=soldier)
+        #         ...
             
         self.previous_action = action
-
-    def _decor(self):
-        """Initialise les boutons de contrôle"""
-        # Bouton de réinitialisation
-        self.reset_button = ctk.CTkButton(
-            master=self.button_frame, text='Play',
-            image=ctk.CTkImage(
-                light_image=Image.open(Assets.icon_play), size=(20, 20)),
-            compound="left", command=None, width=120, height=32,
-            corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
-        )
-        self.reset_button.pack(side="left")
+        # exit()
         
-    
-    
     def update(self, state):
-        """Met à jour le plateau en fonction du nouvel état"""
+        """ Updates the board based on the new state """
         # update seulement si le jeu est en cours
         
         if not self.is_game_started:
-            # print("5555555555555555555555555555")
             return
         try:
-            self.logger.info("Starting GameBoard update")
-            self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
+            # self.logger.info("Starting GameBoard update")
+            # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
             
             if not state.get("board"):
                 self.logger.warning("No board in state")
@@ -250,32 +274,10 @@ class GameBoard(BaseView):
             last_move = get_last_move(state)
             self.logger.info(f"Last move: {last_move}")
 
-            if not is_equals(last_move, self.previous_move ):
-                self.logger.info(f"Processing new move: {last_move}")
-                self.previous_move = last_move
-
-                from_pos = last_move.pos[-2] if len(last_move.pos) >= 2 else last_move.pos[0]
-                to_pos = last_move.pos[-1]
-                self.logger.info(f"Moving from {from_pos} to {to_pos}")
-                
+            if not is_equals(last_move, self.previous_move):
+                # self.logger.info(f"Processing new move: {last_move}")
                 try:
-                    if last_move["captured_soldier"]:
-                        type_action = "CAPTURE_SOLDIER"
-                        self._make_action({
-                        "type": type_action,
-                        "soldier_value": last_move["soldier_value"],
-                        "from_pos": from_pos,
-                        "to_pos": to_pos,
-                        "captured_soldier":last_move["captured_soldier"]
-                    })
-                    else :
-                        type_action = "MOVE_SOLDIER"
-                        self._make_action({
-                            "type": type_action,
-                            "soldier_value": last_move["soldier_value"],
-                            "from_pos": from_pos,
-                            "to_pos": to_pos
-                        })
+                    self._make_action(last_move.to_dict())
                 except Exception as e:
                     self.logger.error(f"Error in _move_soldier_from_history: {e}")
                     self.logger.error(traceback.format_exc())
@@ -312,7 +314,7 @@ class GameBoard(BaseView):
                 target_x, target_y = BoardUtils.algebraic_to_gameboard(to_pos)
                 piece_index = self._get_piece_index(piece)
                 self.logger.debug(f"Moving to ({target_x}, {target_y}), piece index: {piece_index}")
-                self._move_soldier_in_board(piece_index, (target_x, target_y))
+                # self._move_soldier_in_board(piece_index, (target_x, target_y))
             else:
                 self.logger.error(f"No piece found at position {from_pos}")
                 
@@ -338,8 +340,6 @@ class GameBoard(BaseView):
         elif piece in self.blue_soldiers:
             return self.blue_soldiers.index(piece)
         return -1
-
-   
 
     def start_game(self):
         """Start the game in automatic mode with agents."""
@@ -381,6 +381,7 @@ class GameBoard(BaseView):
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
             self.play_button.configure(state="normal")
+        self.is_game_started = True
             
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
