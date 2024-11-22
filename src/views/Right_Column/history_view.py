@@ -102,6 +102,7 @@ class HistoryView(BaseView):
 
                     self.add_move(move_text, move)
                     
+                    
         except Exception as e:
             self.logger.error(f"Error in update: {str(e)}")
 
