@@ -34,9 +34,12 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
             new_state = reducer(new_state, action)
         except Exception as e:
             logger.error(f"Error in {name}_reducer: {e}")
-            return None
+
+            # mettre le jeu sur pause s'il y a une erreur
+            new_state["is_game_paused"] = True
         
     if action['type'] in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
         logger.info(f"Action done :{action}")
+        
     return new_state
 

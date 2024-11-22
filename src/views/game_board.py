@@ -1,3 +1,4 @@
+
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -409,3 +410,4 @@ class GameBoard(BaseView):
             self.store.dispatch({'type': 'RESUME_GAME'})
             self.sounds.unpause()  # Reprend la musique
             self.pause_button.configure(text="Pause")
+

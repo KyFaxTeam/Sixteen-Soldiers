@@ -2,6 +2,7 @@
 import customtkinter as ctk
 import logging
 
+from store.store import Store
 from utils.save_utils import save_game
 
 from .Others_Windows.home_view import HomeView
@@ -13,13 +14,14 @@ from views.Left_Column.players_column import PlayersColumn
 from .Right_Column.history_view import HistoryView
 from .Right_Column.setting_view import SettingsView
 
+logger = logging.getLogger(__name__)
 
 class MainView(BaseView):
     """Main window of the application"""
 
     def __init__(self, master, store):
         super().__init__(master)
-        self.store = store
+        self.store :Store = store
         # Utilisez self.master au lieu de créer une nouvelle fenêtre
         self.master.title("Sixteen Soldiers")
         self.master.geometry("400x300")
@@ -29,9 +31,7 @@ class MainView(BaseView):
         self.game_board = None
         self.history_view = None
         self.settings_view = None
-        self.is_game_started = False
-
-       
+        
         
         self.logger = logging.getLogger(__name__)
         self.start_new_game()
@@ -44,7 +44,7 @@ class MainView(BaseView):
         #•self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
-        self.is_game_started = True
+        
         if self.store.state["is_game_over"]:
             self.show_after_game_view()
 
@@ -58,7 +58,6 @@ class MainView(BaseView):
         self.load_saved_game_state()
         self.show_after_game_view()
         
-    
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
@@ -98,8 +97,6 @@ class MainView(BaseView):
         # History view
         self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
-
-
 
 
     def show_after_game_view(self):
@@ -143,9 +140,9 @@ class MainView(BaseView):
         Update the view with new state.
         Only updates components if the game has started.
         """
-        if not self.is_game_started:
-            return  # Skip updates while in splash screen
-            
+        if not state["is_game_started"]:
+            return 
+        
         if hasattr (self, 'players_column'):
             self.players_column.update(state)
         if hasattr(self, 'game_board'):
