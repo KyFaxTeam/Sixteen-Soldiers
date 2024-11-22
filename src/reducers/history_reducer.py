@@ -33,14 +33,12 @@ def add_move(state: Dict, payload: Dict) -> Dict:
     last_move = get_last_move(state)
 
     if last_move and last_move.is_valid_player(payload):
-        # print("/////////////////////// Je ne suis jamais venu ici")
         # Update existing move for multiple capture
         last_move.pos.append(payload["to_pos"])
         last_move.timestamp.append(payload["timestamp"])
         last_move.capture_multiple = True
         state["history"][-1] = last_move.to_dict()
     else:
-        # print("***************************** I'm here : here")
         # Create new move
         move = Move(
             pos=[payload["from_pos"], payload["to_pos"]],

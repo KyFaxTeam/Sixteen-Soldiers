@@ -95,10 +95,22 @@ class MainView(BaseView):
         self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
-        # Historique view
+        # History view
         self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
 
+<<<<<<< HEAD
+=======
+        # # Ajouter des mouvements factices pour tester
+        # self.history_view.add_move("A5 => A3", {"start": "A5", "end": "A3"})
+        # self.history_view.add_move("B1 => B4", {"start": "B1", "end": "B4"})
+        # self.history_view.add_move("C3 => C5", {"start": "C3", "end": "C5"})
+
+    def toggle_pause(self):
+        """Toggle the game's paused state."""
+        current_state = self.store.get_state()
+        is_paused = current_state.get('is_game_paused', False)
+>>>>>>> 9ab01c74cd96efcd9515ae33c8a8c5386bc02eda
         
    
 
