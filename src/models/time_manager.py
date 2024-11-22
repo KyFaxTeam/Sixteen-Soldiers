@@ -1,6 +1,6 @@
 from typing import Dict
 from dataclasses import dataclass
-from utils.const import INITIAL_VALUES
+from utils.const import TIMINGS, Soldier
 
 @dataclass
 class TimeControl:
@@ -12,7 +12,6 @@ class TimeControl:
         self.remaining_time = initial_time
 
     def update(self, elapsed_time: float) -> None:
-        """Update remaining time and return if time is up"""
         self.remaining_time = max(0.0, self.remaining_time - elapsed_time)
     
     def is_time_up(self) -> bool:
@@ -20,22 +19,21 @@ class TimeControl:
 
 class TimeManager:
     def __init__(self):
-        self.time_controls: Dict[int, TimeControl] = {}  # Changed str to int for player_id
+        self.time_controls: Dict[Soldier, TimeControl] = {
+            Soldier.RED: TimeControl(TIMINGS["AI_TIMEOUT"]),
+            Soldier.BLUE: TimeControl(TIMINGS["AI_TIMEOUT"])
+        } 
     
     def set_time_limits(self, time_limits: Dict[int, float]) -> None:
-        """Initialize time controls for all players"""
-        for player_id, time_limit in time_limits.items():
-            self.time_controls[player_id] = TimeControl(time_limit)
+        for soldier_value, time_limit in time_limits.items():
+            self.time_controls[soldier_value] = TimeControl(time_limit)
     
-    def update_player_time(self, player_id: int, elapsed: float) -> None:
-        """Update time for a player and return if they ran out of time"""
-        if player_id in self.time_controls:
-            self.time_controls[player_id].update(elapsed)
+    def update_player_time(self, soldier_value: Soldier, elapsed: float) -> None:
+        if soldier_value in self.time_controls:
+            return self.time_controls[soldier_value].update(elapsed)
     
-    def is_time_up(self, player_id: int) -> bool:
-        """Check if a player has run out of time"""
-        return self.time_controls[player_id].is_time_up() if player_id in self.time_controls else True
+    def is_time_up(self, soldier_value: Soldier) -> bool:
+        return self.time_controls[soldier_value].is_time_up()
     
-    def get_remaining_time(self, player_id: int) -> float:
-        """Get remaining time for a player"""
-        return self.time_controls[player_id].remaining_time if player_id in self.time_controls else 0.0
+    def get_remaining_time(self, soldier_value: Soldier) -> float:
+        return self.time_controls[soldier_value].remaining_time

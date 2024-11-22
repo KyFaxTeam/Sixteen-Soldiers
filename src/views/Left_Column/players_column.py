@@ -1,9 +1,10 @@
 import customtkinter as ctk
+from utils.const import Soldier
 from views.base_view import BaseView
 from views.Left_Column.player_view import PlayerView
 
 class PlayersColumn(BaseView):
-    def __init__(self, master: any, store: any, agent1, agent2):
+    def __init__(self, master: any, store: any):
         super().__init__(master)
         self.store = store
         self.frame = ctk.CTkFrame(self.master)
@@ -20,7 +21,7 @@ class PlayersColumn(BaseView):
         self.main_container.grid_columnconfigure(0, weight=1)
 
         # Player 1
-        self.player1 = PlayerView(self.main_container, agent=agent1, store=store)
+        self.player1 = PlayerView(self.main_container, soldier_value=Soldier.RED, store=store)
         self.player1.frame.grid(row=0, column=0, sticky="nsew", pady=(5, 0))
 
         # VS Label container
@@ -35,13 +36,10 @@ class PlayersColumn(BaseView):
         self.vs_label.pack(expand=True)
 
         # Player 2
-        self.player2 = PlayerView(self.main_container, agent=agent2, store=store)
+        self.player2 = PlayerView(self.main_container, soldier_value=Soldier.BLUE, store=store)
         self.player2.frame.grid(row=2, column=0, sticky="nsew", pady=(0, 5))
 
     def update(self, state: dict):
         """Update both players with new state"""
-        player1_state = {'joueur': state.get('player1', {})}
-        player2_state = {'joueur': state.get('player2', {})}
-        
-        self.player1.update(player1_state)
-        self.player2.update(player2_state)
+        self.player1.update(state)
+        self.player2.update(state)

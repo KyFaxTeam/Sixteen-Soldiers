@@ -3,21 +3,23 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
-from utils.const import GAP, LINE_THICKNESS, PADDING, PLAYER_CONFIG, SOLDIER_SIZE
-from utils.game_runner import GameRunner
+from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from utils.game_utils import GameRunner
 from views.base_view import BaseView
 from utils.board_utils import BoardUtils  # Ajouter cet import
+from utils.history_utils import get_last_move, is_equals  # Ajouter cet import
 import logging
+import traceback
+from store.store import Store
+
 
 
 class GameBoard(BaseView):
     
-    def __init__(self, master, store, agent1, agent2):
+    def __init__(self, master, store: Store):
         # store.state['board']
         super().__init__(master)
         self.store = store
-        self.agent1 = agent1
-        self.agent2 = agent2
         self.frame.pack(expand=True, fill="both")
         
         # Créer un conteneur pour le canvas et les boutons
@@ -37,8 +39,9 @@ class GameBoard(BaseView):
         self.canvas.pack()
         self.red_soldiers = []
         self.blue_soldiers = []
-        # Initialiser previous_soldiers avec l'état initial du plateau
-        self.previous_soldiers = store.get_state()["board"].soldiers.copy()
+        self.previous_move = None
+        self.is_game_started = False
+
         self.sounds = Sounds()
         self._init_board()
         
@@ -57,6 +60,8 @@ class GameBoard(BaseView):
         self.pause_button.pack(side="left", padx=5)
         
         self.logger = logging.getLogger(__name__)
+        self.previous_move = None  # Ajouter cet attribut
+        self.logger.info("GameBoard initialized")
         
     def _init_board(self):
         self.__draw_board()
@@ -104,10 +109,8 @@ class GameBoard(BaseView):
         for line in lines:
             self.canvas.create_line(line[0], line[1], width=LINE_THICKNESS, fill="black")
     
-    def _draw_pieces(self, disposition=1):
-        
-        assert disposition == 1 or disposition == -1, "Disposition Invalide : Disposition doit être 1 ou -1"
-        
+    def _draw_pieces(self):
+
         self.frame.red_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_red_soldier).resize(SOLDIER_SIZE))
         self.frame.blue_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_blue_soldier).resize(SOLDIER_SIZE))
         
@@ -124,22 +127,17 @@ class GameBoard(BaseView):
     
     
         for soldierA, soldierB in zip(positions_soldier_A, positions_soldier_B):
-            if disposition == 1:
-                red_piece = self.canvas.create_image(soldierA[0], soldierA[1], image=self.frame.red_soldier_icon)
-                self.red_soldiers.append(red_piece)
+            
+            red_piece = self.canvas.create_image(soldierA[0], soldierA[1], image=self.frame.red_soldier_icon)
+            self.red_soldiers.append(red_piece)
                 
-                blue_piece = self.canvas.create_image(soldierB[0], soldierB[1], image=self.frame.blue_soldier_icon)
-                self.blue_soldiers.append(blue_piece)
-            else:
-                red_piece = self.canvas.create_image(soldierB[0], soldierB[1], image=self.frame.red_soldier_icon)
-                self.red_soldiers.append(red_piece)
-                
-                blue_piece = self.canvas.create_image(soldierA[0], soldierA[1], image=self.frame.blue_soldier_icon)
-                self.blue_soldiers.append(blue_piece)
+            blue_piece = self.canvas.create_image(soldierB[0], soldierB[1], image=self.frame.blue_soldier_icon)
+            self.blue_soldiers.append(blue_piece)
+            
                 
             self.canvas.update_idletasks()
             
-    def _move_soldier_in_bord(self, piece_index, target: tuple, steps=50, delay=10):
+    def _move_soldier_in_board(self, piece_index, target: tuple, steps=50, delay=10):
         # TODO: impl assertion
         """
         Déplace un pion de sa position actuelle vers (target_x, target_y) en plusieurs étapes.
@@ -153,12 +151,14 @@ class GameBoard(BaseView):
         self.canvas.update_idletasks()
         target_x, target_y = target
         
-        # Récupérer l'ID du soldat
         piece = self.red_soldiers[piece_index]
         
         # Vérifier que le soldat existe
         if not self.canvas.find_withtag(piece):
-            self.logger.error(f"Erreur: Le soldat {piece_index} n'existe pas sur le canvas")
+            self.logger.error(f"""
+            Error: Soldier {piece_index} does not exist on canvas
+            From: _move_soldier_in_board
+            """)
             return
             
         # Récupérer les coordonnées actuelles
@@ -180,7 +180,41 @@ class GameBoard(BaseView):
         
         # Lancer l'animation
         step_move(0)
-    
+    def _make_action(self, action) :
+
+        from_ = BoardUtils.algebraic_to_gameboard(action['from'])
+        to = BoardUtils.algebraic_to_gameboard(action['to'])
+        soldier = action['soldier']
+        
+        # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
+        
+        '''
+            -1 -> red
+            1 -> blue
+        '''
+        soldier_id = self._get_piece_id(from_, player=soldier)
+        
+        if soldier_id is None:
+            print('_________________________________', *from_)
+            return 
+        
+        if soldier == -1 :
+            ...
+        else:
+            ...
+        
+        match action['type']:
+            case 'MOVE_SOLDIER':
+                print(*from_, "///////////////", *to, "***"*20)
+                self._move_soldier_in_bord(soldier_id, to)
+                exit()
+            case 'CAPTURE_SOLDIER':
+                # self._move_soldier_in_bord(soldier_id, to)
+                # self._remove_soldier(soldier_id, player=soldier)
+                ...
+            
+        self.previous_action = action
+
     def _decor(self):
         """Initialise les boutons de contrôle"""
         # Bouton de réinitialisation
@@ -197,47 +231,73 @@ class GameBoard(BaseView):
     
     def update(self, state):
         """Met à jour le plateau en fonction du nouvel état"""
-        if not state.get("board"):
+        # update seulement si le jeu est en cours
+        if not self.is_game_started:
             return
+        try:
+            self.logger.info("Starting GameBoard update")
+            self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
             
-        board = state["board"]
-        new_soldiers = board.soldiers
-        
-        self._diff_and_update(self.previous_soldiers, new_soldiers)
-        self.previous_soldiers = new_soldiers.copy()
+            if not state.get("board"):
+                self.logger.warning("No board in state")
+                return
+                
+            last_move = get_last_move(state)
+            self.logger.info(f"Last move: {last_move}")
 
-        self.canvas.update_idletasks()
-        
-        if state.get("is_game_over"):  # Renommé de game_over à is_game_over
-            self.play_button.configure(state="disabled")
-        else:
-            self.play_button.configure(state="normal")
+            if not is_equals(last_move, self.previous_move ):
+                self.logger.info(f"Processing new move: {last_move}")
+                self.previous_move = last_move
 
-    def _diff_and_update(self, old_soldiers, new_soldiers):
-        """Compare l'ancien et le nouvel état des soldats et met à jour le canvas."""
-        # On regarde uniquement les changements de position des pions existants
-        for pos, soldier in new_soldiers.items():
-            if soldier != old_soldiers.get(pos, 0):
-                # Un soldat a bougé vers cette position
-                if soldier != PLAYER_CONFIG["EMPTY"]:
-                    # Trouver d'où vient ce soldat
-                    old_pos = next((p for p, s in old_soldiers.items() 
-                                  if s == soldier and new_soldiers.get(p, 0) != soldier), None)
-                    if old_pos:
-                        # Déplacer le soldat de son ancienne position vers la nouvelle
-                        self._move_soldier(old_soldiers, pos, soldier)
+                from_pos = last_move.pos[-2] if len(last_move.pos) >= 2 else last_move.pos[0]
+                to_pos = last_move.pos[-1]
+                self.logger.info(f"Moving from {from_pos} to {to_pos}")
 
-    def _move_soldier(self, old_soldiers, new_pos, soldier):
-        """Déplace un soldat de sa position précédente vers une nouvelle position."""
-        self.logger.info(f"Moving soldier for player {PLAYER_CONFIG['COLORS'][soldier]} to position {new_pos}")
-        old_pos = next((pos for pos, s in old_soldiers.items() 
-                       if s == soldier and pos != new_pos), None)
-        if old_pos:
-            piece = next((s for s in (self.red_soldiers if soldier == PLAYER_CONFIG["PLAYER_1"] else self.blue_soldiers)
-                         if self._get_position(s) == old_pos), None)
+                try:
+                    self._move_soldier_from_history(from_pos, to_pos, last_move.player_id)
+                except Exception as e:
+                    self.logger.error(f"Error in _move_soldier_from_history: {e}")
+                    self.logger.error(traceback.format_exc())
+
+            self.canvas.update_idletasks()
+            
+            # Update button states
+            if state.get("is_game_over"):
+                self.logger.info("Game is over - disabling play button")
+                self.play_button.configure(state="disabled")
+            else:
+                self.play_button.configure(state="normal")
+
+            if state.get("is_game_paused"):
+                self.logger.info("Game is paused - changing pause button text")
+                self.pause_button.configure(text="Resume")
+                self.sounds.pause()
+
+        except Exception as e:
+            self.logger.error(f"Error in update: {e}")
+            self.logger.error(traceback.format_exc())
+
+    def _move_soldier_from_history(self, from_pos: str, to_pos: str, role: str):
+        """Déplace un soldat basé sur l'historique des mouvements."""
+        try:
+            self.logger.info(f"Moving soldier for role {role} from {from_pos} to {to_pos}")
+            
+            soldiers_list = self.red_soldiers if role == "PLAYER_1" else self.blue_soldiers
+            self.logger.debug(f"Using {'red' if role == 'PLAYER_1' else 'blue'} soldiers list")
+            
+            piece = next((s for s in soldiers_list if self._get_position(s) == from_pos), None)
             if piece:
-                target_x, target_y = BoardUtils.algebraic_to_gameboard(new_pos)
-                self._move_soldier_in_bord(self._get_piece_index(piece), (target_x, target_y))
+                self.logger.info(f"Found piece at position {from_pos}")
+                target_x, target_y = BoardUtils.algebraic_to_gameboard(to_pos)
+                piece_index = self._get_piece_index(piece)
+                self.logger.debug(f"Moving to ({target_x}, {target_y}), piece index: {piece_index}")
+                self._move_soldier_in_board(piece_index, (target_x, target_y))
+            else:
+                self.logger.error(f"No piece found at position {from_pos}")
+                
+        except Exception as e:
+            self.logger.error(f"Error in _move_soldier_from_history: {e}")
+            self.logger.error(traceback.format_exc())
 
     def _get_position(self, piece):
         """Retourne la position algébrique d'un soldat à partir de son ID canvas."""
@@ -250,45 +310,79 @@ class GameBoard(BaseView):
 
     def _get_piece_index(self, piece):
         """Retourne l'index d'un soldat dans sa liste respective."""
+        # Vérifie d'abord dans les soldats rouges (PLAYER_1)
         if piece in self.red_soldiers:
             return self.red_soldiers.index(piece)
+        # Sinon vérifie dans les soldats bleus (PLAYER_2)
         elif piece in self.blue_soldiers:
             return self.blue_soldiers.index(piece)
         return -1
 
+   
+
     def start_game(self):
-        """Démarre le jeu en mode automatique avec les agents"""
+        """Start the game in automatic mode with agents."""
         self.logger.info("Starting game from Play button")
         self.play_button.configure(state="disabled")
         
-        # Lancer le jeu dans un thread séparé pour ne pas bloquer l'interface
+        # Créer les agents lors du clic sur le bouton Play seulement si dans le store, les attributs les 
+        # concernant sont à None
+        agents_info_index = self.store.get_state().get("agents_info_index", {})
+        
+        if not agents_info_index[Soldier.RED]:
+            self.logger.info("Agent RED not found, we will create RandomAgent")
+            agents_info_index[Soldier.RED] = "random_agent_RED"
+
+        if not agents_info_index[Soldier.BLUE]:
+            self.logger.info("Agent BLUE not found, we will create RandomAgent")
+            agents_info_index[Soldier.BLUE] = "random_agent_BLUE"
+            
+        # file 1 = agents_info_index[Soldier.RED] en enlevant RED du nom du file 
+        file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
+        agent_module_1 = __import__(f"agents.{file_1}", fromlist=['Agent'])
+        agent1 = agent_module_1.Agent(
+            soldier_value=Soldier.RED
+        )
+
+        file_2 = agents_info_index[Soldier.BLUE].rsplit('_', 1)[0]
+        agent_module_2 = __import__(f"agents.{file_2}", fromlist=['Agent'])
+        agent2 = agent_module_2.Agent(
+            soldier_value=Soldier.BLUE
+        )
+
+        # Enregistrer les agents dans le store
+        self.store.register_agents(agent1, agent2)
+        
         import threading
         def run_game():
-            try:
-                runner = GameRunner(self.store)
-                runner.run_player_game(self.agent1, self.agent2)
-            except Exception as e:
-                self.logger.error(f"Error during game execution: {e}")
-            finally:
-                # Réactiver le bouton une fois le jeu terminé
-                self.play_button.configure(state="normal")
+            runner = GameRunner(self.store)
+            runner.run_game(agent1, agent2)
+            # Réactiver le bouton une fois le jeu terminé
+            self.play_button.configure(state="normal")
             
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
         game_thread.start()
-        
+
+    
     def toggle_pause(self):
         """Toggle the game's paused state."""
         current_state = self.store.get_state()
         is_paused = current_state.get('is_game_paused', False)
         
         if not is_paused:
-            self.logger.info("Game paused")
+            self.logger.info("""
+            Game paused
+            From: toggle_pause
+            """)
             self.store.dispatch({'type': 'PAUSE_GAME'})
             self.sounds.pause()  # Pause la musique
             self.pause_button.configure(text="Resume")
         else:
-            self.logger.info("Game resumed")
+            self.logger.info("""
+            Game resumed
+            From: toggle_pause
+            """)
             self.store.dispatch({'type': 'RESUME_GAME'})
             self.sounds.unpause()  # Reprend la musique
             self.pause_button.configure(text="Pause")

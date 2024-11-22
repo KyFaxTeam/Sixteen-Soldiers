@@ -2,25 +2,27 @@ import os
 from models.assets.index import Assets
 import random
 import customtkinter as ctk
-from typing import Optional
+from typing import Optional, Dict
+from store.store import Store
+from utils.const import Soldier
 from views.base_view import BaseView
 from PIL import Image
+import logging
 
 
 class PlayerView(BaseView):
-    def __init__(self, master: any, agent, store: Optional[any] = None):
+    def __init__(self, master: any, soldier_value: Soldier, store: Optional[any] = None):
         super().__init__(master)
+        self.logger = logging.getLogger(__name__)
         
-        self.agent = agent
-        self.player = agent.player
-        self.store = store
+        self.soldier_value = soldier_value
+        self.store : Store = store
         if store:
-           # self.subscribe(store) inutile, le main_view est déjà subscribe dans main.py
             initial_state = store.get_state()
-            initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.player.id)
+            initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.soldier_value)
             initial_soldier_count = sum(
                 1 for value in initial_state["board"].soldiers.values()
-                if value == self.player.id
+                if value == self.soldier_value
             )
         else:
             initial_time = "---"
@@ -119,9 +121,10 @@ class PlayerView(BaseView):
         self.pieces_label.pack(side="left")
         
         # Player name
+        agent_info = self.store.get_agent_info(self.soldier_value)
         self.name_label = ctk.CTkLabel(
             self.info_frame,
-            text=self.agent.name or 'Select an agent',
+            text=agent_info.get('agent_name', 'Select an agent'),
             font=ctk.CTkFont(size=12)
         )
         self.name_label.pack(pady=5)
@@ -141,9 +144,7 @@ class PlayerView(BaseView):
         )
         self.select_button.pack(pady=10)
         
-        if store:
-            self.subscribe(store)
-        
+    
     def get_agent_list(self):
         """Get list of available agents from the agents directory"""
         agents_dir = "agents"  # Adjust path as needed
@@ -177,24 +178,14 @@ class PlayerView(BaseView):
             self.agent_dropdown.destroy()
             self.agent_dropdown = None
             
-    def on_agent_selected(self, agent_name: str):
+    def on_agent_selected(self, info_index: str):
         """Handle agent selection"""
-        # Update the name label with the selected agent
-        self.name_label.configure(text=agent_name)
-
-        # Update the agent's name
-        self.agent.name = agent_name
-
-        # Optionally, dispatch an action if needed
         if self.store:
             self.store.dispatch({
                 'type': 'SELECT_AGENT',
-                'player_id': self.player.id,
-                'agent_name': agent_name
+                'soldier_value': self.soldier_value,
+                'info_index': info_index
             })
-
-        # Hide the dropdown menu
-        self.toggle_agent_dropdown()
 
     def load_random_avatar(self):
         """Loads a random avatar from the assets/avatar directory"""
@@ -221,31 +212,30 @@ class PlayerView(BaseView):
 
     def update(self, state: dict):
         """Updates the interface with new state"""
-        if not state:
-            return
-
-        # Get current player information
-        current_player_index = state.get('current_player_index', 0)
-        players = state.get('players', [])
-        
-        if not players:
-            return
+        try:
+            info_index = state["agents_info_index"].get(self.soldier_value)
             
-        current_player = players[current_player_index]
-        
-        # Update timer from time manager
-        if 'time_manager' in state:
-            remaining_time = state['time_manager'].get_remaining_time(self.player.id)
-            self.timer_label.configure(text=f"{int(remaining_time)}s")
-        
-        # Update pieces count from board state
-        if 'board' in state:
-            soldier_count = sum(
-                1 for value in state['board'].soldiers.values()
-                if value == self.player.id
-            )
-            self.pieces_label.configure(text=str(soldier_count))
-        
-        # Update player name if no agent selection is in progress
-        if not self.agent_dropdown:
-            self.name_label.configure(text=self.agent.name or 'Select an agent')
+            if info_index is None:
+                self.name_label.configure(text="Select an agent")
+                self.select_button.configure(text="No team")
+            else:
+                agent_data = state["agents"][info_index]
+                self.name_label.configure(text=agent_data["pseudo"])
+                self.select_button.configure(text=agent_data["name"])
+                
+            # Update timer
+            if 'time_manager' in state:
+                remaining_time = state['time_manager'].get_remaining_time(self.soldier_value)
+                self.logger.debug(f"Updating timer: {remaining_time}s")
+                self.timer_label.configure(text=f"{int(remaining_time)}s")
+            
+            # Update pieces count
+            if 'board' in state:
+                soldier_count = sum(1 for value in state['board'].soldiers.values() 
+                                if value ==self.soldier_value)
+                self.logger.debug(f"Updating piece count: {soldier_count}")
+                self.pieces_label.configure(text=str(soldier_count))
+            
+            
+        except Exception as e:
+            self.logger.error(f"Error in update: {str(e)}")

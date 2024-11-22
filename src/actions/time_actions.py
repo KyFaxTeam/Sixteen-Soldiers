@@ -1,7 +1,9 @@
-def update_time_action(player_id: str, elapsed_time: float):
+from utils.const import Soldier
+
+def update_time_action(soldier_value:Soldier , elapsed_time: float):
     return {
         "type": "UPDATE_TIME",
-        "player_id": player_id,
+        "soldier_value": soldier_value,
         "elapsed_time": elapsed_time
     }
 

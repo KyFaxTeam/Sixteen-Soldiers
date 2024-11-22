@@ -1,6 +1,5 @@
 # history_reducer.py
-from typing import List, Dict, Optional
-from copy import deepcopy
+from typing import  Dict, Optional
 from actions.history_actions import *
 from utils.history_utils import *
 from models.move import Move
@@ -16,8 +15,6 @@ def history_reducer(state: Dict, action: Optional[Dict] = None) -> Dict:
     Returns:
         Dict: Updated state
     """
-    if action is None:
-        return state
 
     match action["type"]:
         case "ADD_MOVE_TO_HISTORY":
@@ -32,16 +29,7 @@ def history_reducer(state: Dict, action: Optional[Dict] = None) -> Dict:
             return state
 
 def add_move(state: Dict, payload: Dict) -> Dict:
-    """
-    Add a new move to the history or update the last move in case of multiple capture
-    
-    Args:
-        state (Dict): Current state
-        payload (Dict): Move information including positions, player, and capture details
-    
-    Returns:
-        Dict: Updated state with new move
-    """
+
     last_move = get_last_move(state)
 
     if last_move and last_move.is_valid_player(payload):
@@ -55,10 +43,9 @@ def add_move(state: Dict, payload: Dict) -> Dict:
         # print("***************************** I'm here : here")
         # Create new move
         move = Move(
-            # id=len(state["history"]),
             pos=[payload["from_pos"], payload["to_pos"]],
-            player_id=payload["player_id"],
-            piece_capturee=payload.get("piece_capturee"),
+            soldier_value=payload["soldier_value"],
+            captured_soldier=payload.get("captured_soldier"),
             timestamp=[payload["timestamp"]]
         )
         state["history"].append(move.to_dict())

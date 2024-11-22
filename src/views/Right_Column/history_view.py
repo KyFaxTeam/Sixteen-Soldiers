@@ -1,13 +1,14 @@
+import logging
 import customtkinter as ctk
-import tkinter as tk
+
 from views.base_view import BaseView
-from PIL import Image
-from models.assets.index import Assets
+
 
 class HistoryView(BaseView):
     """View for game history and settings"""
     def __init__(self, master, store=None):
         super().__init__(master)
+        self.logger = logging.getLogger(__name__)
         self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
         
@@ -78,24 +79,32 @@ class HistoryView(BaseView):
         if move_data:
             print(f"Rejouer le mouvement: {move_data}")
 
-    def clear_history(self):
-        """Effacer tout l'historique"""
-        for move_frame_data in self.move_frames:
-            move_frame_data["frame"].destroy()
-        self.move_frames.clear()
+
 
     def update(self, state):
-        """Updates the move history based on the state"""
-        if 'history' in state:
-            self.refresh_history(state['move_history'])
+        """Updates the move history by adding only new moves"""
+        try:
+            
+            if 'history' not in state:
+                self.logger.warning("No history in state")
+                return
+                
+            current_moves = len(self.move_frames)
+            history_moves = len(state['history'])
+            
+            self.logger.debug(f"Current moves: {current_moves}, History moves: {history_moves}")
+            
+            if history_moves > current_moves:
+                self.logger.info(f"Adding {history_moves - current_moves} new moves")
+                for move in state['history'][current_moves:]:
+                    move_text = f"{move['pos'][0]} → {move['pos'][1]}"
 
-    def refresh_history(self, move_history):
-        """Clears and repopulates the history view"""
-        # Clear existing history
-        self.clear_history()
-        # Populate with new move history
-        for move in move_history:
-            self.add_move(move['description'], move)
+                    self.add_move(move_text, move)
+                    
+        except Exception as e:
+            self.logger.error(f"Error in update: {str(e)}")
+
+    
 
 # If you have any images being used, ensure they're wrapped with ctk.CTkImage
 # Example:
