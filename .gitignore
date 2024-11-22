@@ -8,7 +8,7 @@ __pycache__/
 utils/__pycache__
 views/__pycache__
 models/__pycache__
-_store/__pycache__
+store/__pycache__
 actions/__pycache__
 
 

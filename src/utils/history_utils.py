@@ -16,17 +16,15 @@ def get_history(state: Dict) -> List[Dict]:
 def get_last_move(state: Dict) -> Optional[Move]:
     """
     Get the last move from history
-    
-    Args:
-        state (Dict): Current state
-    
-    Returns:
-        Optional[Move]: Last move or None if history is empty
     """
     history = get_history(state)
     if history:
         return Move.from_dict(history[-1])
     return None
+
+def is_equals(move1: Dict, move2: Dict) -> bool:
+    
+    return move1 == move2
 
 def get_move_at(state: Dict, index: int) -> Optional[Move]:
     """

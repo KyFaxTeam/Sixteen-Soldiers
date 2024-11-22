@@ -1,19 +1,21 @@
 # Actions types
+from utils.const import Soldier
+
+
 ADD_MOVE_TO_HISTORY = "ADD_MOVE_TO_HISTORY"
 UNDO_MOVE = "UNDO_MOVE"
 CLEAR_HISTORY = "CLEAR_HISTORY"
 SET_HISTORY_NAVIGATION_INDEX = "SET_HISTORY_NAVIGATION_INDEX"
 
-def add_move_to_history(from_pos: str, to_pos: str, player_id: int, timestamp: float, piece_capturee:str = None):
-    """Ajoute un nouveau mouvement à l'historique"""
+def add_move_to_history(from_pos: str, to_pos: str, soldier_value : Soldier, timestamp: float, captured_soldier:str = None):
     return {
         "type": ADD_MOVE_TO_HISTORY,
         "payload": {
             "from_pos": from_pos,
             "to_pos": to_pos,
-            "player_id": player_id,
+            "soldier_value":soldier_value,
             "timestamp": timestamp,
-            "piece_capturee": piece_capturee,
+            "captured_soldier": captured_soldier 
         }
     }
 
@@ -62,4 +64,3 @@ def set_history_navigation_index(index):
 #         "type": LOAD_HISTORY,
 #         "payload": saved_history
 #     }
-
