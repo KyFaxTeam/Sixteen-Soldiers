@@ -1,22 +1,45 @@
-from typing import Dict, Tuple
+from typing import Dict
 from models.board import Board
+from utils.const import Soldier
 
-class BoardReducer:
+def move_soldier(state: Dict, action: Dict) -> Dict:
+     
+    new_state = state.copy()
+   
+    new_state['board'].soldiers[action['from_pos']] = Soldier.EMPTY
+    new_state['board'].soldiers[action['to_pos']] = action['soldier_value']
+
+    return new_state
+
+
+def capture_soldier(state:Dict, action:Dict ) -> Dict:
     
-    @staticmethod
-    def board_reducer(state: Dict, action: Dict) -> Dict:
-        """
-        Gère les modifications du board.
-        """
-        # Ensure we have a valid state
-        if state is None or 'board' not in state:
-            return state if state else {}
-        
-        board = state['board']
-        if board is None:
-            board = Board()
-            state = {**state, 'board': board}
-        
-        board.make_move(action=action)
-        return {**state, 'board': board}
-        
+    new_state = state.copy()
+    
+    new_state['board'].soldiers[action['from_pos']] = Soldier.EMPTY
+    new_state['board'].soldiers[action['to_pos']] = action['soldier_value']
+    new_state['board'].soldiers[action['captured_soldier']] = Soldier.EMPTY
+
+
+    return new_state
+
+    
+
+def board_reducer(state: Dict, action: Dict) -> Dict:
+    """
+    Gère les modifications du board.
+    """
+    
+    match action['type']:
+        case 'MOVE_SOLDIER':
+            new_state = move_soldier(state, action)
+            return new_state 
+        case 'CAPTURE_SOLDIER':
+            new_state = capture_soldier(state, action)
+            return new_state
+        case _:
+            return state
+
+
+
+
