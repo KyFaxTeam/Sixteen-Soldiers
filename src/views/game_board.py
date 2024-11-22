@@ -343,7 +343,8 @@ class GameBoard(BaseView):
         agent1 = agent_module_1.Agent(
             soldier_value=Soldier.RED
         )
-
+ 
+ 
         file_2 = agents_info_index[Soldier.BLUE].rsplit('_', 1)[0]
         agent_module_2 = __import__(f"agents.{file_2}", fromlist=['Agent'])
         agent2 = agent_module_2.Agent(
