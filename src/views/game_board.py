@@ -185,15 +185,12 @@ class GameBoard(BaseView):
             
         # Récupérer les coordonnées actuelles
         coords = self.canvas.coords(soldier_id)
-        print("Coords: ", coords, "ooooooooooooooooooooooooooooo")
         
         current_x, current_y = coords
         target_x, target_y = target
         
         dh = (target_x - current_x) / steps
         dv = (target_y - current_y) / steps
-        
-        print("From: ", current_x, current_y, "To: ", target_x, target_y, "Delta: ", dh, dv, '******************')
         
         def step_move(step):
             if step < steps:
@@ -226,10 +223,6 @@ class GameBoard(BaseView):
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
-        '''
-            -1 -> red
-             1 -> blue
-        '''
         soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos), player=player)
         
         if soldier_id is None:
@@ -239,9 +232,11 @@ class GameBoard(BaseView):
         
         is_capture = action.get("captured_soldier") is not None
         if is_capture:
+            
             captured_soldier = action["captured_soldier"]
-            print("Capture: ", captured_soldier)
-            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=player)
+            
+            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=1 - player)
+            
             if captured_id is not None:
                 self.canvas.delete(captured_id)
             
