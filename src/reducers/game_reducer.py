@@ -70,7 +70,7 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
     match action["type"]:
         case "RESET_GAME":
             return reset_game(state)
-        case "CHANGE_CURRENT_PLAYER":
+        case "CHANGE_CURRENT_SOLDIER":
             return change_current_player(state)
         case "END_GAME":
             return end_game(state, action.get("winner"))

@@ -5,7 +5,7 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"
 THEMES_DIR = ROOT_DIR / "themes"
-THEME_PATH = THEMES_DIR / 'MoonlitSky.json'
+THEME_PATH = THEMES_DIR / 'marsh.json'
 
 
 # Configuration du jeu
