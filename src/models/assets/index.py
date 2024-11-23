@@ -14,3 +14,5 @@ class Assets:
       icon_pause = ASSETS_DIR / "images/pause_icon.png"
 
       dir_avatar = ASSETS_DIR / "avatars"
+      
+      font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"
