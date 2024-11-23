@@ -75,7 +75,7 @@ class GameRunner:
                     break
                 
                 # Ajouter le changement de joueur
-                self.store.dispatch({"type": "CHANGE_CURRENT_soldier_value"})
+                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
                 # Add delay for visualization
                 time.sleep(delay)
                 

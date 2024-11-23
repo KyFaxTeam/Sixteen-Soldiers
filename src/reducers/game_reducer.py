@@ -61,7 +61,7 @@ def register_agents(state: Dict, action: Dict) -> Dict:
 
             new_state["agents_info_index"][soldier_value] = info_index
     
-    logging.info(f"Have registered agent {state['agents']}")
+    logging.info(f"Have registered agent {new_state['agents']}")
     return new_state
 
 def game_reducer(state: Dict, action: Dict) -> Dict:
@@ -70,7 +70,7 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
     match action["type"]:
         case "RESET_GAME":
             return reset_game(state)
-        case "CHANGE_CURRENT_PLAYER":
+        case "CHANGE_CURRENT_SOLDIER":
             return change_current_player(state)
         case "END_GAME":
             return end_game(state, action.get("winner"))

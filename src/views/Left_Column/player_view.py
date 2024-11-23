@@ -8,6 +8,7 @@ from utils.const import Soldier
 from views.base_view import BaseView
 from PIL import Image
 import logging
+logger = logging.getLogger(__name__)
 
 
 class PlayerView(BaseView):
@@ -215,6 +216,7 @@ class PlayerView(BaseView):
         try:
             info_index = state["agents_info_index"].get(self.soldier_value)
             
+            logger.debug(f"Updating player view for {self.soldier_value.name}")
             if info_index is None:
                 self.name_label.configure(text="Select an agent")
                 self.select_button.configure(text="No team")
