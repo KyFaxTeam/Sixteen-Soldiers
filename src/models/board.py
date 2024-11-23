@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List,  Set
 
 from actions.board_actions import BoardAction
+from utils.board_utils import BoardUtils
 from utils.const import Soldier
 
 class Board:
@@ -75,7 +76,7 @@ class Board:
         valid_actions = []
         opponent = Soldier.BLUE if soldier_value == Soldier.RED else Soldier.RED
         
-        # Trouver to_posutes les positions vides
+        # Trouver les positions vides
         empty_positions = [
             pos for pos, occupant in self.soldiers.items() 
             if occupant == Soldier.EMPTY
@@ -83,6 +84,7 @@ class Board:
 
         # Pour chaque position vide
         for empty_pos in empty_positions:
+            # 
             for neighbor in self.battle_field[empty_pos]:
                 current_piece = self.soldiers[neighbor]
                 
@@ -102,13 +104,14 @@ class Board:
                     ]
                     
                     # Ajouter to_posutes les captures possibles
-                    for from_pos_pos in capture_positions:
-                        valid_actions.append(BoardAction.capture_soldier(
-                            from_pos=from_pos_pos,
-                            to_pos=empty_pos,
-                            soldier_value=soldier_value,
-                            captured_soldier=neighbor
-                        ))
+                    for from_pos in capture_positions:
+                        if BoardUtils.are_aligned(empty_pos, neighbor, from_pos):
+                            valid_actions.append(BoardAction.capture_soldier(
+                                from_pos=from_pos,
+                                to_pos=empty_pos,
+                                soldier_value=soldier_value,
+                                captured_soldier=neighbor
+                            ))
 
         return valid_actions
 

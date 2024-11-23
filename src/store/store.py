@@ -10,6 +10,7 @@ initial_state = {
     "time_manager": TimeManager(),
     "is_game_over": False,
     "is_game_paused": False,
+    "is_game_started": False,
     "current_soldier_value": Soldier.RED,
     "winner": None,
     "history": [],
@@ -62,7 +63,8 @@ class Store:
             self.state = state   
             for subscriber in self.subscribers:
                 subscriber(self.state)
-    
+
+
     def subscribe(self, subscriber: Callable[[Dict], None]):
         self.subscribers.append(subscriber)
     

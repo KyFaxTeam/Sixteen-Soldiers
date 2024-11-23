@@ -1,3 +1,4 @@
+
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -109,9 +110,10 @@ class GameBoard(BaseView):
         
         for line in lines:
             self.canvas.create_line(line[0], line[1], width=LINE_THICKNESS, fill="black")
+
     
     def _draw_pieces(self):
-
+        '''Dessine les pions sur le plateau de jeu'''
         self.frame.red_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_red_soldier).resize(SOLDIER_SIZE))
         self.frame.blue_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_blue_soldier).resize(SOLDIER_SIZE))
         
@@ -123,6 +125,7 @@ class GameBoard(BaseView):
             for lin in range(4):
                 if col == 1 and lin == 0 or col == 3 and lin == 0 or  col == 0 and lin == 1 or col == 4 and lin == 1:
                     continue
+                # Ajouter les positions des pions rouges et bleus
                 positions_soldier_A.append((PADDING + col * GAP, PADDING + lin * GAP))
                 positions_soldier_B.append((PADDING + (4 - col) * GAP, PADDING + (8 - lin) * GAP))
     
@@ -140,7 +143,7 @@ class GameBoard(BaseView):
     
     def _decor(self):
         """Initialise les boutons de contrôle"""
-        # Bouton de réinitialisation
+        # Play button
         self.play_button = ctk.CTkButton(
             master=self.button_frame, text='Play',
             image=ctk.CTkImage(
@@ -148,13 +151,21 @@ class GameBoard(BaseView):
             compound="left", command=self.start_game, width=120, height=32,
             corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
         )
-        
+        # Pause button
         self.pause_button = ctk.CTkButton(
             master=self.button_frame, text="Pause", 
             image=ctk.CTkImage(
                 light_image=Image.open(Assets.icon_pause), size=(20, 20)),
             compound="left", width=120, height=32, corner_radius=8, fg_color="#3B3B3B", hover_color="#131630",
             command=self.toggle_pause)
+        
+        # Annotation des coordonnées de chaque pion
+        for i in range(9):
+            if i < 5:
+                x = PADDING + i * GAP
+                self.canvas.create_text(x, 8*GAP + 2 * PADDING -10 , text=str(i + 1), font=("Arial", 12), fill="white", anchor="center", tags="optional_tag")
+            y = PADDING + i * GAP
+            self.canvas.create_text(10, y , text=chr(ord('a') + i), font=("Arial", 12), fill="white", anchor="center", tags="optional_tag")
         
         self.play_button.pack(side="left", padx=5)
         self.pause_button.pack(side="left")
@@ -184,15 +195,12 @@ class GameBoard(BaseView):
             
         # Récupérer les coordonnées actuelles
         coords = self.canvas.coords(soldier_id)
-        print("Coords: ", coords, "ooooooooooooooooooooooooooooo")
         
         current_x, current_y = coords
         target_x, target_y = target
         
         dh = (target_x - current_x) / steps
         dv = (target_y - current_y) / steps
-        
-        print("From: ", current_x, current_y, "To: ", target_x, target_y, "Delta: ", dh, dv, '******************')
         
         def step_move(step):
             if step < steps:
@@ -225,10 +233,6 @@ class GameBoard(BaseView):
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
-        '''
-            -1 -> red
-             1 -> blue
-        '''
         soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos), player=player)
         
         if soldier_id is None:
@@ -238,21 +242,13 @@ class GameBoard(BaseView):
         
         is_capture = action.get("captured_soldier") is not None
         if is_capture:
+            
             captured_soldier = action["captured_soldier"]
-            print("Capture: ", captured_soldier)
-            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=player)
+            
+            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=1 - player)
+            
             if captured_id is not None:
                 self.canvas.delete(captured_id)
-            
-        # match action['type']:
-        #     case 'MOVE_SOLDIER':
-        #         print(*from_pos, "///////////////", *to_pos, "***"*20)
-        #         self._move_soldier_in_bord(soldier_id, to_pos)
-        #         exit()
-        #     case 'CAPTURE_SOLDIER':
-        #         # self._move_soldier_in_bord(soldier_id, to)
-        #         # self._remove_soldier(soldier_id, player=soldier)
-        #         ...
             
         self.previous_action = action
         # exit()
@@ -377,6 +373,7 @@ class GameBoard(BaseView):
         
         import threading
         def run_game():
+            self.store.state["is_game_started"] = True
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
@@ -409,3 +406,4 @@ class GameBoard(BaseView):
             self.store.dispatch({'type': 'RESUME_GAME'})
             self.sounds.unpause()  # Reprend la musique
             self.pause_button.configure(text="Pause")
+
