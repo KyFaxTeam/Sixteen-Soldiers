@@ -378,6 +378,7 @@ class GameBoard(BaseView):
         
         import threading
         def run_game():
+            self.store.state["is_game_started"] = True
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé

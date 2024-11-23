@@ -57,8 +57,13 @@ class Store:
     def dispatch(self, action: Dict):
         state = self.reducer(self.state, action)
         
-        for subscriber in self.subscribers:
-            subscriber(self.state)
+        if state is None:
+            self.dispatch({"type": "PAUSE_GAME"})
+        else :
+            self.state = state   
+            for subscriber in self.subscribers:
+                subscriber(self.state)
+
 
     def subscribe(self, subscriber: Callable[[Dict], None]):
         self.subscribers.append(subscriber)
