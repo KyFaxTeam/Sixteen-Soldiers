@@ -6,6 +6,13 @@ from utils.const import GAP, PADDING
 class BoardUtils:
       
       @staticmethod
+      def is_valid_algebraic(coord: str) -> bool:
+            """
+            Vérifie si une coordonnée algébrique est valide.
+            """
+            return re.match(r'^[a-i][1-5]$', coord) is not None
+      
+      @staticmethod
       def cartesien_to_algebraic(coord: tuple[int, int]) -> str:
             """
             Convertit une coordonnée cartésienne (ex: (0, 1)) en coordonnée algébrique (ex: 'a1').
