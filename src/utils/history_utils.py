@@ -93,4 +93,3 @@ def can_redo(state: Dict) -> bool:
         bool: True if there are moves that can be redone
     """
     return bool(state.get("redo_stack", []))
-

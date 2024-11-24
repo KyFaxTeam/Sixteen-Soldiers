@@ -3,7 +3,7 @@ import time
 from utils.validator import is_valid_move
 from agents.base_agent import BaseAgent
 from store.store import Store
-from utils.const import Soldier
+from utils.const import Soldier, TIMINGS
 
 
 class GameRunner:
@@ -76,6 +76,8 @@ class GameRunner:
                 
                 # Ajouter le changement de joueur
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+
+                delay = self.store.game_speed.get_delay_time(elapsed_time)
                 # Add delay for visualization
                 time.sleep(delay)
                 
