@@ -16,3 +16,4 @@ class Assets:
       dir_avatar = ASSETS_DIR / "avatars"
       
       font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"
+      font_montserrat = ASSETS_DIR / "fonts/Montserrat-Bold.ttf"
