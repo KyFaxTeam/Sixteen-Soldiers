@@ -3,6 +3,7 @@ from agents.base_agent import BaseAgent
 from models.board import Board
 from models.time_manager import TimeManager
 from utils.const import  Soldier
+from utils.speed import GameSpeed
 
 
 initial_state = {
@@ -25,6 +26,7 @@ class Store:
         self.state = initial_state
         self.reducer = reducer
         self.subscribers: List[Callable[[Dict], None]] = []
+        self.game_speed = GameSpeed()
     
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
