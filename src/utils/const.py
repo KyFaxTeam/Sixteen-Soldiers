@@ -33,7 +33,7 @@ SOLDIER_SIZE = (45, 45)
 TIMINGS = {
     "AI_MOVE_DELAY": 1000,  # ms
     "ANIMATION_SPEED": 500,   # ms
-    "AI_TIMEOUT": 10  # s
+    "AI_TIMEOUT": 0.00001  # s
 }
 
 

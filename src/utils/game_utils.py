@@ -66,11 +66,16 @@ class GameRunner:
                 })
                 
                 # Check for timeout using is_time_up
+                # ne pas déclencher la fin du jeu mais plutôt random
                 if current_state["time_manager"].is_time_up(current_soldier_value):
+                    if current_soldier_value == Soldier.RED:
+                        winner = Soldier.BLUE
+                    else:
+                        winner = Soldier.RED
                     self.store.dispatch({
                         "type": "END_GAME",
                         "reason": "timeout",
-                        "loser": current_soldier_value
+                        "winner": winner
                     })
                     break
                 
@@ -84,11 +89,18 @@ class GameRunner:
                 self.store.dispatch({
                     "type": "END_GAME",
                     "reason": "error",
-                    "loser": current_soldier_value,
+                    "winner": None,
                     "error": str(e)
                 })
                 break
 
+        
+        self.store.dispatch({
+                    "type": "END_GAME",
+                    "reason": "",
+                    "winner": current_soldier_value,
+                    "error": None
+                })
         self.logger.info("Game over")
         
         # Determine the winner and update agent stats
@@ -99,12 +111,15 @@ class GameRunner:
         if winner is None:
             issue1 = 'draw'
             issue2 = 'draw'
-        elif winner == agent1.pseudo:
+        elif winner == agent1.soldier_value:
             issue1 = 'win'
             issue2 = 'loss'
-        else:
-            issue1 = 'loss'
-            issue2 = 'win'
+        elif winner == agent2.soldier_value:
+                issue1 = 'loss'
+                issue2 = 'win'
+        else :
+            self.logger.error("Mauvaise valeur de winner")
+
         agent1.conclude_game(issue1, opponent_name=agent2.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent1.soldier_value))
         agent2.conclude_game(issue2, opponent_name=agent1.name, number_of_moves=total_number_of_moves//2, time=match_times.get_remaining_time(agent2.soldier_value))
         
@@ -115,6 +130,6 @@ class GameRunner:
 
     
 
-        self.store.dispatch({"type": "RESET_GAME"})
+        #self.store.dispatch({"type": "RESET_GAME"})
 
     
