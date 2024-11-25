@@ -9,8 +9,6 @@ class AfterGameView(ctk.CTkToplevel):
         self.store = store
         self.on_restart = on_restart
         self.on_save = on_save
-        if self.store:
-            self.subscribe(self.store)
         
         # Configure window to overshadow MainView
         self.title("Game Over")
@@ -59,7 +57,7 @@ class AfterGameView(ctk.CTkToplevel):
         pawns_image = Image.open(pawns_image_path)
         self.pawns_photo = ctk.CTkImage(pawns_image, size=(20, 20))
         pawns_label = ctk.CTkLabel(bottom_frame, image=self.pawns_photo, text="")  # Display as icon only
-        pawns_label.grid(row=0, column=1, padx=((25, 0)))
+        pawns_label.grid(row=0, column=1, padx=((15, 0)))
 
         # Display the number of remaining pawns next to the icon
         remaining_pawns_label = ctk.CTkLabel(bottom_frame, text=f': {remaining_pawns}', font=("Helvetica", 12))
@@ -70,33 +68,32 @@ class AfterGameView(ctk.CTkToplevel):
         restart_image = Image.open(restart_image_path).resize((25, 25))  # Adjust icon size as needed
         self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
         restart_button = ctk.CTkButton(bottom_frame, image=self.restart_photo, text="", command=on_restart, width=30, height=30)
-        restart_button.grid(row=0, column=3, padx=(30, 25))
+        restart_button.grid(row=0, column=3, padx=(20, 25))
 
         # Save button
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=on_save, width=50)
         save_button.grid(row=0, column=4, padx=(75, 0))
 
-    def subscribe(self, store):
-        self.store = store
-        store.subscribe(self.update)
-
     def get_winner_data(self, state):
         """Extract winner data from the state"""
-        winner_agent_id = state.get("winner")
-        if winner_agent_id is None:
+        winner = state.get("winner")
+
+        if winner is None:
+            print("No winner agent id")
             return self._get_default_winner_data()
             
-        agents = state.get("agents", {})
-        winner_data = agents.get(winner_agent_id)
-        
+        info_index = state["agents_info_index"].get(winner)
+        winner_data = state["agents"].get(info_index, {})
+
         if not winner_data:
+            print("No winner data")
             return self._get_default_winner_data()
         
         return {
             "profile_img": winner_data["profile_img"],
-            "team_pseudo": winner_data["team_pseudo"],
+            "team_pseudo": winner_data["pseudo"],
             "ai_name": winner_data["name"],
-            "remaining_time": self.get_remaining_time(winner_data["player_id"]),
+            "remaining_time": winner_data["time_manager"].get_remaining_time(winner),
             "remaining_pawns": self.get_remaining_pawns(winner_data["player_id"])
         }
 
@@ -109,22 +106,16 @@ class AfterGameView(ctk.CTkToplevel):
             "remaining_pawns": 0
         }
 
-    def get_remaining_time(self, player_id):
-        # ...existing code or new logic...
-        if player_id:
-            time_manager = self.store.get_state().get("time_manager")
-            if time_manager:
-                return time_manager.get_remaining_time(player_id)
-        return "00:00"
+
     
-    def get_remaining_pawns(self, player_id):
+    def get_remaining_pawns(self, soldier_value):
         # ...existing code or new logic...
-        if player_id:
+        if soldier_value:
             board = self.store.get_state().get("board")
             if board:
                 soldier_count = sum(
                     1 for position, owner in board.soldiers.items()
-                    if owner == player_id
+                    if owner == soldier_value
                 )
                 return soldier_count
         return 0
