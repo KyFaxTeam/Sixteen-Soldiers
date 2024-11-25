@@ -22,6 +22,7 @@ class PlayerView(BaseView):
         if store:
             initial_state = store.get_state()
             initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.soldier_value)
+            initial_time = int(initial_time*1000)  # Convert to milliseconds
             initial_soldier_count = sum(
                 1 for value in initial_state["board"].soldiers.values()
                 if value == self.soldier_value
@@ -96,7 +97,7 @@ class PlayerView(BaseView):
 
         self.timer_label = ctk.CTkLabel(
             self.timer_frame,
-            text=f"{initial_time}s",
+            text=f"{initial_time}ms",
             font=ctk.CTkFont(size=14, weight="bold")
         )
         self.timer_label.pack(side="left")
@@ -232,8 +233,9 @@ class PlayerView(BaseView):
             # Update timer
             if 'time_manager' in state:
                 remaining_time = state['time_manager'].get_remaining_time(self.soldier_value)
+                remaining_time *= 1000  # Convert to milliseconds
                 self.logger.debug(f"Updating timer: {remaining_time}s")
-                self.timer_label.configure(text=f"{int(remaining_time)}s")
+                self.timer_label.configure(text=f"{int(remaining_time)}ms")
             
             # Update pieces count
             if 'board' in state:
