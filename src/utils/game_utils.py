@@ -33,6 +33,10 @@ class GameRunner:
                 # Calculate elapsed time and update time manager
                 elapsed_time = time.time() - start_time
 
+                delay = self.store.game_speed.get_delay_time(elapsed_time)
+                # Add delay for visualization
+                time.sleep(delay)
+
                 self.logger.debug(f"Agent action: {action}")
 
                 if action is None:
@@ -77,9 +81,6 @@ class GameRunner:
                 # Ajouter le changement de joueur
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                delay = self.store.game_speed.get_delay_time(elapsed_time)
-                # Add delay for visualization
-                time.sleep(delay)
                 
             except Exception as e:
                 self.logger.error(f"Error occurred during agent's turn: {repr(e)}")
