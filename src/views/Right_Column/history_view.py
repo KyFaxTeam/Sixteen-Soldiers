@@ -1,11 +1,42 @@
 import logging
+from typing import Dict
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
+from models.assets.index import Assets
+from utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
 from views.base_view import BaseView
 
 
+## Je voudrais faire de sorte qu'on s'assure que le jeu soit en pause 
+class MoveFormatter:
+    def __init__(self, red_soldier_icon, blue_soldier_icon):
+        """
+        Initialise le formateur avec les icônes des soldats
+        
+        Args:
+            red_soldier_icon: ImageTk.PhotoImage du soldat rouge
+            blue_soldier_icon: ImageTk.PhotoImage du soldat bleu
+        """
+        self.red_soldier_icon = red_soldier_icon
+        self.blue_soldier_icon = blue_soldier_icon
+
+    def create_soldier_label(self, master, is_red: bool, value: int = None) -> ctk.CTkLabel:
+        """
+        Crée un label contenant l'icône du soldat et sa valeur
+        """
+        icon = self.red_soldier_icon if is_red else self.blue_soldier_icon
+        label = ctk.CTkLabel(
+            master,
+            image=icon,
+            # ⭐
+            text=f"{value}" if value is not None else "",
+            compound="left",
+            font=ctk.CTkFont(size=10)
+        )
+        return label
+
 class HistoryView(BaseView):
-    """View for game history and settings"""
     def __init__(self, master, store=None):
         super().__init__(master)
         self.logger = logging.getLogger(__name__)
@@ -17,6 +48,16 @@ class HistoryView(BaseView):
         self.frame.configure(corner_radius=10)
         self.frame.pack(fill="both", padx=10, pady=10)
 
+        self.frame.red_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_red_soldier).resize(SOLDIER_SIZE_HISTORY))
+        self.frame.blue_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_blue_soldier).resize(SOLDIER_SIZE_HISTORY))
+        
+        # Ajouter le formateur de mouvement
+        self.move_formatter = MoveFormatter(
+            self.frame.red_soldier_icon,
+            self.frame.blue_soldier_icon
+        )
+
+
         # History Section
         self.history_frame = ctk.CTkFrame(self.frame)
         self.history_frame.pack(fill="both", expand=True, pady=(0, 20))
@@ -24,9 +65,13 @@ class HistoryView(BaseView):
         # Titre "Move History"
         self.title_frame = ctk.CTkFrame(self.history_frame)
         self.title_frame.pack(fill="both", padx=0, pady=10)
+        self.title_frame.history_icon = ImageTk.PhotoImage(Image.open(Assets.icon_history_collante).resize(EMOJIS_SIZE))
+
         self.title = ctk.CTkLabel(
             self.title_frame,
-            text="📜 History",
+            image=self.title_frame.history_icon,
+            text=" History",
+            compound="left",
             font=ctk.CTkFont(size=11, weight="bold")
         )
         self.title.pack(pady=(5, 5))
@@ -38,49 +83,99 @@ class HistoryView(BaseView):
         # Liste pour garder une référence aux mouvements
         self.move_frames = []
 
-    def add_move(self, move_text: str, move_data=None):
-        """Ajouter un mouvement à l'historique avec un bouton de replay"""
+
+    def add_move(self, move_data, state):
+        """Ajouter un mouvement à l'historique avec les icônes des soldats"""
         move_frame = ctk.CTkFrame(self.moves_container)
         move_frame.pack(fill="x", padx=5, pady=2)
 
-        # Label pour le texte du mouvement
-        move_label = ctk.CTkLabel(
-            move_frame,
-            text=move_text,
+        # Création du conteneur pour organiser les éléments horizontalement
+        content_frame = ctk.CTkFrame(move_frame)
+        content_frame.pack(fill="x", padx=5, pady=2)
+
+        content_frame.cible = ImageTk.PhotoImage(Image.open(Assets.cible).resize((12, 12)))
+        content_frame.approuve = ImageTk.PhotoImage(Image.open(Assets.approuve).resize((18, 18)))
+
+
+        # Soldat qui effectue le mouvement
+        moving_soldier = self.move_formatter.create_soldier_label(
+            content_frame,
+            is_red=move_data['soldier_value'] == Soldier.RED, 
+        )
+        moving_soldier.pack(side="left", padx=(2, 5))
+
+        # Timestamp
+        time_label = ctk.CTkLabel(
+            content_frame,
+            # text=f"{move_data['timestamp'].strftime('%H:%M:%S')} |",
+            text=f"{move_data['timestamp'][-1] * 1e3:.3f} ms  |",
             font=ctk.CTkFont(size=10)
         )
-        move_label.pack(side="left", padx=(5, 10))
+        time_label.pack(side="left", padx=(2, 5))
 
-        # Bouton de replay pour ce mouvement spécifique
+
+        # Mouvement
+        move_label = ctk.CTkLabel(
+            content_frame,
+            image=content_frame.cible,
+            # text=f"🎯 {move_data['pos'][0]} → {move_data['pos'][1]}",
+            text=f" {move_data['pos'][0]} → {move_data['pos'][1]}",
+            font=ctk.CTkFont(size=10),
+            compound="left"
+        )
+        move_label.pack(side="left", padx=(2, 5))
+
+        # Information de capture si présente
+        if move_data['captured_soldier']:
+            # capture_icon = "👑" if move_data['capture_multiple'] else "⚔️"
+            capture_label = ctk.CTkLabel(
+                content_frame,
+                image=content_frame.approuve,
+                # text=f"| {capture_icon} Capture:",
+                text="| Capture:",
+                font=ctk.CTkFont(size=10),
+                compound="left"
+            )
+            capture_label.pack(side="left", padx=(5, 2))
+
+            # Soldat capturé
+            captured_soldier = self.move_formatter.create_soldier_label(
+                content_frame,
+                is_red=move_data['soldier_value'] != Soldier.RED,  
+                value=move_data['captured_soldier']
+            )
+            captured_soldier.pack(side="left", padx=2)
+
+        # Bouton de replay
         replay_button = ctk.CTkButton(
-            move_frame,
-            text="Replay",
+            content_frame,
+            text="↺",
             font=ctk.CTkFont(size=10),
             width=30,
             height=30,
-            command=lambda: self.replay_move(move_data)
+            command=lambda: self.replay_move(move_data, state),
+            state="disabled" if not state['is_game_paused'] else "normal",
+            
         )
-        replay_button.pack(side="right", padx=5, pady=5)
+        replay_button.pack(side="right", padx=5)
 
         # Ajouter à la liste des mouvements
         self.move_frames.append({
             "frame": move_frame,
-            "text": move_text,
             "data": move_data
         })
 
-        # Faire défiler vers le bas après un court délai pour s'assurer que le widget est mis à jour
-        self.frame.after(10000, self.scroll_to_bottom)
+        # Faire défiler vers le bas
+        self.frame.after(100, self.scroll_to_bottom)
 
     def scroll_to_bottom(self):
         """Défiler vers le bas de l'historique"""
         self.moves_container._parent_canvas.yview_moveto(1.0)
 
-    def replay_move(self, move_data):
+    def replay_move(self, move_data, state):
         """Rejouer un mouvement spécifique"""
-        if move_data:
+        if move_data and state['is_game_paused']:
             print(f"Rejouer le mouvement: {move_data}")
-
 
 
     def update(self, state):
@@ -93,23 +188,10 @@ class HistoryView(BaseView):
             current_moves = len(self.move_frames)
             history_moves = len(state['history'])
             
-            self.logger.debug(f"Current moves: {current_moves}, History moves: {history_moves}")
-            
             if history_moves > current_moves:
                 self.logger.info(f"Adding {history_moves - current_moves} new moves")
                 for move in state['history'][current_moves:]:
-                    move_text = f"{move['pos'][0]} → {move['pos'][1]}"
-
-                    self.add_move(move_text, move)
-                    
-                    
+                    self.add_move(move, state)
+                                         
         except Exception as e:
             self.logger.error(f"Error in update: {str(e)}")
-
-    
-
-# If you have any images being used, ensure they're wrapped with ctk.CTkImage
-# Example:
-# image = Image.open(image_path)
-# ctk_image = ctk.CTkImage(image, size=(width, height))
-# some_widget.configure(image=ctk_image)

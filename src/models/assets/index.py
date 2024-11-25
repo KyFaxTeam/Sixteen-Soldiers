@@ -13,6 +13,16 @@ class Assets:
       icon_refresh = ASSETS_DIR / "images/refresh_icon.png"
       icon_pause = ASSETS_DIR / "images/pause_icon.png"
 
+      icon_history = ASSETS_DIR / "images/bloc-notes.png"
+      icon_history_collante = ASSETS_DIR / "images/note-collante.png"
+      setting = ASSETS_DIR / "images/filtre.png"
+
+      cible = ASSETS_DIR / "images/cible.png"
+      approuve = ASSETS_DIR / "images/approuve.png"
+
+      
+
       dir_avatar = ASSETS_DIR / "avatars"
       
       font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"
+      font_montserrat = ASSETS_DIR / "fonts/Montserrat-Bold.ttf"

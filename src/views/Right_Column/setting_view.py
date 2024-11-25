@@ -1,11 +1,14 @@
 import customtkinter as ctk
+from models.assets.index import Assets
+from store.store import Store
 from utils.audio import Sounds 
 from views.base_view import BaseView
-from utils.const import THEME_PATH
+from utils.const import EMOJIS_SIZE, THEME_PATH
+from PIL import Image, ImageTk
 
 class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
-    def __init__(self, master, store=None):
+    def __init__(self, master, store:Store = None):
         super().__init__(master)
         self.frame = ctk.CTkFrame(self.master, corner_radius=10)
         self.store = store
@@ -16,10 +19,14 @@ class SettingsView(BaseView):
         self.sounds = Sounds()
 
         # Title "Settings"
+        self.frame.setting = ImageTk.PhotoImage(Image.open(Assets.setting).resize(EMOJIS_SIZE))
+
         self.title = ctk.CTkLabel(
             self.frame,
-            text="⚙️ Settings",
-            font=ctk.CTkFont(size=12, weight="bold")
+            image=self.frame.setting,
+            text=" Settings",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            compound="left"
         )
         self.title.pack(pady=(5, 5))
 
@@ -37,10 +44,10 @@ class SettingsView(BaseView):
 
         self.speed_slider = ctk.CTkSlider(
             self.speed_section, 
-            from_=0, 
-            to=1, 
+            from_=0.5, 
+            to=2.5, 
             number_of_steps=5,
-            command=self._on_speed_change
+            command=self._on_speed_change,            
         )
         self.speed_slider.pack(fill="x", padx=15, pady=(0, 10))
 
@@ -90,9 +97,9 @@ class SettingsView(BaseView):
 
     def _on_speed_change(self, value):
         """Gère le changement de vitesse"""
-        speed_value = round(value, 2)
-        print(f"Speed changed to: {speed_value}")
-        # TODO: Implémenter la logique de changement de vitesse
+        print(f"Speed changed to: {value}")
+        self.store.game_speed.set_speed(value)
+
 
     def _on_sound_change(self, value):
         """Gère le changement de volume"""

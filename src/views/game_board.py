@@ -8,8 +8,8 @@ from utils.audio import Sounds
 from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
 from utils.game_utils import GameRunner
 from views.base_view import BaseView
-from utils.board_utils import BoardUtils  # Ajouter cet import
-from utils.history_utils import get_last_move, is_equals  # Ajouter cet import
+from utils.board_utils import BoardUtils  
+from utils.history_utils import get_last_move, is_equals  
 import logging
 import traceback
 from store.store import Store
@@ -31,8 +31,9 @@ class GameBoard(BaseView):
         
         self.canvas = tk.Canvas(self.main_container, 
                                     width= 4 * GAP + 2 * PADDING, 
-                                    height= 8 * GAP + 2 * PADDING, 
-                                    bg="#2d2d2e")
+                                    height= 8 * GAP + 2 * PADDING,  highlightthickness=0,
+                                    bg="#2b3665", highlightbackground="#424977",      # Couleur de la bordure inactive
+                                    )
 
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container)
@@ -161,11 +162,12 @@ class GameBoard(BaseView):
         
         # Annotation des coordonnées de chaque pion
         for i in range(9):
+            custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
             if i < 5:
                 x = PADDING + i * GAP
-                self.canvas.create_text(x, 8*GAP + 2 * PADDING -10 , text=str(i + 1), font=("Arial", 12), fill="white", anchor="center", tags="optional_tag")
+                self.canvas.create_text(x, 8*GAP + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill="white", anchor="center", tags="optional_tag")
             y = PADDING + i * GAP
-            self.canvas.create_text(10, y , text=chr(ord('a') + i), font=("Arial", 12), fill="white", anchor="center", tags="optional_tag")
+            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
         
         self.play_button.pack(side="left", padx=5)
         self.pause_button.pack(side="left")

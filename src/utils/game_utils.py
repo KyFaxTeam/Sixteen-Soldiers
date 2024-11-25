@@ -3,7 +3,7 @@ import time
 from utils.validator import is_valid_move
 from agents.base_agent import BaseAgent
 from store.store import Store
-from utils.const import Soldier
+from utils.const import Soldier, TIMINGS
 
 
 class GameRunner:
@@ -32,6 +32,10 @@ class GameRunner:
                 action = current_agent.choose_action(board=current_state["board"])
                 # Calculate elapsed time and update time manager
                 elapsed_time = time.time() - start_time
+
+                delay = self.store.game_speed.get_delay_time(elapsed_time)
+                # Add delay for visualization
+                time.sleep(delay)
 
                 self.logger.debug(f"Agent action: {action}")
 
@@ -81,8 +85,7 @@ class GameRunner:
                 
                 # Ajouter le changement de joueur
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
-                # Add delay for visualization
-                time.sleep(delay)
+
                 
             except Exception as e:
                 self.logger.error(f"Error occurred during agent's turn: {repr(e)}")
