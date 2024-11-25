@@ -22,7 +22,8 @@ class MainView(BaseView):
     def __init__(self, master, store):
         super().__init__(master)
         self.store :Store = store
-        # Utilisez self.master au lieu de créer une nouvelle fenêtre
+        self.after_game_view = None  # Initialize the attribute to track the view
+        self.logger = logging.getLogger(__name__)
         self.master.title("Sixteen Soldiers")
         self.master.geometry("400x300")
         
@@ -34,19 +35,15 @@ class MainView(BaseView):
         
         
         self.logger = logging.getLogger(__name__)
-        self.start_new_game()
         # Initialize HomeView
-        # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
-        # self.home_view.show()
+        self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
+        self.home_view.show()
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
-        #•self.home_view.hide()  # Hide the home screen
+        self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
-        
-        if self.store.state["is_game_over"]:
-            self.show_after_game_view()
 
     def review_match(self):
         """Review a match and switch to history view"""
@@ -55,8 +52,7 @@ class MainView(BaseView):
         self.create_main_layout()  # Ensure the main layout is created
         # Initialize or load state as needed
         # For example, you might load a saved game state here
-        self.load_saved_game_state()
-        self.show_after_game_view()
+        # self.load_saved_game_state()
         
 
     def create_main_layout(self):
@@ -66,7 +62,7 @@ class MainView(BaseView):
             self.main_container.destroy()
 
         # Create main container frame
-        self.main_container = ctk.CTkFrame(self.master)
+        self.main_container = ctk.CTkFrame(self.master) 
         self.main_container.pack(expand=True, fill="both", padx=10, pady=10)
         
         # Content frame with 3 columns
@@ -101,6 +97,11 @@ class MainView(BaseView):
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
+        if self.after_game_view is not None:
+            self.logger.warning("AfterGameView is already displayed.")
+            return
+        
+        self.logger.info("Displaying AfterGameView.")
         self.after_game_view = AfterGameView(
             self.master,
             store=self.store,
@@ -111,9 +112,9 @@ class MainView(BaseView):
     def restart_game(self):
         """Reset the game and return to HomeView"""
         # Close any existing AfterGameView if open
-        if hasattr(self, 'after_game_view'):
+        if self.after_game_view:
             self.after_game_view.destroy()
-            del self.after_game_view
+            self.after_game_view = None  # Reset the view reference
 
         # Reset the main layout (clear current game views if necessary)
         if hasattr(self, 'main_container'):
@@ -149,5 +150,8 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
+        if self.store.state["is_game_over"]:
+            self.logger.info("Game is over - show_after_game_view")
+            self.show_after_game_view()
 
 
