@@ -6,6 +6,9 @@ ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"
 THEMES_DIR = ROOT_DIR / "themes"
 THEME_PATH = THEMES_DIR / 'coffee.json'
+# Paths for the agents
+AGENT_DIR = ROOT_DIR / "src/agents"
+
 
 
 # Configuration du jeu

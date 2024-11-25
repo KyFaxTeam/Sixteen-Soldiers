@@ -6,6 +6,7 @@ from typing import Optional, Dict
 from store.store import Store
 from utils.const import Soldier
 from views.base_view import BaseView
+from utils.const import AGENT_DIR
 from PIL import Image
 import logging
 logger = logging.getLogger(__name__)
@@ -148,11 +149,14 @@ class PlayerView(BaseView):
     
     def get_agent_list(self):
         """Get list of available agents from the agents directory"""
-        agents_dir = "agents"  # Adjust path as needed
+        # utiliser le agents_dir pour définir le chemin d'accès
+        
+        agents_dir = AGENT_DIR
+        # chercher la liste des dossiers existants dans agent_dir
         if os.path.exists(agents_dir):
-            # Get all files from the agents directory, excluding __pycache__ and other hidden files
-            agents = [f[:-3] for f in os.listdir(agents_dir) 
-                     if f.endswith('.py') and not f.startswith('__')]
+            # just get directory names excluding __pycache__ and other hidden files 
+            agents = [f for f in os.listdir(agents_dir)
+                        if os.path.isdir(os.path.join(agents_dir, f)) and not f.startswith('__')]
             return sorted(agents)
         return []
         
