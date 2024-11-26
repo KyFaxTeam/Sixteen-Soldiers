@@ -27,10 +27,6 @@ def change_current_player(state: Dict) -> Dict:
 def end_game(state: Dict, winner: Soldier) -> Dict:
     new_state = state.copy()
     new_state["is_game_over"] = True
-
-    winner_agent_id = new_state["agents_info_index"].get(winner)
-
-    new_state["winner"] = winner_agent_id  # Store only the agent ID
     return new_state
 
 def pause_game(state: Dict) -> Dict:

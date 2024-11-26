@@ -277,7 +277,7 @@ class GameBoard(BaseView):
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
-                    self.logger.error(f"Error in _move_soldier_from_history: {e}")
+                    self.logger.error(f"Error in _make_action: {e}")
                     self.logger.error(traceback.format_exc())
 
             self.canvas.update_idletasks()
