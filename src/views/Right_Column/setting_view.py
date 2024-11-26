@@ -66,7 +66,7 @@ class SettingsView(BaseView):
         # Boutons segmentés pour le contrôle du son
         self.sound_control = ctk.CTkSegmentedButton(
             self.sound_section,
-            values=["Off", "On"],
+            values=["On", "Off"],
             command=self._on_sound_change,
             font=ctk.CTkFont(size=8)
         )
