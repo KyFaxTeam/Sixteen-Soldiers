@@ -12,6 +12,7 @@ class Assets:
       icon_play = ASSETS_DIR / "images/play_icon.png"
       icon_refresh = ASSETS_DIR / "images/refresh_icon.png"
       icon_pause = ASSETS_DIR / "images/pause_icon.png"
+      icon_favicon = ASSETS_DIR / "images/favicon.ico"
 
       icon_history = ASSETS_DIR / "images/bloc-notes.png"
       icon_history_collante = ASSETS_DIR / "images/note-collante.png"

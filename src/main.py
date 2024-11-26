@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import logging
 
+from models.assets.index import Assets
 from models.board import Board
 from utils.game_utils import GameRunner
 from utils.logger_config import get_logger, setup_logging
@@ -23,6 +24,9 @@ def main():
     
     # Create store with reducer only
     store = Store(reducer=root_reducer)
+    
+    # Add icons to the main window
+    root.iconbitmap(Assets.icon_favicon)
     
     # Create main view without agents - they'll be created through the UI
     app = MainView(root, store)
