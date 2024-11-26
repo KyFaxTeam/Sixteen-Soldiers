@@ -250,6 +250,9 @@ class GameBoard(BaseView):
             captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=1 - player)
             
             if captured_id is not None:
+                # self.sounds.pause()
+                self.sounds.take_soldier()
+                # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
         self.previous_action = action
