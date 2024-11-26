@@ -67,7 +67,51 @@ def get_move_player_count(state: Dict, player_id: int) -> int:
         int: Number of moves made by the specified player
     """
     history = get_history(state)
-    return sum(1 for move_dict in history if Move.from_dict(move_dict).player_id == player_id)
+    return sum(1 for move_dict in history if Move.from_dict(move_dict).soldier_value == player_id)
+
+# def get_total_move_count(state: Dict) -> int:
+#     """
+#     Get the total number of individual moves made in the game.
+    
+#     Args:
+#         state (Dict): Current state containing history
+    
+#     Returns:
+#         int: Total number of individual moves
+#     """
+#     history = get_history(state)
+#     total_moves = 0
+    
+#     for move_dict in history:
+#         move = Move.from_dict(move_dict)
+#         # Each move contributes len(move.pos) - 1 transitions
+#         total_moves += len(move.pos) - 1
+    
+#     return total_moves
+
+# def get_total_move_count_for_player(state: Dict, player_id: int) -> int:
+#     """
+#     Get the total number of individual moves made by a specific player.
+    
+#     Args:
+#         state (Dict): Current state containing history
+#         player_id (int): ID of the player to filter moves for
+    
+#     Returns:
+#         int: Total number of individual moves made by the player
+#     """
+#     history = get_history(state)
+#     total_moves = 0
+
+#     for move_dict in history:
+#         move = Move.from_dict(move_dict)
+#         # Check if the move belongs to the specified player
+#         if move.soldier_value == player_id:
+#             # Count the transitions in this move
+#             total_moves += len(move.pos) - 1
+
+#     return total_moves
+
 
 
 def can_undo(state: Dict) -> bool:
