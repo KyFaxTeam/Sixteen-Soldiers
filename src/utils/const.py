@@ -7,6 +7,10 @@ DATA_DIR = ROOT_DIR / "data"
 THEMES_DIR = ROOT_DIR / "themes"
 THEME_PATH = THEMES_DIR / 'theme.json'
 
+# Paths for the agents
+AGENT_DIR = ROOT_DIR / "src/agents"
+
+
 
 # Configuration du jeu
 class Soldier(Enum):

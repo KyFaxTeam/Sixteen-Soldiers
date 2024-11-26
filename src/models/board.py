@@ -69,7 +69,36 @@ class Board:
         self.logger = logging.getLogger(__name__)
 
     
-       
+    def move_soldier(self, action: Dict):
+        """Move a soldier based on the action dictionary."""
+        from_pos = action['from_pos']
+        to_pos = action['to_pos']
+        soldier_value = action['soldier_value']
+        self.soldiers[from_pos] = Soldier.EMPTY
+        self.soldiers[to_pos] = soldier_value
+
+    def capture_soldier(self, action: Dict):
+        """Capture a soldier based on the action dictionary."""
+        from_pos = action['from_pos']
+        to_pos = action['to_pos']
+        captured_pos = action['captured_soldier']
+        soldier_value = action['soldier_value']
+        self.soldiers[from_pos] = Soldier.EMPTY
+        self.soldiers[to_pos] = soldier_value
+        self.soldiers[captured_pos] = Soldier.EMPTY
+
+    def count_pieces(self, soldier_value: Soldier) -> int:
+        """Count the number of pieces for the given soldier value."""
+        return sum(1 for s in self.soldiers.values() if s == soldier_value)
+
+
+
+    def is_game_over(self) -> bool:
+        """Check if the game is over (one player has no pieces left)."""
+        red_count = self.count_pieces(Soldier.RED)
+        blue_count = self.count_pieces(Soldier.BLUE)
+        return red_count == 0 or blue_count == 0
+
         
     def get_valid_actions(self, soldier_value: Soldier) -> List[Dict]:
 
