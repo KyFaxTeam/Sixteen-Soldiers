@@ -29,3 +29,5 @@ Revoir le nombre de coups divisé par deux pour avoir le nombre de moves d'un ag
 Ajouter le bouton pour set le time limit dans l'iinterface
 
 Les agents devraient être uniquement choisis dans l'interface
+
+changer captured_soldier en captured_pos
