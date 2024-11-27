@@ -27,6 +27,7 @@ def change_current_player(state: Dict) -> Dict:
 def end_game(state: Dict, winner: Soldier) -> Dict:
     new_state = state.copy()
     new_state["is_game_over"] = True
+    new_state["winner"] = winner
     return new_state
 
 def pause_game(state: Dict) -> Dict:
