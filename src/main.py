@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import logging
+from models.assets.index import Assets
 from utils.logger_config import get_logger, setup_logging
 from views.main_view import MainView
 from store.store import Store
@@ -9,17 +10,7 @@ from utils.const import THEME_PATH
 def main():
     # Setup logging
     setup_logging()
-    # Configure logging for all modules
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    #     handlers=[
-    #         logging.StreamHandler(),
-    #         logging.FileHandler('game.log')
-    #     ]
-    # )
-    # # Ensure loggers propagate to root
-    # logging.getLogger().setLevel(logging.INFO)
+   
     
     logger = get_logger(__name__)
     
@@ -32,7 +23,9 @@ def main():
     # Create store with reducer only
     store = Store(reducer=root_reducer)
     
-   
+    # Add icons to the main window
+    root.iconbitmap(Assets.icon_favicon)
+    
     app = MainView(root, store)
     app.subscribe(store)
     

@@ -5,7 +5,8 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"
 THEMES_DIR = ROOT_DIR / "themes"
-THEME_PATH = THEMES_DIR / 'coffee.json'
+THEME_PATH = THEMES_DIR / 'theme.json'
+
 # Paths for the agents
 AGENT_DIR = ROOT_DIR / "src/agents"
 
@@ -38,6 +39,8 @@ EMOJIS_SIZE = (20, 20)
 TIMINGS = {
     "AI_MOVE_DELAY": 1000,  # ms
     "ANIMATION_SPEED": 0.5,   # s
+
     "AI_TIMEOUT": 0.5# s
+
 }
 
