@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from typing import List, Tuple, Optional
+
 
 # base_view.py
 class BaseView:

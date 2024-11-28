@@ -7,8 +7,8 @@ from utils.const import Soldier
 class Agent(BaseAgent):
     """AI agent that plays random valid moves"""
     
-    def __init__(self, soldier_value: Soldier):
-        super().__init__(soldier_value)
+    def __init__(self, soldier_value: Soldier, data: Dict = None):
+        super().__init__(soldier_value, data)
         self.name = "Random Team"
         
     

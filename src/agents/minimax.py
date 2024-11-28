@@ -9,8 +9,8 @@ import math
 class Agent(BaseAgent):
     """AI agent that uses alpha-beta pruning to choose moves."""
 
-    def __init__(self, soldier_value: Soldier, depth: int = 3):
-        super().__init__(soldier_value)
+    def __init__(self, soldier_value: Soldier, depth: int = 3, data: Dict = None):
+        super().__init__(soldier_value, data)
         self.name = "AlphaBeta Agent"
         self.depth = depth
 
@@ -19,9 +19,10 @@ class Agent(BaseAgent):
         Choose the best action using alpha-beta pruning.
         """
         _, best_action = self.alphabeta(board, self.depth, -math.inf, math.inf, True)
+        print(best_action)
         return best_action
 
-    def apply_action(board:Board, action: Dict):
+    def apply_action(self, board:Board, action: Dict):
         """Apply an action to the board."""
         action_type = action['type']
         if action_type == 'MOVE_SOLDIER':
@@ -45,7 +46,7 @@ class Agent(BaseAgent):
             max_eval = -math.inf
             for action in valid_actions:
                 new_board = copy.deepcopy(board)
-                new_board.apply_action(action)
+                self.apply_action(board, action)
                 eval_score, _ = self.alphabeta(new_board, depth - 1, alpha, beta, False)
                 if eval_score > max_eval:
                     max_eval = eval_score
@@ -72,7 +73,7 @@ class Agent(BaseAgent):
         """
         Evaluate the board state from the perspective of this agent.
         """
-        return board.count_pieces(self.soldier_value) - board.count_pieces(self.get_opponent_soldier())
+        return board.count_soldiers(self.soldier_value) - board.count_soldiers(self.get_opponent_soldier())
 
     def get_opponent_soldier(self) -> Soldier:
         return Soldier.RED if self.soldier_value == Soldier.BLUE else Soldier.BLUE
