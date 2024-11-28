@@ -13,6 +13,8 @@ import logging
 import traceback
 from store.store import Store
 
+# theme_colors = ctk.ThemeManager.theme["CTkFrame"]  # Obtenir les styles de base
+# bg_color = theme_colors["fg_color"]
 
 
 class GameBoard(BaseView):
@@ -43,29 +45,17 @@ class GameBoard(BaseView):
         self.blue_soldiers = []
         self.previous_move = None
         self.is_game_started = False
+        self.is_paused = True
 
         self.sounds = Sounds()
         self._init_board()
         
-        # Ajoutez un bouton "Play"
-        # self.play_button = ctk.CTkButton(
-        #     self.button_frame, 
-        #     text="Play", 
-        #     command=self.start_game,
-        #     state="normal"  # S'assurer que le bouton est actif au début
-        # )
-        # self.play_button.pack()
-        
-        # Add pause button to the button frame
-        # self.pause_button = ctk.CTkButton(
-        #     master=self.button_frame, text="Pause", command=self.toggle_pause)
-        # self.pause_button.pack(side="left", padx=5)
-        
         self.logger = logging.getLogger(__name__)
         self.previous_move = None  # Ajouter cet attribut
-        self.logger.info("GameBoard initialized")
+        # self.logger.info("GameBoard initialized")
         
     def _init_board(self):
+        """Initializes the game board by drawing the board, pieces, playing background music, and setting up the decor."""
         self.__draw_board()
         self._draw_pieces()
         self.sounds.background_music()
@@ -144,20 +134,16 @@ class GameBoard(BaseView):
     def _decor(self):
         """Initialise les boutons de contrôle"""
         # Play button
-        self.play_button = ctk.CTkButton(
-            master=self.button_frame, text='Play',
-            image=ctk.CTkImage(
-                light_image=Image.open(Assets.icon_play), size=(20, 20)),
-            compound="left", command=self.start_game, width=120, height=32,
-            corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
-        )
-        # Pause button
-        self.pause_button = ctk.CTkButton(
-            master=self.button_frame, text="Pause", 
-            image=ctk.CTkImage(
-                light_image=Image.open(Assets.icon_pause), size=(20, 20)),
-            compound="left", width=120, height=32, corner_radius=8, fg_color="#3B3B3B", hover_color="#131630",
-            command=self.toggle_pause)
+        self.play_pause_button = ctk.CTkButton(
+                    master=self.button_frame, text='Play',
+                    image=ctk.CTkImage(
+                        light_image=Image.open(Assets.icon_play), size=(20, 20)),
+                    compound="left", command=self.toggle_play_pause, width=120, height=32,
+                    corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
+                )
+        self.play_pause_button.pack(side="left", padx=5)
+        # self.play_pause_button.configure(command=self.toggle_play_pause)
+    
         
         # Annotation des coordonnées de chaque pion
         for i in range(9):
@@ -168,30 +154,27 @@ class GameBoard(BaseView):
             y = PADDING + i * GAP
             self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
         
-        self.play_button.pack(side="left", padx=5)
-        self.pause_button.pack(side="left")
+        # self.play_button.pack(side="left", padx=5)
+        # self.pause_button.pack(side="left")
 
     
             
     def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
-        # TODO: impl assertion
         """
-        Déplace un pion de sa position actuelle vers (target_x, target_y) en plusieurs étapes.
+            Moves a piece from its current position to (target_x, target_y) in multiple steps.
+            
+            Args:
+                piece_index: The index of the soldier in self.red_soldiers
+                target: Tuple (x, y) of the target coordinates
+                steps: Number of steps for the animation
+                delay: Delay between each step in milliseconds
+            """
         
-        Args:
-            piece_index: L'index du soldat dans self.red_soldiers
-            target: Tuple (x, y) des coordonnées cibles
-            steps: Nombre d'étapes pour l'animation
-            delay: Délai entre chaque étape en millisecondes
-        """
         self.canvas.update_idletasks()
         
         
         if soldier_id is None:
-            self.logger.error(f"""
-                              Error: Soldier not found at position {soldier_position}
-                              From: _move_soldier_in_board
-                              """)
+            self.logger.error(f"""\nError: Soldier not found at position {soldier_position}\nFrom: _move_soldier_in_board""")
             return
             
         # Récupérer les coordonnées actuelles
@@ -242,6 +225,7 @@ class GameBoard(BaseView):
         self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos), player=player)
         
         is_capture = action.get("captured_soldier") is not None
+        
         if is_capture:
             
             captured_soldier = action["captured_soldier"]
@@ -250,7 +234,7 @@ class GameBoard(BaseView):
             
             if captured_id is not None:
                 # self.sounds.pause()
-                self.sounds.take_soldier()
+                self.sounds.kill_soldier()
                 # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
@@ -287,14 +271,15 @@ class GameBoard(BaseView):
             # Update button states
             if state.get("is_game_over"):
                 self.logger.info("Game is over - disabling play button")
-                self.play_button.configure(state="disabled")
+                # self.play_button.configure(state="disabled")
             else:
-                self.play_button.configure(state="normal")
+                ...
+                # self.play_button.configure(state="normal")
 
             if state.get("is_game_paused"):
                 self.logger.info("Game is paused - changing pause button text")
-                self.pause_button.configure(text="Resume")
-                self.sounds.pause()
+                # self.pause_button.configure(text="Resume")
+                # self.sounds.pause()
 
         except Exception as e:
             self.logger.error(f"Error in update: {e}")
@@ -344,7 +329,7 @@ class GameBoard(BaseView):
     def start_game(self):
         """Start the game in automatic mode with agents."""
         self.logger.info("Starting game from Play button")
-        self.play_button.configure(state="disabled")
+        # self.play_button.configure(state="disabled")
         
         # Créer les agents lors du clic sur le bouton Play seulement si dans le store, les attributs les 
         # concernant sont à None
@@ -385,34 +370,46 @@ class GameBoard(BaseView):
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
-            self.play_button.configure(state="normal")
 
-        
         self.is_game_started = True
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
         game_thread.start()
 
-    
-    def toggle_pause(self):
-        """Toggle the game's paused state."""
-        current_state = self.store.get_state()
-        is_paused = current_state.get('is_game_paused', False)
-        
-        if not is_paused:
-            self.logger.info("""
-            Game paused
-            From: toggle_pause
-            """)
-            self.store.dispatch({'type': 'PAUSE_GAME'})
-            self.sounds.pause()  # Pause la musique
-            self.pause_button.configure(text="Resume")
+    def toggle_play_pause(self):
+        """Toggle the play/pause state of the game."""
+        if not self.is_game_started:
+            # If the game has not started, start the game
+            self.start_game()
+            # Change the button text to "Pause"
+            self.play_pause_button.configure(text="Pause")
+            # Set the game state to not paused
+            self.is_paused = False
         else:
-            self.logger.info("""
-            Game resumed
-            From: toggle_pause
-            """)
-            self.store.dispatch({'type': 'RESUME_GAME'})
-            self.sounds.unpause()  # Reprend la musique
-            self.pause_button.configure(text="Pause")
-
+            # Get the current state from the store
+            current_state = self.store.get_state()
+            # Check if the game is currently paused
+            is_paused = current_state.get('is_game_paused', False)
+            
+            if not is_paused:
+                # If the game is not paused, pause the game
+                self.logger.info("Game paused\nFrom: toggle_play_pause")
+                self.store.dispatch({'type': 'PAUSE_GAME'})
+                # Change the button text to "Resume"
+                self.play_pause_button.configure(text="Resume")
+                # Change the button icon to play
+                self.play_pause_button.configure(
+                    image = ctk.CTkImage(
+                        light_image=Image.open(Assets.icon_play), size=(20, 20)))
+            else:
+                # If the game is paused, resume the game
+                self.logger.info("Game resumed\nFrom: toggle_play_pause")
+                self.store.dispatch({'type': 'RESUME_GAME'})
+                # Change the button icon to pause
+                self.play_pause_button.configure(
+                    image = ctk.CTkImage(
+                        light_image=Image.open(Assets.icon_pause), size=(20, 20)))
+                # Change the button text to "Pause"
+                self.play_pause_button.configure(text="Pause")
+            # Toggle the paused state
+            self.is_paused = not is_paused
