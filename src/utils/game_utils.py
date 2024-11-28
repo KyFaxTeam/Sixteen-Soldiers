@@ -166,10 +166,21 @@ class GameRunner:
 #                 })
 #                 break
 
+    # def _change_current_player(self, board, action): 
+    #     # Vérifier si des captures sont disponibles pour le joueur actuel
+    #     if action['type'] == "CAPTURE_SOLDIER" and board.get_available_captures(current_soldier_value, action["to_pos"], True):     
+    #         self.logger.info(f"Player {current_agent.pseudo} has additional captures available.")
+    #         continue  # Ne pas changer le joueur et permettre au joueur actuel de rejouer
+    #     else:
+    #         # Passer au joueur suivant s'il n'y a pas de captures
+    #         self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+
                 
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
         try:
+            can_continue_capture = False
+
             while not self.store.get_state().get("is_game_over", False):
 
                 while self.store.get_state().get("is_game_paused", False):
@@ -181,7 +192,11 @@ class GameRunner:
 
                 try:
                     board_copy = deepcopy(current_state["board"])
-                    valid_actions = board_copy.get_valid_actions(current_soldier_value)
+                    if can_continue_capture : 
+                        valid_actions = board_copy.get_available_captures(current_soldier_value, action["to_pos"])
+                    else : 
+                        valid_actions = board_copy.get_valid_actions(current_soldier_value)
+
                     valid_actions = [action for action in valid_actions if is_valid_move(action, current_state["board"])]
 
                     if not valid_actions:
@@ -205,7 +220,6 @@ class GameRunner:
 
                     delay = self.store.game_speed.get_delay_time(elapsed_time)
                     time.sleep(delay)
-
 
                     
                     self.store.dispatch({
@@ -235,9 +249,24 @@ class GameRunner:
                             winner = Soldier.RED
                         self._conclude_game(agent1, agent2, winner=winner, reason="timeout")
                         break
+
                     
-                    # Ajouter le changement de joueur
-                    self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                    # Vérifier si des captures sont disponibles pour le joueur actuel
+                    board = self.store.get_state()["board"]
+
+                    can_continue_capture = action['type'] == "CAPTURE_SOLDIER" and board.get_available_captures(current_soldier_value, action["to_pos"], True)
+
+                    if can_continue_capture :     
+                        self.logger.info(f"Player {current_agent.pseudo} has additional captures available.")
+                        continue  # Ne pas changer le joueur et permettre au joueur actuel de rejouer
+                    else:
+                        # Passer au joueur suivant s'il n'y a pas de captures
+                        self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                
+                    # # Ajouter le changement de joueur
+                    # self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+
+
 
                     
                 except Exception as e:
