@@ -1,11 +1,13 @@
 import os  # Import os module for path operations
 import customtkinter as ctk
 from PIL import Image
-from utils.const import ASSETS_DIR  # Import ASSETS_DIR
+from utils.const import ASSETS_DIR
+from utils.logger_config import get_logger  # Import ASSETS_DIR
 
 class AfterGameView(ctk.CTkToplevel):
     def __init__(self, master, store, on_restart, on_save):
         super().__init__(master)
+        self.logger = get_logger(__name__)
         self.store = store
         self.on_restart = on_restart
         self.on_save = on_save
@@ -15,7 +17,7 @@ class AfterGameView(ctk.CTkToplevel):
         self.geometry("400x300")
         self.transient(master)
         self.grab_set()  # Block interaction with MainView
-
+        self.logger.info("**************Game Over window created*************")
         # Fetch winner's data from store
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
@@ -64,10 +66,27 @@ class AfterGameView(ctk.CTkToplevel):
         remaining_pawns_label.grid(row=0, column=2, padx=(0, 15))
 
         # Restart button with icon
-        restart_image_path = os.path.join(ASSETS_DIR, "images", "refresh.png")
-        restart_image = Image.open(restart_image_path).resize((25, 25))  # Adjust icon size as needed
-        self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
-        restart_button = ctk.CTkButton(bottom_frame, image=self.restart_photo, text="", command=on_restart, width=30, height=30)
+        try:
+            restart_image_path = os.path.join(ASSETS_DIR, "images", "refresh.png")
+            if os.path.exists(restart_image_path):
+                restart_image = Image.open(restart_image_path).resize((25, 25))
+                self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
+            else:
+                self.logger.warning(f"Refresh icon not found at {restart_image_path}")
+                self.restart_photo = None
+        except Exception as e:
+            self.logger.error(f"Failed to load restart image: {e}")
+            self.restart_photo = None
+
+        # Create restart button with or without image
+        restart_button = ctk.CTkButton(
+            bottom_frame, 
+            image=self.restart_photo if self.restart_photo else None,
+            text="Restart" if not self.restart_photo else "",
+            command=on_restart,
+            width=30 if self.restart_photo else 80,
+            height=30
+        )
         restart_button.grid(row=0, column=3, padx=(20, 25))
 
         # Save button
@@ -77,24 +96,30 @@ class AfterGameView(ctk.CTkToplevel):
     def get_winner_data(self, state):
         """Extract winner data from the state"""
         winner = state.get("winner")
-
         if winner is None:
-            print("No winner agent id")
+            self.logger.info("No winner found in state")
             return self._get_default_winner_data()
             
-        info_index = state["agents_info_index"].get(winner)
-        winner_data = state["agents"].get(info_index, {})
+        info_index = state.get("agents_info_index", {}).get(winner)
+        winner_data = state.get("agents", {}).get(info_index, {})
 
         if not winner_data:
-            print("No winner data")
+            self.logger.warning("No winner data found")
             return self._get_default_winner_data()
-        
+
+        # Get the latest performance from agent stats
+        stats = winner_data.get("stats", {})
+        performances = stats.get("performances", [])
+        latest_time = "00:00"
+        if performances:
+            latest_time = performances[-1].time  # Le temps est déjà sauvegardé par conclude_game
+
         return {
-            "profile_img": winner_data["profile_img"],
-            "team_pseudo": winner_data["pseudo"],
-            "ai_name": winner_data["name"],
-            "remaining_time": winner_data["time_manager"].get_remaining_time(winner),
-            "remaining_pawns": self.get_remaining_pawns(winner_data["player_id"])
+            "profile_img": winner_data.get("profile_img"),
+            "team_pseudo": winner_data.get("pseudo", "Unknown"),
+            "ai_name": winner_data.get("name", "AI"),
+            "remaining_time": latest_time,
+            "remaining_pawns": self.get_remaining_pawns(winner)
         }
 
     def _get_default_winner_data(self):

@@ -19,7 +19,7 @@ class AgentStats:
     performances: List[MatchPerformance] = field(default_factory=list)
 
 class BaseAgent:
-    def __init__(self, soldier_value: Soldier):
+    def __init__(self, soldier_value: Soldier, data: Dict = None):
         """
         Initialize the base agent.
         Args:
@@ -27,8 +27,12 @@ class BaseAgent:
         """
         self.soldier_value = soldier_value
         self.pseudo = os.path.basename(sys.modules[self.__module__].__file__).replace(".py", "")
-        self.stats = AgentStats()
-        self.profile_img = self._get_random_avatar()
+        if data:
+            self.profile_img = data.get("profile_img", "")
+            self.stats = AgentStats(**data.get("stats", {}))
+        else :
+            self.stats = AgentStats()
+            self.profile_img = self._get_random_avatar()
 
     
     def _get_random_avatar(self) -> str:

@@ -1,12 +1,13 @@
 import logging
 import customtkinter as ctk
+from store.store import Store
 from utils.const import Soldier
 from views.base_view import BaseView
 from views.Left_Column.player_view import PlayerView
 logger = logging.getLogger(__name__)
 
 class PlayersColumn(BaseView):
-    def __init__(self, master: any, store: any):
+    def __init__(self, master: any, store: Store):
         super().__init__(master)
         self.store = store
         self.frame = ctk.CTkFrame(self.master)
@@ -42,6 +43,7 @@ class PlayersColumn(BaseView):
         self.player2.frame.grid(row=2, column=0, sticky="nsew", pady=(0, 5))
 
     def update(self, state: dict):
+        self.store.state = state
         """Update both players with new state"""
         self.player1.update(state)
         self.player2.update(state)

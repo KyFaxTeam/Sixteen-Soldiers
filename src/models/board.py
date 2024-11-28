@@ -5,6 +5,7 @@ from actions.board_actions import BoardAction
 from utils.board_utils import BoardUtils
 from utils.const import Soldier
 
+
 class Board:
     def __init__(self):
         self.battle_field: Dict[str, Set[str]] = {
@@ -87,7 +88,7 @@ class Board:
         self.soldiers[to_pos] = soldier_value
         self.soldiers[captured_pos] = Soldier.EMPTY
 
-    def count_pieces(self, soldier_value: Soldier) -> int:
+    def count_soldiers(self, soldier_value: Soldier) -> int:
         """Count the number of pieces for the given soldier value."""
         return sum(1 for s in self.soldiers.values() if s == soldier_value)
 
@@ -95,8 +96,8 @@ class Board:
 
     def is_game_over(self) -> bool:
         """Check if the game is over (one player has no pieces left)."""
-        red_count = self.count_pieces(Soldier.RED)
-        blue_count = self.count_pieces(Soldier.BLUE)
+        red_count = self.count_soldiers(Soldier.RED)
+        blue_count = self.count_soldiers(Soldier.BLUE)
         return red_count == 0 or blue_count == 0
 
         
@@ -141,6 +142,6 @@ class Board:
                                 soldier_value=soldier_value,
                                 captured_soldier=neighbor
                             ))
-
+        # ne retourner que les actions validée par is_valid_move dans validator.py
         return valid_actions
-
+        
