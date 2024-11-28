@@ -49,6 +49,7 @@ class GameRunner:
                 else:
                     if not is_valid_move(action, current_state["board"]):
                         raise ValueError("Agent attempted an invalid move")
+                    
                     self.store.dispatch(action)
                 
                 self.store.dispatch({
@@ -82,9 +83,19 @@ class GameRunner:
                         "winner": winner
                     })
                     break
+
+                # Vérifier si des captures sont disponibles pour le joueur actuel
+                board = self.store.get_state()["board"]
+
+                if action['type'] == "CAPTURE_SOLDIER" and board.get_available_captures(current_soldier_value, action["to_pos"], True):     
+                    self.logger.info(f"Player {current_agent.name} has additional captures available.")
+                    continue  # Ne pas changer le joueur et permettre au joueur actuel de rejouer
+                else:
+                    # Passer au joueur suivant s'il n'y a pas de captures
+                    self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
                 
-                # Ajouter le changement de joueur
-                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                # # Ajouter le changement de joueur
+                # self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
                 
             except Exception as e:
