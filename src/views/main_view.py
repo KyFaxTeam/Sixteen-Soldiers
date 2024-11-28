@@ -33,15 +33,15 @@ class MainView(BaseView):
         self.history_view = None
         self.settings_view = None
         
-        
+        self.start_new_game()
         self.logger = logging.getLogger(__name__)
         # Initialize HomeView
-        self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
-        self.home_view.show()
+        # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
+        # self.home_view.show()
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
-        self.home_view.hide()  # Hide the home screen
+        # self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
 

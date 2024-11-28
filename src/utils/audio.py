@@ -14,6 +14,8 @@ class Sounds:
             pygame.mixer.init()
             self.background_channel = pygame.mixer.Channel(0)
             self.effect_channel = pygame.mixer.Channel(1)
+            
+            self.background_channel_is_playing = True
 
       def background_music(self):
             """
@@ -21,7 +23,7 @@ class Sounds:
             """
             self.background_channel.play(pygame.mixer.Sound(Assets.audio_background), loops=-1)
 
-      def take_soldier(self):
+      def kill_soldier(self):
             """
             Loads and plays the sound effect for taking a soldier on channel 1.
             """
@@ -44,12 +46,24 @@ class Sounds:
             """
             Pauses the currently playing music or sound effect.
             """
+            # Set the flag to indicate that the background channel is paused
+            self.background_channel_is_playing = False
+            
+            # Pause the background music
             self.background_channel.pause()
+            
+            # Pause the sound effect
             self.effect_channel.pause()
 
       def unpause(self):
             """
             Unpauses the currently paused music or sound effect.
             """
+            # Set the flag to indicate that the background channel is playing
+            self.background_channel_is_playing = True
+            
+            # Unpause the background music
             self.background_channel.unpause()
+            
+            # Unpause the sound effect
             self.effect_channel.unpause()
