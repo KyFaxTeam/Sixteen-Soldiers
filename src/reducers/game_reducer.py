@@ -27,6 +27,7 @@ def change_current_player(state: Dict) -> Dict:
 def end_game(state: Dict, winner: Soldier) -> Dict:
     new_state = state.copy()
     new_state["is_game_over"] = True
+    new_state["winner"] = winner
     return new_state
 
 def pause_game(state: Dict) -> Dict:
@@ -39,6 +40,12 @@ def resume_game(state: Dict) -> Dict:
     """Resume the game."""
     new_state = state.copy()
     new_state['is_game_paused'] = False
+    return new_state
+
+def select_agent(state: Dict, action: Dict) -> Dict:
+    new_state = state.copy()
+    new_state["agents_info_index"][action["soldier_value"]] = action["info_index"]
+    new_state["agents"][action["info_index"]] = {"pseudo" : action["info_index"].rsplit('_', 1)[0]}
     return new_state
 
 def register_agents(state: Dict, action: Dict) -> Dict:
@@ -76,5 +83,7 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return resume_game(state)
         case "REGISTER_AGENTS":
             return register_agents(state, action)
+        case "SELECT_AGENT":
+            return select_agent(state, action)
         case _:
             return state
