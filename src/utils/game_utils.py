@@ -1,7 +1,6 @@
 from copy import deepcopy
 from logging import getLogger
 import time
-import logging
 import random
 import tkinter as tk
 from utils.validator import is_valid_move
@@ -14,7 +13,6 @@ class GameRunner:
     def __init__(self, store: Store):
         self.store = store
         self.logger = getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
 
     def _show_invalid_move_popup(self, agent_name):
         """Show a popup when agent makes an invalid move"""
@@ -82,7 +80,7 @@ class GameRunner:
                 current_state = self.store.get_state()
                 current_soldier_value = current_state.get("current_soldier_value")
                 current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
-                # current_board = deepcopy(current_state.get("board"))
+
                 try:
                     
                     start_time = time.time()
@@ -90,14 +88,14 @@ class GameRunner:
                     # Get valid actions from board
                     board_copy = deepcopy(current_state["board"])
                     valid_actions = board_copy.get_valid_actions(current_soldier_value)
-                    
                     valid_actions = [action for action in valid_actions if is_valid_move(action, current_state["board"])]
 
-                    # if not valid_actions:
-                    #     self.logger.info(f"No valid actions for {current_agent.name}")
-                    #     continue
+                    if not valid_actions:
+                        # si pas de mouvement possible, on décide de la fin du jeu, le current_soldier_value est le perdant
+                        self.logger.info(f"No valid actions for {current_agent.name}")
+                        self._conclude_game(agent1, agent2, winner=current_soldier_value, reason="no_moves")
+                        return
 
-                    # Let agent choose action
                     action = current_agent.choose_action(board=board_copy)
                     
                     # Validate action and fallback to random if invalid
@@ -107,6 +105,8 @@ class GameRunner:
                         action = random.choice(valid_actions)
 
                     elapsed_time = time.time() - start_time
+                    
+                    self.store.dispatch(action=action)
 
                     delay = self.store.game_speed.get_delay_time(elapsed_time)
                     time.sleep(delay)
