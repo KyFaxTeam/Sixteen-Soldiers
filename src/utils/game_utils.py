@@ -82,10 +82,6 @@ class GameRunner:
                 current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
 
                 try:
-                    
-                    start_time = time.time()
-                    
-                    # Get valid actions from board
                     board_copy = deepcopy(current_state["board"])
                     valid_actions = board_copy.get_valid_actions(current_soldier_value)
                     valid_actions = [action for action in valid_actions if is_valid_move(action, current_state["board"])]
@@ -95,16 +91,17 @@ class GameRunner:
                         self.logger.info(f"No valid actions for {current_agent.name}")
                         self._conclude_game(agent1, agent2, winner=current_soldier_value, reason="no_moves")
                         return
-
-                    action = current_agent.choose_action(board=board_copy)
                     
+                    start_time = time.time()
+                    action = current_agent.choose_action(board=board_copy)
+                    elapsed_time = time.time() - start_time
                     # Validate action and fallback to random if invalid
                     if not is_valid_move(action, current_state["board"]) or action not in valid_actions:
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
                         self._show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions)
 
-                    elapsed_time = time.time() - start_time
+                    
                     
                     self.store.dispatch(action=action)
 
