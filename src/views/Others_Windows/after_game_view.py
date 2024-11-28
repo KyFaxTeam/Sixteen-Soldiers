@@ -1,7 +1,7 @@
 import os  # Import os module for path operations
 import customtkinter as ctk
 from PIL import Image
-from utils.const import ASSETS_DIR
+from utils.const import ASSETS_DIR, Soldier
 from utils.logger_config import get_logger  # Import ASSETS_DIR
 
 class AfterGameView(ctk.CTkToplevel):
@@ -24,10 +24,15 @@ class AfterGameView(ctk.CTkToplevel):
         
         # Winner's data
         profile_img_path = winner_data.get("profile_img")
-        team_pseudo = winner_data.get("team_pseudo", "Unknown")
-        ai_name = winner_data.get("ai_name", "AI")
-        remaining_time = winner_data.get("remaining_time", "00:00")
-        remaining_pawns = winner_data.get("remaining_pawns", 0)
+        team_pseudo = winner_data.get("team_pseudo")
+        ai_name = winner_data.get("ai_name")
+        soldier_value = winner_data.get("soldier_value")
+        if soldier_value == Soldier.BLUE:
+            pawns_image_filename = "blue_soldier.png"
+        else:
+            pawns_image_filename = "red_soldier.png"  # Default to red if value is null or not BLUE
+        remaining_time = winner_data.get("remaining_time")
+        remaining_pawns = winner_data.get("remaining_pawns")
 
         # Display "Gagnant" title
         ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
@@ -51,15 +56,16 @@ class AfterGameView(ctk.CTkToplevel):
         bottom_frame.pack(side="bottom", pady=(20, 10), fill="x", padx=20)
 
         # Display remaining time
-        time_label = ctk.CTkLabel(bottom_frame, text=f"Time: {remaining_time}", font=("Helvetica", 12))
+        remaining_time_ms = int(remaining_time * 1000)  
+        time_label = ctk.CTkLabel(bottom_frame, text=f"Time: {remaining_time_ms}ms", font=("Helvetica", 12))
         time_label.grid(row=0, column=0, padx=10)
 
         # Display pawns remaining icon
-        pawns_image_path = os.path.join(ASSETS_DIR, "images", "red_soldier.png")
+        pawns_image_path = os.path.join(ASSETS_DIR, "images", pawns_image_filename)
         pawns_image = Image.open(pawns_image_path)
         self.pawns_photo = ctk.CTkImage(pawns_image, size=(20, 20))
-        pawns_label = ctk.CTkLabel(bottom_frame, image=self.pawns_photo, text="")  # Display as icon only
-        pawns_label.grid(row=0, column=1, padx=((15, 0)))
+        pawns_label = ctk.CTkLabel(bottom_frame, image=self.pawns_photo, text="")  
+        pawns_label.grid(row=0, column=1, padx=((10, 0)))
 
         # Display the number of remaining pawns next to the icon
         remaining_pawns_label = ctk.CTkLabel(bottom_frame, text=f': {remaining_pawns}', font=("Helvetica", 12))
@@ -87,7 +93,7 @@ class AfterGameView(ctk.CTkToplevel):
             width=30 if self.restart_photo else 80,
             height=30
         )
-        restart_button.grid(row=0, column=3, padx=(20, 25))
+        restart_button.grid(row=0, column=3, padx=(10, 25))
 
         # Save button
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=on_save, width=50)
@@ -101,7 +107,9 @@ class AfterGameView(ctk.CTkToplevel):
             return self._get_default_winner_data()
             
         info_index = state.get("agents_info_index", {}).get(winner)
+        self.logger.info("info_index: ",info_index)
         winner_data = state.get("agents", {}).get(info_index, {})
+        self.logger.info(winner_data)
 
         if not winner_data:
             self.logger.warning("No winner data found")
@@ -118,6 +126,7 @@ class AfterGameView(ctk.CTkToplevel):
             "profile_img": winner_data.get("profile_img"),
             "team_pseudo": winner_data.get("pseudo", "Unknown"),
             "ai_name": winner_data.get("name", "AI"),
+            "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
             "remaining_pawns": self.get_remaining_pawns(winner)
         }
