@@ -14,6 +14,7 @@ class GameRunner:
         self.store = store
         self.logger = getLogger(__name__)
 
+
     def _show_invalid_move_popup(self, agent_name):
         """Show a popup when agent makes an invalid move"""
         popup = tk.Toplevel()
@@ -68,7 +69,104 @@ class GameRunner:
                 "winner": winner,
                 "error": None
             })
+#     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
+#         """
+#         Run a game between two AI agents
+#         """
+#         while not self.store.get_state().get("is_game_over", False):
+#             # Check if the game is paused
+#             while self.store.get_state().get("is_game_paused", False):
+#                 time.sleep(0.1)  # Pause execution briefly
+                
+#             current_state = self.store.get_state()
+#             current_soldier_value = current_state.get("current_soldier_value")
+#             current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
+            
+#             try:
+#                 # Record start time for the move
+#                 start_time = time.time()
 
+#                 # Get and execute agent's action (removed time_limit parameter)
+#                 action = current_agent.choose_action(board=current_state["board"])
+#                 # Calculate elapsed time and update time manager
+#                 elapsed_time = time.time() - start_time
+
+#                 delay = self.store.game_speed.get_delay_time(elapsed_time)
+#                 # Add delay for visualization
+#                 time.sleep(delay)
+
+#                 self.logger.debug(f"Agent action: {action}")
+
+#                 if action is None:
+#                     self.logger.info(f"{current_agent.name} has no valid moves. Ramdom_agent action.")
+#                     # ici implémenter le random dans les actions disponibles ou plus simple appeler la fonction choose_action de Random
+
+#                    # Say bro, at the end here, you return a random 'action' variable, right ?
+#                      # So, you can just call the choose_action method of the Random agent and return it
+
+#                 else:
+#                     if not is_valid_move(action, current_state["board"]):
+#                         raise ValueError("Agent attempted an invalid move")
+                    
+#                     self.store.dispatch(action)
+                
+#                 self.store.dispatch({
+#                     "type": "UPDATE_TIME",
+#                     "soldier_value": current_soldier_value,
+#                     "elapsed_time": elapsed_time
+#                 })
+
+#                 # Record the move in history
+#                 self.store.dispatch({
+#                     "type": "ADD_MOVE_TO_HISTORY",
+#                     "payload": {
+#                         "from_pos": action["from_pos"],
+#                         "to_pos": action["to_pos"],
+#                         "soldier_value": current_soldier_value,
+#                         "captured_soldier": action.get("captured_soldier"),
+#                         "timestamp": elapsed_time
+#                     }
+#                 })
+                
+#                 # Check for timeout using is_time_up
+#                 # ne pas déclencher la fin du jeu mais plutôt random
+#                 if current_state["time_manager"].is_time_up(current_soldier_value):
+#                     if current_soldier_value == Soldier.RED:
+#                         winner = Soldier.BLUE
+#                     else:
+#                         winner = Soldier.RED
+#                     self.store.dispatch({
+#                         "type": "END_GAME",
+#                         "reason": "timeout",
+#                         "winner": winner
+#                     })
+#                     break
+
+#                 # Vérifier si des captures sont disponibles pour le joueur actuel
+#                 board = self.store.get_state()["board"]
+
+#                 if action['type'] == "CAPTURE_SOLDIER" and board.get_available_captures(current_soldier_value, action["to_pos"], True):     
+#                     self.logger.info(f"Player {current_agent.name} has additional captures available.")
+#                     continue  # Ne pas changer le joueur et permettre au joueur actuel de rejouer
+#                 else:
+#                     # Passer au joueur suivant s'il n'y a pas de captures
+#                     self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                
+#                 # # Ajouter le changement de joueur
+#                 # self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+
+                
+#             except Exception as e:
+#                 self.logger.error(f"Error occurred during agent's turn: {repr(e)}")
+#                 self.store.dispatch({
+#                     "type": "END_GAME",
+#                     "reason": "error",
+#                     "winner": None,
+#                     "error": str(e)
+#                 })
+#                 break
+
+                
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
         try:

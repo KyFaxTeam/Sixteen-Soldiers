@@ -39,8 +39,6 @@ EMOJIS_SIZE = (20, 20)
 TIMINGS = {
     "AI_MOVE_DELAY": 1000,  # ms
     "ANIMATION_SPEED": 0.5,   # s
-
     "AI_TIMEOUT": 0.5# s
-
 }
 
