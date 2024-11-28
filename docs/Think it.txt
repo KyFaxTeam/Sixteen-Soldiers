@@ -7,25 +7,27 @@ Le coup pour une capture multiple devrait être en une seule fois parce que c'es
 Ce qui serait fun c'est de pouvoir envoyer ces matchs à quelqu'un pour qu'il le rejoue
 Voir alors comment sont sauvegardé les fichiers de matchs
 
-Il faudrait simplifier plus tard le update de game_board en regardant juste dans l'historique le dernier coup l
-
-
-Le delay doit être proportionnel au temps pris par l'ia pour jouer
-
 Implémenter un système de logs plus robuste
 
 Faire le SELECT_AGENT dans game_reducer
 
 Ajouter la distinction du background pour le current_player
 
-Une distinction du background de la ligne de history_view quand on tape sur le replay avec la couleur du joueur
-
-Pourquoi ne pas faire une correspondance entre le player_index et l'id du player
-
 Faire des dataclass pour le state dans store.py
 
 Revoir le nombre de coups divisé par deux pour avoir le nombre de moves d'un agent
 
-Ajouter le bouton pour set le time limit dans l'iinterface
-
 Les agents devraient être uniquement choisis dans l'interface
+
+changer captured_soldier en captured_pos
+
+je dois au niveau de game_board en créant les agents, vérifier si leur data existe déjà dans le state
+si oui, le leur passer en paramètre
+
+désactiver le bouton select quand le match commence
+
+latch_performance devient il un dict dans agent.dict ?
+
+supprimer gitignore dans agents
+
+devrais-je vérifier que les fichiers agents ont bien des classes agents au niveau de get_agents_list ?

@@ -31,20 +31,7 @@ class Store:
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
         
-        # Check if agent1 is already registered
-        info_index_1 = f"{agent1.pseudo}_{agent1.soldier_value.name}"
-        if info_index_1 not in self.state.get("agents", {}):
-            print("")
-        else:
-            print(f"Agent {info_index_1} already registered")
-
         payload_1 = agent1.to_dict()
-        # Check if agent2 is already registered
-        info_index_2 = f"{agent2.pseudo}_{agent2.soldier_value.name}"
-        if info_index_2 not in self.state.get("agents", {}):
-            print("")
-        else:
-            print(f"Agent {info_index_2} already registered")
         payload_2 = agent2.to_dict()
 
         self.dispatch({

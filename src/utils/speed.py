@@ -53,7 +53,7 @@ class GameSpeed:
         
         # Apply speed modifier using an exponential scale
         # This gives finer control in the middle range and more extreme effects at the ends
-        speed_factor = math.exp((3.5 - self.current_speed))
+        speed_factor = math.exp((4.0 - self.current_speed))
         
         # Calculate final delay
         delay = base_delay * speed_factor * 1000

@@ -1,4 +1,3 @@
-
 import customtkinter as ctk
 import logging
 
@@ -131,26 +130,26 @@ class MainView(BaseView):
     def run(self):
         self.master.mainloop()
 
-    def update_theme(self):
-        """Update the theme for all components"""
-        # Implement theme update logic if needed
-        pass
+    
 
     def update(self, state: dict):
         """
         Update the view with new state.
         Only updates components if the game has started.
         """
+        # Ne pas réassigner directement le state
         if not state["is_game_started"]:
+            if hasattr(self, 'players_column'):
+                self.players_column.update(state)
             return 
         
-        if hasattr (self, 'players_column'):
+        if hasattr(self, 'players_column'):
             self.players_column.update(state)
         if hasattr(self, 'game_board'):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
-        if self.store.state["is_game_over"]:
+        if state["is_game_over"]:
             self.logger.info("Game is over - show_after_game_view")
             self.show_after_game_view()
 

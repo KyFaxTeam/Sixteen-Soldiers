@@ -3,7 +3,6 @@ import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
-from models.move import Move
 from utils.audio import Sounds
 from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
 from utils.game_utils import GameRunner
@@ -257,7 +256,7 @@ class GameBoard(BaseView):
                 return
                 
             last_move = get_last_move(state)
-            self.logger.info(f"Last move: {last_move}")
+            #self.logger.info(f"Last move: {last_move}")
 
             if not is_equals(last_move, self.previous_move):
                 # self.logger.info(f"Processing new move: {last_move}")
@@ -335,7 +334,7 @@ class GameBoard(BaseView):
         # Créer les agents lors du clic sur le bouton Play seulement si dans le store, les attributs les 
         # concernant sont à None
         agents_info_index = self.store.get_state().get("agents_info_index", {})
-        
+        agents = self.store.get_state().get("agents", {})
         if not agents_info_index[Soldier.RED]:
             self.logger.info("Agent RED not found, we will create RandomAgent")
             agents_info_index[Soldier.RED] = "random_agent_RED"
@@ -348,15 +347,19 @@ class GameBoard(BaseView):
         file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
         agent_module_1 = __import__(f"agents.{file_1}", fromlist=['Agent'])
         agent1 = agent_module_1.Agent(
-            soldier_value=Soldier.RED
+            soldier_value=Soldier.RED,
+            data = agents.get(agents_info_index[Soldier.RED], None)
+
         )
- 
  
         file_2 = agents_info_index[Soldier.BLUE].rsplit('_', 1)[0]
         agent_module_2 = __import__(f"agents.{file_2}", fromlist=['Agent'])
         agent2 = agent_module_2.Agent(
-            soldier_value=Soldier.BLUE
+            soldier_value=Soldier.BLUE,
+            data = agents.get(agents_info_index[Soldier.BLUE], None)
         )
+
+
 
         # Enregistrer les agents dans le store
         self.store.register_agents(agent1, agent2)
@@ -367,9 +370,8 @@ class GameBoard(BaseView):
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
-            # self.play_pause_button.configure(state="normal")
+
         self.is_game_started = True
-            
         game_thread = threading.Thread(target=run_game)
         game_thread.daemon = True  # Le thread se terminera quand le programme principal se termine
         game_thread.start()
