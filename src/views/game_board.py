@@ -1,10 +1,11 @@
 
+import json
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
-from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
 from utils.game_utils import GameRunner
 from views.base_view import BaseView
 from utils.board_utils import BoardUtils  
@@ -13,8 +14,11 @@ import logging
 import traceback
 from store.store import Store
 
-# theme_colors = ctk.ThemeManager.theme["CTkFrame"]  # Obtenir les styles de base
-# bg_color = theme_colors["fg_color"]
+with open(THEME_PATH, "r") as file:
+    theme_colors = json.load(file)
+
+# theme_colors = json.load(THEME_PATH)  # Obtenir les styles de base
+bg_color = theme_colors['CTkFrame']["top_fg_color"][0]
 
 
 class GameBoard(BaseView):
@@ -33,7 +37,7 @@ class GameBoard(BaseView):
         self.canvas = tk.Canvas(self.main_container, 
                                     width= 4 * GAP + 2 * PADDING, 
                                     height= 8 * GAP + 2 * PADDING,  highlightthickness=0,
-                                    bg="#2b3665", highlightbackground="#424977",      # Couleur de la bordure inactive
+                                    bg=bg_color, highlightbackground="#424977",      # Couleur de la bordure inactive
                                     )
 
         # Créer un frame pour les boutons (en haut)
@@ -285,36 +289,8 @@ class GameBoard(BaseView):
             self.logger.error(f"Error in update: {e}")
             self.logger.error(traceback.format_exc())
 
-    def _move_soldier_from_history(self, from_pos: str, to_pos: str, role: str):
-        """Déplace un soldat basé sur l'historique des mouvements."""
-        try:
-            self.logger.info(f"Moving soldier for role {role} from {from_pos} to {to_pos}")
-            
-            soldiers_list = self.red_soldiers if role == "PLAYER_1" else self.blue_soldiers
-            self.logger.debug(f"Using {'red' if role == 'PLAYER_1' else 'blue'} soldiers list")
-            
-            piece = next((s for s in soldiers_list if self._get_position(s) == from_pos), None)
-            if piece:
-                self.logger.info(f"Found piece at position {from_pos}")
-                target_x, target_y = BoardUtils.algebraic_to_gameboard(to_pos)
-                piece_index = self._get_piece_index(piece)
-                self.logger.debug(f"Moving to ({target_x}, {target_y}), piece index: {piece_index}")
-                # self._move_soldier_in_board(piece_index, (target_x, target_y))
-            else:
-                self.logger.error(f"No piece found at position {from_pos}")
-                
-        except Exception as e:
-            self.logger.error(f"Error in _move_soldier_from_history: {e}")
-            self.logger.error(traceback.format_exc())
 
-    def _get_position(self, piece):
-        """Retourne la position algébrique d'un soldat à partir de son ID canvas."""
-        coords = self.canvas.coords(piece)
-        cartesian = (coords[0] - PADDING) // GAP, (coords[1] - PADDING) // GAP
-        # Convertir cartésien en algébrique
-        letter = chr(int(cartesian[0]) + ord('a'))
-        number = str(int(cartesian[1]) + 1)
-        return f"{letter}{number}"
+
 
     def _get_piece_index(self, piece):
         """Retourne l'index d'un soldat dans sa liste respective."""
@@ -325,6 +301,10 @@ class GameBoard(BaseView):
         elif piece in self.blue_soldiers:
             return self.blue_soldiers.index(piece)
         return -1
+    
+    def change_canvas_color(self, color):
+        """Change la couleur de fond du canvas."""
+        self.canvas.configure(bg=color)
 
     def start_game(self):
         """Start the game in automatic mode with agents."""
