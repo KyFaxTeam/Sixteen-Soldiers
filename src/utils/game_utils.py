@@ -29,8 +29,8 @@ class GameRunner:
         label = tk.Label(popup, text=msg, pady=20)
         label.pack()
         
-        # Auto-close after 2 seconds
-        popup.after(2000, popup.destroy)
+        # Auto-close after 5 seconds
+        popup.after(5000, popup.destroy)
 
     def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
         """Handle game conclusion and stats updates"""
