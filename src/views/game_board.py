@@ -1,9 +1,10 @@
+import json
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 from models.assets.index import Assets
 from utils.audio import Sounds
-from utils.const import GAP, LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
 from utils.game_utils import GameRunner
 from views.base_view import BaseView
 from utils.board_utils import BoardUtils  
@@ -12,47 +13,27 @@ import logging
 import traceback
 from store.store import Store
 
-# theme_colors = ctk.ThemeManager.theme["CTkFrame"]  # Obtenir les styles de base
-# bg_color = theme_colors["fg_color"]
-
 
 class GameBoard(BaseView):
-    def _update_canvas_color(self, mode: str):
-        """Update canvas color based on theme mode"""
-        self.canvas.configure(
-            bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
-                0 if mode == "light" else 1
-            ]
-        )
     
     def __init__(self, master, store: Store):
         # store.state['board']
         super().__init__(master)
         self.store = store
-        self.store.subscribe_theme(self._update_canvas_color)
         self.frame.pack(expand=True, fill="both")
         
         # Créer un conteneur pour le canvas et les boutons
         self.main_container = ctk.CTkFrame(self.frame)
-        self.main_container.pack(expand=True, fill="both")
-
-        # Frame spécifique pour le canvas qui suivra le thème
-        self.canvas_frame = ctk.CTkFrame(self.main_container)
-        self.canvas_frame.pack(expand=True, fill="both")
+        self.main_container.pack(expand=False)
         
-        # Utiliser un tk.Canvas simple
-        theme_name = ctk.get_appearance_mode().lower()
-        self.canvas = tk.Canvas(self.canvas_frame,
-                              width=4 * GAP + 2 * PADDING,
-                              height=8 * GAP + 2 * PADDING,
-                              highlightthickness=0,
-                              bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][0 if theme_name == "light" else 1])  # Default dark theme color
-        self.canvas.pack()
+        self.create_canvas()
+        self.store.subscribe_theme(self._update_canvas_color)
+        
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container)
-        self.button_frame.pack(padx=5, pady=5)
+        self.button_frame.pack(expand=False)
         
-        self.canvas.pack()
+        # self.canvas.pack()
         self.red_soldiers = []
         self.blue_soldiers = []
         self.previous_move = None
@@ -65,56 +46,72 @@ class GameBoard(BaseView):
         self.logger = logging.getLogger(__name__)
         self.previous_move = None  # Ajouter cet attribut
         # self.logger.info("GameBoard initialized")
-        self.store.subscribe_theme(self._update_canvas_color)
-    
+        
     def _init_board(self):
         """Initializes the game board by drawing the board, pieces, playing background music, and setting up the decor."""
         self.__draw_board()
         self._draw_pieces()
+        self._add_button()
         self.sounds.background_music()
-        self._decor()
+        
+    def create_canvas(self):
+        """Crée un canvas pour le plateau de jeu."""
+        # Get resolution of the screen
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        
+        # Calculer le self.GAP_ en fonction de la résolution de l'écran
+        self.GAP_ = min(screen_width // 15, screen_height // 10)
+        
+        print(f"Screen resolution: {screen_width}x{screen_height}")
+        print(f"Calculated self.GAP_: {self.GAP_}")
+        
+        mode = ctk.get_appearance_mode().lower()
+        bg_color = ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][0 if mode == "light" else 1]
+        # Créer un canvas pour le plateau de jeu
+        self.canvas = tk.Canvas(self.frame, width= 4 * self.GAP_ + 2 * PADDING, height= 8 * self.GAP_ + 2 * PADDING,  highlightthickness=0, bg=bg_color, highlightbackground="#424977")
+        self.canvas.pack(expand=True)
 
     def __draw_board(self):
        
         # Dessiner le plateau de jeu (lignes pour relier les positions)
         lines = [
             # Horizontales
-            [(PADDING, PADDING), (PADDING + 4 * GAP, PADDING)],
-            [(PADDING + GAP, PADDING + GAP), (PADDING + 3 * GAP, PADDING + GAP)],
+            [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING)],
+            [(PADDING + self.GAP_, PADDING + self.GAP_), (PADDING + 3 * self.GAP_, PADDING + self.GAP_)],
             
-            [(PADDING, PADDING + 2 * GAP), (PADDING + 4 * GAP, PADDING + 2 * GAP)],
-            [(PADDING, PADDING + 3 * GAP), (PADDING + 4 * GAP, PADDING + 3 * GAP)],
-            [(PADDING, PADDING + 4 * GAP), (PADDING + 4 * GAP, PADDING + 4 * GAP)],
-            [(PADDING, PADDING + 5 * GAP), (PADDING + 4 * GAP, PADDING + 5 * GAP)],
-            [(PADDING, PADDING + 6 * GAP), (PADDING + 4 * GAP, PADDING + 6 * GAP)],
+            [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
+            [(PADDING, PADDING + 3 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 3 * self.GAP_)],
+            [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
+            [(PADDING, PADDING + 5 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 5 * self.GAP_)],
+            [(PADDING, PADDING + 6 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
           
-            [(PADDING + GAP, PADDING + 7 * GAP), (PADDING + 3 * GAP, PADDING + 7 * GAP)],
-            [(PADDING, PADDING + 8 * GAP), (PADDING + 4 * GAP, PADDING + 8 * GAP)],
+            [(PADDING + self.GAP_, PADDING + 7 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 7 * self.GAP_)],
+            [(PADDING, PADDING + 8 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
             
             # Verticales
-            [(PADDING , PADDING + 2 * GAP), (PADDING, PADDING + 6 * GAP)],
-            [(PADDING + GAP, PADDING + 2 * GAP), (PADDING + GAP, PADDING + 6 * GAP)],
+            [(PADDING , PADDING + 2 * self.GAP_), (PADDING, PADDING + 6 * self.GAP_)],
+            [(PADDING + self.GAP_, PADDING + 2 * self.GAP_), (PADDING + self.GAP_, PADDING + 6 * self.GAP_)],
             
-            [(PADDING + 2* GAP, PADDING), (PADDING + 2* GAP, PADDING + 8 * GAP)],
+            [(PADDING + 2* self.GAP_, PADDING), (PADDING + 2* self.GAP_, PADDING + 8 * self.GAP_)],
             
-            [(PADDING + 3 * GAP, PADDING + 2 * GAP), (PADDING + 3 * GAP, PADDING + 6 * GAP)],
-            [(PADDING + 4 * GAP, PADDING + 2 * GAP), (PADDING + 4 * GAP, PADDING + 6 * GAP)],
+            [(PADDING + 3 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 6 * self.GAP_)],
+            [(PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
 
             # diagonales
-            [(PADDING, PADDING), (PADDING + 4 * GAP, PADDING + 4 * GAP)],
-            [(PADDING + 4 * GAP, PADDING), (PADDING, PADDING + 4 * GAP)],
+            [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
+            [(PADDING + 4 * self.GAP_, PADDING), (PADDING, PADDING + 4 * self.GAP_)],
             
-            [(PADDING, PADDING + 4 * GAP), (PADDING + 4 * GAP, PADDING + 8 * GAP)],
-            [(PADDING + 4 * GAP, PADDING + 4 * GAP), (PADDING, PADDING + 8 * GAP)],
+            [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
+            [(PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_), (PADDING, PADDING + 8 * self.GAP_)],
             
-            [(PADDING, PADDING + 2 * GAP), (PADDING + 4 * GAP, PADDING + 6 * GAP)],
-            [(PADDING, PADDING + 6 * GAP), (PADDING + 4 * GAP, PADDING + 2 * GAP)],
+            [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
+            [(PADDING, PADDING + 6 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
         ]
         
         for line in lines:
             self.canvas.create_line(line[0], line[1], width=LINE_THICKNESS, fill="black")
-
-    
+        
     def _draw_pieces(self):
         '''Dessine les pions sur le plateau de jeu'''
         self.frame.red_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_red_soldier).resize(SOLDIER_SIZE))
@@ -129,8 +126,8 @@ class GameBoard(BaseView):
                 if col == 1 and lin == 0 or col == 3 and lin == 0 or  col == 0 and lin == 1 or col == 4 and lin == 1:
                     continue
                 # Ajouter les positions des pions rouges et bleus
-                positions_soldier_A.append((PADDING + col * GAP, PADDING + lin * GAP))
-                positions_soldier_B.append((PADDING + (4 - col) * GAP, PADDING + (8 - lin) * GAP))
+                positions_soldier_A.append((PADDING + col * self.GAP_, PADDING + lin * self.GAP_))
+                positions_soldier_B.append((PADDING + (4 - col) * self.GAP_, PADDING + (8 - lin) * self.GAP_))
     
     
         for soldierA, soldierB in zip(positions_soldier_A, positions_soldier_B):
@@ -141,10 +138,18 @@ class GameBoard(BaseView):
             blue_piece = self.canvas.create_image(soldierB[0], soldierB[1], image=self.frame.blue_soldier_icon)
             self.blue_soldiers.append(blue_piece)
             
-                
             self.canvas.update_idletasks()
-    
-    def _decor(self):
+            
+        # Annotation des coordonnées de chaque pion
+        for i in range(9):
+            custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
+            if i < 5:
+                x = PADDING + i * self.GAP_
+                self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill="white", anchor="center", tags="optional_tag")
+            y = PADDING + i * self.GAP_
+            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
+        
+    def _add_button(self):
         """Initialise les boutons de contrôle"""
         # Play button
         self.play_pause_button = ctk.CTkButton(
@@ -152,25 +157,25 @@ class GameBoard(BaseView):
                     image=ctk.CTkImage(
                         light_image=Image.open(Assets.icon_play), size=(20, 20)),
                     compound="left", command=self.toggle_play_pause, width=120, height=32,
-                    corner_radius=8, fg_color="#3B3B3B", hover_color="#131630", anchor="center"
+                    corner_radius=8, anchor="center"
                 )
-        self.play_pause_button.pack(side="left", padx=5)
-        # self.play_pause_button.configure(command=self.toggle_play_pause)
+        
+        self.reset_button = ctk.CTkButton(
+                    master=self.button_frame, text='Reset',
+                    image=ctk.CTkImage(
+                        light_image=Image.open(Assets.icon_reset), size=(20, 20)),
+                    compound="left", command=self.reset_game, width=120, height=32,
+                    corner_radius=8, anchor="center"
+                )   
+        
+        
+        self.play_pause_button.pack(side="left", padx=10, pady=5)
+        self.reset_button.pack(side="left", padx=10, pady=5)
     
         
-        # Annotation des coordonnées de chaque pion
-        for i in range(9):
-            custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
-            if i < 5:
-                x = PADDING + i * GAP
-                self.canvas.create_text(x, 8*GAP + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill="white", anchor="center", tags="optional_tag")
-            y = PADDING + i * GAP
-            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
         
         # self.play_button.pack(side="left", padx=5)
         # self.pause_button.pack(side="left")
-
-    
             
     def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
         """
@@ -221,29 +226,30 @@ class GameBoard(BaseView):
                 return piece
         return None
         
-    
+
     def _make_action(self, action: dict) :
+
         """Effectue une action sur le plateau de jeu."""
-        from_pos = action["pos"][-2] if len(action["pos"]) >= 2 else action["pos"][0]
-        to_pos = action["pos"][-1]
-        player = action["soldier_value"].value
+        from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
+        to_pos = move["pos"][-1]
+        player = move["soldier_value"].value
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
-        soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos), player=player)
+        soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_), player=player)
         
         if soldier_id is None:
             return 
 
-        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos), player=player)
+        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), player=player)
         
-        is_capture = action.get("captured_soldier") is not None
+        is_capture = move.get("captured_soldier") is not None
         
         if is_capture:
             
-            captured_soldier = action["captured_soldier"]
+            captured_soldier = move["captured_soldier"][-1]
             
-            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=1 - player)
+            captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier, gap=self.GAP_), player=1 - player)
             
             if captured_id is not None:
                 # self.sounds.pause()
@@ -251,61 +257,52 @@ class GameBoard(BaseView):
                 # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
-        self.previous_action = action
+        self.previous_action = move
         # exit()
         
     def update(self, state):
-        """Updates the board based on the new state"""
+        """ Updates the board based on the new state """
+        # update seulement si le jeu est en cours
+        
         if not self.is_game_started:
             return
-        
         try:
-            # update seulement si le jeu est en cours
+            # self.logger.info("Starting GameBoard update")
+            # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
             
-            if not self.is_game_started:
+            if not state.get("board"):
+                self.logger.warning("No board in state")
                 return
-            try:
-                # self.logger.info("Starting GameBoard update")
-                # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
                 
-                if not state.get("board"):
-                    self.logger.warning("No board in state")
-                    return
-                    
-                last_move = get_last_move(state)
-                #self.logger.info(f"Last move: {last_move}")
+            last_move = get_last_move(state)
+            #self.logger.info(f"Last move: {last_move}")
 
-                if not is_equals(last_move, self.previous_move):
-                    # self.logger.info(f"Processing new move: {last_move}")
-                    try:
-                        self._make_action(last_move.to_dict())
-                    except Exception as e:
-                        self.logger.error(f"Error in _make_action: {e}")
-                        self.logger.error(traceback.format_exc())
+            if not is_equals(last_move, self.previous_move):
+                # self.logger.info(f"Processing new move: {last_move}")
+                try:
+                    self._make_action(last_move.to_dict())
+                except Exception as e:
+                    self.logger.error(f"Error in _make_action: {e}")
+                    self.logger.error(traceback.format_exc())
 
-                self.canvas.update_idletasks()
-                
-                # Update button states
-                if state.get("is_game_over"):
-                    self.logger.info("Game is over - disabling play button")
-                    # self.play_button.configure(state="disabled")
-                else:
-                    ...
-                    # self.play_button.configure(state="normal")
+            self.canvas.update_idletasks()
+            
+            # Update button states
+            if state.get("is_game_over"):
+                self.logger.info("Game is over - disabling play button")
+                # self.play_button.configure(state="disabled")
+            else:
+                ...
+                # self.play_button.configure(state="normal")
 
-                if state.get("is_game_paused"):
-                    self.logger.info("Game is paused - changing pause button text")
-                    # self.pause_button.configure(text="Resume")
-                    # self.sounds.pause()
-
-            except Exception as e:
-                self.logger.error(f"Error in update: {e}")
-                self.logger.error(traceback.format_exc())
+            if state.get("is_game_paused"):
+                self.logger.info("Game is paused - changing pause button text")
+                # self.pause_button.configure(text="Resume")
+                # self.sounds.pause()
 
         except Exception as e:
             self.logger.error(f"Error in update: {e}")
-    
-
+            self.logger.error(traceback.format_exc())
 
     def _get_piece_index(self, piece):
         """Retourne l'index d'un soldat dans sa liste respective."""
@@ -316,6 +313,10 @@ class GameBoard(BaseView):
         elif piece in self.blue_soldiers:
             return self.blue_soldiers.index(piece)
         return -1
+    
+    def change_canvas_color(self, color):
+        """Change la couleur de fond du canvas."""
+        self.canvas.configure(bg=color)
 
     def start_game(self):
         """Start the game in automatic mode with agents."""
@@ -328,7 +329,7 @@ class GameBoard(BaseView):
         agents = self.store.get_state().get("agents", {})
         if not agents_info_index[Soldier.RED]:
             self.logger.info("Agent RED not found, we will create RandomAgent")
-            agents_info_index[Soldier.RED] = "random_agent_RED"
+            agents_info_index[Soldier.RED] = "minimax_RED"
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")
@@ -405,4 +406,24 @@ class GameBoard(BaseView):
             # Toggle the paused state
             self.is_paused = not is_paused
 
- 
+    def reset_game(self):
+        
+        if self.is_game_started and self.is_paused:
+            self.store.dispatch({"type": "RESET_GAME"})
+            self.is_game_started = False
+            self.is_paused = True
+            
+            # reset canvas
+            self.canvas.delete("all")
+            self.__draw_board()
+            self._draw_pieces()
+        # Reset the button icon to play
+    
+
+    def _update_canvas_color(self, mode: str):
+        """Update canvas color based on theme mode"""
+        self.canvas.configure(
+            bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
+                0 if mode == "light" else 1
+            ]
+        )
