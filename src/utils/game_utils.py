@@ -99,11 +99,11 @@ class GameRunner:
                         self._conclude_game(agent1, agent2, winner=current_soldier_value, reason="no_moves")
                         return
                     
-                    start_time = time.time()
+                    start_time = time.perf_counter()
 
                     action = current_agent.choose_action(board=board_copy)
                     
-                    elapsed_time = time.time() - start_time
+                    elapsed_time = time.perf_counter() - start_time
 
                     # Validate action and fallback to random if invalid
                     if not is_valid_move(action, current_state["board"]) or action not in valid_actions:

@@ -41,7 +41,7 @@ class GameSpeed:
         # Convert AI thinking time to milliseconds
         thinking_time_ms = ai_thinking_time * 1000
 
-        # print("AI_THINKING_TIME : ", ai_thinking_time)
+        print("/*/*/*/*/*/*/*/*/*/*/* AI_THINKING_TIME : ", ai_thinking_time)
 
         
         # Normalize thinking time relative to baseline
@@ -62,6 +62,8 @@ class GameSpeed:
         final_delay = max(self.MIN_VISIBLE_DELAY, 
                          min(self.MAX_VISIBLE_DELAY, delay))
         
+
+        print("******************************, final_delay ", final_delay / 1000)
         # Convert back to seconds
         return final_delay / 1000
     

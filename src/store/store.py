@@ -27,7 +27,8 @@ class Store:
         self.reducer = reducer
         self.subscribers: List[Callable[[Dict], None]] = []
         self.game_speed = GameSpeed()
-    
+        
+
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
         

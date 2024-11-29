@@ -19,7 +19,7 @@ class SettingsView(BaseView):
         self.sounds = Sounds()
 
         # Title "Settings"
-        self.frame.setting = ImageTk.PhotoImage(Image.open(Assets.setting).resize(EMOJIS_SIZE))
+        self.frame.setting = ctk.CTkImage(Image.open(Assets.setting).resize(EMOJIS_SIZE))
 
         self.title = ctk.CTkLabel(
             self.frame,
@@ -38,7 +38,7 @@ class SettingsView(BaseView):
             self.speed_section,
             text="⏩ Speed",
             font=ctk.CTkFont(size=11),
-            text_color="#cccccc"
+            # text_color="#cccccc"
         )
         self.speed_label.pack(anchor="w", padx=10, pady=5)
 
@@ -59,7 +59,7 @@ class SettingsView(BaseView):
             self.sound_section,
             text="🔊 Sound",
             font=ctk.CTkFont(size=11),
-            text_color="#cccccc"
+            # text_color="#cccccc"
         )
         self.sound_label.pack(anchor="w", padx=10, pady=5)
 
@@ -81,7 +81,7 @@ class SettingsView(BaseView):
             self.theme_section,
             text="🌓 Appearance",
             font=ctk.CTkFont(size=11),
-            text_color="#cccccc"
+            # text_color="#cccccc"
         )
         self.theme_label.pack(anchor="w", padx=10, pady=5)
 
@@ -124,6 +124,7 @@ class SettingsView(BaseView):
         else:  # System
             ctk.set_appearance_mode("system")
             # You can set a default theme for 'system' mode if needed
+
 
     def get_settings(self):
         """Retourne les paramètres actuels"""

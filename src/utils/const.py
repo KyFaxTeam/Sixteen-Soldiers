@@ -30,7 +30,7 @@ LINE_THICKNESS = 4
 # Size of the soldiers on the game board (width, height)
 SOLDIER_SIZE = (45, 45)
 
-SOLDIER_SIZE_HISTORY = (25, 25)
+SOLDIER_SIZE_HISTORY = (20, 20)
 
 EMOJIS_SIZE = (20, 20)
 
