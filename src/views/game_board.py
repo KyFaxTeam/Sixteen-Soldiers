@@ -55,7 +55,6 @@ class GameBoard(BaseView):
         self.__draw_board()
         self._draw_pieces()
         self._add_button()
-        self._add_button()
         self.sounds.background_music()
         
     def create_canvas(self):
@@ -83,14 +82,7 @@ class GameBoard(BaseView):
             # Horizontales
             [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING)],
             [(PADDING + self.GAP_, PADDING + self.GAP_), (PADDING + 3 * self.GAP_, PADDING + self.GAP_)],
-            [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING)],
-            [(PADDING + self.GAP_, PADDING + self.GAP_), (PADDING + 3 * self.GAP_, PADDING + self.GAP_)],
             
-            [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
-            [(PADDING, PADDING + 3 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 3 * self.GAP_)],
-            [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
-            [(PADDING, PADDING + 5 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 5 * self.GAP_)],
-            [(PADDING, PADDING + 6 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
             [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
             [(PADDING, PADDING + 3 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 3 * self.GAP_)],
             [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
@@ -99,39 +91,27 @@ class GameBoard(BaseView):
           
             [(PADDING + self.GAP_, PADDING + 7 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 7 * self.GAP_)],
             [(PADDING, PADDING + 8 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
-            [(PADDING + self.GAP_, PADDING + 7 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 7 * self.GAP_)],
-            [(PADDING, PADDING + 8 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
             
             # Verticales
             [(PADDING , PADDING + 2 * self.GAP_), (PADDING, PADDING + 6 * self.GAP_)],
             [(PADDING + self.GAP_, PADDING + 2 * self.GAP_), (PADDING + self.GAP_, PADDING + 6 * self.GAP_)],
-            [(PADDING , PADDING + 2 * self.GAP_), (PADDING, PADDING + 6 * self.GAP_)],
-            [(PADDING + self.GAP_, PADDING + 2 * self.GAP_), (PADDING + self.GAP_, PADDING + 6 * self.GAP_)],
             
             [(PADDING + 2* self.GAP_, PADDING), (PADDING + 2* self.GAP_, PADDING + 8 * self.GAP_)],
-            [(PADDING + 2* self.GAP_, PADDING), (PADDING + 2* self.GAP_, PADDING + 8 * self.GAP_)],
             
-            [(PADDING + 3 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 6 * self.GAP_)],
-            [(PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
             [(PADDING + 3 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 3 * self.GAP_, PADDING + 6 * self.GAP_)],
             [(PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
 
             # diagonales
             [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
             [(PADDING + 4 * self.GAP_, PADDING), (PADDING, PADDING + 4 * self.GAP_)],
-            [(PADDING, PADDING), (PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_)],
-            [(PADDING + 4 * self.GAP_, PADDING), (PADDING, PADDING + 4 * self.GAP_)],
             
             [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
             [(PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_), (PADDING, PADDING + 8 * self.GAP_)],
-            [(PADDING, PADDING + 4 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 8 * self.GAP_)],
-            [(PADDING + 4 * self.GAP_, PADDING + 4 * self.GAP_), (PADDING, PADDING + 8 * self.GAP_)],
             
-            [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
-            [(PADDING, PADDING + 6 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
             [(PADDING, PADDING + 2 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 6 * self.GAP_)],
             [(PADDING, PADDING + 6 * self.GAP_), (PADDING + 4 * self.GAP_, PADDING + 2 * self.GAP_)],
         ]
+        
         
         for line in lines:
             self.canvas.create_line(line[0], line[1], width=LINE_THICKNESS, fill="black")
@@ -153,9 +133,7 @@ class GameBoard(BaseView):
                 # Ajouter les positions des pions rouges et bleus
                 positions_soldier_A.append((PADDING + col * self.GAP_, PADDING + lin * self.GAP_))
                 positions_soldier_B.append((PADDING + (4 - col) * self.GAP_, PADDING + (8 - lin) * self.GAP_))
-                positions_soldier_A.append((PADDING + col * self.GAP_, PADDING + lin * self.GAP_))
-                positions_soldier_B.append((PADDING + (4 - col) * self.GAP_, PADDING + (8 - lin) * self.GAP_))
-    
+
     
         for soldierA, soldierB in zip(positions_soldier_A, positions_soldier_B):
             
@@ -177,17 +155,7 @@ class GameBoard(BaseView):
             y = PADDING + i * self.GAP_
             self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
         
-    def _add_button(self):
-            
-        # Annotation des coordonnées de chaque pion
-        for i in range(9):
-            custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
-            if i < 5:
-                x = PADDING + i * self.GAP_
-                self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill="white", anchor="center", tags="optional_tag")
-            y = PADDING + i * self.GAP_
-            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
-        
+
     def _add_button(self):
         """Initialise les boutons de contrôle"""
         # Play button
@@ -196,7 +164,6 @@ class GameBoard(BaseView):
                     image=ctk.CTkImage(
                         light_image=Image.open(Assets.icon_play), size=(20, 20)),
                     compound="left", command=self.toggle_play_pause, width=120, height=32,
-                    corner_radius=8, anchor="center"
                     corner_radius=8, anchor="center"
                 )
         
@@ -208,28 +175,11 @@ class GameBoard(BaseView):
                     corner_radius=8, anchor="center"
                 )   
         
-        
         self.play_pause_button.pack(side="left", padx=10, pady=5)
         self.reset_button.pack(side="left", padx=10, pady=5)
     
         
-        
-        self.reset_button = ctk.CTkButton(
-                    master=self.button_frame, text='Reset',
-                    image=ctk.CTkImage(
-                        light_image=Image.open(Assets.icon_reset), size=(20, 20)),
-                    compound="left", command=self.reset_game, width=120, height=32,
-                    corner_radius=8, anchor="center"
-                )   
-        
-        
-        self.play_pause_button.pack(side="left", padx=10, pady=5)
-        self.reset_button.pack(side="left", padx=10, pady=5)
-    
-        
-        
-        # self.play_button.pack(side="left", padx=5)
-        # self.pause_button.pack(side="left")
+
             
     def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
         """
@@ -289,21 +239,17 @@ class GameBoard(BaseView):
         from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
         to_pos = move["pos"][-1]
         player = move["soldier_value"].value
-        from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
-        to_pos = move["pos"][-1]
-        player = move["soldier_value"].value
+ 
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
         soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_), player=player)
-        soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_), player=player)
-        
+ 
         if soldier_id is None:
             return 
 
         self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), player=player)
-        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), player=player)
-        
+
         is_capture = move.get("captured_soldier") is not None
    
         if is_capture:
@@ -365,15 +311,6 @@ class GameBoard(BaseView):
             self.logger.error(f"Error in update: {e}")
             self.logger.error(traceback.format_exc())
 
-    def _get_piece_index(self, piece):
-        """Retourne l'index d'un soldat dans sa liste respective."""
-        # Vérifie d'abord dans les soldats rouges (PLAYER_1)
-        if piece in self.red_soldiers:
-            return self.red_soldiers.index(piece)
-        # Sinon vérifie dans les soldats bleus (PLAYER_2)
-        elif piece in self.blue_soldiers:
-            return self.blue_soldiers.index(piece)
-        return -1
     
     def change_canvas_color(self, mode: str):
         """Change la couleur de fond du canvas."""
@@ -395,7 +332,7 @@ class GameBoard(BaseView):
         if not agents_info_index[Soldier.RED]:
             self.logger.info("Agent RED not found, we will create RandomAgent")
             agents_info_index[Soldier.RED] = "minimax_RED"
-            agents_info_index[Soldier.RED] = "minimax_RED"
+      
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")
