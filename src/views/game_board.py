@@ -230,11 +230,13 @@ class GameBoard(BaseView):
                 return piece
         return None
         
+
     def _make_action(self, action: dict) :
+
         """Effectue une action sur le plateau de jeu."""
-        from_pos = action["pos"][-2] if len(action["pos"]) >= 2 else action["pos"][0]
-        to_pos = action["pos"][-1]
-        player = action["soldier_value"].value
+        from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
+        to_pos = move["pos"][-1]
+        player = move["soldier_value"].value
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
@@ -245,11 +247,11 @@ class GameBoard(BaseView):
 
         self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), player=player)
         
-        is_capture = action.get("captured_soldier") is not None
+        is_capture = move.get("captured_soldier") is not None
         
         if is_capture:
             
-            captured_soldier = action["captured_soldier"]
+            captured_soldier = move["captured_soldier"][-1]
             
             captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier, gap=self.GAP_), player=1 - player)
             
@@ -259,7 +261,7 @@ class GameBoard(BaseView):
                 # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
-        self.previous_action = action
+        self.previous_action = move
         # exit()
         
     def update(self, state):
@@ -331,7 +333,7 @@ class GameBoard(BaseView):
         agents = self.store.get_state().get("agents", {})
         if not agents_info_index[Soldier.RED]:
             self.logger.info("Agent RED not found, we will create RandomAgent")
-            agents_info_index[Soldier.RED] = "random_agent_RED"
+            agents_info_index[Soldier.RED] = "minimax_RED"
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")

@@ -36,6 +36,7 @@ def add_move(state: Dict, payload: Dict) -> Dict:
         # Update existing move for multiple capture
         last_move.pos.append(payload["to_pos"])
         last_move.timestamp.append(payload["timestamp"])
+        last_move.captured_soldier.append(payload['captured_soldier'])
         last_move.capture_multiple = True
         state["history"][-1] = last_move.to_dict()
     else:
@@ -43,7 +44,7 @@ def add_move(state: Dict, payload: Dict) -> Dict:
         move = Move(
             pos=[payload["from_pos"], payload["to_pos"]],
             soldier_value=payload["soldier_value"],
-            captured_soldier=payload.get("captured_soldier"),
+            captured_soldier=[payload.get("captured_soldier")] if payload.get("captured_soldier") else None,
             timestamp=[payload["timestamp"]]
         )
         state["history"].append(move.to_dict())

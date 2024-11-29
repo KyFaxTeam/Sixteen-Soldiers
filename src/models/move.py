@@ -10,11 +10,11 @@ class Move:
     pos: List[str]  # Liste des coordonnées [départ, arrivée]
     soldier_value: Soldier
     timestamp: List[int]  # Liste des timestamps pour chaque étape du mouvement
-    captured_soldier: Optional[str] = None
+    captured_soldier: List
     capture_multiple: bool = False
 
     def __init__(self, pos: List[str], soldier_value: Soldier, timestamp: float, 
-                 captured_soldier: Optional[str] = None, capture_multiple: bool = False):
+                 captured_soldier: List, capture_multiple: bool = False):
         self.pos = pos
         self.soldier_value = soldier_value
         self.timestamp = timestamp

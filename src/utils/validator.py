@@ -6,8 +6,8 @@ from utils.logger_config import get_logger
 logger = get_logger(__name__)
 
 def is_valid_move(action, board:Board) -> bool:
-      try:
-          # Validate that 'action' is a dictionary with required keys
+      # try:
+      #     # Validate that 'action' is a dictionary with required keys
           if not isinstance(action, dict):
                 logger.error(f"Invalid action type: {type(action)}, expected dict")
                 return False
@@ -75,6 +75,6 @@ def is_valid_move(action, board:Board) -> bool:
           
           return True
 
-      except Exception as e:
-          logger.exception(f"Validation error: {str(e)}")
-          return False
+      # except Exception as e:
+      #     logger.exception(f"Validation error: {str(e)}")
+      #     return False
