@@ -123,7 +123,9 @@ class SettingsView(BaseView):
             # ctk.set_default_color_theme(THEME_PATH)
         else:  # System
             ctk.set_appearance_mode("system")
+            value = ctk.get_appearance_mode()
             # You can set a default theme for 'system' mode if needed
+        self.store.update_theme(value)
 
 
     def get_settings(self):
@@ -146,4 +148,3 @@ class SettingsView(BaseView):
     def update(self, state):
         """Update settings view based on the state"""
         # ...update logic if needed...
-

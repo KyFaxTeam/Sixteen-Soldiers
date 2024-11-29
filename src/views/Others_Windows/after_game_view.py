@@ -29,7 +29,7 @@ class AfterGameView(ctk.CTkToplevel):
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
         
-        # Winner's data
+        # Winner's data"qs
         profile_img_path = winner_data.get("profile_img")
         team_pseudo = winner_data.get("team_pseudo")
         ai_name = winner_data.get("ai_name")

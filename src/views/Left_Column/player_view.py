@@ -266,6 +266,10 @@ class PlayerView(BaseView):
             return fallback_image
 
     def update(self, state: dict):
+
+        ## Vérifier le statut de is_game_started, is_game_over, is_game_paused
+        if  state.get('is_game_over', False) or state.get('is_game_paused', False):
+            return
         self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
         self.store.state = state
