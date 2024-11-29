@@ -117,10 +117,10 @@ class SettingsView(BaseView):
         print(f"Theme changed to: {value}")
         if value == "Dark":
             ctk.set_appearance_mode("dark")
-            ctk.set_default_color_theme(THEME_PATH)
+            # ctk.set_default_color_theme(THEME_PATH)
         elif value == "Light":
             ctk.set_appearance_mode("light")
-            ctk.set_default_color_theme(THEME_PATH)
+            # ctk.set_default_color_theme(THEME_PATH)
         else:  # System
             ctk.set_appearance_mode("system")
             # You can set a default theme for 'system' mode if needed

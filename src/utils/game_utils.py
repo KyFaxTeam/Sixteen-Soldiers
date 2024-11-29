@@ -106,8 +106,14 @@ class GameRunner:
                     elapsed_time = time.perf_counter() - start_time
 
                     # Validate action and fallback to random if invalid
-                    if not is_valid_move(action, current_state["board"]) or action not in valid_actions:
+                    if not is_valid_move(action, current_state["board"]) : 
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
+                        print("----------------------------------------------------- action 1  : ", action)
+                        self._show_invalid_move_popup(current_agent.name)
+                        action = random.choice(valid_actions) 
+                    elif action not in valid_actions:
+                        self.logger.warning(f"{current_agent.name} made invalid move, using random")
+                        print("----------------------------------------------------- action 2  : ", action)
                         self._show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions) 
                     

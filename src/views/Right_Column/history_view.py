@@ -196,10 +196,13 @@ class HistoryView(BaseView):
 
     def update(self, state):
         """Updates the move history by adding only new moves"""
+        if not state['is_game_started'] or state['is_game_over'] or state['is_game_paused']: 
+            return
         try:
-            if 'history' not in state:
+            if 'history' not in state or state['history'] == []:
                 self.logger.warning("No history in state")
                 return
+
                 
             # current_moves = len(self.move_frames)
             # history_moves = len(state['history'])

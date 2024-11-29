@@ -337,7 +337,7 @@ class GameBoard(BaseView):
         agents = self.store.get_state().get("agents", {})
         if not agents_info_index[Soldier.RED]:
             self.logger.info("Agent RED not found, we will create RandomAgent")
-            agents_info_index[Soldier.RED] = "random_agent_RED"
+            agents_info_index[Soldier.RED] = "minimax_RED"
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")
