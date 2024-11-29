@@ -69,9 +69,6 @@ class GameBoard(BaseView):
         # Calculer le self.GAP_ en fonction de la résolution de l'écran
         self.GAP_ = min(screen_width // 15, screen_height // 10)
         
-        print(f"Screen resolution: {screen_width}x{screen_height}")
-        print(f"Calculated self.GAP_: {self.GAP_}")
-        
         # Créer un canvas pour le plateau de jeu
         self.canvas = tk.Canvas(self.frame, width= 4 * self.GAP_ + 2 * PADDING, height= 8 * self.GAP_ + 2 * PADDING,  highlightthickness=0, bg=bg_color, highlightbackground="#424977")
         self.canvas.pack(expand=True)
