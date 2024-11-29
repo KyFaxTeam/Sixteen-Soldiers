@@ -22,7 +22,7 @@ class Soldier(Enum):
 PADDING = 50
 
 # Gap between elements on the game board
-GAP = 90
+GAP = 80
 
 # Thickness of the lines on the game board
 LINE_THICKNESS = 4
