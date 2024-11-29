@@ -238,7 +238,8 @@ class PlayerView(BaseView):
             self.toggle_agent_dropdown()
             delattr(self, '_selected_agent')
         else :
-            self.logger.error("No agent selected")   
+            self.logger.error("No agent selected")  
+     
     def load_random_avatar(self):
         self.logger.debug("Chargement d'un avatar aléatoire")
         """Loads a random avatar from the assets/avatar directory"""

@@ -127,6 +127,7 @@ class SettingsView(BaseView):
             # You can set a default theme for 'system' mode if needed
         self.store.update_theme(value)
 
+
     def get_settings(self):
         """Retourne les paramètres actuels"""
         return {
