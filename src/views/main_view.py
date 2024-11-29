@@ -115,6 +115,8 @@ class MainView(BaseView):
             self.after_game_view.destroy()
             self.after_game_view = None  # Reset the view reference
 
+        self.store.dispatch({"type":"RESET_GAME"})
+        
         # Reset the main layout (clear current game views if necessary)
         if hasattr(self, 'main_container'):
             self.main_container.pack_forget()

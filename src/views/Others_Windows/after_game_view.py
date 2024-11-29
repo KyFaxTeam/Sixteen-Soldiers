@@ -14,7 +14,11 @@ class AfterGameView(ctk.CTkToplevel):
         
         # Configure window to overshadow MainView
         self.title("Game Over")
-        self.geometry("400x300")
+        # Center the popup
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"400x300+{(screen_width-400)//2}+{(screen_height-300)//2}")
+        # self.geometry("400x300")
         self.transient(master)
         self.grab_set()  # Block interaction with MainView
         self.logger.info("**************Game Over window created*************")
