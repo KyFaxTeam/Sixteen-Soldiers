@@ -1,4 +1,3 @@
-
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -18,24 +17,37 @@ from store.store import Store
 
 
 class GameBoard(BaseView):
+    def _update_canvas_color(self, mode: str):
+        """Update canvas color based on theme mode"""
+        self.canvas.configure(
+            bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
+                0 if mode == "light" else 1
+            ]
+        )
     
     def __init__(self, master, store: Store):
         # store.state['board']
         super().__init__(master)
         self.store = store
+        self.store.subscribe_theme(self._update_canvas_color)
         self.frame.pack(expand=True, fill="both")
         
         # Créer un conteneur pour le canvas et les boutons
         self.main_container = ctk.CTkFrame(self.frame)
         self.main_container.pack(expand=True, fill="both")
-        
-        
-        self.canvas = tk.Canvas(self.main_container, 
-                                    width= 4 * GAP + 2 * PADDING, 
-                                    height= 8 * GAP + 2 * PADDING,  highlightthickness=0,
-                                    bg="#2b3665", highlightbackground="#424977",      # Couleur de la bordure inactive
-                                    )
 
+        # Frame spécifique pour le canvas qui suivra le thème
+        self.canvas_frame = ctk.CTkFrame(self.main_container)
+        self.canvas_frame.pack(expand=True, fill="both")
+        
+        # Utiliser un tk.Canvas simple
+        theme_name = ctk.get_appearance_mode().lower()
+        self.canvas = tk.Canvas(self.canvas_frame,
+                              width=4 * GAP + 2 * PADDING,
+                              height=8 * GAP + 2 * PADDING,
+                              highlightthickness=0,
+                              bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][0 if theme_name == "light" else 1])  # Default dark theme color
+        self.canvas.pack()
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container)
         self.button_frame.pack(padx=5, pady=5)
@@ -53,7 +65,8 @@ class GameBoard(BaseView):
         self.logger = logging.getLogger(__name__)
         self.previous_move = None  # Ajouter cet attribut
         # self.logger.info("GameBoard initialized")
-        
+        self.store.subscribe_theme(self._update_canvas_color)
+    
     def _init_board(self):
         """Initializes the game board by drawing the board, pieces, playing background music, and setting up the decor."""
         self.__draw_board()
@@ -242,79 +255,57 @@ class GameBoard(BaseView):
         # exit()
         
     def update(self, state):
-        """ Updates the board based on the new state """
-        # update seulement si le jeu est en cours
-        
+        """Updates the board based on the new state"""
         if not self.is_game_started:
             return
+        
         try:
-            # self.logger.info("Starting GameBoard update")
-            # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
+            # update seulement si le jeu est en cours
             
-            if not state.get("board"):
-                self.logger.warning("No board in state")
+            if not self.is_game_started:
                 return
+            try:
+                # self.logger.info("Starting GameBoard update")
+                # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
                 
-            last_move = get_last_move(state)
-            #self.logger.info(f"Last move: {last_move}")
+                if not state.get("board"):
+                    self.logger.warning("No board in state")
+                    return
+                    
+                last_move = get_last_move(state)
+                #self.logger.info(f"Last move: {last_move}")
 
-            if not is_equals(last_move, self.previous_move):
-                # self.logger.info(f"Processing new move: {last_move}")
-                try:
-                    self._make_action(last_move.to_dict())
-                except Exception as e:
-                    self.logger.error(f"Error in _make_action: {e}")
-                    self.logger.error(traceback.format_exc())
+                if not is_equals(last_move, self.previous_move):
+                    # self.logger.info(f"Processing new move: {last_move}")
+                    try:
+                        self._make_action(last_move.to_dict())
+                    except Exception as e:
+                        self.logger.error(f"Error in _make_action: {e}")
+                        self.logger.error(traceback.format_exc())
 
-            self.canvas.update_idletasks()
-            
-            # Update button states
-            if state.get("is_game_over"):
-                self.logger.info("Game is over - disabling play button")
-                # self.play_button.configure(state="disabled")
-            else:
-                ...
-                # self.play_button.configure(state="normal")
+                self.canvas.update_idletasks()
+                
+                # Update button states
+                if state.get("is_game_over"):
+                    self.logger.info("Game is over - disabling play button")
+                    # self.play_button.configure(state="disabled")
+                else:
+                    ...
+                    # self.play_button.configure(state="normal")
 
-            if state.get("is_game_paused"):
-                self.logger.info("Game is paused - changing pause button text")
-                # self.pause_button.configure(text="Resume")
-                # self.sounds.pause()
+                if state.get("is_game_paused"):
+                    self.logger.info("Game is paused - changing pause button text")
+                    # self.pause_button.configure(text="Resume")
+                    # self.sounds.pause()
+
+            except Exception as e:
+                self.logger.error(f"Error in update: {e}")
+                self.logger.error(traceback.format_exc())
 
         except Exception as e:
             self.logger.error(f"Error in update: {e}")
-            self.logger.error(traceback.format_exc())
+    
 
-    def _move_soldier_from_history(self, from_pos: str, to_pos: str, role: str):
-        """Déplace un soldat basé sur l'historique des mouvements."""
-        try:
-            self.logger.info(f"Moving soldier for role {role} from {from_pos} to {to_pos}")
-            
-            soldiers_list = self.red_soldiers if role == "PLAYER_1" else self.blue_soldiers
-            self.logger.debug(f"Using {'red' if role == 'PLAYER_1' else 'blue'} soldiers list")
-            
-            piece = next((s for s in soldiers_list if self._get_position(s) == from_pos), None)
-            if piece:
-                self.logger.info(f"Found piece at position {from_pos}")
-                target_x, target_y = BoardUtils.algebraic_to_gameboard(to_pos)
-                piece_index = self._get_piece_index(piece)
-                self.logger.debug(f"Moving to ({target_x}, {target_y}), piece index: {piece_index}")
-                # self._move_soldier_in_board(piece_index, (target_x, target_y))
-            else:
-                self.logger.error(f"No piece found at position {from_pos}")
-                
-        except Exception as e:
-            self.logger.error(f"Error in _move_soldier_from_history: {e}")
-            self.logger.error(traceback.format_exc())
-
-    def _get_position(self, piece):
-        """Retourne la position algébrique d'un soldat à partir de son ID canvas."""
-        coords = self.canvas.coords(piece)
-        cartesian = (coords[0] - PADDING) // GAP, (coords[1] - PADDING) // GAP
-        # Convertir cartésien en algébrique
-        letter = chr(int(cartesian[0]) + ord('a'))
-        number = str(int(cartesian[1]) + 1)
-        return f"{letter}{number}"
 
     def _get_piece_index(self, piece):
         """Retourne l'index d'un soldat dans sa liste respective."""
@@ -413,3 +404,5 @@ class GameBoard(BaseView):
                 self.play_pause_button.configure(text="Pause")
             # Toggle the paused state
             self.is_paused = not is_paused
+
+ 

@@ -265,6 +265,8 @@ class PlayerView(BaseView):
             return fallback_image
 
     def update(self, state: dict):
+
+        ## Vérifier le statr 
         self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
         self.store.state = state

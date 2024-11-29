@@ -46,7 +46,7 @@ class HistoryView(BaseView):
         self.logger = logging.getLogger(__name__)
         
         self.frame.configure(corner_radius=10)
-        self.frame.pack(fill="both", padx=10, pady=10)
+        self.frame.pack(fill="both", padx=10, pady=0)
 
         self.frame.red_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_red_soldier).resize(SOLDIER_SIZE_HISTORY))
         self.frame.blue_soldier_icon = ImageTk.PhotoImage(Image.open(Assets.img_blue_soldier).resize(SOLDIER_SIZE_HISTORY))
@@ -64,7 +64,7 @@ class HistoryView(BaseView):
 
         # Titre "Move History"
         self.title_frame = ctk.CTkFrame(self.history_frame)
-        self.title_frame.pack(fill="both", padx=0, pady=10)
+        self.title_frame.pack(fill="both", padx=0, pady=0)
         self.title_frame.history_icon = ImageTk.PhotoImage(Image.open(Assets.icon_history_collante).resize(EMOJIS_SIZE))
 
         self.title = ctk.CTkLabel(
