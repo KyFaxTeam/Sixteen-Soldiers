@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 
 from models.assets.index import Assets
 from utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
+from utils.history_utils import get_last_move, is_equals
 from views.base_view import BaseView
 
 
@@ -20,7 +21,6 @@ class MoveFormatter:
         """
         self.red_soldier_icon = red_soldier_icon
         self.blue_soldier_icon = blue_soldier_icon
-
     def create_soldier_label(self, master, is_red: bool, value: int = None) -> ctk.CTkLabel:
         """
         Crée un label contenant l'icône du soldat et sa valeur
@@ -83,6 +83,8 @@ class HistoryView(BaseView):
         # Liste pour garder une référence aux mouvements
         self.move_frames = []
 
+        self.previous_move = None
+
 
     def add_move(self, move_data, state):
         """Ajouter un mouvement à l'historique avec les icônes des soldats"""
@@ -119,7 +121,7 @@ class HistoryView(BaseView):
             content_frame,
             image=content_frame.cible,
             # text=f"🎯 {move_data['pos'][0]} → {move_data['pos'][1]}",
-            text=f" {move_data['pos'][0]} → {move_data['pos'][1]}",
+            text=f" {move_data['pos'][-2]} → {move_data['pos'][-1]}",
             font=ctk.CTkFont(size=10),
             compound="left"
         )
@@ -142,7 +144,7 @@ class HistoryView(BaseView):
             captured_soldier = self.move_formatter.create_soldier_label(
                 content_frame,
                 is_red=move_data['soldier_value'] != Soldier.RED,  
-                value=move_data['captured_soldier']
+                value=move_data['captured_soldier'][-1]
             )
             captured_soldier.pack(side="left", padx=2)
 
@@ -192,6 +194,12 @@ class HistoryView(BaseView):
                 self.logger.info(f"Adding {history_moves - current_moves} new moves")
                 for move in state['history'][current_moves:]:
                     self.add_move(move, state)
-                                         
+            else : 
+                move = state["history"][-1]
+                if not is_equals(self.previous_move, move) : 
+                    self.add_move(move, state)   
+
+            self.previous_move = state['history'][-1]      
+
         except Exception as e:
             self.logger.error(f"Error in update: {str(e)}")

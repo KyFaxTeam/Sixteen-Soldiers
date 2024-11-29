@@ -177,9 +177,9 @@ class Board:
                     if (empty_pos in empty_positions and BoardUtils.are_aligned(empty_pos, neighbor, last_position))
                 ]
                 if just_know and capture_positions : 
-                    print("***************************************************** last_position : ", last_position)
-                    print("***************************************************** neighbor : ", neighbor)
-                    print("***************************************************** empty positions : ", capture_positions)
+                    # print("***************************************************** last_position : ", last_position)
+                    # print("***************************************************** neighbor : ", neighbor)
+                    # print("***************************************************** empty positions : ", capture_positions)
                     return True
                         
                 # Ajouter les actions de capture consécutive

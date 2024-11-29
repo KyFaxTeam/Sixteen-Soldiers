@@ -209,11 +209,11 @@ class GameBoard(BaseView):
         return None
         
     
-    def _make_action(self, action: dict) :
+    def _make_action(self, move: dict) :
         """Effectue une action sur le plateau de jeu."""
-        from_pos = action["pos"][-2] if len(action["pos"]) >= 2 else action["pos"][0]
-        to_pos = action["pos"][-1]
-        player = action["soldier_value"].value
+        from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
+        to_pos = move["pos"][-1]
+        player = move["soldier_value"].value
         
         # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
         
@@ -224,11 +224,11 @@ class GameBoard(BaseView):
 
         self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos), player=player)
         
-        is_capture = action.get("captured_soldier") is not None
+        is_capture = move.get("captured_soldier") is not None
         
         if is_capture:
             
-            captured_soldier = action["captured_soldier"]
+            captured_soldier = move["captured_soldier"][-1]
             
             captured_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(captured_soldier), player=1 - player)
             
@@ -238,7 +238,7 @@ class GameBoard(BaseView):
                 # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
-        self.previous_action = action
+        self.previous_action = move
         # exit()
         
     def update(self, state):
