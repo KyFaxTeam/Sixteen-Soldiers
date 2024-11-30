@@ -58,7 +58,7 @@ class HistoryView(BaseView):
             light_image=Image.open(Assets.img_blue_soldier),
             dark_image=Image.open(Assets.img_blue_soldier),
             size=SOLDIER_SIZE_HISTORY
-)
+    )
         
         # Ajouter le formateur de mouvement
         self.move_formatter = MoveFormatter(
@@ -102,12 +102,13 @@ class HistoryView(BaseView):
 
     def add_move(self, move_data, state):
         """Ajouter un mouvement à l'historique avec les icônes des soldats"""
-        move_frame = ctk.CTkFrame(self.moves_container)
-        move_frame.pack(fill="x", padx=5, pady=2)
+        # move_frame = ctk.CTkFrame(self.moves_container)
+        # move_frame.pack(fill="x", padx=5, pady=2)
 
         # Création du conteneur pour organiser les éléments horizontalement
-        content_frame = ctk.CTkFrame(move_frame)
-        content_frame.pack(fill="x", padx=5, pady=2)
+        # content_frame = ctk.CTkFrame(move_frame)
+        content_frame = ctk.CTkFrame(self.moves_container)
+        content_frame.pack(fill="x", padx=8, pady=5)
 
         content_frame.cible = ImageTk.PhotoImage(Image.open(Assets.cible).resize((12, 12)))
         content_frame.approuve = ImageTk.PhotoImage(Image.open(Assets.approuve).resize((18, 18)))
@@ -118,13 +119,14 @@ class HistoryView(BaseView):
             content_frame,
             is_red=move_data['soldier_value'] == Soldier.RED, 
         )
-        moving_soldier.pack(side="left", padx=(2, 5))
+        moving_soldier.pack(side="left", padx=(5, 5), pady=2)
 
         # Timestamp
+        time_text = f"{move_data['timestamp'][-1] * 1e3:.3f} ms"
         time_label = ctk.CTkLabel(
             content_frame,
             # text=f"{move_data['timestamp'].strftime('%H:%M:%S')} |",
-            text=f"{move_data['timestamp'][-1] * 1e3:.3f} ms  |",
+            text=f"{time_text.ljust(10)}  |",
             font=ctk.CTkFont(size=10)
         )
         time_label.pack(side="left", padx=(2, 5))
@@ -167,8 +169,8 @@ class HistoryView(BaseView):
             content_frame,
             text="↺",
             font=ctk.CTkFont(size=10),
-            width=30,
-            height=30,
+            width=25,
+            height=25,
             command=lambda: self.replay_move(move_data, state),
             state="disabled" if not state['is_game_paused'] else "normal",
             
@@ -177,7 +179,7 @@ class HistoryView(BaseView):
 
         # Ajouter à la liste des mouvements
         self.move_frames.append({
-            "frame": move_frame,
+            # "frame": move_frame,
             "data": move_data
         })
 
