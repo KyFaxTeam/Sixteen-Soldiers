@@ -11,29 +11,22 @@ def save_game( state: Dict) -> Dict:
         """Save the game history to a JSON file with metadata and a timestamped filename"""
         # Get the game history from the state
         history = state.get("history", [])
+        agents = state.get("agents", {})
+        agents_info_index = state.get("agents_info_index", {})
+        winner = state.get("winner")
 
-        # Add metadata as the first element
+        # Define metadata
         metadata = {
-            "players": [
-                {
-                    "pseudo": "Player 1",
-                    "ai_name": "AI-1",
-                    "profile": "path/to/player1_profile.png",
-                    "color": "RED"
-                },
-                {
-                    "pseudo": "Player 2",
-                    "ai_name": "AI-2",
-                    "profile": "path/to/player2_profile.png",
-                    "color": "BLUE"
-                }
-            ],
+            "players": agents,
+            "info_index": agents_info_index,
+            "winner": winner,
             "game_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        history_with_metadata = [metadata] + history
-
-        # Convert the history (with metadata) to JSON format
-        history_json = json.dumps(history_with_metadata, indent=4)
+        # Create the dictionary for JSON file
+        data_to_save = {
+            "metadata": metadata,
+            "history": history
+        }
         
         # Define the folder and timestamped file path
         save_folder = os.path.join(os.getcwd(), "saved_game")
@@ -47,7 +40,7 @@ def save_game( state: Dict) -> Dict:
         # Save the JSON data to the file
         try:
             with open(save_file, "w", encoding="utf-8") as file:
-                file.write(history_json)
+                json.dump(data_to_save, file, indent=4)
             print(f"Game saved successfully to {save_file}")
         except Exception as e:
             print(f"An error occurred while saving the game: {e}")
