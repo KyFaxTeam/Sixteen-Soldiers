@@ -1,0 +1,7 @@
+{
+    "metadata": {
+        "players": {
+            "minimax_RED": {
+                "pseudo": "minimax",
+                "name": "AlphaBeta Agent",
+                "soldier_value": 
