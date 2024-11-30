@@ -181,4 +181,3 @@ class GameRunner:
 
         except Exception as e:
             self.logger.exception(f"Fatal game error: {e}")
-
