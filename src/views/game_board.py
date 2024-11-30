@@ -21,9 +21,11 @@ class GameBoard(BaseView):
         # store.state['board']
         super().__init__(master)
         self.store = store
-        self.frame.pack(expand=True, fill="both")
+       #self.frame.pack(expand=True)
+        
         
         # Créer un conteneur pour le canvas et les boutons
+       
         self.main_container = ctk.CTkFrame(self.frame)
         self.main_container.pack(expand=False)
         
@@ -31,12 +33,10 @@ class GameBoard(BaseView):
         self.store.subscribe_theme(self.change_canvas_color)
         
         # Créer un frame pour les boutons (en haut)
-        self.button_frame = ctk.CTkFrame(self.main_container)
-        self.button_frame.pack(expand=False)
-        self.button_frame.pack(expand=False)
-        
-        # self.canvas.pack()
-        # self.canvas.pack()
+       
+        self.button_frame = ctk.CTkFrame(self.main_container, fg_color="transparent", corner_radius=8)
+        self.button_frame.pack(padx= 5, pady= 5, expand=False)
+       
         self.red_soldiers = []
         self.blue_soldiers = []
         self.previous_move = None
@@ -70,10 +70,19 @@ class GameBoard(BaseView):
         print(f"Calculated self.GAP_: {self.GAP_}")
         
         mode = ctk.get_appearance_mode().lower()
-        bg_color = ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][0 if mode == "light" else 1]
+        bg_color = ctk.ThemeManager.theme["CTkFrame"]["fg_color"][0 if mode == "light" else 1]
+
+        canvas_frame = ctk.CTkFrame(
+            self.frame, 
+            width=4 * self.GAP_ + 2 * PADDING , 
+            height=8 * self.GAP_ + 2 * PADDING,
+            corner_radius=15,  # Coins arrondis avec CustomTkinter
+        )
+        canvas_frame.pack(pady=(10,10), expand=True, fill = "both")
+
         # Créer un canvas pour le plateau de jeu
-        self.canvas = tk.Canvas(self.frame, width= 4 * self.GAP_ + 2 * PADDING, height= 8 * self.GAP_ + 2 * PADDING,  highlightthickness=0, bg=bg_color, highlightbackground="#424977")
-        self.canvas.pack(expand=True)
+        self.canvas = tk.Canvas(canvas_frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
+        self.canvas.pack(padx=(40,40), pady=(0,10), expand=True, fill ="both")
 
     def __draw_board(self):
        
@@ -145,15 +154,18 @@ class GameBoard(BaseView):
             
             
             self.canvas.update_idletasks()
+        
+        mode = ctk.get_appearance_mode().lower()
+        text_color = ctk.ThemeManager.theme["CTkTextbox"]["text_color"][0 if mode == "light" else 1]
             
         # Annotation des coordonnées de chaque pion
         for i in range(9):
             custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
             if i < 5:
                 x = PADDING + i * self.GAP_
-                self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill="white", anchor="center", tags="optional_tag")
+                self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")
             y = PADDING + i * self.GAP_
-            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill="white", anchor="center", tags="optional_tag")
+            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")
         
 
     def _add_button(self):
@@ -177,9 +189,7 @@ class GameBoard(BaseView):
         
         self.play_pause_button.pack(side="left", padx=10, pady=5)
         self.reset_button.pack(side="left", padx=10, pady=5)
-    
-        
-
+     
             
     def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
         """
@@ -231,9 +241,7 @@ class GameBoard(BaseView):
         return None
         
 
-
     def _make_action(self, move: dict) :
-
 
         """Effectue une action sur le plateau de jeu."""
         from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
@@ -315,10 +323,22 @@ class GameBoard(BaseView):
     def change_canvas_color(self, mode: str):
         """Change la couleur de fond du canvas."""
         self.canvas.configure(
-            bg=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
+            bg=ctk.ThemeManager.theme["CTkFrame"]["fg_color"][
                 0 if mode == "light" else 1
             ]
         )
+        mode = ctk.get_appearance_mode().lower()
+        text_color = ctk.ThemeManager.theme["CTkTextbox"]["text_color"][0 if mode == "light" else 1]
+            
+        # Annotation des coordonnées de chaque pion
+        for i in range(9):
+            custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
+            if i < 5:
+                x = PADDING + i * self.GAP_
+                self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")
+            y = PADDING + i * self.GAP_
+            self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")
+        
 
     def start_game(self):
         """Start the game in automatic mode with agents."""

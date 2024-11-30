@@ -5,7 +5,7 @@ import random
 import customtkinter as ctk
 from typing import Optional, Dict
 from store.store import Store
-from utils.const import Soldier
+from utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
 from views.base_view import BaseView
 from utils.const import AGENT_DIR
 from PIL import Image
@@ -20,6 +20,7 @@ class PlayerView(BaseView):
         
         self.soldier_value = soldier_value
         self.store : Store = store
+        
         if store:
             initial_state = store.get_state()
             initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.soldier_value)
@@ -82,11 +83,15 @@ class PlayerView(BaseView):
             fg_color="transparent"
         )
         self.timer_frame.pack(side="left", padx=10, pady=5)
-        
-        self.timer_icon = ctk.CTkLabel(
-            self.timer_frame,
-            text="⏱️",
-            font=ctk.CTkFont(size=14)
+
+        self.timer_icon =  ctk.CTkLabel(
+                self.timer_frame,
+                text="",
+                image= ctk.CTkImage(
+                    light_image=Image.open(Assets.horloge),
+                    dark_image=Image.open(Assets.horloge_1),
+                    size=(17,17)
+            )
         )
         self.timer_icon.pack(side="left", padx=(0, 5))
 
@@ -104,11 +109,7 @@ class PlayerView(BaseView):
         )
         self.pieces_frame.pack(side="right", padx=10, pady=5)
         
-        self.pieces_icon = ctk.CTkLabel(
-            self.pieces_frame,
-            text="♟️",
-            font=ctk.CTkFont(size=14)
-        )
+        self.pieces_icon = self.create_soldier_icon(self.pieces_frame)
         self.pieces_icon.pack(side="left", padx=(0, 5))
 
         self.pieces_label = ctk.CTkLabel(
@@ -143,7 +144,31 @@ class PlayerView(BaseView):
         )
         self.select_button.pack(pady=10)
         
-    
+  
+        
+    def create_soldier_icon(self, master) -> ctk.CTkLabel:
+        """
+        Crée un label contenant l'icône du soldat et sa valeur
+        """
+        is_red = self.soldier_value==Soldier.RED 
+        red_soldier_icon = ctk.CTkImage(
+            light_image=Image.open(Assets.img_red_soldier),
+            dark_image=Image.open(Assets.img_red_soldier),
+            size=SOLDIER_SIZE_PLAYER
+        )
+        blue_soldier_icon = ctk.CTkImage(
+            light_image=Image.open(Assets.img_blue_soldier),
+            dark_image=Image.open(Assets.img_blue_soldier),
+            size=SOLDIER_SIZE_PLAYER
+        )
+        
+        label = ctk.CTkLabel(
+                master,
+                text="",
+                image= red_soldier_icon if is_red else blue_soldier_icon
+            )
+      
+        return label
     def get_agent_list(self):
         """Get list of available agents from the agents directory"""
         

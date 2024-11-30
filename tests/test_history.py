@@ -74,7 +74,7 @@ class TestHistoryManagement(unittest.TestCase):
         last_move = get_last_move(state)
         self.assertTrue(last_move.capture_multiple)
         self.assertEqual(len(last_move.pos), 3)  # Should contain all positions
-        print("timestamp timestamp timestamp timestamp : ", last_move.timestamp)
+        # print("timestamp timestamp timestamp timestamp : ", last_move.timestamp)
         self.assertEqual(len(last_move.timestamp), 2)  # Should contain all statemps
 
     def test_undo_redo(self):
