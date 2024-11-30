@@ -23,6 +23,9 @@ class Assets:
       cible = ASSETS_DIR / "images/cible.png"
       approuve = ASSETS_DIR / "images/approuve.png"
 
+      horloge = ASSETS_DIR / "images/horloge_1.png"
+      horloge_1 = ASSETS_DIR / "images/horloge-murale.png"
+
       dir_avatar = ASSETS_DIR / "avatars"
       
       font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"

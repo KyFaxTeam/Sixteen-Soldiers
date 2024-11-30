@@ -73,11 +73,11 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content, self.store)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 0), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
-        self.center_column.grid(row=0, column=1, sticky="nsew")
+        self.center_column.grid(row=0, column=1)
         
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store)
@@ -86,7 +86,7 @@ class MainView(BaseView):
         self.game_board.update(self.store.get_state())
         
         # Right column - Move history and settings
-        self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
+        self.right_column = ctk.CTkFrame(self.content)#, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
         # History view

@@ -11,7 +11,7 @@ class PlayersColumn(BaseView):
         super().__init__(master)
         self.store = store
         self.frame = ctk.CTkFrame(self.master)
-        self.frame.configure(fg_color="transparent")
+        # self.frame.configure(fg_color="transparent")
         
         # Créez un conteneur principal qui utilisera grid
         self.main_container = ctk.CTkFrame(self.frame)
