@@ -105,7 +105,7 @@ class MainView(BaseView):
             self.master,
             store=self.store,
             on_restart=self.restart_game,
-            on_save=save_game(self.store.get_state())
+            on_save=lambda: save_game(self.store.get_state())
         )
 
     def restart_game(self):
