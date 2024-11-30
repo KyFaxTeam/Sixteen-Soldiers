@@ -19,7 +19,8 @@ initial_state = {
     "agents_info_index": {
         Soldier.RED: None,
         Soldier.BLUE: None
-    }
+    },
+    "appearance_mode": "system",  # Ajouter le mode d'apparence au state
 }
 class Store:
     def __init__(self, reducer: Callable[[Dict, Dict], Dict]):
@@ -27,7 +28,8 @@ class Store:
         self.reducer = reducer
         self.subscribers: List[Callable[[Dict], None]] = []
         self.game_speed = GameSpeed()
-    
+        self.theme_subscribers = []  # Liste séparée pour les subscribers de thème
+        
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
         
@@ -45,14 +47,9 @@ class Store:
     
     def dispatch(self, action: Dict):
         state = self.reducer(self.state, action)
-        
-        if state is None:
-            self.dispatch({"type": "PAUSE_GAME"})
-        else :
-            self.state = state   
-            for subscriber in self.subscribers:
-                subscriber(self.state)
-
+        self.state = state
+        for subscriber in self.subscribers:
+            subscriber(self.state)
 
     def subscribe(self, subscriber: Callable[[Dict], None]):
         self.subscribers.append(subscriber)
@@ -63,3 +60,13 @@ class Store:
         if info_index:
             return self.state["agents"].get(info_index, {})
         return {}
+
+    def update_theme(self, mode: str = None):
+        """Méthode dédiée pour mettre à jour la couleur du thème"""
+    
+        for subscriber in self.theme_subscribers:
+            subscriber(mode.lower())
+            
+    def subscribe_theme(self, subscriber: Callable[[str], None]):
+        """S'abonner aux changements de thème uniquement"""
+        self.theme_subscribers.append(subscriber)

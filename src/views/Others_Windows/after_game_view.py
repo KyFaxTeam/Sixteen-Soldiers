@@ -1,6 +1,7 @@
 import os  # Import os module for path operations
 import customtkinter as ctk
 from PIL import Image
+from utils.audio import Sounds
 from utils.const import ASSETS_DIR, Soldier
 from utils.logger_config import get_logger  # Import ASSETS_DIR
 
@@ -11,18 +12,24 @@ class AfterGameView(ctk.CTkToplevel):
         self.store = store
         self.on_restart = on_restart
         self.on_save = on_save
+        self.sounds = Sounds()
         
         # Configure window to overshadow MainView
         self.title("Game Over")
-        self.geometry("400x300")
+        # Center the popup
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"400x300+{(screen_width-400)//2}+{(screen_height-300)//2}")
+        # self.geometry("400x300")
         self.transient(master)
         self.grab_set()  # Block interaction with MainView
+        self.sounds.game_completed()
         self.logger.info("**************Game Over window created*************")
         # Fetch winner's data from store
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
         
-        # Winner's data
+        # Winner's data"qs
         profile_img_path = winner_data.get("profile_img")
         team_pseudo = winner_data.get("team_pseudo")
         ai_name = winner_data.get("ai_name")
@@ -57,7 +64,7 @@ class AfterGameView(ctk.CTkToplevel):
 
         # Display remaining time
         remaining_time_ms = int(remaining_time * 1000)  
-        time_label = ctk.CTkLabel(bottom_frame, text=f"Time: {remaining_time_ms}ms", font=("Helvetica", 12))
+        time_label = ctk.CTkLabel(bottom_frame, text=f"Time: {remaining_time_ms:03}ms", font=("Helvetica", 12))
         time_label.grid(row=0, column=0, padx=10)
 
         # Display pawns remaining icon
