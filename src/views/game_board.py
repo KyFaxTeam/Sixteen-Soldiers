@@ -231,7 +231,7 @@ class GameBoard(BaseView):
         return None
         
 
-    def _make_action(self, action: dict) :
+    def _make_action(self, move: dict) :
 
         """Effectue une action sur le plateau de jeu."""
         from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
