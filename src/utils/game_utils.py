@@ -9,8 +9,8 @@ from agents.base_agent import BaseAgent
 from store.store import Store
 from utils.const import Soldier, TIMINGS
 
+def show_invalid_move_popup(agent_name):
 
-def show_invalid_move_popup(self, agent_name):
     """Show a popup when agent makes an invalid move"""
     popup = tk.Toplevel()
     popup.title("Invalid Move")
@@ -71,8 +71,10 @@ class GameRunner:
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
                     self.logger.info(f"Player {current_agent.name} ran out of time using random move")
-                    self._show_invalid_move_popup(current_agent.name)
+                    show_invalid_move_popup(current_agent.name)
+
                     action = random.choice(valid_actions)
+                    elapsed_time = 0.0
                 else:
                     start_time = time.perf_counter()
                     action = current_agent.choose_action(board=board_copy)
@@ -81,7 +83,7 @@ class GameRunner:
                 # Validate action and fallback to random if invalid
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
-                        self._show_invalid_move_popup(current_agent.name)
+                        show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions)
                 
                 self.store.dispatch(action=action)

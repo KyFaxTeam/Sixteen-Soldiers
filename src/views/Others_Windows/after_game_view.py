@@ -60,15 +60,7 @@ class AfterGameView(ctk.CTkToplevel):
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
 
-        # Add label for total moves made by the winner
-        total_moves_label = ctk.CTkLabel(
-            self, 
-            text=f"Coups: {total_moves}", 
-            font=("Helvetica", 14)
-        )
-        total_moves_label.place(relx=0.17, rely=0.7)  # Position approximately 1/3 of the window width
-
-        # Bottom frame for time, restart button, and save button
+        # Bottom frame for time, restart button, moves and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
         bottom_frame.pack_propagate(False)  # Prevent the frame from resizing to fit its children
         bottom_frame.pack(side="bottom", pady=(20, 10), fill="x", padx=20)
@@ -113,9 +105,19 @@ class AfterGameView(ctk.CTkToplevel):
         )
         restart_button.grid(row=0, column=3, padx=(10, 25))
 
+        # Add label for total moves made by the winner
+        total_moves_label = ctk.CTkLabel(
+            bottom_frame, 
+            text=f"Coups: {total_moves}", 
+            font=("Helvetica", 12)
+        )
+        total_moves_label.grid(row=0, column=4, padx=((0, 0)))
+
+        
         # Save button
-        save_button = ctk.CTkButton(bottom_frame, text="Save", command=on_save, width=50)
-        save_button.grid(row=0, column=4, padx=(75, 0))
+        save_button = ctk.CTkButton(bottom_frame, text="Save", command=lambda: on_save(save_button), width=50)
+        save_button.grid(row=0, column=5, padx=(25, 0))
+
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
