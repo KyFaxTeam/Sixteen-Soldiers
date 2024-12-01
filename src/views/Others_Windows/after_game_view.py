@@ -25,7 +25,7 @@ class AfterGameView(ctk.CTkToplevel):
         self.transient(master)
         self.grab_set()  # Block interaction with MainView
         self.sounds.game_completed()
-        self.logger.info("**************Game Over window created*************")
+        # self.logger.info("**************Game Over window created*************")
         # Fetch winner's data from store
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)

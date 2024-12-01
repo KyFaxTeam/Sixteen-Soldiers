@@ -208,9 +208,12 @@ class MainView(BaseView):
         """
         # First priority: Check if game is over
         if state["is_game_over"]:
+            self.game_board.play_pause_button.configure(state="disabled")
+            self.game_board.reset_button.configure(state="normal")
             if not self.after_game_view:  # Only show if not already showing
                 self.logger.info("Game is over - Showing after game view")
                 self.show_after_game_view()
+            
             return
 
         # Always update players column for agent selection
@@ -220,7 +223,7 @@ class MainView(BaseView):
         
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
-            if state["is_game_leaved"]:
+            if state["is_game_leaved"] :
                 self.logger.info("***********Game was left - Resetting history and board*********")
                 self.history_view.clear_moves()
                 self.game_board.clear_board()

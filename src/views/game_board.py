@@ -29,13 +29,12 @@ class GameBoard(BaseView):
         self.main_container.pack(expand=False)
         
         self.create_canvas()
+        # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.main_container, bg_color="transparent", corner_radius=8)
         self.button_frame.pack(padx= 5, pady= 5, expand=False)
         self.store.subscribe_theme(self.change_canvas_color)
         
-        # Créer un frame pour les boutons (en haut)
-       
-        
+  
        
         self.red_soldiers = []
         self.blue_soldiers = []
@@ -68,8 +67,17 @@ class GameBoard(BaseView):
         
         mode = ctk.get_appearance_mode().lower()
         bg_color = ctk.ThemeManager.theme["CTkFrame"]["fg_color"][0 if mode == "light" else 1]
+
+        canvas_frame = ctk.CTkFrame(
+            self.frame, 
+            width=4 * self.GAP_ + 2 * PADDING , 
+            height=8 * self.GAP_ + 2 * PADDING,
+            corner_radius=15,  # Coins arrondis avec CustomTkinter
+        )
+        canvas_frame.pack(pady=(10,10), expand=True, fill = "both")
+
         # Créer un canvas pour le plateau de jeu
-        self.canvas = tk.Canvas(self.frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
+        self.canvas = tk.Canvas(canvas_frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
         self.canvas.pack(padx=(40,40), pady=(0,10), expand=True, fill ="both")
 
     def __draw_board(self):
@@ -318,12 +326,12 @@ class GameBoard(BaseView):
             ]
         )
         
-        # Change the color of the button frame
-        self.button_frame.configure(
-            fg_color=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
-                0 if mode == "light" else 1
-            ]
-        )
+        # # Change the color of the button frame
+        # self.button_frame.configure(
+        #     fg_color=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
+        #         0 if mode == "light" else 1
+        #     ]
+        # )
         mode = ctk.get_appearance_mode().lower()
         text_color = ctk.ThemeManager.theme["CTkTextbox"]["text_color"][0 if mode == "light" else 1]
             

@@ -8,7 +8,7 @@ from src.utils.history_utils import get_move_player_count
 from src.utils.validator import is_valid_move
 from src.agents.base_agent import BaseAgent
 from src.store.store import Store
-from src.utils.const import Soldier, TIMINGS
+from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier, TIMINGS
 
 
 def show_popup(message: str, title: str = "Message"):
@@ -25,11 +25,11 @@ def show_popup(message: str, title: str = "Message"):
         fade_in_duration=0.2,
     )
 
-
 class GameRunner:
     def __init__(self, store: Store):
         self.store = store
         self.logger = getLogger(__name__)
+        self.moves_without_capture = 0  # Nouveau compteur
           
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
@@ -124,6 +124,31 @@ class GameRunner:
                 })
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+
+                # Après l'action dispatch, mettre à jour le compteur
+                if action.get("captured_soldier") is None:
+                    self.moves_without_capture += 1
+                    print("***********************************moves_without_capture*********************  : ", self.moves_without_capture)
+                else:
+                    self.moves_without_capture = 0
+
+                # Vérifier si on a atteint la limite de coups sans capture
+                if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
+                    red_pieces = board.count_soldiers(Soldier.RED)
+                    blue_pieces = board.count_soldiers(Soldier.BLUE)
+                    
+                    if red_pieces <= 3 and blue_pieces <= 3:
+                        winner = None  # Match nul
+                        reason = "draw_few_pieces"
+                    else:
+                        if red_pieces > blue_pieces:
+                            winner = Soldier.RED
+                        elif blue_pieces > red_pieces:
+                            winner = Soldier.BLUE
+                        else:
+                            winner = None  # Match nul en cas d'égalité
+                        reason = "more_pieces_wins"
+                    break
 
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")
