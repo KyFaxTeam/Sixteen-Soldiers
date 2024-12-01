@@ -79,30 +79,36 @@ def convert_keys_to_strings(data):
 
 
 
-def load_game(save_file: str = 'save.pkl') -> Dict:
+def load_game(save_file: str) -> Dict:
     """
-    Charge l'état des joueurs et de l'historique à partir d'une sauvegarde.
-   
+    Load the game state from a JSON file.
+    
     Args:
-        save_file (str): Chemin du fichier de sauvegarde (par défaut 'save.pkl').
-   
+        save_file (str): Path to the JSON file of the saved game.
+    
     Returns:
-        dict: Nouvel état des joueurs et de l'historique.
+        dict: The loaded game state, including players and history.
     """
     try:
-        with open(save_file, 'rb') as f:
-            saved_state = pickle.load(f)
+        with open(save_file, 'r', encoding='utf-8') as file:
+            saved_state = json.load(file)
+        
+        # Extract data
+        metadata = saved_state.get('metadata', {})
+        history = saved_state.get('history', [])
+        
+        print("Game loaded successfully.")
+        return {
+            'metadata': metadata,
+            'history': history
+        }
     except FileNotFoundError:
-        print("No saved game found.")
+        print(f"No saved game found at {save_file}.")
         return None
-    
-    players = saved_state['players']
-    history = saved_state['history']
-    
-    return {
-        'players': players,
-        'history': history
-    }
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return None
+
 
 def save_reducer(state: Dict, action: Dict) -> Dict:
     """
