@@ -12,7 +12,7 @@ store/__pycache__
 actions/__pycache__
 
 
-saved_game/
+saved_game/*
 
 # Fichiers spécifiques à l'IDE (PyCharm, VSCode, etc.)
 .idea/

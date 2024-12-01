@@ -29,12 +29,13 @@ class GameBoard(BaseView):
         self.main_container.pack(expand=False)
         
         self.create_canvas()
+        self.button_frame = ctk.CTkFrame(self.main_container, bg_color="transparent", corner_radius=8)
+        self.button_frame.pack(padx= 5, pady= 5, expand=False)
         self.store.subscribe_theme(self.change_canvas_color)
         
         # Créer un frame pour les boutons (en haut)
        
-        self.button_frame = ctk.CTkFrame(self.main_container, fg_color="transparent", corner_radius=8)
-        self.button_frame.pack(padx= 5, pady= 5, expand=False)
+        
        
         self.red_soldiers = []
         self.blue_soldiers = []
@@ -63,24 +64,12 @@ class GameBoard(BaseView):
         screen_height = self.master.winfo_screenheight()
         
         # Calculer le self.GAP_ en fonction de la résolution de l'écran
-        self.GAP_ = min(screen_width // 15, screen_height // 10)
-        
-        print(f"Screen resolution: {screen_width}x{screen_height}")
-        print(f"Calculated self.GAP_: {self.GAP_}")
+        self.GAP_ = int(screen_height / screen_width * 150)
         
         mode = ctk.get_appearance_mode().lower()
         bg_color = ctk.ThemeManager.theme["CTkFrame"]["fg_color"][0 if mode == "light" else 1]
-
-        canvas_frame = ctk.CTkFrame(
-            self.frame, 
-            width=4 * self.GAP_ + 2 * PADDING , 
-            height=8 * self.GAP_ + 2 * PADDING,
-            corner_radius=15,  # Coins arrondis avec CustomTkinter
-        )
-        canvas_frame.pack(pady=(10,10), expand=True, fill = "both")
-
         # Créer un canvas pour le plateau de jeu
-        self.canvas = tk.Canvas(canvas_frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
+        self.canvas = tk.Canvas(self.frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
         self.canvas.pack(padx=(40,40), pady=(0,10), expand=True, fill ="both")
 
     def __draw_board(self):
@@ -328,6 +317,13 @@ class GameBoard(BaseView):
                 0 if mode == "light" else 1
             ]
         )
+        
+        # Change the color of the button frame
+        self.button_frame.configure(
+            fg_color=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
+                0 if mode == "light" else 1
+            ]
+        )
         mode = ctk.get_appearance_mode().lower()
         text_color = ctk.ThemeManager.theme["CTkTextbox"]["text_color"][0 if mode == "light" else 1]
             
@@ -376,7 +372,6 @@ class GameBoard(BaseView):
         )
 
 
-
         # Enregistrer les agents dans le store
         self.store.register_agents(agent1, agent2)
         
@@ -400,6 +395,13 @@ class GameBoard(BaseView):
             self.start_game()
             # Change the button text to "Pause"
             self.play_pause_button.configure(text="Pause")
+            # Change the button icon to pause
+            self.play_pause_button.configure(
+                    image = ctk.CTkImage(
+                        light_image=Image.open(Assets.icon_pause), size=(20, 20)))
+            
+            # Disable reset button
+            self.reset_button.configure(state="disabled")
             # Set the game state to not paused
             self.is_paused = False
         else:
@@ -410,7 +412,7 @@ class GameBoard(BaseView):
             
             if not is_paused:
                 # If the game is not paused, pause the game
-                self.logger.info("Game paused\nFrom: toggle_play_pause")
+                # self.logger.info("Game paused\nFrom: toggle_play_pause")
                 self.store.dispatch({'type': 'PAUSE_GAME'})
                 # Change the button text to "Resume"
                 self.play_pause_button.configure(text="Resume")
@@ -418,6 +420,11 @@ class GameBoard(BaseView):
                 self.play_pause_button.configure(
                     image = ctk.CTkImage(
                         light_image=Image.open(Assets.icon_play), size=(20, 20)))
+                # Disable reset button
+                self.reset_button.configure(state="normal")
+                # Change reset button color
+                # self.reset_button.configure(bg_color="#c0c0c0")
+                
             else:
                 # If the game is paused, resume the game
                 self.logger.info("Game resumed\nFrom: toggle_play_pause")
@@ -428,6 +435,8 @@ class GameBoard(BaseView):
                         light_image=Image.open(Assets.icon_pause), size=(20, 20)))
                 # Change the button text to "Pause"
                 self.play_pause_button.configure(text="Pause")
+                # Enable reset button
+                self.reset_button.configure(state="desabled")
             # Toggle the paused state
             self.is_paused = not is_paused
 
@@ -435,8 +444,21 @@ class GameBoard(BaseView):
 
         if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
             self.store.dispatch({"type": "RESET_GAME"})
+            self.is_game_started = False
+            self.is_paused = True
         
         # Reset the button icon to play
+        self.play_pause_button.configure(
+            image = ctk.CTkImage(
+                light_image=Image.open(Assets.icon_play), size=(20, 20)))
+        # Change the button text to "Play"
+        self.play_pause_button.configure(text="Play")
+        # Enable reset button
+        self.reset_button.configure(state="disabled")
+        
+        # self.play_button.configure(state="normal")
+        # self.canvas.delete("all")
+        
     def clear_board(self):
         self.canvas.delete("all")
         self.__draw_board()
