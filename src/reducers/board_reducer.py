@@ -20,6 +20,10 @@ def capture_soldier(state:Dict, action:Dict ) -> Dict:
     new_state['board'].soldiers[action['to_pos']] = action['soldier_value']
     new_state['board'].soldiers[action['captured_soldier']] = Soldier.EMPTY
 
+    if new_state['board'].get_available_captures(action['soldier_value'], action["to_pos"], True) : 
+        new_state['board'].last_position = action["to_pos"]
+    else :
+        new_state['board'].last_position = None
     return new_state
 
 
