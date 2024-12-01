@@ -26,6 +26,9 @@ class Assets:
       horloge = ASSETS_DIR / "images/horloge_1.png"
       horloge_1 = ASSETS_DIR / "images/horloge-murale.png"
 
+      non = ASSETS_DIR / "images/non.png"
+      non_1 = ASSETS_DIR / "images/votez-non.png"
+
       dir_avatar = ASSETS_DIR / "avatars"
       
       font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"

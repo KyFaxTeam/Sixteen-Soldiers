@@ -121,13 +121,25 @@ class HistoryView(BaseView):
         )
         moving_soldier.pack(side="left", padx=(5, 5), pady=2)
 
-        # Timestamp
-        time_text = f"{move_data['timestamp'][-1] * 1e3:.3f} ms"
+        time_up_icon = ctk.CTkImage(
+            light_image=Image.open(Assets.non),
+            dark_image=Image.open(Assets.non),
+            size=EMOJIS_SIZE
+        )
+
+        if not state["time_manager"].is_time_up(move_data['soldier_value']):
+            # Timestamp
+            time_text = f"{move_data['timestamp'][-1] * 1e3:.3f} ms"
+        else:
+            time_text = "Time up"
+
         time_label = ctk.CTkLabel(
             content_frame,
+            image=time_up_icon if time_text == "Time up" else None,
             # text=f"{move_data['timestamp'].strftime('%H:%M:%S')} |",
             text=f"{time_text.ljust(10)}  |",
-            font=ctk.CTkFont(size=10)
+            font=ctk.CTkFont(size=10), 
+            compound="right" if time_text != "Time up" else "left",
         )
         time_label.pack(side="left", padx=(2, 5))
 

@@ -3,6 +3,7 @@ from logging import getLogger
 import time
 import random
 import tkinter as tk
+from models.board import Board
 from utils.history_utils import get_move_player_count
 from utils.validator import is_valid_move
 from agents.base_agent import BaseAgent
@@ -35,18 +36,20 @@ class GameRunner:
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
 
-        # can_continue_capture = False
-
         while not self.store.get_state().get("is_game_over", False):
 
             while self.store.get_state().get("is_game_paused", False):
                 time.sleep(0.1)  
                 
             current_state = self.store.get_state()
+            board : Board = current_state["board"]
+
             current_soldier_value = current_state.get("current_soldier_value")
             current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
             opponent_agent: BaseAgent = agent2 if current_soldier_value == Soldier.RED else agent1
-            over = current_state["board"].is_game_over()
+            over = board.is_game_over()
+            is_multi_capture = board.get_is_multi_capture()
+
 
             if over is not None:
                 self.logger.info(f"No soldiers to move for {current_agent.name}")
@@ -54,13 +57,12 @@ class GameRunner:
                 reason = "no_soldiers"
                 break
             try:
-                board_copy = deepcopy(current_state["board"])
-                if board_copy.get_is_multi_capture() : 
-                    valid_actions = board_copy.get_available_captures(current_soldier_value, action["to_pos"])
+                if is_multi_capture : 
+                    valid_actions = board.get_available_captures(current_soldier_value, action["to_pos"])
                 else : 
-                    valid_actions = board_copy.get_valid_actions(current_soldier_value)
+                    valid_actions = board.get_valid_actions(current_soldier_value)
 
-                valid_actions = [action for action in valid_actions if is_valid_move(action, current_state["board"])]
+                valid_actions = [action for action in valid_actions if is_valid_move(action, board)]
 
                 if not valid_actions:
                     # No valid actions for current player means the opponent wins
@@ -76,12 +78,14 @@ class GameRunner:
                     action = random.choice(valid_actions)
                     elapsed_time = 0.0
                 else:
+                    board_copy = deepcopy(board)
+                    
                     start_time = time.perf_counter()
                     action = current_agent.choose_action(board=board_copy)
                     elapsed_time = time.perf_counter() - start_time
 
                 # Validate action and fallback to random if invalid
-                if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
+                if not is_valid_move(action, board) and action not in valid_actions:
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
                         show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions)
@@ -105,7 +109,7 @@ class GameRunner:
                         "soldier_value": current_soldier_value,
                         "captured_soldier": action.get("captured_soldier", None),
                         "timestamp": elapsed_time, 
-                        "capture_multiple": board_copy.get_is_multi_capture()
+                        "capture_multiple": is_multi_capture
                     }
                 })
                 
