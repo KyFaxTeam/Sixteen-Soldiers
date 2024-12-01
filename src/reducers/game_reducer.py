@@ -5,8 +5,12 @@ from src.utils.const import Soldier
 
 
 def reset_game(state: Dict) -> Dict:
-    new_state = initial_state.copy()
 
+    new_state = initial_state.copy()
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    new_state["is_game_leaved"] = True
+    
     return new_state
 
 def change_current_player(state: Dict) -> Dict:

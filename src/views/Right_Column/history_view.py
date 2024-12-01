@@ -179,7 +179,7 @@ class HistoryView(BaseView):
 
         # Ajouter à la liste des mouvements
         self.move_frames.append({
-            # "frame": move_frame,
+            "frame": content_frame,
             "data": move_data
         })
 
@@ -195,15 +195,24 @@ class HistoryView(BaseView):
         if move_data and state['is_game_paused']:
             print(f"Rejouer le mouvement: {move_data}")
 
+    def clear_moves(self):
+        """Effacer tous les mouvements de l'historique"""
+        for content_frame in self.move_frames:
+            content_frame["frame"].destroy()
+        self.move_frames = []
 
     def update(self, state):
         """Updates the move history by adding only new moves"""
+        # if state['is_game_leaved']:
+
+        #     self.logger.info(" ************************No history in state")
+        #     self.clear_moves()
+        #     return
+        
         if not state['is_game_started'] or state['is_game_over'] or state['is_game_paused']: 
             return
         try:
-            if 'history' not in state or state['history'] == []:
-                self.logger.warning("No history in state")
-                return
+            
 
                 
             # current_moves = len(self.move_frames)

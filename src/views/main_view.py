@@ -181,6 +181,11 @@ class MainView(BaseView):
             
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
+            if state["is_game_leaved"]:
+                self.logger.info("***********Game was left - Resetting history*********")
+                self.history_view.clear_moves()
+                self.logger.info("***********Game was left - Resetting Board*********")
+                self.game_board.clear_board()
             return
 
         # Normal game updates

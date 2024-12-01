@@ -277,6 +277,8 @@ class GameBoard(BaseView):
     def update(self, state):
         """ Updates the board based on the new state """
         # update seulement si le jeu est en cours
+        if state.get("is_game_leaved"):
+            return
         
         if not self.is_game_started:
             return
@@ -381,6 +383,7 @@ class GameBoard(BaseView):
         import threading
         def run_game():
             self.store.state["is_game_started"] = True
+            self.store.state["is_game_leaved"] = False
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
@@ -429,16 +432,14 @@ class GameBoard(BaseView):
             self.is_paused = not is_paused
 
     def reset_game(self):
-        
-        if self.is_game_started and self.is_paused:
+
+        if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
             self.store.dispatch({"type": "RESET_GAME"})
-            self.is_game_started = False
-            self.is_paused = True
-            
-            # reset canvas
-            self.canvas.delete("all")
-            self.__draw_board()
-            self._draw_pieces()
+        
         # Reset the button icon to play
-    
+    def clear_board(self):
+        self.canvas.delete("all")
+        self.__draw_board()
+        self._draw_pieces()
+        print("history : ",self.store.state["history"]) 
 
