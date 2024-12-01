@@ -188,14 +188,15 @@ class MainView(BaseView):
         # Always update players column for agent selection
         if hasattr(self, 'players_column'):
             self.players_column.update(state)
-            
+        
+        
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
             if state["is_game_leaved"]:
-                self.logger.info("***********Game was left - Resetting history*********")
+                self.logger.info("***********Game was left - Resetting history and board*********")
                 self.history_view.clear_moves()
-                self.logger.info("***********Game was left - Resetting Board*********")
                 self.game_board.clear_board()
+                
             return
 
         # Normal game updates
