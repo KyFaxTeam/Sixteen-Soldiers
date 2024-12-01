@@ -4,6 +4,7 @@ import logging
 from store.store import Store
 from utils.save_utils import save_game
 
+from views.Others_Windows.home_view import HomeView
 from views.base_view import BaseView
 from views.game_board import GameBoard
 from views.Others_Windows.after_game_view import AfterGameView
