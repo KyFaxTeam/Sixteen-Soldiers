@@ -35,13 +35,14 @@ class GameRunner:
         """Run a game between two AI agents"""
        
         timeout = {"RED": False, "BLUE": False}
-        while not self.store.get_state().get("is_game_over", False):
+        while not self.store.get_state().get("is_game_over", False) and not self.store.get_state().get("is_game_leaved", False):
             
             while self.store.get_state().get("is_game_paused", False):
-                if self.store.get_state().get("is_game_leaved", False):
-                    return
-                time.sleep(0.1)  
-                
+                time.sleep(0.1)
+
+            if self.store.get_state().get("is_game_leaved", False):
+                return
+               
             current_state = self.store.get_state()
             board : Board = current_state["board"]
 
@@ -130,9 +131,8 @@ class GameRunner:
                 break  
 
         
-        if self.store.get_state().get("is_game_leaved", False):
+        if self.store.get_state().get("is_game_leaved"):
             self.logger.info("Game was left")
-            self.store.dispatch({  "type": "RESET_GAME"})
         else :
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
