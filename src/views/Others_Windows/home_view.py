@@ -1,4 +1,6 @@
 import customtkinter as ctk
+# from PIL import Image
+# from src.models.assets.index import Assets
 from src.views.base_view import BaseView
 
 class HomeView(BaseView):
@@ -8,6 +10,13 @@ class HomeView(BaseView):
         super().__init__(master)
         self.frame = ctk.CTkFrame(self.master)
         self.frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # # Load the background image
+        # self.bg_image = ctk.CTkImage(Image.open(Assets.kyfax_logo), size=(251.5, 250))
+
+        # # Create a label to hold the background image
+        # self.bg_label = ctk.CTkLabel(self.frame, image=self.bg_image, text="")
+        # self.bg_label.place(relwidth=1, relheight=1)
 
         # Title label
         self.title_label = ctk.CTkLabel(self.frame, text="Bienvenue", font=("Helvetica", 24, "bold"))
