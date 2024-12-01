@@ -67,7 +67,7 @@ class Board:
         for pos in ['f1', 'f2', 'f3', 'f4', 'f5', 'g1', 'g2', 'g3', 'g4', 'g5', 'h2', 'h3', 'h4', 'i1', 'i3', 'i5']:
             self.soldiers[pos] = Soldier.BLUE
 
-        self.capture_m= None
+        self.last_position = None
 
         self.logger = logging.getLogger(__name__)
 
@@ -114,13 +114,13 @@ class Board:
         valid_actions = []
         opponent = Soldier.BLUE if soldier_value == Soldier.RED else Soldier.RED
 
-        # # Si c'est une continuation de capture, restreindre aux mouvements de capture
-        # if last_pos: 
-        #     capture_actions = self._find_continued_captures(
-        #         soldier_value, 
-        #         last_pos
-        #     )
-        #     return capture_actions if capture_actions else []
+        # Si c'est une continuation de capture, restreindre aux mouvements de capture
+        if self.last_position: 
+            capture_actions = self._find_continued_captures(
+                soldier_value, 
+                self.last_position
+            )
+            return capture_actions if capture_actions else []
         
         # Trouver les positions vides
         empty_positions = [
@@ -205,4 +205,7 @@ class Board:
         """
         captures = self._find_continued_captures(soldier_value, current_position, just_know)
         return captures  # Renvoie une liste vide s'il n'y a pas de captures
+    
+    def get_is_multi_capture(self) -> bool:
+        return True if self.last_position else False
 

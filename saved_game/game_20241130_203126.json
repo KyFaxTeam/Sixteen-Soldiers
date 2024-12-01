@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "players": {
+            "minimax_RED": {
+                "pseudo": "minimax",
+                "name": "AlphaBeta Agent",
+                "soldier_value": "RED",
+                "profile_img": "D:\\Fructueux\\Work\\KyFax\\Sixteen-Soldiers\\assets\\avatars\\robot_24.png",
+                "stats": {
+                    "total_games": 2,
+                    "performances": [
+                        

@@ -31,15 +31,15 @@ class MainView(BaseView):
         self.history_view = None
         self.settings_view = None
         
-        self.start_new_game()
+        # self.start_new_game()
         self.logger = logging.getLogger(__name__)
         # Initialize HomeView
-        # self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
-        # self.home_view.show()
+        self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
+        self.home_view.show()
         
     def start_new_game(self):
         """Start a new game and switch to game board view"""
-        # self.home_view.hide()  # Hide the home screen
+        self.home_view.hide()  # Hide the home screen
         self.master.geometry("1200x800")
         self.create_main_layout()  # Initialize main layout and sub-views
 
@@ -72,11 +72,11 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content, self.store)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=30)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 0), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
-        self.center_column.grid(row=0, column=1, sticky="nsew")
+        self.center_column.grid(row=0, column=1)
         
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store)
@@ -85,7 +85,7 @@ class MainView(BaseView):
         self.game_board.update(self.store.get_state())
         
         # Right column - Move history and settings
-        self.right_column = ctk.CTkFrame(self.content, fg_color="transparent")
+        self.right_column = ctk.CTkFrame(self.content)#, fg_color="transparent")
         self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         
         # History view
@@ -104,7 +104,7 @@ class MainView(BaseView):
             self.master,
             store=self.store,
             on_restart=self.restart_game,
-            on_save=save_game
+            on_save=lambda: save_game(self.store.get_state())
         )
 
     def restart_game(self):

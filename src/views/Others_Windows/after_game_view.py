@@ -13,6 +13,7 @@ class AfterGameView(ctk.CTkToplevel):
         self.on_restart = on_restart
         self.on_save = on_save
         self.sounds = Sounds()
+        self.sounds.pause()
         
         # Configure window to overshadow MainView
         self.title("Game Over")
@@ -41,6 +42,8 @@ class AfterGameView(ctk.CTkToplevel):
         remaining_time = winner_data.get("remaining_time")
         remaining_pawns = winner_data.get("remaining_pawns")
 
+        total_moves = int(len(state.get("history", [])) / 2)
+
         # Display "Gagnant" title
         ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
 
@@ -56,6 +59,14 @@ class AfterGameView(ctk.CTkToplevel):
 
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
+
+        # Add label for total moves made by the winner
+        total_moves_label = ctk.CTkLabel(
+            self, 
+            text=f"Coups: {total_moves}", 
+            font=("Helvetica", 14)
+        )
+        total_moves_label.place(relx=0.17, rely=0.7)  # Position approximately 1/3 of the window width
 
         # Bottom frame for time, restart button, and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
