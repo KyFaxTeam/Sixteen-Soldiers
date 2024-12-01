@@ -3,6 +3,7 @@ from logging import getLogger
 import time
 import random
 from CTkMessagebox import CTkMessagebox
+from src.models.board import Board
 from src.utils.history_utils import get_move_player_count
 from src.utils.validator import is_valid_move
 from src.agents.base_agent import BaseAgent
@@ -34,10 +35,11 @@ class GameRunner:
         """Run a game between two AI agents"""
        
         timeout = {"RED": False, "BLUE": False}
-
         while not self.store.get_state().get("is_game_over", False):
-
+            
             while self.store.get_state().get("is_game_paused", False):
+                if self.store.get_state().get("is_game_leaved", False):
+                    return
                 time.sleep(0.1)  
                 
             current_state = self.store.get_state()
@@ -128,9 +130,14 @@ class GameRunner:
                 break  
 
         
-        self._conclude_game(agent1, agent2, winner=winner, reason=reason)
-        self.logger.info("Game over")
+        if self.store.get_state().get("is_game_leaved", False):
+            self.logger.info("Game was left")
+            self.store.dispatch({  "type": "RESET_GAME"})
+        else :
+            self._conclude_game(agent1, agent2, winner=winner, reason=reason)
+            self.logger.info("Game over")
 
+        
 
     def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
         """Handle game conclusion and stats updates"""

@@ -12,6 +12,7 @@ initial_state = {
     "is_game_over": False,
     "is_game_paused": False,
     "is_game_started": False,
+    "is_game_leaved": False,
     "current_soldier_value": Soldier.RED,
     "winner": None,
     "history": [],
@@ -45,6 +46,7 @@ class Store:
         return self.state
     
     def dispatch(self, action: Dict):
+        
         state = self.reducer(self.state, action)
         self.state = state
         for subscriber in self.subscribers:
