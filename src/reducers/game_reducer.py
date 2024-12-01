@@ -2,6 +2,7 @@ import logging
 from typing import Dict
 from store.store import initial_state
 from utils.const import Soldier
+from utils.history_utils import get_last_move
 
 
 def reset_game(state: Dict) -> Dict:
@@ -14,15 +15,22 @@ def change_current_player(state: Dict) -> Dict:
     Passe au joueur suivant 
     """
     state = state.copy()
-    current_soldier_value = state.get("current_soldier_value", Soldier.RED)
 
-    if current_soldier_value == Soldier.RED:
-        state["current_soldier_value"] = Soldier.BLUE
-    else:
-        state["current_soldier_value"] = Soldier.RED
+    last_move = get_last_move(state)
+
+    if last_move is not None:
+        
+        current_soldier_value = last_move.soldier_value
+
+        if state["board"].get_is_multi_capture() :
+            state["current_soldier_value"] = current_soldier_value 
+        else:
+            state["current_soldier_value"] = Soldier.BLUE if current_soldier_value == Soldier.RED else Soldier.RED
+            
+        return state
+    else :
+        return state
     
-    return state
-
 
 def end_game(state: Dict, winner: Soldier) -> Dict:
     new_state = state.copy()
