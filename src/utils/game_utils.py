@@ -83,7 +83,7 @@ class GameRunner:
                 # Validate action and fallback to random if invalid
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
-                        self._show_invalid_move_popup(current_agent.name)
+                        show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions)
                 
                 self.store.dispatch(action=action)
