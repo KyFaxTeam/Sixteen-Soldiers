@@ -2,30 +2,29 @@ from copy import deepcopy
 from logging import getLogger
 import time
 import random
-import tkinter as tk
-from utils.history_utils import get_move_player_count
-from utils.validator import is_valid_move
-from agents.base_agent import BaseAgent
-from store.store import Store
-from utils.const import Soldier, TIMINGS
+from CTkMessagebox import CTkMessagebox
+from src.models.board import Board
+from src.utils.history_utils import get_move_player_count
+from src.utils.validator import is_valid_move
+from src.agents.base_agent import BaseAgent
+from src.store.store import Store
+from src.utils.const import Soldier, TIMINGS
 
-def show_invalid_move_popup(agent_name):
 
-    """Show a popup when agent makes an invalid move"""
-    popup = tk.Toplevel()
-    popup.title("Invalid Move")
-    
-    # Center the popup
-    screen_width = popup.winfo_screenwidth()
-    screen_height = popup.winfo_screenheight()
-    popup.geometry(f"300x100+{(screen_width-300)//2}+{(screen_height-100)//2}")
-    
-    msg = f"Invalid move by {agent_name}\nUsing random move instead"
-    label = tk.Label(popup, text=msg, pady=20)
-    label.pack()
-    
-    # Auto-close after 5 seconds
-    popup.after(5000, popup.destroy)
+def show_popup(message: str, title: str = "Message"):
+    """Show a popup message using CTkMessagebox."""
+    CTkMessagebox(
+        title=title,
+        message=message,
+        icon="info",
+        option_1="OK",
+        width=250,
+        height=150,
+        font=("Roboto", 12),
+        justify="center",
+        fade_in_duration=0.2,
+    )
+
 
 class GameRunner:
     def __init__(self, store: Store):
@@ -34,19 +33,25 @@ class GameRunner:
           
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
-
-        # can_continue_capture = False
-
-        while not self.store.get_state().get("is_game_over", False):
-
+       
+        timeout = {"RED": False, "BLUE": False}
+        while not self.store.get_state().get("is_game_over", False) and not self.store.get_state().get("is_game_leaved", False):
+            
             while self.store.get_state().get("is_game_paused", False):
-                time.sleep(0.1)  
-                
+                time.sleep(0.1)
+
+            if self.store.get_state().get("is_game_leaved", False):
+                return
+               
             current_state = self.store.get_state()
+            board : Board = current_state["board"]
+
             current_soldier_value = current_state.get("current_soldier_value")
             current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
             opponent_agent: BaseAgent = agent2 if current_soldier_value == Soldier.RED else agent1
-            over = current_state["board"].is_game_over()
+            over = board.is_game_over()
+            is_multi_capture = board.get_is_multi_capture()
+
 
             if over is not None:
                 self.logger.info(f"No soldiers to move for {current_agent.name}")
@@ -54,13 +59,12 @@ class GameRunner:
                 reason = "no_soldiers"
                 break
             try:
-                board_copy = deepcopy(current_state["board"])
-                if board_copy.get_is_multi_capture() : 
-                    valid_actions = board_copy.get_available_captures(current_soldier_value, action["to_pos"])
+                if is_multi_capture : 
+                    valid_actions = board.get_available_captures(current_soldier_value, action["to_pos"])
                 else : 
-                    valid_actions = board_copy.get_valid_actions(current_soldier_value)
+                    valid_actions = board.get_valid_actions(current_soldier_value)
 
-                valid_actions = [action for action in valid_actions if is_valid_move(action, current_state["board"])]
+                valid_actions = [action for action in valid_actions if is_valid_move(action, board)]
 
                 if not valid_actions:
                     # No valid actions for current player means the opponent wins
@@ -70,22 +74,32 @@ class GameRunner:
                     break
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
-                    self.logger.info(f"Player {current_agent.name} ran out of time using random move")
-                    show_invalid_move_popup(current_agent.name)
+
+                    msg = f"Player {current_agent.name} ran out of time. \n \nNext moves of Soldier {current_agent.soldier_value.name} will be done by random."
+     
+                    self.logger.info(msg)
+                    if not timeout[current_soldier_value.name] :
+                        show_popup(msg, "Time up")
+                        timeout[current_soldier_value.name] = True
 
                     action = random.choice(valid_actions)
                     elapsed_time = 0.0
                 else:
+                    board_copy = deepcopy(board)
+                    
                     start_time = time.perf_counter()
                     action = current_agent.choose_action(board=board_copy)
                     elapsed_time = time.perf_counter() - start_time
 
                 # Validate action and fallback to random if invalid
+
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
-                        self.logger.warning(f"{current_agent.name} made invalid move, using random")
-                        show_invalid_move_popup(current_agent.name)
-                        action = random.choice(valid_actions)
-                
+                    msg = f"{current_agent.name} made invalid move, using random"
+                    self.logger.warning(msg)
+                    show_popup(msg, "Invalid move") 
+                    action = random.choice(valid_actions)
+
+
                 self.store.dispatch(action=action)
                 delay = self.store.game_speed.get_delay_time(elapsed_time)
                 time.sleep(delay)
@@ -105,7 +119,7 @@ class GameRunner:
                         "soldier_value": current_soldier_value,
                         "captured_soldier": action.get("captured_soldier", None),
                         "timestamp": elapsed_time, 
-                        "capture_multiple": board_copy.get_is_multi_capture()
+                        "capture_multiple": is_multi_capture
                     }
                 })
                 
@@ -117,9 +131,13 @@ class GameRunner:
                 break  
 
         
-        self._conclude_game(agent1, agent2, winner=winner, reason=reason)
-        self.logger.info("Game over")
+        if self.store.get_state().get("is_game_leaved"):
+            self.logger.info("Game was left")
+        else :
+            self._conclude_game(agent1, agent2, winner=winner, reason=reason)
+            self.logger.info("Game over")
 
+        
 
     def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
         """Handle game conclusion and stats updates"""

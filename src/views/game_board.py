@@ -1,18 +1,17 @@
-import json
+
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
-from models.assets.index import Assets
-from utils.audio import Sounds
-from utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
-from utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
-from utils.game_utils import GameRunner
-from views.base_view import BaseView
-from utils.board_utils import BoardUtils  
-from utils.history_utils import get_last_move, is_equals  
+from src.models.assets.index import Assets
+from src.utils.audio import Sounds
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from src.utils.game_utils import GameRunner
+from src.views.base_view import BaseView
+from src.utils.board_utils import BoardUtils  
+from src.utils.history_utils import get_last_move, is_equals  
 import logging
 import traceback
-from store.store import Store
+from src.store.store import Store
 
 
 class GameBoard(BaseView):
@@ -278,6 +277,8 @@ class GameBoard(BaseView):
     def update(self, state):
         """ Updates the board based on the new state """
         # update seulement si le jeu est en cours
+        if state.get("is_game_leaved"):
+            return
         
         if not self.is_game_started:
             return
@@ -360,7 +361,7 @@ class GameBoard(BaseView):
             
         # file 1 = agents_info_index[Soldier.RED] en enlevant RED du nom du file 
         file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
-        agent_module_1 = __import__(f"agents.{file_1}", fromlist=['Agent'])
+        agent_module_1 = __import__(f"src.agents.{file_1}", fromlist=['Agent'])
         agent1 = agent_module_1.Agent(
             soldier_value=Soldier.RED,
             data = agents.get(agents_info_index[Soldier.RED], None)
@@ -368,7 +369,7 @@ class GameBoard(BaseView):
         )
  
         file_2 = agents_info_index[Soldier.BLUE].rsplit('_', 1)[0]
-        agent_module_2 = __import__(f"agents.{file_2}", fromlist=['Agent'])
+        agent_module_2 = __import__(f"src.agents.{file_2}", fromlist=['Agent'])
         agent2 = agent_module_2.Agent(
             soldier_value=Soldier.BLUE,
             data = agents.get(agents_info_index[Soldier.BLUE], None)
@@ -382,6 +383,7 @@ class GameBoard(BaseView):
         import threading
         def run_game():
             self.store.state["is_game_started"] = True
+            self.store.state["is_game_leaved"] = False
             runner = GameRunner(self.store)
             runner.run_game(agent1, agent2)
             # Réactiver le bouton une fois le jeu terminé
@@ -430,16 +432,14 @@ class GameBoard(BaseView):
             self.is_paused = not is_paused
 
     def reset_game(self):
-        
-        if self.is_game_started and self.is_paused:
+
+        if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
             self.store.dispatch({"type": "RESET_GAME"})
-            self.is_game_started = False
-            self.is_paused = True
-            
-            # reset canvas
-            self.canvas.delete("all")
-            self.__draw_board()
-            self._draw_pieces()
+        
         # Reset the button icon to play
-    
+    def clear_board(self):
+        self.canvas.delete("all")
+        self.__draw_board()
+        self._draw_pieces()
+        print("history : ",self.store.state["history"]) 
 

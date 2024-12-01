@@ -3,8 +3,8 @@ import os
 from dataclasses import dataclass, field
 import sys
 from typing import List, Dict, Literal
-from models.assets.index import Assets
-from utils.const import  Soldier
+from src.models.assets.index import Assets
+from src.utils.const import Soldier
 
 @dataclass
 class MatchPerformance:

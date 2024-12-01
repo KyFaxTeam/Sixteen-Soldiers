@@ -3,10 +3,10 @@ from typing import Dict
 import customtkinter as ctk
 from PIL import Image, ImageTk
 
-from models.assets.index import Assets
-from utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
-from utils.history_utils import get_last_move, is_equals
-from views.base_view import BaseView
+from src.models.assets.index import Assets
+from src.utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
+from src.utils.history_utils import get_last_move, is_equals
+from src.views.base_view import BaseView
 
 
 ## Je voudrais faire de sorte qu'on s'assure que le jeu soit en pause 
@@ -121,13 +121,32 @@ class HistoryView(BaseView):
         )
         moving_soldier.pack(side="left", padx=(5, 5), pady=2)
 
-        # Timestamp
-        time_text = f"{move_data['timestamp'][-1] * 1e3:.3f} ms"
+        time_up_icon = ctk.CTkImage(
+            light_image=Image.open(Assets.non),
+            dark_image=Image.open(Assets.non),
+            size=EMOJIS_SIZE
+        )
+
+        if not state["time_manager"].is_time_up(move_data['soldier_value']):
+            # Timestamp
+            time_text = f"{move_data['timestamp'][-1] * 1e3:.3f} ms"
+        else:
+            time_text = "Time up"
+
+        # Adjust spacing based on the length of the timestamp
+        space_padding = " " * (15 - len(time_text))
+        if len(time_text) < 9:
+            space_padding = " " * ((15 - len(time_text)) + 1)
+
+        if len(space_padding) < 0:
+            space_padding = ""  # No padding if the timestamp is too long
+        
         time_label = ctk.CTkLabel(
             content_frame,
-            # text=f"{move_data['timestamp'].strftime('%H:%M:%S')} |",
-            text=f"{time_text.ljust(10)}  |",
-            font=ctk.CTkFont(size=10)
+            image=time_up_icon if time_text == "Time up" else None,
+            text=f"{time_text}{space_padding}|" if time_text != "Time up" else f"{time_text}  |",
+            font=ctk.CTkFont(size=10), 
+            compound="right" if time_text != "Time up" else "left",
         )
         time_label.pack(side="left", padx=(2, 5))
 
@@ -179,7 +198,7 @@ class HistoryView(BaseView):
 
         # Ajouter à la liste des mouvements
         self.move_frames.append({
-            # "frame": move_frame,
+            "frame": content_frame,
             "data": move_data
         })
 
@@ -195,15 +214,24 @@ class HistoryView(BaseView):
         if move_data and state['is_game_paused']:
             print(f"Rejouer le mouvement: {move_data}")
 
+    def clear_moves(self):
+        """Effacer tous les mouvements de l'historique"""
+        for content_frame in self.move_frames:
+            content_frame["frame"].destroy()
+        self.move_frames = []
 
     def update(self, state):
         """Updates the move history by adding only new moves"""
+        # if state['is_game_leaved']:
+
+        #     self.logger.info(" ************************No history in state")
+        #     self.clear_moves()
+        #     return
+        
         if not state['is_game_started'] or state['is_game_over'] or state['is_game_paused']: 
             return
         try:
-            if 'history' not in state or state['history'] == []:
-                self.logger.warning("No history in state")
-                return
+            
 
                 
             # current_moves = len(self.move_frames)

@@ -1,13 +1,19 @@
 import logging
 from typing import Dict
-from store.store import initial_state
-from utils.const import Soldier
-from utils.history_utils import get_last_move
+
+from src.store.store import initial_state
+from src.utils.const import Soldier
+from src.utils.history_utils import get_last_move
+
 
 
 def reset_game(state: Dict) -> Dict:
-    new_state = initial_state.copy()
 
+    new_state = initial_state.copy()
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    new_state["is_game_leaved"] = True
+    
     return new_state
 
 def change_current_player(state: Dict) -> Dict:
@@ -96,5 +102,6 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return register_agents(state, action)
         case "SELECT_AGENT":
             return select_agent(state, action)
+        
         case _:
             return state

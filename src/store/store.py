@@ -1,9 +1,9 @@
 from typing import Callable, Dict, List
-from agents.base_agent import BaseAgent
-from models.board import Board
-from models.time_manager import TimeManager
-from utils.const import  Soldier
-from utils.speed import GameSpeed
+from src.agents.base_agent import BaseAgent
+from src.models.board import Board
+from src.models.time_manager import TimeManager
+from src.utils.const import  Soldier
+from src.utils.speed import GameSpeed
 
 
 initial_state = {
@@ -12,6 +12,7 @@ initial_state = {
     "is_game_over": False,
     "is_game_paused": False,
     "is_game_started": False,
+    "is_game_leaved": False,
     "current_soldier_value": Soldier.RED,
     "winner": None,
     "history": [],
@@ -45,6 +46,7 @@ class Store:
         return self.state
     
     def dispatch(self, action: Dict):
+        
         state = self.reducer(self.state, action)
         self.state = state
         for subscriber in self.subscribers:

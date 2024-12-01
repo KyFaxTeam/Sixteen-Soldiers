@@ -1,13 +1,13 @@
 import os
-from agents.base_agent import BaseAgent
-from models.assets.index import Assets
+from src.agents.base_agent import BaseAgent
+from src.models.assets.index import Assets
 import random
 import customtkinter as ctk
 from typing import Optional, Dict
-from store.store import Store
-from utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
-from views.base_view import BaseView
-from utils.const import AGENT_DIR
+from src.store.store import Store
+from src.utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
+from src.views.base_view import BaseView
+from src.utils.const import AGENT_DIR
 from PIL import Image
 import logging
 logger = logging.getLogger(__name__)
