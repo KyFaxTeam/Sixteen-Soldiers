@@ -12,17 +12,16 @@ from utils.const import Soldier, TIMINGS
 
 
 
-def show_invalid_move_popup(agent_name):
+def show_popup(msg, title="Warning Message"):
     """Show a popup when agent makes an invalid move"""
     popup = tk.Toplevel()
-    popup.title("Invalid Move")
+    popup.title(title)
     
     # Center the popup
     screen_width = popup.winfo_screenwidth()
     screen_height = popup.winfo_screenheight()
     popup.geometry(f"300x100+{(screen_width-300)//2}+{(screen_height-100)//2}")
     
-    msg = f"Invalid move by {agent_name}\nUsing random move instead"
     label = tk.Label(popup, text=msg, pady=20)
     label.pack()
     
@@ -72,8 +71,9 @@ class GameRunner:
                     break
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
-                    self.logger.info(f"Player {current_agent.name} ran out of time using random move")
-                    show_invalid_move_popup(current_agent.name)
+                    msg = f"Player {current_agent.name} ran out of time"
+                    self.logger.info(msg)
+                    show_popup(msg, title="Time's up!")
 
                     action = random.choice(valid_actions)
                     elapsed_time = 0.0
@@ -84,9 +84,10 @@ class GameRunner:
 
                 # Validate action and fallback to random if invalid
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
-                        self.logger.warning(f"{current_agent.name} made invalid move, using random")
-                        show_invalid_move_popup(current_agent.name)
-                        action = random.choice(valid_actions)
+                    msg = f"{current_agent.name} made invalid move, using random"
+                    self.logger.warning(msg)
+                    show_popup(msg, title="Invalid Move")
+                    action = random.choice(valid_actions)
                 
                 self.store.dispatch(action=action)
                 delay = self.store.game_speed.get_delay_time(elapsed_time)
