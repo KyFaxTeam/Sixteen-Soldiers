@@ -356,7 +356,7 @@ class GameBoard(BaseView):
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")
-            agents_info_index[Soldier.BLUE] = "random_agent_BLUE"
+            agents_info_index[Soldier.BLUE] = "minimax_BLUE"
             
         # file 1 = agents_info_index[Soldier.RED] en enlevant RED du nom du file 
         file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
