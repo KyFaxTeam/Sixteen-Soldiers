@@ -4,12 +4,11 @@ from enum import Enum
 ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 DATA_DIR = ROOT_DIR / "data"
-THEMES_DIR = ROOT_DIR / "themes"
-THEME_PATH = THEMES_DIR / 'theme.json'
+
+THEME_PATH = ASSETS_DIR / 'themes/theme.json'
 
 # Paths for the agents
 AGENT_DIR = ROOT_DIR / "src/agents"
-
 
 
 # Configuration du jeu
