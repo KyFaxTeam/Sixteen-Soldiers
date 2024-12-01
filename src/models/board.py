@@ -96,11 +96,17 @@ class Board:
 
 
 
-    def is_game_over(self) -> bool:
+    def is_game_over(self):
         """Check if the game is over (one player has no pieces left)."""
         red_count = self.count_soldiers(Soldier.RED)
         blue_count = self.count_soldiers(Soldier.BLUE)
-        return red_count == 0 or blue_count == 0
+        if red_count == 0 :
+            return  Soldier.BLUE
+        if blue_count == 0 :
+            return  Soldier.RED
+        
+        return None
+
 
         
     def get_valid_actions(self, soldier_value: Soldier) -> List[Dict]:
