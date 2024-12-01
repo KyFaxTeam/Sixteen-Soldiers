@@ -107,7 +107,7 @@ Avec ces configurations, vous serez prêt à utiliser Git efficacement ! 🚀
 
 Après avoir rejoint une équipe dans la GitHub Classroom :  
 
-1. Vous serez redirigé vers une page contenant un lien vers votre dépôt d’équipe. 
+1. Vous serez redirigé vers une page contenant un lien vers votre dépôt d’équipe dont voici un aperçu :  
 
     ![alt text](/assets/images/docs/doc_github.png) 
 
