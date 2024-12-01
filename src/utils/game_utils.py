@@ -74,7 +74,9 @@ class GameRunner:
                 if current_state["time_manager"].is_time_up(current_soldier_value):
                     self.logger.info(f"Player {current_agent.name} ran out of time using random move")
                     show_invalid_move_popup(current_agent.name)
+
                     action = random.choice(valid_actions)
+                    elapsed_time = 0.0
                 else:
                     start_time = time.perf_counter()
                     action = current_agent.choose_action(board=board_copy)
