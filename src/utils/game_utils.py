@@ -12,7 +12,7 @@ from utils.const import Soldier, TIMINGS
 
 
 
-def show_invalid_move_popup(self, agent_name):
+def show_invalid_move_popup(agent_name):
     """Show a popup when agent makes an invalid move"""
     popup = tk.Toplevel()
     popup.title("Invalid Move")
@@ -73,7 +73,7 @@ class GameRunner:
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
                     self.logger.info(f"Player {current_agent.name} ran out of time using random move")
-                    self._show_invalid_move_popup(current_agent.name)
+                    show_invalid_move_popup(current_agent.name)
                     action = random.choice(valid_actions)
                 else:
                     start_time = time.perf_counter()

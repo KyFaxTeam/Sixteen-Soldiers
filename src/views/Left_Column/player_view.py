@@ -194,9 +194,19 @@ class PlayerView(BaseView):
         
         return []
         
+    def can_select_agent(self) -> bool:
+        """Check if agent selection is allowed based on game state"""
+        state = self.store.get_state()
+        return (not state.get('is_game_started') or 
+                state.get('is_game_paused'))
+
     def toggle_agent_dropdown(self):
         self.logger.debug("Basculement du menu déroulant des agents")
         """Toggle the agent selection dropdown"""
+        if not self.can_select_agent():
+            self.logger.debug("Agent selection not allowed in current game state")
+            return
+
         if self.agent_dropdown is None:
             agents = self.get_agent_list()
             if agents:
@@ -300,6 +310,10 @@ class PlayerView(BaseView):
         """Updates the interface with new state"""
         self.store.state = state
         try:
+            # Enable/disable select button based on game state
+            can_select = self.can_select_agent()
+            self.select_button.configure(state="normal" if can_select else "disabled")
+
             info_index = state["agents_info_index"].get(self.soldier_value)
             
             logger.debug(f"Updating player view for {self.soldier_value.name}")
