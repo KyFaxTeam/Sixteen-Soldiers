@@ -175,14 +175,6 @@ En effet, *nous ne pourrons récupérer votre code que si vous faites un "push" 
 
 ---
 
-- [Créer un Compte GitHub](#%EF%B8%8F-1-créer-un-compte-github)  
-- [Installer Git](#%EF%B8%8F-2-installer-git)  
-- [Rejoindre la GitHub Classroom](#-3-rejoindre-la-github-classroom)  
-- [Cloner le Projet](#-4-cloner-le-projet)  
-- [Travailler sur le Projet](#-5-travailler-sur-le-projet)  
-- [Quelques Ressources Utiles](#-6-quelques-ressources-utiles)  
-
----
 
 Avec ce guide, vous avez tout ce qu’il faut pour participer efficacement à la compétition **Sixteen-Soldiers**. Si vous avez des questions ou des problèmes, n’hésitez pas à demander de l’aide dans le canal whatsapp dédié.
 
