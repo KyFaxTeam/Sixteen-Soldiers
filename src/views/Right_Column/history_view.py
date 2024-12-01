@@ -133,11 +133,18 @@ class HistoryView(BaseView):
         else:
             time_text = "Time up"
 
+        # Adjust spacing based on the length of the timestamp
+        space_padding = " " * (15 - len(time_text))
+        if len(time_text) < 9:
+            space_padding = " " * ((15 - len(time_text)) + 1)
+
+        if len(space_padding) < 0:
+            space_padding = ""  # No padding if the timestamp is too long
+        
         time_label = ctk.CTkLabel(
             content_frame,
             image=time_up_icon if time_text == "Time up" else None,
-            # text=f"{move_data['timestamp'].strftime('%H:%M:%S')} |",
-            text=f"{time_text.ljust(10)}  |",
+            text=f"{time_text}{space_padding}|" if time_text != "Time up" else f"{time_text}  |",
             font=ctk.CTkFont(size=10), 
             compound="right" if time_text != "Time up" else "left",
         )
