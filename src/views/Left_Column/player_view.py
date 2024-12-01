@@ -1,13 +1,13 @@
 import os
-from agents.base_agent import BaseAgent
-from models.assets.index import Assets
+from src.agents.base_agent import BaseAgent
+from src.models.assets.index import Assets
 import random
 import customtkinter as ctk
 from typing import Optional, Dict
-from store.store import Store
-from utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
-from views.base_view import BaseView
-from utils.const import AGENT_DIR
+from src.store.store import Store
+from src.utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
+from src.views.base_view import BaseView
+from src.utils.const import AGENT_DIR
 from PIL import Image
 import logging
 logger = logging.getLogger(__name__)
@@ -194,9 +194,19 @@ class PlayerView(BaseView):
         
         return []
         
+    def can_select_agent(self) -> bool:
+        """Check if agent selection is allowed based on game state"""
+        state = self.store.get_state()
+        return (not state.get('is_game_started') or 
+                state.get('is_game_paused'))
+
     def toggle_agent_dropdown(self):
         self.logger.debug("Basculement du menu déroulant des agents")
         """Toggle the agent selection dropdown"""
+        if not self.can_select_agent():
+            self.logger.debug("Agent selection not allowed in current game state")
+            return
+
         if self.agent_dropdown is None:
             agents = self.get_agent_list()
             if agents:
@@ -293,12 +303,17 @@ class PlayerView(BaseView):
     def update(self, state: dict):
 
         ## Vérifier le statut de is_game_started, is_game_over, is_game_paused
-        if  state.get('is_game_over', False) or state.get('is_game_paused', False):
+        if  state.get('is_game_over', True):
             return
+        
         self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
         self.store.state = state
         try:
+            # Enable/disable select button based on game state
+            can_select = self.can_select_agent()
+            self.select_button.configure(state="normal" if can_select else "disabled")
+
             info_index = state["agents_info_index"].get(self.soldier_value)
             
             logger.debug(f"Updating player view for {self.soldier_value.name}")

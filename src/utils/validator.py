@@ -1,7 +1,7 @@
-from models.board import Board
-from utils.board_utils import BoardUtils
-from utils.const import Soldier
-from utils.logger_config import get_logger
+from src.models.board import Board
+from src.utils.board_utils import BoardUtils
+from src.utils.const import Soldier
+from src.utils.logger_config import get_logger
 
 logger = get_logger(__name__)
 

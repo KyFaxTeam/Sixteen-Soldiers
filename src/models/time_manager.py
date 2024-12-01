@@ -1,6 +1,6 @@
 from typing import Dict
 from dataclasses import dataclass
-from utils.const import TIMINGS, Soldier
+from src.utils.const import TIMINGS, Soldier
 
 @dataclass
 class TimeControl:

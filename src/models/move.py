@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 
-from utils.const import Soldier
+from src.utils.const import Soldier
 
 @dataclass
 class Move:

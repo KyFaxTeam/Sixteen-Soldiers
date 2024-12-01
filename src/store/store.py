@@ -1,9 +1,9 @@
 from typing import Callable, Dict, List
-from agents.base_agent import BaseAgent
-from models.board import Board
-from models.time_manager import TimeManager
-from utils.const import  Soldier
-from utils.speed import GameSpeed
+from src.agents.base_agent import BaseAgent
+from src.models.board import Board
+from src.models.time_manager import TimeManager
+from src.utils.const import  Soldier
+from src.utils.speed import GameSpeed
 
 
 initial_state = {
@@ -12,6 +12,7 @@ initial_state = {
     "is_game_over": False,
     "is_game_paused": False,
     "is_game_started": False,
+    "is_game_leaved": False,
     "current_soldier_value": Soldier.RED,
     "winner": None,
     "history": [],
@@ -20,7 +21,6 @@ initial_state = {
         Soldier.RED: None,
         Soldier.BLUE: None
     },
-    "appearance_mode": "system",  # Ajouter le mode d'apparence au state
 }
 class Store:
     def __init__(self, reducer: Callable[[Dict, Dict], Dict]):
@@ -28,7 +28,7 @@ class Store:
         self.reducer = reducer
         self.subscribers: List[Callable[[Dict], None]] = []
         self.game_speed = GameSpeed()
-        self.theme_subscribers = []  # Liste séparée pour les subscribers de thème
+        self.theme_subscribers = []  
         
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
@@ -46,6 +46,7 @@ class Store:
         return self.state
     
     def dispatch(self, action: Dict):
+        
         state = self.reducer(self.state, action)
         self.state = state
         for subscriber in self.subscribers:
@@ -63,7 +64,6 @@ class Store:
 
     def update_theme(self, mode: str = None):
         """Méthode dédiée pour mettre à jour la couleur du thème"""
-    
         for subscriber in self.theme_subscribers:
             subscriber(mode.lower())
             

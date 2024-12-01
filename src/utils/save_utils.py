@@ -5,13 +5,11 @@ import pickle
 
 from typing import Dict
 
-from agents.base_agent import MatchPerformance
-from utils.const import Soldier
+from src.agents.base_agent import MatchPerformance
+from src.utils.const import Soldier
 
 
 def save_game( state: Dict) -> Dict:
-        
-        print("saving game")
     
         """Save the game history to a JSON file with metadata and a timestamped filename"""
         # Get the game history from the state

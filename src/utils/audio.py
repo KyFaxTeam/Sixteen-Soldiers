@@ -1,6 +1,6 @@
 import pygame
 
-from models.assets.index import Assets
+from src.models.assets.index import Assets
 
 
 class Sounds:

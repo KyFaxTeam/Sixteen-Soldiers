@@ -1,9 +1,9 @@
 import customtkinter as ctk
-from models.assets.index import Assets
-from store.store import Store
-from utils.audio import Sounds 
-from views.base_view import BaseView
-from utils.const import EMOJIS_SIZE, THEME_PATH
+from src.models.assets.index import Assets
+from src.store.store import Store
+from src.utils.audio import Sounds 
+from src.views.base_view import BaseView
+from src.utils.const import EMOJIS_SIZE, THEME_PATH
 from PIL import Image, ImageTk
 
 class SettingsView(BaseView):
