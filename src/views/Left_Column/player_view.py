@@ -173,7 +173,7 @@ class PlayerView(BaseView):
         """Get list of available agents from the agents directory"""
         
         agents_dir = AGENT_DIR
-        self.logger.debug(f"Recherche des agents dans le répertoire: {agents_dir}")
+        # self.logger.debug(f"Recherche des agents dans le répertoire: {agents_dir}")
         # chercher la liste des fichiers existants dans agent_dir
         if os.path.exists(agents_dir):
             agents = [f.replace('.py', '') for f in os.listdir(agents_dir) if f.endswith('.py')]
@@ -188,7 +188,7 @@ class PlayerView(BaseView):
                 except Exception as e:
                     agents.remove(agent)
                     self.logger.info(f"File  {agent} does not match to an agent: {str(e)}")
-            self.logger.debug(f"Agents trouvés: {agents}")
+            # self.logger.debug(f"Agents trouvés: {agents}")
             return sorted(agents)
         
         
@@ -201,7 +201,7 @@ class PlayerView(BaseView):
                 state.get('is_game_paused'))
 
     def toggle_agent_dropdown(self):
-        self.logger.debug("Basculement du menu déroulant des agents")
+        # self.logger.debug("Basculement du menu déroulant des agents")
         """Toggle the agent selection dropdown"""
         if not self.can_select_agent():
             self.logger.debug("Agent selection not allowed in current game state")
@@ -249,7 +249,7 @@ class PlayerView(BaseView):
             self.select_button.configure(text="Select")
             
     def on_agent_selected(self, team_name: str):
-        self.logger.debug(f"Agent sélectionné: {team_name}")
+        # self.logger.debug(f"Agent sélectionné: {team_name}")
         """Handle agent selection"""
         # Enable confirm button when an agent is selected
         if self.confirm_button:
@@ -258,7 +258,7 @@ class PlayerView(BaseView):
         self._selected_agent = team_name
             
     def confirm_agent_selection(self):
-        self.logger.debug("Confirmation de la sélection de l'agent")
+        # self.logger.debug("Confirmation de la sélection de l'agent")
         """Confirm and apply the agent selection"""
         if hasattr(self, '_selected_agent'):
             if self.store:
@@ -285,7 +285,7 @@ class PlayerView(BaseView):
             random_avatar = random.choice(avatar_files)
             avatar_path = os.path.join(avatar_dir, random_avatar)
             self.logger.debug(f"Avatar sélectionné: {avatar_path}")
-            print(f"Loading avatar image from: {avatar_path}")  # Debugging line
+            # print(f"Loading avatar image from: {avatar_path}")  # Debugging line
             try:
                 image = Image.open(avatar_path).convert('RGBA')
                 return image
@@ -294,7 +294,7 @@ class PlayerView(BaseView):
                 return None
         else:
             self.logger.debug("Aucun fichier d'avatar trouvé")
-            print("No avatar images found in the directory.")  # Debugging line
+            # print("No avatar images found in the directory.")  # Debugging line
             # Fallback if no images are found
             fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))  # Gray placeholder
 
@@ -306,7 +306,7 @@ class PlayerView(BaseView):
         if  state.get('is_game_over', True):
             return
         
-        self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
+        # self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
         self.store.state = state
         try:
@@ -316,7 +316,7 @@ class PlayerView(BaseView):
 
             info_index = state["agents_info_index"].get(self.soldier_value)
             
-            logger.debug(f"Updating player view for {self.soldier_value.name}")
+            # logger.debug(f"Updating player view for {self.soldier_value.name}")
             if info_index is None:
                 self.logger.debug("No agent selected")
                 self.name_label.configure(text="Select an agent")
@@ -341,7 +341,7 @@ class PlayerView(BaseView):
             if 'board' in state:
                 soldier_count = sum(1 for value in state['board'].soldiers.values() 
                                 if value ==self.soldier_value)
-                self.logger.debug(f"Updating piece count: {soldier_count}")
+                # self.logger.debug(f"Updating piece count: {soldier_count}")
                 self.pieces_label.configure(text=str(soldier_count))
             
             
