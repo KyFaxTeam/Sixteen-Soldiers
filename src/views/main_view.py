@@ -4,7 +4,6 @@ import logging
 from store.store import Store
 from utils.save_utils import save_game
 
-from .Others_Windows.home_view import HomeView
 from views.base_view import BaseView
 from views.game_board import GameBoard
 from views.Others_Windows.after_game_view import AfterGameView
@@ -47,7 +46,7 @@ class MainView(BaseView):
     def review_match(self):
         """Review a match and switch to history view"""
         self.home_view.hide()  # Hide the home screen
-        self.master.geometry("1200x800")
+        self.master.geometry("1200x700")
         self.create_main_layout()  # Ensure the main layout is created
         # Initialize or load state as needed
         # For example, you might load a saved game state here
