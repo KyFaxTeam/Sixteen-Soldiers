@@ -36,15 +36,15 @@ class GameSpeed:
             self.MAX_VISIBLE_DELAY = 7000
 
         elif 1 <= self.current_speed < 1.5: 
-            self.MIN_VISIBLE_DELAY = 900
+            self.MIN_VISIBLE_DELAY = 1100
             self.MAX_VISIBLE_DELAY = 5000
 
         elif 1.5 <= self.current_speed < 2: 
-            self.MIN_VISIBLE_DELAY = 500
+            self.MIN_VISIBLE_DELAY = 700
             self.MAX_VISIBLE_DELAY = 4000
 
         elif 2 <= self.current_speed <= 2.5: 
-            self.MIN_VISIBLE_DELAY = 200
+            self.MIN_VISIBLE_DELAY = 400
             self.MAX_VISIBLE_DELAY = 2000
 
     
