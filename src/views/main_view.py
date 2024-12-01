@@ -105,8 +105,18 @@ class MainView(BaseView):
             self.master,
             store=self.store,
             on_restart=self.restart_game,
-            on_save=lambda: save_game(self.store.get_state())
+            on_save=lambda button: self.handle_save(button)
         )
+    
+    def handle_save(self, button):
+        """Handles the save process and updates the button state."""
+        try:
+            save_game(self.store.get_state())  # Save the game
+            button.configure(text="Saved", state="disabled")  # Update button text and disable it
+            self.logger.info("Game successfully saved.")
+        except Exception as e:
+            self.logger.error(f"An error occurred while saving the game: {e}")
+
 
     def restart_game(self):
         """Reset the game and return to HomeView"""
