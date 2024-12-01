@@ -1,8 +1,8 @@
 import random
 from typing import Dict
-from agents.base_agent import BaseAgent
-from models.board import Board
-from utils.const import Soldier
+from src.agents.base_agent import BaseAgent
+from src.models.board import Board
+from src.utils.const import Soldier
 
 class Agent(BaseAgent):
     """AI agent that plays random valid moves"""

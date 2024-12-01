@@ -1,5 +1,5 @@
 # Actions types
-from utils.const import Soldier
+from src.utils.const import Soldier
 
 
 ADD_MOVE_TO_HISTORY = "ADD_MOVE_TO_HISTORY"

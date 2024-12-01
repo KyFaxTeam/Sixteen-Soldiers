@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
-from store.store import initial_state
-from utils.const import Soldier
+from src.store.store import initial_state
+from src.utils.const import Soldier
 
 
 def reset_game(state: Dict) -> Dict:
@@ -88,5 +88,6 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return register_agents(state, action)
         case "SELECT_AGENT":
             return select_agent(state, action)
+        
         case _:
             return state

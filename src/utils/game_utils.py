@@ -2,31 +2,27 @@ from copy import deepcopy
 from logging import getLogger
 import time
 import random
-import tkinter as tk
-from utils.history_utils import get_move_player_count
-from utils.validator import is_valid_move
-from agents.base_agent import BaseAgent
-from store.store import Store
-from utils.const import Soldier, TIMINGS
+from CTkMessagebox import CTkMessagebox
+from src.utils.history_utils import get_move_player_count
+from src.utils.validator import is_valid_move
+from src.agents.base_agent import BaseAgent
+from src.store.store import Store
+from src.utils.const import Soldier, TIMINGS
 
 
-
-
-def show_popup(msg, title="Warning Message"):
-    """Show a popup when agent makes an invalid move"""
-    popup = tk.Toplevel()
-    popup.title(title)
-    
-    # Center the popup
-    screen_width = popup.winfo_screenwidth()
-    screen_height = popup.winfo_screenheight()
-    popup.geometry(f"300x100+{(screen_width-300)//2}+{(screen_height-100)//2}")
-    
-    label = tk.Label(popup, text=msg, pady=20)
-    label.pack()
-    
-    # Auto-close after 5 seconds
-    popup.after(5000, popup.destroy)
+def show_popup(message: str, title: str = "Message"):
+    """Show a popup message using CTkMessagebox."""
+    CTkMessagebox(
+        title=title,
+        message=message,
+        icon="info",
+        option_1="OK",
+        width=250,
+        height=150,
+        font=("Roboto", 12),
+        justify="center",
+        fade_in_duration=0.2,
+    )
 
 class GameRunner:
     def __init__(self, store: Store):
@@ -37,7 +33,7 @@ class GameRunner:
         """Run a game between two AI agents"""
 
         can_continue_capture = False
-
+        timeout = {"RED": False, "BLUE": False}
         while not self.store.get_state().get("is_game_over", False):
 
             while self.store.get_state().get("is_game_paused", False):
@@ -71,9 +67,13 @@ class GameRunner:
                     break
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
-                    msg = f"Player {current_agent.name} ran out of time"
+
+                    msg = f"Player {current_agent.name} ran out of time. \n \nNext moves of Soldier {current_agent.soldier_value.name} will be done by random."
+     
                     self.logger.info(msg)
-                    show_popup(msg, title="Time's up!")
+                    if not timeout[current_soldier_value.name] :
+                        show_popup(msg, "Time up")
+                        timeout[current_soldier_value.name] = True
 
                     action = random.choice(valid_actions)
                     elapsed_time = 0.0
@@ -86,7 +86,7 @@ class GameRunner:
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                     msg = f"{current_agent.name} made invalid move, using random"
                     self.logger.warning(msg)
-                    show_popup(msg, title="Invalid Move")
+                    show_popup(msg, "Invalid move") 
                     action = random.choice(valid_actions)
                 
                 self.store.dispatch(action=action)

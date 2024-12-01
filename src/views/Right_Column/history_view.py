@@ -3,10 +3,10 @@ from typing import Dict
 import customtkinter as ctk
 from PIL import Image, ImageTk
 
-from models.assets.index import Assets
-from utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
-from utils.history_utils import get_last_move, is_equals
-from views.base_view import BaseView
+from src.models.assets.index import Assets
+from src.utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
+from src.utils.history_utils import get_last_move, is_equals
+from src.views.base_view import BaseView
 
 
 ## Je voudrais faire de sorte qu'on s'assure que le jeu soit en pause 

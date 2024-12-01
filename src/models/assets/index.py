@@ -1,4 +1,4 @@
-from utils.const import ASSETS_DIR
+from src.utils.const import ASSETS_DIR
 
 class Assets:
 

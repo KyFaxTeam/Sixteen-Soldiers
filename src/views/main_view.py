@@ -1,17 +1,16 @@
 import customtkinter as ctk
 import logging
 
-from store.store import Store
-from utils.save_utils import save_game
-
-from views.Others_Windows.home_view import HomeView
-from views.base_view import BaseView
-from views.game_board import GameBoard
-from views.Others_Windows.after_game_view import AfterGameView
-from views.Right_Column.history_view import HistoryView
-from views.Left_Column.players_column import PlayersColumn
-from .Right_Column.history_view import HistoryView
-from .Right_Column.setting_view import SettingsView
+from src.store.store import Store
+from src.utils.save_utils import save_game
+from src.views.Others_Windows.home_view import HomeView
+from src.views.base_view import BaseView
+from src.views.game_board import GameBoard
+from src.views.Others_Windows.after_game_view import AfterGameView
+from src.views.Right_Column.history_view import HistoryView
+from src.views.Left_Column.players_column import PlayersColumn
+from src.views.Right_Column.history_view import HistoryView
+from src.views.Right_Column.setting_view import SettingsView
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +92,33 @@ class MainView(BaseView):
         self.history_view = HistoryView(self.right_column, self.store)
         self.settings_view = SettingsView(self.right_column, self.store)
 
+    def show_popup(self, msg: str, title: str = "Warning Message"):
+        """Show a popup message relative to the main window position"""
+        popup = ctk.CTkToplevel(self.master)
+        popup.title(title)
+        
+        # Make popup stay on top
+        popup.transient(self.master)
+        popup.grab_set()
+        
+        # Get main window position and size
+        main_x = self.master.winfo_x()
+        main_y = self.master.winfo_y()
+        main_width = self.master.winfo_width()
+        
+        # Position popup relative to main window's center column
+        popup_width = 300
+        popup_height = 100
+        x_position = main_x + (main_width // 2) - (popup_width // 2)
+        y_position = main_y + 100  # Position it near the top of the window
+        
+        popup.geometry(f"{popup_width}x{popup_height}+{x_position}+{y_position}")
+        
+        label = ctk.CTkLabel(popup, text=msg, pady=20)
+        label.pack()
+        
+        # Auto-close after 4 seconds
+        popup.after(4000, popup.destroy)
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""

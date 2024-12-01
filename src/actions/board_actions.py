@@ -1,4 +1,4 @@
-from utils.const import Soldier
+from src.utils.const import Soldier
 
 class BoardAction:
     @staticmethod

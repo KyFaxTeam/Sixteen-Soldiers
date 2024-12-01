@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, List,  Set
 
-from actions.board_actions import BoardAction
-from utils.board_utils import BoardUtils
-from utils.const import Soldier
+from src.actions.board_actions import BoardAction
+from src.utils.board_utils import BoardUtils
+from src.utils.const import Soldier
 
 
 class Board:

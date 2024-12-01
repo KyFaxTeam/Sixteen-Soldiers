@@ -1,9 +1,9 @@
 from typing import Callable, Dict, List
-from agents.base_agent import BaseAgent
-from models.board import Board
-from models.time_manager import TimeManager
-from utils.const import  Soldier
-from utils.speed import GameSpeed
+from src.agents.base_agent import BaseAgent
+from src.models.board import Board
+from src.models.time_manager import TimeManager
+from src.utils.const import  Soldier
+from src.utils.speed import GameSpeed
 
 
 initial_state = {

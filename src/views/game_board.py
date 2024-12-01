@@ -1,18 +1,17 @@
-import json
+
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
-from models.assets.index import Assets
-from utils.audio import Sounds
-from utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
-from utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, THEME_PATH
-from utils.game_utils import GameRunner
-from views.base_view import BaseView
-from utils.board_utils import BoardUtils  
-from utils.history_utils import get_last_move, is_equals  
+from src.models.assets.index import Assets
+from src.utils.audio import Sounds
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from src.utils.game_utils import GameRunner
+from src.views.base_view import BaseView
+from src.utils.board_utils import BoardUtils  
+from src.utils.history_utils import get_last_move, is_equals  
 import logging
 import traceback
-from store.store import Store
+from src.store.store import Store
 
 
 class GameBoard(BaseView):
@@ -360,7 +359,7 @@ class GameBoard(BaseView):
             
         # file 1 = agents_info_index[Soldier.RED] en enlevant RED du nom du file 
         file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
-        agent_module_1 = __import__(f"agents.{file_1}", fromlist=['Agent'])
+        agent_module_1 = __import__(f"src.agents.{file_1}", fromlist=['Agent'])
         agent1 = agent_module_1.Agent(
             soldier_value=Soldier.RED,
             data = agents.get(agents_info_index[Soldier.RED], None)
@@ -368,7 +367,7 @@ class GameBoard(BaseView):
         )
  
         file_2 = agents_info_index[Soldier.BLUE].rsplit('_', 1)[0]
-        agent_module_2 = __import__(f"agents.{file_2}", fromlist=['Agent'])
+        agent_module_2 = __import__(f"src.agents.{file_2}", fromlist=['Agent'])
         agent2 = agent_module_2.Agent(
             soldier_value=Soldier.BLUE,
             data = agents.get(agents_info_index[Soldier.BLUE], None)

@@ -1,9 +1,9 @@
-import os  # Import os module for path operations
+import os
 import customtkinter as ctk
 from PIL import Image
-from utils.audio import Sounds
-from utils.const import ASSETS_DIR, Soldier
-from utils.logger_config import get_logger  # Import ASSETS_DIR
+from src.utils.audio import Sounds
+from src.utils.const import ASSETS_DIR, Soldier
+from src.utils.logger_config import get_logger
 
 class AfterGameView(ctk.CTkToplevel):
     def __init__(self, master, store, on_restart, on_save):
@@ -125,7 +125,7 @@ class AfterGameView(ctk.CTkToplevel):
             return self._get_default_winner_data()
             
         info_index = state.get("agents_info_index", {}).get(winner)
-        self.logger.info("info_index: ",info_index)
+        #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
         self.logger.info(winner_data)
 
