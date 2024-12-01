@@ -1,7 +1,7 @@
 import re
 
-from models.move import Move
-from utils.const import GAP, PADDING
+from src.models.move import Move
+from src.utils.const import GAP, PADDING
 
 class BoardUtils:
       

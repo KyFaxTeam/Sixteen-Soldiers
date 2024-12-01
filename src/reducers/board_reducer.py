@@ -1,6 +1,6 @@
 from typing import Dict
-from models.board import Board
-from utils.const import Soldier
+from src.models.board import Board
+from src.utils.const import Soldier
 
 def move_soldier(state: Dict, action: Dict) -> Dict:
      

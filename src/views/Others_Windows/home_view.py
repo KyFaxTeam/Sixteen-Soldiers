@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from views.base_view import BaseView
+from src.views.base_view import BaseView
 
 class HomeView(BaseView):
     """Home page of the application"""

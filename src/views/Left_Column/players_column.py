@@ -1,9 +1,9 @@
 import logging
 import customtkinter as ctk
-from store.store import Store
-from utils.const import Soldier
-from views.base_view import BaseView
-from views.Left_Column.player_view import PlayerView
+from src.store.store import Store
+from src.utils.const import Soldier
+from src.views.base_view import BaseView
+from src.views.Left_Column.player_view import PlayerView
 logger = logging.getLogger(__name__)
 
 class PlayersColumn(BaseView):
