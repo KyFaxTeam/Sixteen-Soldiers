@@ -191,5 +191,5 @@ Avec ce guide, vous avez tout ce qu’il faut pour participer efficacement à la
 **Bon codage et amusez-vous bien !** 🎉 
 
 
-                                                                        KYFAX ✨
+                                                                  KYFAX ✨
 
