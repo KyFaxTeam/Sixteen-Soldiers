@@ -12,7 +12,7 @@ from utils.const import Soldier, TIMINGS
 
 
 
-def show_invalid_move_popup(self, agent_name):
+def show_invalid_move_popup(agent_name):
     """Show a popup when agent makes an invalid move"""
     popup = tk.Toplevel()
     popup.title("Invalid Move")
