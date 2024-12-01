@@ -13,6 +13,8 @@ def reset_game(state: Dict) -> Dict:
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     new_state["is_game_leaved"] = True
+
+    print("**********************************reset_game", new_state["is_game_leaved"])
     
     return new_state
 
