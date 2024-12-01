@@ -3,73 +3,37 @@ from logging import getLogger
 import time
 import random
 import tkinter as tk
+from utils.history_utils import get_move_player_count
 from utils.validator import is_valid_move
 from agents.base_agent import BaseAgent
 from store.store import Store
 from utils.const import Soldier, TIMINGS
 
 
+
+
+def show_invalid_move_popup(self, agent_name):
+    """Show a popup when agent makes an invalid move"""
+    popup = tk.Toplevel()
+    popup.title("Invalid Move")
+    
+    # Center the popup
+    screen_width = popup.winfo_screenwidth()
+    screen_height = popup.winfo_screenheight()
+    popup.geometry(f"300x100+{(screen_width-300)//2}+{(screen_height-100)//2}")
+    
+    msg = f"Invalid move by {agent_name}\nUsing random move instead"
+    label = tk.Label(popup, text=msg, pady=20)
+    label.pack()
+    
+    # Auto-close after 5 seconds
+    popup.after(5000, popup.destroy)
+
 class GameRunner:
     def __init__(self, store: Store):
         self.store = store
         self.logger = getLogger(__name__)
-
-
-    def _show_invalid_move_popup(self, agent_name):
-        """Show a popup when agent makes an invalid move"""
-        popup = tk.Toplevel()
-        popup.title("Invalid Move")
-        
-        # Center the popup
-        screen_width = popup.winfo_screenwidth()
-        screen_height = popup.winfo_screenheight()
-        popup.geometry(f"300x100+{(screen_width-300)//2}+{(screen_height-100)//2}")
-        
-        msg = f"Invalid move by {agent_name}\nUsing random move instead"
-        label = tk.Label(popup, text=msg, pady=20)
-        label.pack()
-        
-        # Auto-close after 5 seconds
-        popup.after(5000, popup.destroy)
-
-    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
-        """Handle game conclusion and stats updates"""
-        final_state = self.store.get_state()
-        time_manager = final_state.get('time_manager')
-        total_moves = len(final_state.get('history', []))
-
-        # Determine game outcome
-        if winner is None:
-            issue1, issue2 = 'draw', 'draw'
-        elif winner == agent1.soldier_value:
-            issue1, issue2 = 'win', 'loss'
-        elif winner == agent2.soldier_value:
-            issue1, issue2 = 'loss', 'win'
-        else:
-            self.logger.error("Mauvaise valeur de winner")
-            issue1, issue2 = 'draw', 'draw'
-
-        # Update agent stats
-        if time_manager:
-            agent1.conclude_game(issue1, opponent_name=agent2.name, 
-                               number_of_moves=total_moves//2,
-                               time=time_manager.get_remaining_time(agent1.soldier_value))
-            agent2.conclude_game(issue2, opponent_name=agent1.name, 
-                               number_of_moves=total_moves//2,
-                               time=time_manager.get_remaining_time(agent2.soldier_value))
-            
-        # Update store with final stats
-        self.store.register_agents(agent1, agent2)
-
-        # Only dispatch END_GAME if not already game over
-        if not final_state.get("is_game_over"):
-            self.store.dispatch({
-                "type": "END_GAME",
-                "reason": reason,
-                "winner": winner,
-                "error": None
-            })
-      
+               
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
         try:
