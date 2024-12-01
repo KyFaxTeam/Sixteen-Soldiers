@@ -9,10 +9,8 @@ from agents.base_agent import BaseAgent
 from store.store import Store
 from utils.const import Soldier, TIMINGS
 
-
-
-
 def show_invalid_move_popup(agent_name):
+
     """Show a popup when agent makes an invalid move"""
     popup = tk.Toplevel()
     popup.title("Invalid Move")
@@ -37,7 +35,7 @@ class GameRunner:
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
 
-        can_continue_capture = False
+        # can_continue_capture = False
 
         while not self.store.get_state().get("is_game_over", False):
 
@@ -57,7 +55,7 @@ class GameRunner:
                 break
             try:
                 board_copy = deepcopy(current_state["board"])
-                if can_continue_capture : 
+                if board_copy.get_is_multi_capture() : 
                     valid_actions = board_copy.get_available_captures(current_soldier_value, action["to_pos"])
                 else : 
                     valid_actions = board_copy.get_valid_actions(current_soldier_value)
@@ -74,7 +72,9 @@ class GameRunner:
                 if current_state["time_manager"].is_time_up(current_soldier_value):
                     self.logger.info(f"Player {current_agent.name} ran out of time using random move")
                     show_invalid_move_popup(current_agent.name)
+
                     action = random.choice(valid_actions)
+                    elapsed_time = 0.0
                 else:
                     start_time = time.perf_counter()
                     action = current_agent.choose_action(board=board_copy)
@@ -83,7 +83,7 @@ class GameRunner:
                 # Validate action and fallback to random if invalid
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                         self.logger.warning(f"{current_agent.name} made invalid move, using random")
-                        self._show_invalid_move_popup(current_agent.name)
+                        show_invalid_move_popup(current_agent.name)
                         action = random.choice(valid_actions)
                 
                 self.store.dispatch(action=action)
@@ -105,22 +105,12 @@ class GameRunner:
                         "soldier_value": current_soldier_value,
                         "captured_soldier": action.get("captured_soldier", None),
                         "timestamp": elapsed_time, 
-                        "capture_multiple": can_continue_capture
+                        "capture_multiple": board_copy.get_is_multi_capture()
                     }
                 })
                 
-                # Vérifier si des captures sont disponibles pour le joueur actuel
-                board = self.store.get_state()["board"]
+                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                can_continue_capture = action['type'] == "CAPTURE_SOLDIER" and board.get_available_captures(current_soldier_value, action["to_pos"], True)
-
-                if can_continue_capture :     
-                    self.logger.info(f"Player {current_agent.name} has additional captures available.")
-                    continue  # Ne pas changer le joueur et permettre au joueur actuel de rejouer
-                else:
-                    # Passer au joueur suivant s'il n'y a pas de captures
-                    self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
- 
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")
                 self._conclude_game(agent1, agent2, winner=None, reason="error")
