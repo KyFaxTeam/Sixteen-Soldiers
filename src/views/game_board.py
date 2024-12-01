@@ -403,6 +403,9 @@ class GameBoard(BaseView):
             self.play_pause_button.configure(
                     image = ctk.CTkImage(
                         light_image=Image.open(Assets.icon_pause), size=(20, 20)))
+            
+            # Disable reset button
+            self.reset_button.configure(state="disabled")
             # Set the game state to not paused
             self.is_paused = False
         else:
@@ -422,9 +425,9 @@ class GameBoard(BaseView):
                     image = ctk.CTkImage(
                         light_image=Image.open(Assets.icon_play), size=(20, 20)))
                 # Disable reset button
-                self.reset_button.configure(state="disabled")
+                self.reset_button.configure(state="normal")
                 # Change reset button color
-                self.reset_button.configure(bg_color="#c0c0c0")
+                # self.reset_button.configure(bg_color="#c0c0c0")
                 
             else:
                 # If the game is paused, resume the game
@@ -437,7 +440,7 @@ class GameBoard(BaseView):
                 # Change the button text to "Pause"
                 self.play_pause_button.configure(text="Pause")
                 # Enable reset button
-                self.reset_button.configure(state="normal")
+                self.reset_button.configure(state="desabled")
             # Toggle the paused state
             self.is_paused = not is_paused
 
@@ -445,9 +448,21 @@ class GameBoard(BaseView):
 
         if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
             self.store.dispatch({"type": "RESET_GAME"})
+            self.is_game_started = False
+            self.is_paused = True
         
         # Reset the button icon to play
-
+        self.play_pause_button.configure(
+            image = ctk.CTkImage(
+                light_image=Image.open(Assets.icon_play), size=(20, 20)))
+        # Change the button text to "Play"
+        self.play_pause_button.configure(text="Play")
+        # Enable reset button
+        self.reset_button.configure(state="disabled")
+        
+        # self.play_button.configure(state="normal")
+        # self.canvas.delete("all")
+        
     def clear_board(self):
         self.canvas.delete("all")
         self.__draw_board()
