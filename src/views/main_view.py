@@ -1,8 +1,10 @@
 import customtkinter as ctk
+from tkinter import filedialog, Tk
 import logging
+import os
 
 from src.store.store import Store
-from src.utils.save_utils import save_game
+from src.utils.save_utils import load_game, save_game
 from src.views.Others_Windows.home_view import HomeView
 from src.views.base_view import BaseView
 from src.views.game_board import GameBoard
@@ -44,14 +46,40 @@ class MainView(BaseView):
         self.create_main_layout()  # Initialize main layout and sub-views
 
     def review_match(self):
-        """Review a match and switch to history view"""
-        self.home_view.hide()  # Hide the home screen
-        self.master.geometry("1200x700")
-        self.create_main_layout()  # Ensure the main layout is created
-        # Initialize or load state as needed
-        # For example, you might load a saved game state here
-        # self.load_saved_game_state()
+        """Review a match by selecting a saved game file and switching to the history view."""
+        try:
+            # Open file dialog to select the saved game JSON file
+            root = Tk()
+            root.withdraw()  # Hide the root window
+            root.attributes("-topmost", True)  # Bring the dialog to the front
+            file_path = filedialog.askopenfilename(
+                title="Select Saved Game File",
+                filetypes=[("JSON Files", "*.json")],
+                initialdir=os.path.join(os.getcwd(), "saved_game")
+            )
+            
+            if not file_path:
+                print("No file selected.")
+                return
+            
+            # Load the game state from the selected file
+            game_load = load_game(file_path)
+            
+            if game_load is None:
+                print("Failed to load the game.")
+                return
+            
+            # Display the game history (or pass it to another view)
+            self.logger.info("Game successfully loaded for review.")
+            print(f"Metadata: {game_load['metadata']}")
         
+        except Exception as e:
+            print(f"An error occurred while reviewing the match: {e}")
+        
+        self.home_view.hide()  # Hide the home screen
+        self.master.geometry("1200x800")
+        self.create_main_layout()  # Initialize main layout and sub-views
+
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
