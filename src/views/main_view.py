@@ -235,6 +235,3 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
-
-
-
