@@ -46,7 +46,7 @@ class GameBoard(BaseView):
         self._init_board()
         
         self.logger = logging.getLogger(__name__)
-        self.previous_move = None  # Ajouter cet attribut
+        
         # self.logger.info("GameBoard initialized")
         
     def _init_board(self):
@@ -268,7 +268,7 @@ class GameBoard(BaseView):
                 # self.sounds.unpause()
                 self.canvas.delete(captured_id)
             
-        self.previous_action = move
+        
         # exit()
         
     def update(self, state):
@@ -291,12 +291,14 @@ class GameBoard(BaseView):
             #self.logger.info(f"Last move: {last_move}")
 
             if not is_equals(last_move, self.previous_move):
-                # self.logger.info(f"Processing new move: {last_move}")
+                self.logger.info(f"Processing new move: {last_move}")
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
                     self.logger.error(f"Error in _make_action: {e}")
                     self.logger.error(traceback.format_exc())
+
+                self.previous_move = last_move
 
             self.canvas.update_idletasks()
             
@@ -361,7 +363,7 @@ class GameBoard(BaseView):
 
         if not agents_info_index[Soldier.BLUE]:
             self.logger.info("Agent BLUE not found, we will create RandomAgent")
-            agents_info_index[Soldier.BLUE] = "minimax_BLUE"
+            agents_info_index[Soldier.BLUE] = "random_agent_BLUE"
             
         # file 1 = agents_info_index[Soldier.RED] en enlevant RED du nom du file 
         file_1 = agents_info_index[Soldier.RED].rsplit('_', 1)[0]
@@ -454,6 +456,8 @@ class GameBoard(BaseView):
             self.store.dispatch({"type": "RESET_GAME"})
             self.is_game_started = False
             self.is_paused = True
+            self.previous_move = None
+           
         
         # Reset the button icon to play
         self.play_pause_button.configure(
