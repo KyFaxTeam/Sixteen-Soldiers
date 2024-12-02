@@ -138,21 +138,15 @@ class GameRunner:
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
                         winner = None  # Match nul
-                        reason = "draw_match due to few_pieces"
+                        reason = "draw_few_pieces"
                     else:
                         if red_pieces > blue_pieces:
                             winner = Soldier.RED
-                            reason = "red_pieces_wins has more soldiers"
-                            self.logger.info(f"Red has more soldiers than Blue")
-
                         elif blue_pieces > red_pieces:
                             winner = Soldier.BLUE
-                            reason = "blue_pieces_wins has more soldiers"
-                            self.logger.info(f"Blue has more soldiers than Red")
                         else:
                             winner = None  # Match nul en cas d'égalité
-                            reason = "draw_match due to few_pieces"
-                            self.logger.info(f"Draw as both players have same number of soldiers")
+                        reason = "more_pieces_wins"
                     break
 
             except Exception as e:
@@ -207,64 +201,4 @@ class GameRunner:
                 "reason": reason,
                 "winner": winner,
                 "error": None
-            })
-
-    def replay_game(self, game_data: dict, delay: float = 1.0):
-        """Replay a saved game using the history of moves"""
-        try:
-            # Reset the game state
-            self.store.dispatch({"type": "RESET_GAME"})
-            
-            # Setup initial game state from metadata if needed
-            metadata = game_data.get('metadata', {})
-            history = game_data.get('history', [])
-            
-            for move in history:
-                # Check if replay is paused or cancelled
-                while self.store.get_state().get("is_game_paused", False):
-                    time.sleep(0.1)
-                    
-                if self.store.get_state().get("is_game_leaved", False):
-                    return
-                
-                # Reconstruct and dispatch the move action
-                action = {
-                    "type": "MOVE",
-                    "from_pos": move["from_pos"],
-                    "to_pos": move["to_pos"],
-                    "soldier_value": move["soldier_value"],
-                }
-                
-                if move.get("captured_soldier"):
-                    action["captured_soldier"] = move["captured_soldier"]
-                
-                # Apply the move
-                self.store.dispatch(action)
-                
-                # Record in history
-                self.store.dispatch({
-                    "type": "ADD_MOVE_TO_HISTORY",
-                    "payload": move
-                })
-                
-                # Change current player
-                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
-                
-                # Wait before next move
-                time.sleep(delay)
-            
-            # End replay with the recorded winner
-            if metadata.get("winner"):
-                self.store.dispatch({
-                    "type": "END_GAME",
-                    "winner": metadata["winner"],
-                    "reason": "replay_completed"
-                })
-                
-        except Exception as e:
-            self.logger.exception(f"Replay error: {e}")
-            self.store.dispatch({
-                "type": "END_GAME",
-                "reason": "replay_error",
-                "error": str(e)
             })
