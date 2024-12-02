@@ -95,7 +95,7 @@ def load_game(save_file: str) -> Dict:
         metadata = saved_state.get('metadata', {})
         history = saved_state.get('history', [])
         
-        print("Game loaded successfully.")
+        # print("Game loaded successfully.")
         return {
             'metadata': metadata,
             'history': history

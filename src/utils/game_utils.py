@@ -193,7 +193,7 @@ class GameRunner:
             
         # Update store with final stats
         self.store.register_agents(agent1, agent2)
-        print("***********************Reason", reason)
+        # print("***********************Reason", reason)
         # Only dispatch END_GAME if not already game over
         if not final_state.get("is_game_over"):
             self.store.dispatch({

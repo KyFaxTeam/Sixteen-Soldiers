@@ -46,6 +46,7 @@ class HomeView(BaseView):
             hover_color="#131630",
             command=on_review_match
         )
+        self.review_match_button.configure(state="disabled")
         self.review_match_button.pack(pady=10)
 
     def show(self):

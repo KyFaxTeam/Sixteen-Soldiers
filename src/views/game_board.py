@@ -176,7 +176,7 @@ class GameBoard(BaseView):
                 )
         
         self.reset_button = ctk.CTkButton(
-                    master=self.button_frame, text='Reset',
+                    master=self.button_frame, text='Restart',
                     image=ctk.CTkImage(
                         light_image=Image.open(Assets.icon_reset), size=(20, 20)),
                     compound="left", command=self.reset_game, width=120, height=32,
@@ -475,4 +475,5 @@ class GameBoard(BaseView):
         self.canvas.delete("all")
         self.__draw_board()
         self._draw_pieces()
+
 
