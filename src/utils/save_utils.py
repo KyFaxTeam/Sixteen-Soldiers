@@ -45,7 +45,6 @@ def save_game( state: Dict) -> Dict:
         try:
             with open(save_file, "w", encoding="utf-8") as file:
                 json.dump(converted_data, file, indent=4, default=custom_serializer)
-            print(f"Game saved successfully to {save_file}")
         except Exception as e:
             print(f"An error occurred while saving the game: {e}")
 

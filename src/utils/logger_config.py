@@ -53,7 +53,8 @@ def setup_logging(level=logging.INFO):
     
     # Formatter personnalisé qui capture automatiquement les exceptions
     formatter = AutoExceptionFormatter(
-        fmt='\n%(levelname)s - %(asctime)s - %(name)s\n%(message)s'
+        # fmt='\n%(levelname)s - %(asctime)s - %(name)s\n%(message)s'
+        fmt='\n%(levelname)s - %(name)s\n%(message)s'
     )
     
     console_handler.setFormatter(formatter)

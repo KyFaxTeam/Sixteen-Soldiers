@@ -59,14 +59,14 @@ class MainView(BaseView):
             )
             
             if not file_path:
-                print("No file selected.")
+                # print("No file selected.")
                 return
             
             # Load the game state from the selected file
             game_load = load_game(file_path)
             
             if game_load is None:
-                print("Failed to load the game.")
+                # print("Failed to load the game.")
                 return
             
             self.home_view.hide()  # Hide the home screen
@@ -151,7 +151,7 @@ class MainView(BaseView):
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
         if self.after_game_view is not None:
-            self.logger.warning("AfterGameView is already displayed.")
+            # self.logger.warning("AfterGameView is already displayed.")
             return
         
         self.logger.info("Displaying AfterGameView.")
@@ -224,7 +224,7 @@ class MainView(BaseView):
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
             if state["is_game_leaved"] :
-                self.logger.info("***********Game was left - Resetting history and board*********")
+                # self.logger.info("***********Game was left - Resetting history and board*********")
                 self.history_view.clear_moves()
                 self.game_board.clear_board()
                 
@@ -235,3 +235,5 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
+
+

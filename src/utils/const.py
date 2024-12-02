@@ -27,7 +27,7 @@ GAP = 80
 LINE_THICKNESS = 4
 
 # Max moves without a capture
-MAX_MOVES_WITHOUT_CAPTURE = 50
+MAX_MOVES_WITHOUT_CAPTURE = 60
 
 # Size of the soldiers on the game board (width, height)
 SOLDIER_SIZE = (45, 45)

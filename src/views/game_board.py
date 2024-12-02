@@ -284,14 +284,14 @@ class GameBoard(BaseView):
             # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
             
             if not state.get("board"):
-                self.logger.warning("No board in state")
+                # self.logger.warning("No board in state")
                 return
                 
             last_move = get_last_move(state)
             #self.logger.info(f"Last move: {last_move}")
 
             if not is_equals(last_move, self.previous_move):
-                self.logger.info(f"Processing new move: {last_move}")
+                # self.logger.info(f"Processing new move: {last_move}")
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
@@ -302,18 +302,18 @@ class GameBoard(BaseView):
 
             self.canvas.update_idletasks()
             
-            # Update button states
-            if state.get("is_game_over"):
-                self.logger.info("Game is over - disabling play button")
-                # self.play_button.configure(state="disabled")
-            else:
-                ...
-                # self.play_button.configure(state="normal")
+            # # Update button states
+            # if state.get("is_game_over"):
+            #     self.logger.info("Game is over - disabling play button")
+            #     # self.play_button.configure(state="disabled")
+            # else:
+            #     ...
+            #     # self.play_button.configure(state="normal")
 
-            if state.get("is_game_paused"):
-                self.logger.info("Game is paused - changing pause button text")
-                # self.pause_button.configure(text="Resume")
-                # self.sounds.pause()
+            # if state.get("is_game_paused"):
+            #     self.logger.info("Game is paused - changing pause button text")
+            #     # self.pause_button.configure(text="Resume")
+            #     # self.sounds.pause()
 
         except Exception as e:
             self.logger.error(f"Error in update: {e}")
@@ -349,7 +349,7 @@ class GameBoard(BaseView):
 
     def start_game(self):
         """Start the game in automatic mode with agents."""
-        self.logger.info("Starting game from Play button")
+        # self.logger.info("Starting game from Play button")
         # self.play_button.configure(state="disabled")
         
         # Créer les agents lors du clic sur le bouton Play seulement si dans le store, les attributs les 
@@ -437,7 +437,7 @@ class GameBoard(BaseView):
                 
             else:
                 # If the game is paused, resume the game
-                self.logger.info("Game resumed\nFrom: toggle_play_pause")
+                # self.logger.info("Game resumed\nFrom: toggle_play_pause")
                 self.store.dispatch({'type': 'RESUME_GAME'})
                 # Change the button icon to pause
                 self.play_pause_button.configure(
@@ -475,5 +475,4 @@ class GameBoard(BaseView):
         self.canvas.delete("all")
         self.__draw_board()
         self._draw_pieces()
-        print("history : ",self.store.state["history"]) 
 
