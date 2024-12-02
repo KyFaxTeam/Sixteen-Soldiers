@@ -51,45 +51,6 @@ Le **jeu des seize soldats** est un jeu de stratégie de plateau, originaire du 
 
  ![left_panel](/assets/images/docs/left_panel.png)
 ---
-
-## Déroulé de la compétition
-
-La compétition se déroule en **trois étapes** : éliminatoires, demi-finales et finale.
-
-### Étape 1 : Phase préliminaire (33 équipes → 16 équipes)
-- **Objectif** : Mettre au point une IA fonctionnelle et compétitive.
-- **Calendrier** :
-  - Phase de test : **08/12/2024**.
-  - Phase d’élimination : **15/12/2024**.
-- **Format** :
-  - 7 groupes de 4 équipes et 1 groupe de 5 équipes.
-  - Chaque équipe affronte les autres équipes de son groupe une fois.
-  - **Barème** : Victoire : 3 points | Match nul : 1 point | Défaite : 0 point.
-  - **Qualification** : Les deux meilleures équipes de chaque groupe avancent. En cas d’égalité, la victoire revient à l’équipe avec la plus grosse marge.
-
-### Étape 2 : Phase intermédiaire (16 équipes → 8 équipes)
-- **Objectif** : Améliorer l’IA pour les demi-finales.
-- **Calendrier** :
-  - Phase de demi-finale : **20/12/2024**.
-- **Format** :
-  - 4 groupes de 4 équipes.
-  - Chaque équipe joue 3 matchs dans son groupe.
-  - **Barème** : Identique à la phase préliminaire.
-  - **Qualification** : Les deux meilleures équipes avancent en finale.
-
-### Étape 3 : Finale (8 équipes)
-- **Format** : Tournoi à double élimination.
-  - **Tableau principal** :
-    - Les équipes s’affrontent en quarts de finale, demi-finales et finale.
-  - **Repêchage** :
-    - Les perdants du tableau principal descendent dans un tableau secondaire.
-    - Une équipe peut revenir dans le tableau principal si elle gagne tous ses matchs en repêchage.
-  - **Matchs finaux** :
-    - Le gagnant du tableau principal affronte celui du tableau secondaire.
-    - Si le gagnant du tableau secondaire remporte le match, un second match est joué pour départager.
-
----
-
 Bonne chance à toutes les équipes !
 
 
