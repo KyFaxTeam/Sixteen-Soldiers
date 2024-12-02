@@ -59,14 +59,14 @@ class MainView(BaseView):
             )
             
             if not file_path:
-                print("No file selected.")
+                # print("No file selected.")
                 return
             
             # Load the game state from the selected file
             game_load = load_game(file_path)
             
             if game_load is None:
-                print("Failed to load the game.")
+                # print("Failed to load the game.")
                 return
             
 
@@ -241,3 +241,5 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
+
+

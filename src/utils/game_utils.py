@@ -77,7 +77,7 @@ class GameRunner:
 
                     msg = f"Player {current_agent.name} ran out of time. \n \nNext moves of Soldier {current_agent.soldier_value.name} will be done by random."
      
-                    self.logger.info(msg)
+                    # self.logger.info(msg)
                     if not timeout[current_soldier_value.name] :
                         show_popup(msg, "Time up")
                         timeout[current_soldier_value.name] = True
@@ -95,7 +95,7 @@ class GameRunner:
 
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                     msg = f"{current_agent.name} made invalid move, using random"
-                    self.logger.warning(msg)
+                    # self.logger.warning(msg)
                     show_popup(msg, "Invalid move") 
                     action = random.choice(valid_actions)
 

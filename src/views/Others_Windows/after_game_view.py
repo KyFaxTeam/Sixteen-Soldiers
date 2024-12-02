@@ -123,13 +123,13 @@ class AfterGameView(ctk.CTkToplevel):
         """Extract winner data from the state"""
         winner = state.get("winner")
         if winner is None:
-            self.logger.info("No winner found in state")
+            # self.logger.info("No winner found in state")
             return self._get_default_winner_data()
             
         info_index = state.get("agents_info_index", {}).get(winner)
         #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
-        self.logger.info(winner_data)
+        # self.logger.info(winner_data)
 
         if not winner_data:
             self.logger.warning("No winner data found")
