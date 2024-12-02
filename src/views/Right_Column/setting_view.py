@@ -97,13 +97,13 @@ class SettingsView(BaseView):
 
     def _on_speed_change(self, value):
         """Gère le changement de vitesse"""
-        print(f"Speed changed to: {value}")
+        # print(f"Speed changed to: {value}")
         self.store.game_speed.set_speed(value)
 
 
     def _on_sound_change(self, value):
         """Gère le changement de volume"""
-        print(f"Sound changed to: {value}")
+        # print(f"Sound changed to: {value}")
         if value == "Off":
             self.sounds.pause()
         # elif value == "Low":
@@ -114,7 +114,7 @@ class SettingsView(BaseView):
 
     def _on_theme_change(self, value):
         """Handle theme change"""
-        print(f"Theme changed to: {value}")
+        # print(f"Theme changed to: {value}")
         if value == "Dark":
             ctk.set_appearance_mode("dark")
             # ctk.set_default_color_theme(THEME_PATH)

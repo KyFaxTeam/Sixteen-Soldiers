@@ -69,6 +69,12 @@ class MainView(BaseView):
                 print("Failed to load the game.")
                 return
             
+
+            # Display the game history (or pass it to another view)
+            # self.logger.info("Game successfully loaded for review.")
+            # print(f"Metadata: {game_load['metadata']}")
+        
+
             self.home_view.hide()  # Hide the home screen
             self.master.geometry("1200x800")
             self.create_main_layout()  # Initialize main layout and sub-views
@@ -77,7 +83,7 @@ class MainView(BaseView):
             from src.utils.game_utils import GameRunner
             game_runner = GameRunner(self.store)
             game_runner.replay_game(game_load)
-            
+
         except Exception as e:
             print(f"An error occurred while reviewing the match: {e}")
 
@@ -151,7 +157,7 @@ class MainView(BaseView):
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
         if self.after_game_view is not None:
-            self.logger.warning("AfterGameView is already displayed.")
+            # self.logger.warning("AfterGameView is already displayed.")
             return
         
         self.logger.info("Displaying AfterGameView.")
@@ -224,7 +230,7 @@ class MainView(BaseView):
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
             if state["is_game_leaved"] :
-                self.logger.info("***********Game was left - Resetting history and board*********")
+                # self.logger.info("***********Game was left - Resetting history and board*********")
                 self.history_view.clear_moves()
                 self.game_board.clear_board()
                 
