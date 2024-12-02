@@ -30,6 +30,7 @@ class Assets:
       non_1 = ASSETS_DIR / "images/votez-non.png"
 
       dir_avatar = ASSETS_DIR / "avatars"
+      kyfax_logo = ASSETS_DIR / "images/kyfax_logo-removebg-preview.png"
       
       font_nunito = ASSETS_DIR / "fonts/Nunito-Bold.ttf"
       font_montserrat = ASSETS_DIR / "fonts/Montserrat-Bold.ttf"
