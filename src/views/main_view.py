@@ -69,17 +69,23 @@ class MainView(BaseView):
                 print("Failed to load the game.")
                 return
             
+
             # Display the game history (or pass it to another view)
             # self.logger.info("Game successfully loaded for review.")
-            print(f"Metadata: {game_load['metadata']}")
+            # print(f"Metadata: {game_load['metadata']}")
         
+
+            self.home_view.hide()  # Hide the home screen
+            self.master.geometry("1200x800")
+            self.create_main_layout()  # Initialize main layout and sub-views
+            
+            # Start game replay
+            from src.utils.game_utils import GameRunner
+            game_runner = GameRunner(self.store)
+            game_runner.replay_game(game_load)
+
         except Exception as e:
             print(f"An error occurred while reviewing the match: {e}")
-        
-        self.home_view.hide()  # Hide the home screen
-        self.master.geometry("1200x800")
-        self.create_main_layout()  # Initialize main layout and sub-views
-
 
     def create_main_layout(self):
         """Create the main layout and initialize sub-views only when needed"""
@@ -235,6 +241,3 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
-
-
-

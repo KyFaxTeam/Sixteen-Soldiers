@@ -5,7 +5,7 @@ import random
 import customtkinter as ctk
 from typing import Optional, Dict
 from src.store.store import Store
-from src.utils.const import SOLDIER_SIZE_HISTORY, SOLDIER_SIZE_PLAYER, Soldier
+from src.utils.const import SOLDIER_SIZE_PLAYER, Soldier
 from src.views.base_view import BaseView
 from src.utils.const import AGENT_DIR
 from PIL import Image
@@ -181,7 +181,7 @@ class PlayerView(BaseView):
             # vérifier si ces fichiers sont des agents valides contiennent la classe Agent en utilisant import
             for agent in agents:
                 try:
-                    module = __import__(f'agents.{agent}', fromlist=['Agent'])
+                    module = __import__(f'src.agents.{agent}', fromlist=['Agent'])
                     agent_class = getattr(module, 'Agent')
                     if not issubclass(agent_class, BaseAgent):
                         agents.remove(agent)
@@ -324,12 +324,18 @@ class PlayerView(BaseView):
             else:
                 agent_data = state["agents"][info_index]
                 pseudo = agent_data.get("pseudo", "")
+                profile_img = agent_data.get("profile_img")
                 self.name_label.configure(text=pseudo)
 
                 name = agent_data.get("name", None)
                 if name:
                     self.select_button.configure(text=agent_data["name"])
-                
+                if profile_img:
+                    try:
+                        image = Image.open(profile_img)
+                        self.avatar_ctk_image.configure(image=image)
+                    except Exception as e:
+                        self.logger.error(f"Error loading profile image: {str(e)}")
             # Update timer
             if 'time_manager' in state:
                 remaining_time = state['time_manager'].get_remaining_time(self.soldier_value)
