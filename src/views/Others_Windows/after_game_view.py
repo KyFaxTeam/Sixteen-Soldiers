@@ -154,8 +154,8 @@ class AfterGameView(ctk.CTkToplevel):
     def _get_default_winner_data(self):
         return {
             "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
-            "team_pseudo": "Unknown",
-            "ai_name": "AI",
+            "team_pseudo": "Aucun",
+            "ai_name": "Vainqueur",
             "remaining_time": None,
             "remaining_pawns": None
         }

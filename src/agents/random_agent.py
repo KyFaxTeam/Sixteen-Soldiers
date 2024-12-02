@@ -22,7 +22,7 @@ class Agent(BaseAgent):
             Randomly chosen valid action for the soldier_value
         """
     
-        valid_actions = board.get_valid_actions(soldier_value=self.soldier_value)
+        valid_actions = board.get_valid_actions()
         
         return random.choice(valid_actions)
         

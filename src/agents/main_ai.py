@@ -9,7 +9,7 @@ class Agent(BaseAgent):
     
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Random Team"
+        self.name = "Your Team"
         
     
     
@@ -22,11 +22,8 @@ class Agent(BaseAgent):
             Randomly chosen valid action for the soldier_value
         """
     
-        valid_actions = board.get_valid_actions(soldier_value=self.soldier_value)
-        
-        if 'CAPTURE_SOLDIER' in [action['type'] for action in valid_actions]:
-            valid_actions = [action for action in valid_actions if action['type'] == 'CAPTURE_SOLDIER']
+        valid_actions = board.get_valid_actions()
         
         return random.choice(valid_actions)
-
-
+        
+    

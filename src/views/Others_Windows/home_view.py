@@ -1,4 +1,6 @@
 import customtkinter as ctk
+from PIL import Image
+from src.models.assets.index import Assets
 from src.views.base_view import BaseView
 
 class HomeView(BaseView):
@@ -11,7 +13,14 @@ class HomeView(BaseView):
 
         # Title label
         self.title_label = ctk.CTkLabel(self.frame, text="Bienvenue", font=("Helvetica", 24, "bold"))
-        self.title_label.pack(pady=20)
+        self.title_label.pack(pady=0)
+
+        # Load the logo image
+        self.logo_image = ctk.CTkImage(Image.open(Assets.kyfax_logo), size=(100, 100))
+
+        # Image Label
+        self.image_label = ctk.CTkLabel(self.frame, image=self.logo_image, text="")
+        self.image_label.pack(pady=10)  # Adjust padding as needed
         
         # "Lancer un nouveau jeu" Button
         self.new_game_button = ctk.CTkButton(
