@@ -138,15 +138,21 @@ class GameRunner:
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
                         winner = None  # Match nul
-                        reason = "draw_few_pieces"
+                        reason = "draw_match due to few_pieces"
                     else:
                         if red_pieces > blue_pieces:
                             winner = Soldier.RED
+                            reason = "red_pieces_wins has more soldiers"
+                            self.logger.info(f"Red has more soldiers than Blue")
+
                         elif blue_pieces > red_pieces:
                             winner = Soldier.BLUE
+                            reason = "blue_pieces_wins has more soldiers"
+                            self.logger.info(f"Blue has more soldiers than Red")
                         else:
                             winner = None  # Match nul en cas d'égalité
-                        reason = "more_pieces_wins"
+                            reason = "draw_match due to few_pieces"
+                            self.logger.info(f"Draw as both players have same number of soldiers")
                     break
 
             except Exception as e:
