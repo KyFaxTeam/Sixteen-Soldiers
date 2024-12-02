@@ -35,7 +35,7 @@ class Agent(BaseAgent):
             return self.evaluate(board), None
 
         soldier_value = self.soldier_value if maximizing_player else self.get_opponent_soldier()
-        valid_actions = board.get_valid_actions(soldier_value)
+        valid_actions = board.get_valid_actions()
 
         if not valid_actions:
             return self.evaluate(board), None

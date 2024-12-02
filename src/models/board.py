@@ -59,19 +59,56 @@ class Board:
 
         self.soldiers: Dict[str, int] = {pos: Soldier.EMPTY for pos in self.battle_field.keys()}
         
-        # Pions rouges (haut)
+        # Red soldiers (top)
         for pos in ['a1', 'a3', 'a5', 'b2', 'b3', 'b4', 'c1', 'c2', 'c3', 'c4', 'c5', 'd1', 'd2', 'd3', 'd4', 'd5']:
             self.soldiers[pos] = Soldier.RED
             
-        # Pions bleus (bas)
+        # Blue soldiers (bottom)
         for pos in ['f1', 'f2', 'f3', 'f4', 'f5', 'g1', 'g2', 'g3', 'g4', 'g5', 'h2', 'h3', 'h4', 'i1', 'i3', 'i5']:
             self.soldiers[pos] = Soldier.BLUE
 
-        self.last_position = None
+        self.last_action = None
+
+        self.is_multiple_capture = False
 
         self.logger = logging.getLogger(__name__)
 
+
     
+    def get_neighbors(self, position: str) -> Dict[str, List[str]]:
+        """Returns neighboring positions of a given position, classified by value."""
+        neighbors = self.battle_field.get(position, [])
+        result = {
+            Soldier.RED.name: [],
+            Soldier.BLUE.name: [],
+            Soldier.EMPTY.name: []
+        }
+        for neighbor in neighbors:
+            soldier = self.soldiers.get(neighbor, Soldier.EMPTY)
+            result[soldier.name].append(neighbor)
+        return result
+    
+    def get_empty_positions(self) -> List[str]:
+        """
+        Returns a list of empty positions
+        """
+        return [pos for pos, soldier in self.soldiers.items() if soldier == Soldier.EMPTY]
+    
+
+    def get_soldier_positions(self, soldier_value: Soldier) -> List[str]:
+        """Returns positions occupied by soldiers of a specific value."""
+        return [pos for pos, value in self.soldiers.items() if value == soldier_value]
+
+
+    def get_soldier_value(self, position: str) -> Soldier:
+        """Returns the soldier value at a given position."""
+        return self.soldiers.get(position, Soldier.EMPTY)
+
+    
+    def count_soldiers(self, soldier_value: Soldier) -> int:
+        """Count the number of pieces for the given soldier value."""
+        return sum(1 for s in self.soldiers.values() if s == soldier_value)
+
     def move_soldier(self, action: Dict):
         """Move a soldier based on the action dictionary."""
         from_pos = action['from_pos']
@@ -79,6 +116,9 @@ class Board:
         soldier_value = action['soldier_value']
         self.soldiers[from_pos] = Soldier.EMPTY
         self.soldiers[to_pos] = soldier_value
+        
+        # Store the last move
+        self.last_action = action
 
     def capture_soldier(self, action: Dict):
         """Capture a soldier based on the action dictionary."""
@@ -89,13 +129,60 @@ class Board:
         self.soldiers[from_pos] = Soldier.EMPTY
         self.soldiers[to_pos] = soldier_value
         self.soldiers[captured_pos] = Soldier.EMPTY
+        
+        # Store the last move
+        self.last_action = action
 
-    def count_soldiers(self, soldier_value: Soldier) -> int:
-        """Count the number of pieces for the given soldier value."""
-        return sum(1 for s in self.soldiers.values() if s == soldier_value)
+        self.is_multiple_capture = self.check_multi_capture(soldier_value, to_pos)
 
+    def get_last_action(self) -> Dict:
+        """
+        Returns the last move made
+        """
+        return getattr(self, 'last_action', None)
 
+    def check_multi_capture(self, soldier_value: Soldier, current_position: str) -> bool:
+        """Check if a multi-capture is possible."""
+        return BoardUtils.find_continued_captures(battle_field= self.battle_field, soldiers= self.soldiers, soldier_value=soldier_value, last_position=current_position, just_know=True)
+    
+    def get_valid_actions(self) -> List[Dict]:
 
+        if self.last_action is None:
+            
+            return BoardUtils.get_actions_soldier(self.battle_field, self.soldiers, soldier_value=Soldier.RED, last_position=None)
+        
+        last_soldier = self.last_action.get('soldier_value') if self.last_action else None
+        
+
+        if self.last_action['type'] == 'CAPTURE_SOLDIER' and self.is_multiple_capture:
+            return BoardUtils.find_continued_captures(self.battle_field, self.soldiers, last_soldier, self.last_action['to_pos'])
+        
+        next_soldier = Soldier.RED if last_soldier == Soldier.BLUE else Soldier.BLUE
+        return BoardUtils.get_actions_soldier(self.battle_field, self.soldiers, next_soldier, last_position=None)
+             
+
+    def get_valid_actions_for_position(self, position: str) -> List[Dict]:
+        """
+        Returns valid actions for a specific position
+        """
+        soldier_value = self.soldiers[position]
+        if soldier_value == Soldier.EMPTY:
+            return []
+        
+        return [action for action in self.get_valid_actions() 
+                if action['from_pos'] == position]
+
+    def is_valid_move(self, from_pos: str, to_pos: str, soldier_value: Soldier) -> bool:
+        """
+        Checks if a specific move is valid
+        """
+        valid_actions = self.get_valid_actions(soldier_value)
+        return any(
+            action['from_pos'] == from_pos and 
+            action['to_pos'] == to_pos 
+            for action in valid_actions
+        )
+    
     def is_game_over(self):
         """Check if the game is over (one player has no pieces left)."""
         red_count = self.count_soldiers(Soldier.RED)
@@ -106,106 +193,3 @@ class Board:
             return  Soldier.RED
         
         return None
-
-
-        
-    def get_valid_actions(self, soldier_value: Soldier) -> List[Dict]:
-
-        valid_actions = []
-        opponent = Soldier.BLUE if soldier_value == Soldier.RED else Soldier.RED
-
-        # Si c'est une continuation de capture, restreindre aux mouvements de capture
-        if self.last_position: 
-            capture_actions = self._find_continued_captures(
-                soldier_value, 
-                self.last_position
-            )
-            return capture_actions if capture_actions else []
-        
-        # Trouver les positions vides
-        empty_positions = [
-            pos for pos, occupant in self.soldiers.items() 
-            if occupant == Soldier.EMPTY
-        ]
-
-        # Pour chaque position vide
-        for empty_pos in empty_positions:
-            # 
-            for neighbor in self.battle_field[empty_pos]:
-                current_piece = self.soldiers[neighbor]
-                
-                # Mouvement simple
-                if current_piece == soldier_value:
-                    valid_actions.append(BoardAction.move_soldier(
-                        from_pos=neighbor,
-                        to_pos=empty_pos,
-                        soldier_value=soldier_value
-                    ))
-                # Capture possible
-                elif current_piece == opponent:
-                    # Vérifier les pièces qui peuvent capturer
-                    capture_positions = [
-                        pos for pos in self.battle_field[neighbor]
-                        if self.soldiers[pos] == soldier_value
-                    ]
-                    
-                    # Ajouter to_pos à toutes les captures possibles
-                    for from_pos in capture_positions:
-                        if BoardUtils.are_aligned(empty_pos, neighbor, from_pos):
-                            valid_actions.append(BoardAction.capture_soldier(
-                                from_pos=from_pos,
-                                to_pos=empty_pos,
-                                soldier_value=soldier_value,
-                                captured_soldier=neighbor
-                            ))
-        # ne retourner que les actions validée par is_valid_move dans validator.py
-        return valid_actions
-
-    
-    def _find_continued_captures(self, soldier_value: Soldier, last_position, just_know: bool = False) -> List[Dict] | bool:
-        continued_captures = []
-        opponent = Soldier.BLUE if soldier_value == Soldier.RED else Soldier.RED
-        
-        # Explorer toutes les positions vides adjacentes
-        empty_positions = [
-            pos for pos, occupant in self.soldiers.items() 
-            if occupant == Soldier.EMPTY
-        ]
-
-        for neighbor in self.battle_field[last_position]: 
-            current_piece = self.soldiers[neighbor]
-
-            # Vérifier si c'est un pion adverse
-            if current_piece == opponent: 
-                # Trouver les positions de capture potentielles alignées
-                capture_positions = [
-                    empty_pos for empty_pos in self.battle_field[neighbor]
-                    if (empty_pos in empty_positions and BoardUtils.are_aligned(empty_pos, neighbor, last_position))
-                ]
-                if just_know and capture_positions : 
-                    # print("***************************************************** last_position : ", last_position)
-                    # print("***************************************************** neighbor : ", neighbor)
-                    # print("***************************************************** empty positions : ", capture_positions)
-                    return True
-                        
-                # Ajouter les actions de capture consécutive
-                for empty_pos in capture_positions:
-                    continued_captures.append(BoardAction.capture_soldier(
-                        from_pos=last_position,
-                        to_pos=empty_pos,
-                        soldier_value=soldier_value,
-                        captured_soldier=neighbor
-                    ))
-            
-        return continued_captures
-    
-    def get_available_captures(self, soldier_value: Soldier, current_position, just_know: bool = False) -> List[Dict] | bool:
-        """
-        Vérifie si le soldat actuel a des captures possibles depuis sa position actuelle.
-        """
-        captures = self._find_continued_captures(soldier_value, current_position, just_know)
-        return captures  # Renvoie une liste vide s'il n'y a pas de captures
-    
-    def get_is_multi_capture(self) -> bool:
-        return True if self.last_position else False
-

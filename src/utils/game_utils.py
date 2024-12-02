@@ -11,25 +11,27 @@ from src.store.store import Store
 from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier, TIMINGS
 
 
-def show_popup(message: str, title: str = "Message"):
-    """Show a popup message using CTkMessagebox."""
-    CTkMessagebox(
+def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 2000):
+    """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
+    popup = CTkMessagebox(
         title=title,
         message=message,
         icon="info",
-        option_1="OK",
         width=250,
         height=150,
         font=("Roboto", 12),
         justify="center",
         fade_in_duration=0.2,
     )
+    
+    if auto_close:
+        popup.after(duration, popup.destroy)
 
 class GameRunner:
     def __init__(self, store: Store):
         self.store = store
         self.logger = getLogger(__name__)
-        self.moves_without_capture = 0  # Nouveau compteur
+        self.moves_without_capture = 0  
           
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
@@ -50,7 +52,7 @@ class GameRunner:
             current_agent: BaseAgent = agent1 if current_soldier_value == Soldier.RED else agent2
             opponent_agent: BaseAgent = agent2 if current_soldier_value == Soldier.RED else agent1
             over = board.is_game_over()
-            is_multi_capture = board.get_is_multi_capture()
+            is_multi_capture = board.is_multiple_capture
 
 
             if over is not None:
@@ -59,10 +61,8 @@ class GameRunner:
                 reason = "no_soldiers"
                 break
             try:
-                if is_multi_capture : 
-                    valid_actions = board.get_available_captures(current_soldier_value, action["to_pos"])
-                else : 
-                    valid_actions = board.get_valid_actions(current_soldier_value)
+
+                valid_actions = board.get_valid_actions()
 
                 valid_actions = [action for action in valid_actions if is_valid_move(action, board)]
 
@@ -128,7 +128,6 @@ class GameRunner:
                 # Après l'action dispatch, mettre à jour le compteur
                 if action.get("captured_soldier") is None:
                     self.moves_without_capture += 1
-                    print("***********************************moves_without_capture*********************  : ", self.moves_without_capture)
                 else:
                     self.moves_without_capture = 0
 
@@ -194,7 +193,7 @@ class GameRunner:
             
         # Update store with final stats
         self.store.register_agents(agent1, agent2)
-
+        print("***********************Reason", reason)
         # Only dispatch END_GAME if not already game over
         if not final_state.get("is_game_over"):
             self.store.dispatch({

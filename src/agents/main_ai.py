@@ -22,7 +22,7 @@ class Agent(BaseAgent):
             Randomly chosen valid action for the soldier_value
         """
     
-        valid_actions = board.get_valid_actions(soldier_value=self.soldier_value)
+        valid_actions = board.get_valid_actions()
         
         if 'CAPTURE_SOLDIER' in [action['type'] for action in valid_actions]:
             valid_actions = [action for action in valid_actions if action['type'] == 'CAPTURE_SOLDIER']

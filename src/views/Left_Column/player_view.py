@@ -339,6 +339,7 @@ class PlayerView(BaseView):
             
             # Update pieces count
             if 'board' in state:
+                
                 soldier_count = sum(1 for value in state['board'].soldiers.values() 
                                 if value ==self.soldier_value)
                 # self.logger.debug(f"Updating piece count: {soldier_count}")
