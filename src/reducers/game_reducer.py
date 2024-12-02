@@ -82,7 +82,7 @@ def register_agents(state: Dict, action: Dict) -> Dict:
 
             new_state["agents_info_index"][soldier_value] = info_index
     
-    logging.info(f"Have registered agent {new_state['agents']}")
+    # logging.info(f"Have registered agent {new_state['agents']}")
     return new_state
 
 def game_reducer(state: Dict, action: Dict) -> Dict:

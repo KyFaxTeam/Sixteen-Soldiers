@@ -70,7 +70,7 @@ class MainView(BaseView):
                 return
             
             # Display the game history (or pass it to another view)
-            self.logger.info("Game successfully loaded for review.")
+            # self.logger.info("Game successfully loaded for review.")
             print(f"Metadata: {game_load['metadata']}")
         
         except Exception as e:
@@ -151,7 +151,7 @@ class MainView(BaseView):
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
         if self.after_game_view is not None:
-            self.logger.warning("AfterGameView is already displayed.")
+            # self.logger.warning("AfterGameView is already displayed.")
             return
         
         self.logger.info("Displaying AfterGameView.")
@@ -224,7 +224,7 @@ class MainView(BaseView):
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
             if state["is_game_leaved"] :
-                self.logger.info("***********Game was left - Resetting history and board*********")
+                # self.logger.info("***********Game was left - Resetting history and board*********")
                 self.history_view.clear_moves()
                 self.game_board.clear_board()
                 

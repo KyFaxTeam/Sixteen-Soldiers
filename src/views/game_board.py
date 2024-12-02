@@ -176,7 +176,7 @@ class GameBoard(BaseView):
                 )
         
         self.reset_button = ctk.CTkButton(
-                    master=self.button_frame, text='Reset',
+                    master=self.button_frame, text='Restart',
                     image=ctk.CTkImage(
                         light_image=Image.open(Assets.icon_reset), size=(20, 20)),
                     compound="left", command=self.reset_game, width=120, height=32,
@@ -291,7 +291,7 @@ class GameBoard(BaseView):
             #self.logger.info(f"Last move: {last_move}")
 
             if not is_equals(last_move, self.previous_move):
-                self.logger.info(f"Processing new move: {last_move}")
+                # self.logger.info(f"Processing new move: {last_move}")
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
@@ -349,7 +349,7 @@ class GameBoard(BaseView):
 
     def start_game(self):
         """Start the game in automatic mode with agents."""
-        self.logger.info("Starting game from Play button")
+        # self.logger.info("Starting game from Play button")
         # self.play_button.configure(state="disabled")
         
         # Créer les agents lors du clic sur le bouton Play seulement si dans le store, les attributs les 
@@ -475,5 +475,5 @@ class GameBoard(BaseView):
         self.canvas.delete("all")
         self.__draw_board()
         self._draw_pieces()
-        print("history : ",self.store.state["history"]) 
+        # print("history : ",self.store.state["history"]) 
 

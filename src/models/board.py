@@ -71,7 +71,7 @@ class Board:
 
         self.is_multiple_capture = False
 
-        self.logger = logging.getLogger(__name__)
+        # self.logger = logging.getLogger(__name__)
 
 
     

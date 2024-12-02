@@ -39,7 +39,8 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
             # new_state["is_game_paused"] = True
         
     if action['type'] in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
-        logger.info(f"Action done :{action}")
+        # logger.info(f"Action done :{action}")
+        ...
         
     return new_state
 
