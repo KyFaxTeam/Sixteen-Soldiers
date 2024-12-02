@@ -181,7 +181,7 @@ class PlayerView(BaseView):
             # vérifier si ces fichiers sont des agents valides contiennent la classe Agent en utilisant import
             for agent in agents:
                 try:
-                    module = __import__(f'agents.{agent}', fromlist=['Agent'])
+                    module = __import__(f'src.agents.{agent}', fromlist=['Agent'])
                     agent_class = getattr(module, 'Agent')
                     if not issubclass(agent_class, BaseAgent):
                         agents.remove(agent)

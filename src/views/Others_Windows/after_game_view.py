@@ -66,7 +66,7 @@ class AfterGameView(ctk.CTkToplevel):
         bottom_frame.pack(side="bottom", pady=(20, 10), fill="x", padx=20)
 
         # Display remaining time
-        remaining_time_ms = int(remaining_time * 1000)  
+        remaining_time_ms = int(remaining_time * 1000) if remaining_time else "---"
         time_label = ctk.CTkLabel(bottom_frame, text=f"Time: {remaining_time_ms:03}ms", font=("Helvetica", 12))
         time_label.grid(row=0, column=0, padx=10)
 
@@ -78,7 +78,7 @@ class AfterGameView(ctk.CTkToplevel):
         pawns_label.grid(row=0, column=1, padx=((10, 0)))
 
         # Display the number of remaining pawns next to the icon
-        remaining_pawns_label = ctk.CTkLabel(bottom_frame, text=f': {remaining_pawns}', font=("Helvetica", 12))
+        remaining_pawns_label = ctk.CTkLabel(bottom_frame, text=f': {remaining_pawns if remaining_pawns else "---"}', font=("Helvetica", 12))
         remaining_pawns_label.grid(row=0, column=2, padx=(0, 15))
 
         # Restart button with icon
@@ -156,8 +156,8 @@ class AfterGameView(ctk.CTkToplevel):
             "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
             "team_pseudo": "Unknown",
             "ai_name": "AI",
-            "remaining_time": "00:00",
-            "remaining_pawns": 0
+            "remaining_time": None,
+            "remaining_pawns": None
         }
 
 
