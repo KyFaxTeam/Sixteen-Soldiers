@@ -523,9 +523,9 @@ Cette méthode sélectionne une action valide au hasard parmi toutes les actions
   Supposons que l'état du plateau permette trois actions valides :  
   ```python
   [
-      {"from_pos": (0, 0), "to_pos": (1, 0)},
-      {"from_pos": (0, 0), "to_pos": (2, 0)},
-      {"from_pos": (0, 0), "to_pos": (1, 1)},
+      {"from_pos": 'd1', "to_pos": 'e1'},
+      {"from_pos": 'd4', "to_pos": 'e5'},
+      {"from_pos": 'a1', "to_pos": 'a3'},
   ]
   ```  
   La méthode choisira aléatoirement une des trois actions disponibles.  
