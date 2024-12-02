@@ -204,7 +204,7 @@ class PlayerView(BaseView):
         # self.logger.debug("Basculement du menu déroulant des agents")
         """Toggle the agent selection dropdown"""
         if not self.can_select_agent():
-            # self.logger.debug("Agent selection not allowed in current game state")
+            self.logger.debug("Agent selection not allowed in current game state")
             return
 
         if self.agent_dropdown is None:
@@ -276,20 +276,24 @@ class PlayerView(BaseView):
             self.logger.error("No agent selected")  
      
     def load_random_avatar(self):
+        self.logger.debug("Chargement d'un avatar aléatoire")
         """Loads a random avatar from the assets/avatar directory"""
         avatar_dir = Assets.dir_avatar
         avatar_files = [f for f in os.listdir(avatar_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        self.logger.debug(f"Fichiers d'avatar trouvés: {avatar_files}")
         if avatar_files:
             random_avatar = random.choice(avatar_files)
             avatar_path = os.path.join(avatar_dir, random_avatar)
+            self.logger.debug(f"Avatar sélectionné: {avatar_path}")
             # print(f"Loading avatar image from: {avatar_path}")  # Debugging line
             try:
                 image = Image.open(avatar_path).convert('RGBA')
                 return image
             except Exception as e:
-                # print(f"Error loading image: {e}")
+                print(f"Error loading image: {e}")
                 return None
         else:
+            self.logger.debug("Aucun fichier d'avatar trouvé")
             # print("No avatar images found in the directory.")  # Debugging line
             # Fallback if no images are found
             fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))  # Gray placeholder
@@ -302,6 +306,7 @@ class PlayerView(BaseView):
         if  state.get('is_game_over', True):
             return
         
+        # self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
         self.store.state = state
         try:
@@ -311,7 +316,9 @@ class PlayerView(BaseView):
 
             info_index = state["agents_info_index"].get(self.soldier_value)
             
+            # logger.debug(f"Updating player view for {self.soldier_value.name}")
             if info_index is None:
+                self.logger.debug("No agent selected")
                 self.name_label.configure(text="Select an agent")
                 self.select_button.configure(text="No team")
             else:
@@ -325,14 +332,27 @@ class PlayerView(BaseView):
                     self.select_button.configure(text=agent_data["name"])
                 if profile_img:
                     try:
-                        image = Image.open(profile_img)
-                        self.avatar_ctk_image.configure(image=image)
+                        # Charger l'image avec PIL
+                        pil_image = Image.open(profile_img).convert('RGBA')
+                        # Créer une nouvelle CTkImage
+                        new_avatar_image = ctk.CTkImage(
+                            light_image=pil_image,
+                            dark_image=pil_image,
+                            size=(60, 60)
+                        )
+                        # Mettre à jour l'image du label avec la nouvelle CTkImage
+                        self.avatar.configure(image=new_avatar_image)
+                        # Garder une référence à la nouvelle image
+                        self.avatar_ctk_image = new_avatar_image
+                        # Garder une référence à l'image PIL aussi
+                        self.avatar_image = pil_image
                     except Exception as e:
                         self.logger.error(f"Error loading profile image: {str(e)}")
             # Update timer
             if 'time_manager' in state:
                 remaining_time = state['time_manager'].get_remaining_time(self.soldier_value)
                 remaining_time *= 1000  # Convert to milliseconds
+                self.logger.debug(f"Updating timer: {remaining_time}s")
                 self.timer_label.configure(text=f"{int(remaining_time)}ms")
             
             # Update pieces count
