@@ -202,3 +202,63 @@ class GameRunner:
                 "winner": winner,
                 "error": None
             })
+
+    def replay_game(self, game_data: dict, delay: float = 1.0):
+        """Replay a saved game using the history of moves"""
+        try:
+            # Reset the game state
+            self.store.dispatch({"type": "RESET_GAME"})
+            
+            # Setup initial game state from metadata if needed
+            metadata = game_data.get('metadata', {})
+            history = game_data.get('history', [])
+            
+            for move in history:
+                # Check if replay is paused or cancelled
+                while self.store.get_state().get("is_game_paused", False):
+                    time.sleep(0.1)
+                    
+                if self.store.get_state().get("is_game_leaved", False):
+                    return
+                
+                # Reconstruct and dispatch the move action
+                action = {
+                    "type": "MOVE",
+                    "from_pos": move["from_pos"],
+                    "to_pos": move["to_pos"],
+                    "soldier_value": move["soldier_value"],
+                }
+                
+                if move.get("captured_soldier"):
+                    action["captured_soldier"] = move["captured_soldier"]
+                
+                # Apply the move
+                self.store.dispatch(action)
+                
+                # Record in history
+                self.store.dispatch({
+                    "type": "ADD_MOVE_TO_HISTORY",
+                    "payload": move
+                })
+                
+                # Change current player
+                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                
+                # Wait before next move
+                time.sleep(delay)
+            
+            # End replay with the recorded winner
+            if metadata.get("winner"):
+                self.store.dispatch({
+                    "type": "END_GAME",
+                    "winner": metadata["winner"],
+                    "reason": "replay_completed"
+                })
+                
+        except Exception as e:
+            self.logger.exception(f"Replay error: {e}")
+            self.store.dispatch({
+                "type": "END_GAME",
+                "reason": "replay_error",
+                "error": str(e)
+            })
