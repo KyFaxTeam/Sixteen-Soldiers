@@ -15,7 +15,7 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     game → board → history → time
     """
     # Log action reception with simple separator
-    logger.info(f"\n▶ Processing {action['type']}")
+    logger.info(f"▶ Processing {action['type']}")
     
     # Create single copy of state
     new_state = deepcopy(state)
