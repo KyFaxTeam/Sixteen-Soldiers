@@ -40,13 +40,13 @@ class HistoryView(BaseView):
     def __init__(self, master, store=None):
         super().__init__(master)
         self.logger = logging.getLogger(__name__)
-        self.frame = ctk.CTkFrame(self.master, corner_radius=10)
+        self.frame = ctk.CTkFrame(self.master)
         self.store = store
-
-        self.logger = logging.getLogger(__name__)
         
         self.frame.configure(corner_radius=10)
-        self.frame.pack(fill="both", padx=10, pady=10)
+        self.frame.grid(row=0, column=0, sticky="new", padx=10, pady=10)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_rowconfigure(0, weight=1)  # Make history frame expand
         
 
         self.frame.red_soldier_icon = ctk.CTkImage(
@@ -69,11 +69,15 @@ class HistoryView(BaseView):
 
         # History Section
         self.history_frame = ctk.CTkFrame(self.frame)
-        self.history_frame.pack(fill="both", expand=True, pady=(0, 20))
+        self.history_frame.grid(row=0, column=0, sticky="new")
+        self.history_frame.grid_columnconfigure(0, weight=1)
+        self.history_frame.grid_rowconfigure(0, minsize=40)  # Fixed size for title
+        self.history_frame.grid_rowconfigure(1, weight=1)  # Let moves container expand
 
         # Titre "Move History"
         self.title_frame = ctk.CTkFrame(self.history_frame)
-        self.title_frame.pack(fill="both", padx=0, pady=10)
+        self.title_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=(0, 10))
+        self.title_frame.grid_columnconfigure(0, weight=1)
         #self.title_frame.history_icon = ImageTk.PhotoImage(Image.open(Assets.icon_history_collante).resize(EMOJIS_SIZE))
         self.title_frame.history_icon = ctk.CTkImage(
             light_image=Image.open(Assets.icon_history_collante),
@@ -88,11 +92,11 @@ class HistoryView(BaseView):
             compound="left",
             font=ctk.CTkFont(size=11, weight="bold")
         )
-        self.title.pack(pady=(5, 5))
+        self.title.grid(row=0, column=0, pady=(5, 5))
 
         # Container pour l'historique des mouvements
-        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=300)
-        self.moves_container.pack(fill="both", expand=True)
+        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=300)  # Increased height
+        self.moves_container.grid(row=1, column=0, sticky="new", padx=5, pady=5)
 
         # Liste pour garder une référence aux mouvements
         self.move_frames = []
@@ -108,7 +112,8 @@ class HistoryView(BaseView):
         # Création du conteneur pour organiser les éléments horizontalement
         # content_frame = ctk.CTkFrame(move_frame)
         content_frame = ctk.CTkFrame(self.moves_container)
-        content_frame.pack(fill="x", padx=8, pady=5)
+        content_frame.grid(row=len(self.move_frames), column=0, sticky="nsew", padx=8, pady=5)
+        content_frame.grid_columnconfigure(1, weight=4)  # Make the middle section expandable
 
         content_frame.cible = ImageTk.PhotoImage(Image.open(Assets.cible).resize((12, 12)))
         content_frame.approuve = ImageTk.PhotoImage(Image.open(Assets.approuve).resize((18, 18)))

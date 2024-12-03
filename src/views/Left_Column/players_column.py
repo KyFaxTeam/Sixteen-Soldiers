@@ -25,18 +25,18 @@ class PlayersColumn(BaseView):
 
         # Player 1
         self.player1 = PlayerView(self.main_container, soldier_value=Soldier.RED, store=store)
-        self.player1.frame.grid(row=0, column=0, sticky="nsew", pady=(5, 0))
+        self.player1.frame.grid(row=0, column=0, sticky="nsew", pady=(5, 0), padx=(0, 0))
 
         # VS Label container
         self.vs_container = ctk.CTkFrame(self.main_container, fg_color="transparent")
-        self.vs_container.grid(row=1, column=0, sticky="nsew")
+        self.vs_container.grid(row=1, column=0, sticky="nsew", pady=(10,10))
         
         self.vs_label = ctk.CTkLabel(
             self.vs_container,
             text="VS",
             font=ctk.CTkFont(size=16, weight="bold")
         )
-        self.vs_label.pack(expand=True)
+        self.vs_label.pack(expand = True)
 
         # Player 2
         self.player2 = PlayerView(self.main_container, soldier_value=Soldier.BLUE, store=store)

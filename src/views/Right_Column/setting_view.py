@@ -10,12 +10,15 @@ class SettingsView(BaseView):
     """View for game settings, including speed, sound control, and dark mode"""
     def __init__(self, master, store:Store = None):
         super().__init__(master)
-        self.frame = ctk.CTkFrame(self.master, corner_radius=10)
+        self.frame = ctk.CTkFrame(self.master)
         self.store = store
-        if self.store:
-            self.subscribe(self.store)
+        
         self.frame.configure(corner_radius=10)
-        self.frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame.grid(row=1, column=0, sticky="new", padx=10)  # Changed to ew to stretch horizontally
+        self.frame.grid_columnconfigure(0, weight=1)  # Make frame content stretch horizontally
+        self.frame.grid_rowconfigure(1, weight=1)
+        self.frame.grid_rowconfigure(2, weight=1)
+        self.frame.grid_rowconfigure(3, weight=1)
         self.sounds = Sounds()
 
         # Title "Settings"
@@ -28,11 +31,13 @@ class SettingsView(BaseView):
             font=ctk.CTkFont(size=12, weight="bold"),
             compound="left"
         )
-        self.title.pack(pady=(5, 5))
+        self.title.grid(row=0, column=0, pady=(2, 2))
 
         # Speed control section
         self.speed_section = ctk.CTkFrame(self.frame, corner_radius=8)
-        self.speed_section.pack(fill="x", padx=10, pady=10)
+        self.speed_section.grid(row=1, column=0, sticky="ew", padx=10, pady = 5)  # Changed to grid
+        self.speed_section.grid_columnconfigure(0, weight=1)  # Make section stretch
+        
 
         self.speed_label = ctk.CTkLabel(
             self.speed_section,
@@ -40,7 +45,7 @@ class SettingsView(BaseView):
             font=ctk.CTkFont(size=11),
             # text_color="#cccccc"
         )
-        self.speed_label.pack(anchor="w", padx=10, pady=5)
+        self.speed_label.grid(row=0, column=0, sticky="w", padx=10)
 
         self.speed_slider = ctk.CTkSlider(
             self.speed_section, 
@@ -49,11 +54,12 @@ class SettingsView(BaseView):
             number_of_steps=5,
             command=self._on_speed_change,            
         )
-        self.speed_slider.pack(fill="x", padx=15, pady=(0, 10))
+        self.speed_slider.grid(row=1, column=0, sticky="ew", padx=15, pady=(0, 5))
 
         # Sound control section avec boutons segmentés
         self.sound_section = ctk.CTkFrame(self.frame, corner_radius=8)
-        self.sound_section.pack(fill="x", padx=10, pady=5)
+        self.sound_section.grid(row=2, column=0, sticky="ew", padx=10, pady=5)  # Changed to grid
+        self.sound_section.grid_columnconfigure(0, weight=1)  # Make section stretch
 
         self.sound_label = ctk.CTkLabel(
             self.sound_section,
@@ -61,21 +67,22 @@ class SettingsView(BaseView):
             font=ctk.CTkFont(size=11),
             # text_color="#cccccc"
         )
-        self.sound_label.pack(anchor="w", padx=10, pady=5)
+        self.sound_label.grid(row=0, column=0, sticky="nw", padx=10)
 
         # Boutons segmentés pour le contrôle du son
         self.sound_control = ctk.CTkSegmentedButton(
             self.sound_section,
             values=["On", "Off"],
             command=self._on_sound_change,
-            font=ctk.CTkFont(size=8)
+            font=ctk.CTkFont(size=6)
         )
-        self.sound_control.pack(padx=15, pady=(0, 10))
+        self.sound_control.grid(row=1, column=0, padx=10, pady=(0, 5))
         self.sound_control.set("On")  # Valeur par défaut
 
         # Dark Mode section
         self.theme_section = ctk.CTkFrame(self.frame, corner_radius=8)
-        self.theme_section.pack(fill="x", padx=10, pady=10)
+        self.theme_section.grid(row=3, column=0, sticky="ew", padx=10, pady=5)  # Changed to grid
+        self.theme_section.grid_columnconfigure(0, weight=1)  # Make section stretch
 
         self.theme_label = ctk.CTkLabel(
             self.theme_section,
@@ -83,7 +90,7 @@ class SettingsView(BaseView):
             font=ctk.CTkFont(size=11),
             # text_color="#cccccc"
         )
-        self.theme_label.pack(anchor="w", padx=10, pady=5)
+        self.theme_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
         # Boutons segmentés pour le thème
         self.theme_control = ctk.CTkSegmentedButton(
@@ -92,7 +99,7 @@ class SettingsView(BaseView):
             command=self._on_theme_change,
             font=ctk.CTkFont(size=8)
         )
-        self.theme_control.pack(padx=15, pady=(0, 10))
+        self.theme_control.grid(row=1, column=0, padx=15, pady=(0, 10))
         self.theme_control.set("System")  # Valeur par défaut
 
     def _on_speed_change(self, value):
@@ -144,7 +151,3 @@ class SettingsView(BaseView):
             self.sound_control.set(settings["sound"])
         if "theme" in settings:
             self.theme_control.set(settings["theme"])
-
-    def update(self, state):
-        """Update settings view based on the state"""
-        # ...update logic if needed...
