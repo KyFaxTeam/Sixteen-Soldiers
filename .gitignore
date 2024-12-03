@@ -11,6 +11,10 @@ models/__pycache__
 store/__pycache__
 actions/__pycache__
 
+docs/doc_code.pdf
+docs/github.pdf
+docs/rules.pdf
+
 
 saved_game/*
 

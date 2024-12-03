@@ -207,33 +207,27 @@ class MainView(BaseView):
     def update(self, state: dict):
         """
         Update the view with new state based on game status.
-        Order of checks matters:
-        1. Game Over
-        2. Game Not Started
-        3. Normal Game Updates
         """
         # First priority: Check if game is over
         if state["is_game_over"]:
-            self.game_board.play_pause_button.configure(state="disabled")
-            self.game_board.reset_button.configure(state="normal")
-            if not self.after_game_view:  # Only show if not already showing
-                self.logger.info("Game is over - Showing after game view")
+            if not self.after_game_view:
                 self.show_after_game_view()
-            
             return
 
+        # Handle game reset/cleanup
+        if not state["is_game_started"] and hasattr(self, 'history_view') and hasattr(self, 'game_board'):
+            if state.get("is_game_leaved"):
+                self.history_view.clear_moves()
+                self.game_board.clear_board()
+                # Reset after_game_view reference when game is reset
+                self.after_game_view = None
+        
         # Always update players column for agent selection
         if hasattr(self, 'players_column'):
             self.players_column.update(state)
         
-        
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
-            if state["is_game_leaved"] :
-                # self.logger.info("***********Game was left - Resetting history and board*********")
-                self.history_view.clear_moves()
-                self.game_board.clear_board()
-                
             return
 
         # Normal game updates
