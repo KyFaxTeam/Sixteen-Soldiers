@@ -220,6 +220,8 @@ class HistoryView(BaseView):
             content_frame["frame"].destroy()
         self.move_frames = []
 
+        self.moves_container._parent_canvas.yview_moveto(0.0)
+
     def update(self, state):
         """Updates the move history by adding only new moves"""
 
