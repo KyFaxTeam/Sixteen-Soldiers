@@ -19,8 +19,8 @@ def save_game( state: Dict) -> Dict:
 
         # Define metadata
         metadata = {
-            "players": agents,
-            "info_index": agents_info_index,
+            "agents": agents,
+            "agents_info_index": agents_info_index,
             "winner": winner,
             "game_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }

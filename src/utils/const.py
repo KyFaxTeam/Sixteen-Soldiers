@@ -18,7 +18,7 @@ class Soldier(Enum):
     EMPTY = -1
 
 # Padding around the game board
-PADDING = 50
+PADDING = 40
 
 # Gap between elements on the game board
 GAP = 80
@@ -30,7 +30,7 @@ LINE_THICKNESS = 4
 MAX_MOVES_WITHOUT_CAPTURE = 60
 
 # Size of the soldiers on the game board (width, height)
-SOLDIER_SIZE = (45, 45)
+SOLDIER_SIZE = (40, 40)
 
 SOLDIER_SIZE_HISTORY = (20, 20)
 
