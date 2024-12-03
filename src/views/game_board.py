@@ -1,4 +1,3 @@
-
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -277,16 +276,23 @@ class GameBoard(BaseView):
         if state.get("is_game_leaved"):
             return
         
+        if state.get("is_game_over"):
+            self.logger.info("Game is over - disabling play button")
+            self.play_button.configure(state="disabled")
+            self.play_pause_button.configure(
+                image=ctk.CTkImage(
+                    light_image=Image.open(Assets.icon_play), size=(20, 20)),
+                text="Play"
+            )
+            self.reset_button.configure(state="normal")
+            return
+        
         if not self.is_game_started:
             return
+        
         try:
             # self.logger.info("Starting GameBoard update")
-            # self.logger.debug(f"Current state: {state.get('is_game_over')}, {state.get('board')}")
-            
-            if not state.get("board"):
-                # self.logger.warning("No board in state")
-                return
-                
+ 
             last_move = get_last_move(state)
             #self.logger.info(f"Last move: {last_move}")
 
@@ -303,13 +309,6 @@ class GameBoard(BaseView):
             self.canvas.update_idletasks()
             
             # # Update button states
-            # if state.get("is_game_over"):
-            #     self.logger.info("Game is over - disabling play button")
-            #     # self.play_button.configure(state="disabled")
-            # else:
-            #     ...
-            #     # self.play_button.configure(state="normal")
-
             # if state.get("is_game_paused"):
             #     self.logger.info("Game is paused - changing pause button text")
             #     # self.pause_button.configure(text="Resume")
@@ -451,26 +450,22 @@ class GameBoard(BaseView):
             self.is_paused = not is_paused
 
     def reset_game(self):
-
-        if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
-            self.store.dispatch({"type": "RESET_GAME"})
-            self.is_game_started = False
-            self.is_paused = True
-            self.previous_move = None
-           
+        #if self.store.state["is_game_started"] and self.store.state["is_game_paused"]:
+         
+        self.store.dispatch({"type": "RESET_GAME"})
+        self.is_game_started = False
+        self.previous_move = None
         
-        # Reset the button icon to play
+            # Reset buttons
         self.play_pause_button.configure(
-            image = ctk.CTkImage(
-                light_image=Image.open(Assets.icon_play), size=(20, 20)))
-        # Change the button text to "Play"
-        self.play_pause_button.configure(text="Play")
-        # Enable reset button
+            image=ctk.CTkImage(
+                light_image=Image.open(Assets.icon_play), size=(20, 20)),
+            text="Play"
+        )
+        self.play_pause_button.configure(state="normal")
         self.reset_button.configure(state="disabled")
         
-        # self.play_button.configure(state="normal")
-        # self.canvas.delete("all")
-        
+
     def clear_board(self):
         self.canvas.delete("all")
         self.__draw_board()

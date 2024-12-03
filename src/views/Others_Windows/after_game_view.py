@@ -23,7 +23,7 @@ class AfterGameView(ctk.CTkToplevel):
         self.geometry(f"400x300+{(screen_width-400)//2}+{(screen_height-300)//2}")
         # self.geometry("400x300")
         self.transient(master)
-        self.grab_set()  # Block interaction with MainView
+        #self.grab_set()  # Block interaction with MainView
         self.sounds.game_completed()
         # self.logger.info("**************Game Over window created*************")
         # Fetch winner's data from store
@@ -118,6 +118,12 @@ class AfterGameView(ctk.CTkToplevel):
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=lambda: on_save(save_button), width=50)
         save_button.grid(row=0, column=5, padx=(25, 0))
 
+        # Add protocol for window close button (X)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def on_closing(self):
+        """Handle window closing event - just close the window"""
+        self.destroy()
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
@@ -148,7 +154,7 @@ class AfterGameView(ctk.CTkToplevel):
             "ai_name": winner_data.get("name", "AI"),
             "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
-            "remaining_pawns": self.get_remaining_pawns(winner)
+            "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value'))
         }
 
     def _get_default_winner_data(self):
@@ -162,17 +168,6 @@ class AfterGameView(ctk.CTkToplevel):
 
 
     
-    def get_remaining_pawns(self, soldier_value):
-        # ...existing code or new logic...
-        if soldier_value:
-            board = self.store.get_state().get("board")
-            if board:
-                soldier_count = sum(
-                    1 for position, owner in board.soldiers.items()
-                    if owner == soldier_value
-                )
-                return soldier_count
-        return 0
 
     # def update(self, state):
     #     """Update the view when the state changes"""

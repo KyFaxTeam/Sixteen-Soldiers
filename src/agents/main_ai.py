@@ -26,6 +26,8 @@ class Agent(BaseAgent):
 
     
         valid_actions = board.get_valid_actions()
+        if 'CAPTURE_SOLDIER' in [action['type'] for action in valid_actions]:
+            valid_actions = [action for action in valid_actions if action['type'] == 'CAPTURE_SOLDIER']
         
         return random.choice(valid_actions) # You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
         
