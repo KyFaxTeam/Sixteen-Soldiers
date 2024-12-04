@@ -64,6 +64,8 @@ class GameBoard(BaseView):
         
         # Calculer le self.GAP_ en fonction de la résolution de l'écran
         self.GAP_ = int(screen_height / screen_width * 150)
+        # self.GAP_ = screen_height // 11
+        print('GAP _', self.GAP_)
         
         mode = ctk.get_appearance_mode().lower()
         bg_color = ctk.ThemeManager.theme["CTkFrame"]["fg_color"][0 if mode == "light" else 1]
