@@ -38,7 +38,7 @@ class GameBoard(BaseView):
         
         # Créer un frame pour les boutons (en haut)
         self.button_frame = ctk.CTkFrame(self.frame, bg_color="transparent")
-        self.button_frame.pack(padx= 5, pady= (pad_board[resolution], 1))
+        self.button_frame.pack(pady= (pad_board[resolution], 1))
         self.create_canvas()
 
         self.store.subscribe_theme(self.change_canvas_color)
@@ -91,7 +91,7 @@ class GameBoard(BaseView):
 
         # Créer un canvas pour le plateau de jeu
         self.canvas = tk.Canvas(canvas_frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
-        self.canvas.pack(padx=(40,40), pady=(0, pad_board[resolution]), expand=True, fill ="both")
+        self.canvas.pack(padx=(35,35), pady=(0, pad_board[resolution]), expand=True, fill ="both")
 
     def __draw_board(self):
        

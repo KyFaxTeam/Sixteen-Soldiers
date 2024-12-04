@@ -35,14 +35,6 @@ elif screen_height <= 1600:
 else:
     resolution = "4K Ultra HD"
 
-# Padding around the game board
-PADDING = 45
-
-# Gap between elements on the game board
-GAP = 80
-
-# Thickness of the lines on the game board
-LINE_THICKNESS = 4
 
 # Max moves without a capture
 MAX_MOVES_WITHOUT_CAPTURE = 60
@@ -50,8 +42,22 @@ MAX_MOVES_WITHOUT_CAPTURE = 60
 # Size of the soldiers on the game board (width, height)
 if resolution == "HD":
     SOLDIER_SIZE = (35, 35)
+    # Padding around the game board
+    PADDING = 40
+    # Thickness of the lines on the game board
+    LINE_THICKNESS = 3
+    # Size of the history frame
+    HISTORY_HEIGHT = 250
+
 else : 
+    # Padding around the game board
+    PADDING = 50
+    # Size of the history frame
+    HISTORY_HEIGHT = 300
+
     SOLDIER_SIZE = (45, 45)
+    # Thickness of the lines on the game board
+    LINE_THICKNESS = 4
 
 SOLDIER_SIZE_HISTORY = (20, 20)
 
