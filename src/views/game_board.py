@@ -292,7 +292,7 @@ class GameBoard(BaseView):
         
         if state.get("is_game_over"):
             self.logger.info("Game is over - disabling play button")
-            self.play_button.configure(state="disabled")
+            self.play_pause_button.configure(state="disabled")
             self.play_pause_button.configure(
                 image=ctk.CTkImage(
                     light_image=Image.open(Assets.icon_play), size=(20, 20)),

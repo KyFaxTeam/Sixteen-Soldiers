@@ -167,8 +167,8 @@ class GameRunner:
         """Handle game conclusion and stats updates"""
         final_state = self.store.get_state()
         time_manager = final_state.get('time_manager')
-        total_moves_agent1 = get_move_player_count(final_state, agent1.soldier_value)
-        total_moves_agent2 = get_move_player_count(final_state, agent2.soldier_value)
+        total_moves_agent1 = get_move_player_count(final_state['history'], agent1.soldier_value)
+        total_moves_agent2 = get_move_player_count(final_state['history'], agent2.soldier_value)
 
         # Determine game outcome
         if winner is None:
