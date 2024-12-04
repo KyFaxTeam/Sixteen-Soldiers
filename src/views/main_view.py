@@ -149,7 +149,7 @@ class MainView(BaseView):
         
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store)
-        self.game_board.frame.grid(row=0, column=0, sticky="nsew", pady=(0, 0))
+        self.game_board.frame.grid(row=0, column=0, sticky="nsew")
         self.game_board.subscribe(self.store)
         self.game_board.update(self.store.get_state())
         

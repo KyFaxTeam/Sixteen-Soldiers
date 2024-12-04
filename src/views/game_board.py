@@ -37,8 +37,8 @@ class GameBoard(BaseView):
         # self.main_container.pack(expand=False)
         
         # Créer un frame pour les boutons (en haut)
-        self.button_frame = ctk.CTkFrame(self.frame, bg_color="transparent", corner_radius=8)
-        self.button_frame.pack(padx= 5, pady= (pad_board[resolution], 1), expand=False)
+        self.button_frame = ctk.CTkFrame(self.frame, bg_color="transparent")
+        self.button_frame.pack(padx= 5, pady= (pad_board[resolution], 1))
         self.create_canvas()
 
         self.store.subscribe_theme(self.change_canvas_color)

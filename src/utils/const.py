@@ -36,7 +36,7 @@ else:
     resolution = "4K Ultra HD"
 
 # Padding around the game board
-PADDING = 40
+PADDING = 45
 
 # Gap between elements on the game board
 GAP = 80
