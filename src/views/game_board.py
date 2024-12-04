@@ -200,7 +200,7 @@ class GameBoard(BaseView):
         self.reset_button.pack(side="left", padx=10, pady=5)
      
             
-    def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=10):
+    def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=7):
         """
             Moves a piece from its current position to (target_x, target_y) in multiple steps.
             
