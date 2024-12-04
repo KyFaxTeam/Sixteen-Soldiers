@@ -69,11 +69,11 @@ class HistoryView(BaseView):
 
         # History Section
         self.history_frame = ctk.CTkFrame(self.frame)
-        self.history_frame.pack(fill="both", expand=True, pady=(0, 20))
+        self.history_frame.pack(fill="both", expand=True, pady=(0, 0))
 
         # Titre "Move History"
         self.title_frame = ctk.CTkFrame(self.history_frame)
-        self.title_frame.pack(fill="both", padx=0, pady=10)
+        self.title_frame.pack(fill="both", padx=0, pady=(0, 10))
         #self.title_frame.history_icon = ImageTk.PhotoImage(Image.open(Assets.icon_history_collante).resize(EMOJIS_SIZE))
         self.title_frame.history_icon = ctk.CTkImage(
             light_image=Image.open(Assets.icon_history_collante),
@@ -86,7 +86,7 @@ class HistoryView(BaseView):
             image=self.title_frame.history_icon,
             text=" History",
             compound="left",
-            font=ctk.CTkFont(size=11, weight="bold")
+            font=ctk.CTkFont(size=13, weight="bold")
         )
         self.title.pack(pady=(5, 5))
 

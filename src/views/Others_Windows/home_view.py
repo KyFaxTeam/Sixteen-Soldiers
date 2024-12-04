@@ -29,8 +29,8 @@ class HomeView(BaseView):
             width=200,
             height=40,
             corner_radius=8,
-            fg_color="#3B3B3B",
-            hover_color="#131630",
+            # fg_color="#3B3B3B",
+            # hover_color="#131630",
             command=on_new_game
         )
         self.new_game_button.pack(pady=10)
@@ -42,11 +42,11 @@ class HomeView(BaseView):
             width=200,
             height=40,
             corner_radius=8,
-            fg_color="#3B3B3B",
-            hover_color="#131630",
+            # fg_color="#3B3B3B",
+            # hover_color="#131630",
             command=on_review_match
         )
-        self.review_match_button.configure(state="disabled")
+        self.review_match_button.configure(state="normal")
         self.review_match_button.pack(pady=10)
 
     def show(self):
