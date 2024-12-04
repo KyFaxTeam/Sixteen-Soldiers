@@ -1,9 +1,10 @@
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
+import screeninfo
 from src.models.assets.index import Assets
 from src.utils.audio import Sounds
-from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, resolution
 from src.utils.game_utils import GameRunner
 from src.views.base_view import BaseView
 from src.utils.board_utils import BoardUtils  
@@ -12,6 +13,14 @@ import logging
 import traceback
 from src.store.store import Store
 
+pad_board = {
+    "HD": 5,
+    "Full HD": 10,
+    "HD+": 10,
+    "Quad HD": 10,
+    "4K Ultra HD": 10
+}
+
 
 class GameBoard(BaseView):
     
@@ -19,18 +28,19 @@ class GameBoard(BaseView):
         # store.state['board']
         super().__init__(master)
         self.store = store
-        self.frame.pack(expand=False)
+       #self.frame.pack(expand=True)
         
         
         # Créer un conteneur pour le canvas et les boutons
        
-        self.main_container = ctk.CTkFrame(self.frame)
-        self.main_container.pack(expand=False)
+        # self.main_container = ctk.CTkFrame(self.frame)
+        # self.main_container.pack(expand=False)
         
-        self.create_canvas()
         # Créer un frame pour les boutons (en haut)
-        self.button_frame = ctk.CTkFrame(self.main_container, bg_color="transparent", corner_radius=8)
-        self.button_frame.pack(padx= 5, pady= 5, expand=False)
+        self.button_frame = ctk.CTkFrame(self.frame, bg_color="transparent", corner_radius=8)
+        self.button_frame.pack(padx= 5, pady= (pad_board[resolution], 1), expand=False)
+        self.create_canvas()
+
         self.store.subscribe_theme(self.change_canvas_color)
         
   
@@ -58,41 +68,30 @@ class GameBoard(BaseView):
     def create_canvas(self):
         """Crée un canvas pour le plateau de jeu."""
         # Get resolution of the screen
-        screen_height = self.master.winfo_screenheight()
-        
-        # Calculer le GAP en fonction de la hauteur d'écran uniquement
-        # On prend environ 1/12 de la hauteur d'écran pour que le plateau occupe une bonne proportion
-        self.GAP_ = int(screen_height / 13)  # Cette valeur peut être ajustée
-        
-        # Assurer une taille minimale et maximale pour le GAP
-        MIN_GAP = 60 # Taille minimale pour la lisibilité
-        MAX_GAP = 100  # Taille maximale pour éviter un plateau trop grand
-        self.GAP_ = max(MIN_GAP, min(self.GAP_, MAX_GAP))
 
+        screen_info = screeninfo.get_monitors()[0]
+        
+        
+        screen_height = screen_info.height
+        
+
+        # Calculer le self.GAP_ en fonction de la résolution de l'écran
+        self.GAP_ = int(screen_height /12)
+        
         mode = ctk.get_appearance_mode().lower()
         bg_color = ctk.ThemeManager.theme["CTkFrame"]["fg_color"][0 if mode == "light" else 1]
 
-        # Calculer les dimensions du canvas en fonction du GAP
-        canvas_width = 4 * self.GAP_ + 2 * PADDING
-        canvas_height = 8 * self.GAP_ + 2 * PADDING
-
         canvas_frame = ctk.CTkFrame(
             self.frame, 
-            width=canvas_width,
-            height=canvas_height,
-            corner_radius=15,
+            width=4 * self.GAP_ + 2 * PADDING , 
+            height=8 * self.GAP_ + 2 * PADDING,
+            corner_radius=15,  # Coins arrondis avec CustomTkinter
         )
-        canvas_frame.pack(pady=(10,0), expand=True, fill="both")
+        canvas_frame.pack(pady=(pad_board[resolution], 0), expand=True, fill = "both")
 
         # Créer un canvas pour le plateau de jeu
-        self.canvas = tk.Canvas(
-            canvas_frame, 
-            width=canvas_width,
-            height=canvas_height,
-            bg=bg_color, 
-            highlightthickness=0
-        )
-        self.canvas.pack(padx=(40,40), pady=(0,10), expand=True, fill="both")
+        self.canvas = tk.Canvas(canvas_frame, width= 4 * self.GAP_ + 2 * PADDING , height= 8 * self.GAP_ + 2 * PADDING , bg =bg_color, highlightthickness=0, highlightbackground="#424977")
+        self.canvas.pack(padx=(40,40), pady=(0, pad_board[resolution]), expand=True, fill ="both")
 
     def __draw_board(self):
        
@@ -172,7 +171,7 @@ class GameBoard(BaseView):
         for i in range(9):
             custom_font = ctk.CTkFont(family=Assets.font_montserrat, size=15)
             if i < 5:
-                x = PADDING  + i * self.GAP_
+                x = PADDING + i * self.GAP_
                 self.canvas.create_text(x, 8*self.GAP_ + 2 * PADDING -10 , text=str(i + 1), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")
             y = PADDING + i * self.GAP_
             self.canvas.create_text(10, y, text=chr(ord('a') + i), font=custom_font, fill=text_color, anchor="center", tags="optional_tag")

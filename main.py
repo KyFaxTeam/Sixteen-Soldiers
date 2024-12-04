@@ -14,7 +14,7 @@ def main():
     logger = get_logger(__name__)
     
     ctk.set_default_color_theme(THEME_PATH)
-    ctk.set_appearance_mode("Light")
+    ctk.set_appearance_mode("System")
     
     # Créez la fenêtre principale
     root = ctk.CTk()

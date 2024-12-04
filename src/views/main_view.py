@@ -1,8 +1,9 @@
-import CTkMessagebox
 import customtkinter as ctk
 from tkinter import filedialog, Tk
 import logging
 import os
+
+from src.utils.const import resolution, screen_width, screen_height
 
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
@@ -17,6 +18,9 @@ from src.views.Right_Column.setting_view import SettingsView
 
 logger = logging.getLogger(__name__)
 
+# winfo_screenwidth() and winfo_screenheight() to get the screen width and height
+# winfo_x() and winfo_
+
 class MainView(BaseView):
     """Main window of the application"""
 
@@ -25,8 +29,34 @@ class MainView(BaseView):
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
         self.logger = logging.getLogger(__name__)
+        # Set window title
         self.master.title("Sixteen Soldiers")
-        self.master.geometry("400x300")
+        
+        # Get screen dimensions
+        self.adjust_player_column = {
+            "HD": "new",
+            "Full HD": "nsew",
+            "HD+": "nsew",
+            "Quad HD":  "nsew",
+            "4K Ultra HD":  "nsew"
+        }
+
+        
+        # Calculate window sizes
+        if resolution == "HD":
+            self.home_width = int(screen_width * 0.3)
+            self.home_height = int(screen_height * 0.4)
+            self.game_width = int(screen_width * 0.75)
+            self.game_height = int(screen_height * 0.75)
+        else :
+
+            self.home_width = int(screen_width * 0.2)
+            self.home_height = int(screen_height * 0.3)
+            self.game_width = int(screen_width * 0.75)
+            self.game_height = int(screen_height * 0.75)
+        
+        # Set initial size for home view
+        self.master.geometry(f"{self.home_width}x{self.home_height}")
         
         # Initialize all component references as None
         self.players_column = None
@@ -39,27 +69,19 @@ class MainView(BaseView):
         # Initialize HomeView
         self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
         self.home_view.show()
-
-    def setup_game_view(self):  # Renamed from start_new_game
-        """Setup the game view layout and initialize components"""
-        self.home_view.hide()
-        self.master.geometry("1200x800")
-        self.create_main_layout()
+        
+    
 
     def start_new_game(self):
         """Start a new game and switch to game board view"""
         self.home_view.hide()  # Hide the home screen
-        self.master.geometry("1200x600")
+        self.master.geometry(f"{self.game_width}x{self.game_height}")
+        print(f"Game window size: {self.game_width}x{self.game_height}")
         self.create_main_layout()  # Initialize main layout and sub-views
 
     def review_match(self):
         """Review a match by selecting a saved game file and switching to the history view."""
         try:
-            save_folder = os.path.join(os.getcwd(), "saved_game")
-            if not os.path.exists(save_folder):
-                self.show_popup("No saved games found. Play and save a game first.", "No Games")
-                return
-            
             # Open file dialog to select the saved game JSON file
             root = Tk()
             root.withdraw()  # Hide the root window
@@ -71,26 +93,31 @@ class MainView(BaseView):
             )
             
             if not file_path:
+                # print("No file selected.")
                 return
             
-            # Load and validate the game file
-            game_data = load_game(file_path)
-            if not game_data or 'history' not in game_data:
-                self.show_popup("Invalid or corrupted game file.", "Error")
-                return
+            # Load the game state from the selected file
+            game_load = load_game(file_path)
             
-            if not game_data['history']:
-                self.show_popup("This game file contains no moves to replay.", "Empty Game")
+            if game_load is None:
+                # print("Failed to load the game.")
                 return
             
 
-            from src.utils.game_utils import GameRunner
-            game_runner = GameRunner(self.store)
+            # Display the game history (or pass it to another view)
+            # self.logger.info("Game successfully loaded for review.")
+            # print(f"Metadata: {game_load['metadata']}")
+        
 
             self.home_view.hide()  # Hide the home screen
-            self.master.geometry("400x300")
+            self.master.geometry(f"{self.game_width}x{self.game_height}")
             self.create_main_layout()  # Initialize main layout and sub-views
             
+            # Start game replay
+            from src.utils.game_utils import GameRunner
+            game_runner = GameRunner(self.store)
+            game_runner.replay_game(game_load)
+
         except Exception as e:
             print(f"An error occurred while reviewing the match: {e}")
 
@@ -113,47 +140,54 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content, self.store)
-        self.players_column.frame.grid(row=0, column=0, sticky="new", padx=(0, 0), pady=20)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky= self.adjust_player_column[resolution],
+                                        padx=(5, 0), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
-        self.center_column.grid(row=0, column=1)
+        self.center_column.grid(row=0, column=1, sticky="n")
         
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store)
-        self.game_board.frame.pack(expand=True, fill="both")
+        self.game_board.frame.grid(row=0, column=0, sticky="nsew", pady=(0, 0))
         self.game_board.subscribe(self.store)
         self.game_board.update(self.store.get_state())
         
         # Right column - Move history and settings
-        self.right_column = ctk.CTkFrame(self.content)
-        self.right_column.grid(row=0, column=2, sticky="ew", padx=(10, 0))  # Allow second row to expand vertically
-        self.right_column.grid_columnconfigure(0, weight=1)  # Allow column to expand horizontally
-        self.right_column.grid_rowconfigure(0, weight=3)  # Increased weight for history
+        self.right_column = ctk.CTkFrame(self.content)#, fg_color="transparent")
+        self.right_column.grid(row=0, column=2, sticky="nsew", padx=(0, 5), pady=(10, 1))
+        
         # History view
         self.history_view = HistoryView(self.right_column, self.store)
-        self.history_view.frame.grid(row=0, column=0, sticky="new", padx=10)
-
-        # Settings view
         self.settings_view = SettingsView(self.right_column, self.store)
-        self.settings_view.frame.grid(row=1, column=0, sticky="new", padx=10)  # Changed to 'sew' to stick to bottom
-        #self.settings_view.frame.grid_propagate(False) 
 
-    def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 2000):
-        """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
-        popup = CTkMessagebox(
-            title=title,
-            message=message,
-            icon="info",
-            width=250,
-            height=150,
-            font=("Roboto", 12),
-            justify="center",
-            fade_in_duration=0.2,
-        )
+    def show_popup(self, msg: str, title: str = "Warning Message"):
+        """Show a popup message relative to the main window position"""
+        popup = ctk.CTkToplevel(self.master)
+        popup.title(title)
         
-        if auto_close:
-            popup.after(duration, popup.destroy)
+        # Make popup stay on top
+        popup.transient(self.master)
+        popup.grab_set()
+        
+        # Get main window position and size
+        main_x = self.master.winfo_x()
+        main_y = self.master.winfo_y()
+        main_width = self.master.winfo_width()
+        
+        # Position popup relative to main window's center column
+        popup_width = 300
+        popup_height = 100
+        x_position = main_x + (main_width // 2) - (popup_width // 2)
+        y_position = main_y + 100  # Position it near the top of the window
+        
+        popup.geometry(f"{popup_width}x{popup_height}+{x_position}+{y_position}")
+        
+        label = ctk.CTkLabel(popup, text=msg, pady=20)
+        label.pack()
+        
+        # Auto-close after 4 seconds
+        popup.after(4000, popup.destroy)
 
     def show_after_game_view(self):
         """Show AfterGameView with winner details"""
@@ -175,9 +209,9 @@ class MainView(BaseView):
             save_game(self.store.get_state())  # Save the game
             button.configure(text="Saved", state="disabled")  # Update button text and disable it
             self.logger.info("Game successfully saved.")
-            self.show_popup("Game successfully saved", "Success", "info")
         except Exception as e:
             self.logger.error(f"An error occurred while saving the game: {e}")
+
 
     def restart_game(self):
         """Reset the game and return to HomeView"""
@@ -193,11 +227,11 @@ class MainView(BaseView):
             self.main_container.pack_forget()
             del self.main_container
 
-        # Resize window for HomeView
-        self.master.geometry("400x300")
+        self.master.geometry(f"{self.home_width}x{self.home_height}")
         
         # Show HomeView again
         self.home_view.show()
+
         
     def run(self):
         self.master.mainloop()
