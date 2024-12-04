@@ -42,7 +42,7 @@ class AfterGameView(ctk.CTkToplevel):
         remaining_time = winner_data.get("remaining_time")
         remaining_pawns = winner_data.get("remaining_pawns")
 
-        total_moves = int(len(state.get("history", [])) / 2)
+        total_moves = winner_data.get("total_moves") if winner_data.get("total_moves") else len(state.get("history", []))//2
 
         # Display "Gagnant" title
         ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
@@ -147,6 +147,7 @@ class AfterGameView(ctk.CTkToplevel):
         latest_time = "00:00"
         if performances:
             latest_time = performances[-1].time  # Le temps est déjà sauvegardé par conclude_game
+            number_of_moves = performances[-1].number_of_moves
 
         return {
             "profile_img": winner_data.get("profile_img"),
@@ -154,7 +155,8 @@ class AfterGameView(ctk.CTkToplevel):
             "ai_name": winner_data.get("name", "AI"),
             "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
-            "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value'))
+            "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
+            "total_moves": number_of_moves
         }
 
     def _get_default_winner_data(self):
@@ -163,7 +165,8 @@ class AfterGameView(ctk.CTkToplevel):
             "team_pseudo": "Aucun",
             "ai_name": "Vainqueur",
             "remaining_time": None,
-            "remaining_pawns": None
+            "remaining_pawns": None,
+            "total_moves": None
         }
 
 
