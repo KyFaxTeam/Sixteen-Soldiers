@@ -29,7 +29,7 @@ class PlayersColumn(BaseView):
 
         # VS Label container
         self.vs_container = ctk.CTkFrame(self.main_container, fg_color="transparent")
-        self.vs_container.grid(row=1, column=0, sticky="nsew", pady=30)
+        self.vs_container.grid(row=1, column=0, sticky="nsew", pady=20)
         
         self.vs_label = ctk.CTkLabel(
             self.vs_container,

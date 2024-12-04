@@ -4,8 +4,8 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 
 from src.models.assets.index import Assets
-from src.utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
-from src.utils.history_utils import get_last_move, is_equals
+from src.utils.const import HISTORY_HEIGHT, SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
+from src.utils.history_utils import is_equals
 from src.views.base_view import BaseView
 
 
@@ -91,7 +91,7 @@ class HistoryView(BaseView):
         self.title.pack(pady=(5, 5))
 
         # Container pour l'historique des mouvements
-        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=300)
+        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=HISTORY_HEIGHT)
         self.moves_container.pack(fill="both", expand=True)
 
         # Liste pour garder une référence aux mouvements
