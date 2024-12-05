@@ -7,10 +7,47 @@ from typing import Dict
 from src.agents.base_agent import MatchPerformance
 from src.utils.const import Soldier
 
+def convert_data(data, to_json=True):
+    """Convert data between internal format and JSON format"""
+    if isinstance(data, dict):
+        if not to_json and "agents_info_index" in data:
+            # Special handling for agents_info_index when loading
+            return {k: convert_data(v, to_json) for k, v in data.items()}
+        # Normal dict conversion
+        return {str(k): convert_data(v, to_json) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [convert_data(item, to_json) for item in data]
+    elif isinstance(data, Soldier):
+        return data.name if to_json else data
+    elif isinstance(data, str) and not to_json and data in ['RED', 'BLUE']:
+        return getattr(Soldier, data)
+    elif isinstance(data, MatchPerformance):
+        if to_json:
+            return {
+                "issue": data.issue,
+                "number_of_moves": data.number_of_moves,
+                "time": data.time,
+                "opponent": data.opponent,
+            }
+    return data
 
-def save_game( state: Dict) -> Dict:
-    
-        """Save the game history to a JSON file with metadata and a timestamped filename"""
+def convert_agents_info(agents_info):
+    """Convert agents_info_index keys to Soldier enums"""
+    if not agents_info:
+        return {}
+    converted = {}
+    for key, value in agents_info.items():
+        # Convert string key like "Soldier.RED" to enum
+        if isinstance(key, str) and key.startswith("Soldier."):
+            enum_value = getattr(Soldier, key.split(".")[1])
+            converted[enum_value] = value
+        else:
+            converted[key] = value
+    return converted
+
+def save_game(state: Dict) -> Dict:
+    """Save the game history to a JSON file with metadata and timestamps"""
+    try:
         # Get the game history from the state
         history = state.get("history", [])
         agents = state.get("agents", {})
@@ -39,74 +76,40 @@ def save_game( state: Dict) -> Dict:
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
 
-        converted_data = convert_keys_to_strings(data_to_save)
+        # Convert data to JSON format
+        converted_data = convert_data(data_to_save, to_json=True)
         
-        # Save the JSON data to the file
-        try:
-            with open(save_file, "w", encoding="utf-8") as file:
-                json.dump(converted_data, file, indent=4, default=custom_serializer)
-        except Exception as e:
-            print(f"An error occurred while saving the game: {e}")
-
-# Define a custom serializer for Enum
-def custom_serializer(obj):
-    if isinstance(obj, Soldier):
-        return obj.name  # Serialize as the enum name (e.g., "RED", "BLUE")
-    if isinstance(obj, MatchPerformance):
-        # Serialize MatchPerformance as a dictionary
-        return {
-            "issue": obj.issue,
-            "number_of_moves": obj.number_of_moves,
-            "time": obj.time,
-            "opponent": obj.opponent,
-        }
-    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
-
-def convert_keys_to_strings(data):
-    """
-    Recursively converts dictionary keys to strings if they are not of a JSON-compatible type.
-    """
-    if isinstance(data, dict):
-        return {str(k): convert_keys_to_strings(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [convert_keys_to_strings(item) for item in data]
-    elif isinstance(data, Soldier):
-        return data.name  # Convert Soldier directly to its name
-    else:
-        return data
-
-
+        with open(save_file, "w", encoding="utf-8") as file:
+            json.dump(converted_data, file, indent=4)
+        
+        return converted_data
+    except Exception as e:
+        print(f"An error occurred while saving the game: {e}")
+        return None
 
 def load_game(save_file: str) -> Dict:
-    """
-    Load the game state from a JSON file.
-    
-    Args:
-        save_file (str): Path to the JSON file of the saved game.
-    
-    Returns:
-        dict: The loaded game state, including players and history.
-    """
+    """Load the game state from a JSON file"""
     try:
         with open(save_file, 'r', encoding='utf-8') as file:
             saved_state = json.load(file)
         
-        # Extract data
-        metadata = saved_state.get('metadata', {})
-        history = saved_state.get('history', [])
+        # Convert loaded data to internal format
+        converted_state = convert_data(saved_state, to_json=False)
         
-        # print("Game loaded successfully.")
-        return {
-            'metadata': metadata,
-            'history': history
-        }
+        # Special handling for agents_info_index
+        if "metadata" in converted_state:
+            metadata = converted_state["metadata"]
+            if "agents_info_index" in metadata:
+                metadata["agents_info_index"] = convert_agents_info(metadata["agents_info_index"])
+        
+        return converted_state
+        
     except FileNotFoundError:
         print(f"No saved game found at {save_file}.")
         return None
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
         return None
-
 
 def save_reducer(state: Dict, action: Dict) -> Dict:
     """
