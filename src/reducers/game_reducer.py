@@ -8,6 +8,14 @@ from src.utils.history_utils import get_last_move
 
 
 
+def init_game(state: Dict) -> Dict:
+    """Initialize a new game"""
+    new_state = initial_state.copy()
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    new_state["is_game_started"] = True
+    return new_state
+
 def reset_game(state: Dict) -> Dict:
 
     new_state = initial_state.copy()
@@ -67,8 +75,6 @@ def select_agent(state: Dict, action: Dict) -> Dict:
     return new_state
 
 def register_agents(state: Dict, action: Dict) -> Dict:
-    
-    
     new_state = state.copy()
     for payload in [action["payload1"], action["payload2"]]:
         if payload is None:
@@ -99,6 +105,8 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return pause_game(state)
         case "RESUME_GAME":
             return resume_game(state)
+        case "INIT_GAME":
+            return init_game(state)
         case "REGISTER_AGENTS":
             return register_agents(state, action)
         case "SELECT_AGENT":

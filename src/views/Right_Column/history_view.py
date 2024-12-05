@@ -145,7 +145,7 @@ class HistoryView(BaseView):
             content_frame,
             image=time_up_icon if time_text == "Time up" else None,
             text=f"{time_text}{space_padding}|" if time_text != "Time up" else f"{time_text}  |",
-            font=ctk.CTkFont(size=10), 
+            font=ctk.CTkFont(size=11), 
             compound="right" if time_text != "Time up" else "left",
         )
         time_label.pack(side="left", padx=(2, 5))
@@ -157,7 +157,7 @@ class HistoryView(BaseView):
             image=content_frame.cible,
             # text=f"🎯 {move_data['pos'][0]} → {move_data['pos'][1]}",
             text=f" {move_data['pos'][-2]} → {move_data['pos'][-1]}",
-            font=ctk.CTkFont(size=10),
+            font=ctk.CTkFont(size=11),
             compound="left"
         )
         move_label.pack(side="left", padx=(2, 5))
@@ -170,7 +170,7 @@ class HistoryView(BaseView):
                 image=content_frame.approuve,
                 # text=f"| {capture_icon} Capture:",
                 text="| Capture:",
-                font=ctk.CTkFont(size=10),
+                font=ctk.CTkFont(size=11),
                 compound="left"
             )
             capture_label.pack(side="left", padx=(5, 2))

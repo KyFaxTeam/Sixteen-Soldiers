@@ -8,10 +8,10 @@ from src.utils.history_utils import get_move_player_count
 from src.utils.validator import is_valid_move
 from src.agents.base_agent import BaseAgent
 from src.store.store import Store
-from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier, TIMINGS
+from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier
+from enum import Enum
 
-
-def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 2000):
+def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500):
     """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
     popup = CTkMessagebox(
         title=title,
@@ -27,11 +27,109 @@ def show_popup(message: str, title: str = "Message", auto_close: bool = True, du
     if auto_close:
         popup.after(duration, popup.destroy)
 
+class GameMode(Enum):
+    REPLAY = 'replay'
+    GAME = 'game'
+    NONE = None
+
 class GameRunner:
     def __init__(self, store: Store):
         self.store = store
         self.logger = getLogger(__name__)
-        self.moves_without_capture = 0  
+        self.moves_without_capture = 0
+        self.game_mode = GameMode.NONE
+        self.game_data = None
+        self.agents = None
+        self.is_prepared = False
+
+    def cleanup(self):
+        """Nettoie l'état du GameRunner"""
+        self.game_mode = None
+        self.game_data = None
+        self.agents = None
+        self.is_prepared = False
+        self.moves_without_capture = 0
+
+    def set_mode(self, mode: str, data=None):
+        """Configure le mode de jeu (replay ou nouveau jeu)"""
+        self.cleanup()  # Nettoie l'état avant de changer de mode
+        self.game_mode = GameMode(mode)
+        if mode == 'replay':
+            self.game_data = data
+            return self.initialize_replay(data)
+        return True
+
+    def can_start(self) -> bool:
+        """Vérifie si le jeu peut démarrer"""
+        if not self.game_mode:
+            return False
+            
+        if self.game_mode == GameMode.REPLAY:
+            return bool(self.game_data)
+        return True  # Pour le mode GAME, on retourne toujours True car prepare_agents gère l'initialisation
+
+    def prepare_agents(self) -> bool:
+        """Prépare les agents pour le jeu"""
+        try:
+            if not self.game_mode:
+                self.logger.error("Invalid game mode")
+                return False
+
+            # Pour le mode replay, on vérifie qu'on a les données nécessaires
+            if self.game_mode == GameMode.REPLAY and not self.game_data:
+                self.logger.error("No replay data available")
+                return False
+
+            agents_info = self.store.get_state().get("agents_info_index", {})
+            agents = self.store.get_state().get("agents", {})
+
+            # On initialise toujours les agents par défaut si nécessaire
+            if not all(agents_info.values()):
+                for soldier_value in [Soldier.RED, Soldier.BLUE]:
+                    if not agents_info.get(soldier_value):
+                        ai = "main_ai" if soldier_value == Soldier.RED else "random_agent"
+                        agent_id = f"{ai}_{soldier_value.name}" 
+                        agents_info[soldier_value] = agent_id
+                        agents[agent_id] = {"pseudo": "main_ai"}
+
+            def create_agent(soldier_value):
+                agent_id = agents_info[soldier_value]
+                agent_type = agent_id.rsplit('_', 1)[0]
+                agent_module = __import__(f"src.agents.{agent_type}", fromlist=['Agent'])
+                return agent_module.Agent(
+                    soldier_value=soldier_value,
+                    data=agents.get(agent_id)
+                )
+
+            agent1 = create_agent(Soldier.RED)
+            agent2 = create_agent(Soldier.BLUE)
+            self.store.register_agents(agent1, agent2)
+            self.agents = (agent1, agent2)
+            self.is_prepared = True
+            return True
+        except Exception as e:
+            self.logger.error(f"Error preparing agents: {e}")
+            return False
+
+    def start(self):
+        """Démarre le jeu si tout est prêt"""
+        if not self.is_prepared and not self.prepare_agents():
+            self.logger.error("Agent preparation failed")
+            return False
+            
+        self.store.dispatch({"type": "INIT_GAME"})
+        
+        def run():
+            if self.game_mode == GameMode.REPLAY:
+                self.replay_game(self.game_data)
+            else:
+                self.run_game(*self.agents)
+
+        import threading
+        game_thread = threading.Thread(target=run)
+        game_thread.daemon = True
+        game_thread.start()
+        return True
           
     def run_game(self, agent1: BaseAgent, agent2: BaseAgent, delay: float = 0.5):
         """Run a game between two AI agents"""
@@ -67,7 +165,6 @@ class GameRunner:
                 valid_actions = [action for action in valid_actions if is_valid_move(action, board)]
 
                 if not valid_actions:
-                    # No valid actions for current player means the opponent wins
                     self.logger.info(f"No valid actions for {current_agent.name}")
                     winner = opponent_agent.soldier_value
                     reason = "no_valid_actions"
@@ -77,7 +174,6 @@ class GameRunner:
 
                     msg = f"Player {current_agent.name} ran out of time. \n \nNext moves of Soldier {current_agent.soldier_value.name} will be done by random."
      
-                    # self.logger.info(msg)
                     if not timeout[current_soldier_value.name] :
                         show_popup(msg, "Time up")
                         timeout[current_soldier_value.name] = True
@@ -91,11 +187,8 @@ class GameRunner:
                     action = current_agent.choose_action(board=board_copy)
                     elapsed_time = time.perf_counter() - start_time
 
-                # Validate action and fallback to random if invalid
-
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
                     msg = f"{current_agent.name} made invalid move, using random"
-                    # self.logger.warning(msg)
                     show_popup(msg, "Invalid move") 
                     action = random.choice(valid_actions)
 
@@ -110,7 +203,6 @@ class GameRunner:
                     "elapsed_time": elapsed_time
                 })
 
-                # Record the move in history
                 self.store.dispatch({
                     "type": "ADD_MOVE_TO_HISTORY",
                     "payload": {
@@ -125,19 +217,17 @@ class GameRunner:
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                # Après l'action dispatch, mettre à jour le compteur
                 if action.get("captured_soldier") is None:
                     self.moves_without_capture += 1
                 else:
                     self.moves_without_capture = 0
 
-                # Vérifier si on a atteint la limite de coups sans capture
                 if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
-                        winner = None  # Match nul
+                        winner = None
                         reason = "draw_few_pieces"
                     else:
                         if red_pieces > blue_pieces:
@@ -145,7 +235,7 @@ class GameRunner:
                         elif blue_pieces > red_pieces:
                             winner = Soldier.BLUE
                         else:
-                            winner = None  # Match nul en cas d'égalité
+                            winner = None
                         reason = "more_pieces_wins"
                     break
 
@@ -160,9 +250,7 @@ class GameRunner:
         else :
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
-
-        
-
+       
     def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
         """Handle game conclusion and stats updates"""
         final_state = self.store.get_state()
@@ -170,7 +258,6 @@ class GameRunner:
         total_moves_agent1 = get_move_player_count(final_state['history'], agent1.soldier_value)
         total_moves_agent2 = get_move_player_count(final_state['history'], agent2.soldier_value)
 
-        # Determine game outcome
         if winner is None:
             issue1, issue2 = 'draw', 'draw'
         elif winner == agent1.soldier_value:
@@ -182,7 +269,6 @@ class GameRunner:
             raise ValueError("Invalid winner value in _conclude_game")
             
 
-        # Update agent stats
         agent1.conclude_game(issue1, opponent_name=agent2.name, 
                                number_of_moves=total_moves_agent1,
                                time=time_manager.get_remaining_time(agent1.soldier_value))
@@ -191,10 +277,7 @@ class GameRunner:
                                number_of_moves=total_moves_agent2,
                                time=time_manager.get_remaining_time(agent2.soldier_value))
             
-        # Update store with final stats
         self.store.register_agents(agent1, agent2)
-        # print("***********************Reason", reason)
-        # Only dispatch END_GAME if not already game over
         if not final_state.get("is_game_over"):
             self.store.dispatch({
                 "type": "END_GAME",
@@ -203,95 +286,139 @@ class GameRunner:
                 "error": None
             })
 
-    def replay_game(self, game_data: dict, delay: float = 1.0):
-        """Replay a saved game using the history of moves"""
-        # self._stop_replay = False  
+    def initialize_replay(self, game_data: dict):
+        """Initialize the store with the game data for replay"""
         try:
-            # Reset the game state
-            self.store.dispatch({"type": "RESET_GAME"})
-            
-            # Setup initial game state from metadata if needed
             metadata = game_data.get('metadata', {})
             agents_info_index = metadata.get('agents_info_index', {})
-            agents = metadata.get('agents', {})
+            
+            if agents_info_index and all(isinstance(k, Soldier) for k in agents_info_index.keys()):
+                self.store.state["agents_info_index"] = agents_info_index
+                self.store.state["agents"] = metadata.get('agents', {})
+                self.store.state["winner"] = metadata.get('winner')
+                self.logger.info(f"Replay initialized with agents: {agents_info_index}")
+                return game_data.get('history', [])
+            else:
+                self.logger.error(f"Invalid agents_info_index format: {agents_info_index}")
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Error initializing replay: {e}")
+            return None
 
-            self.store.state["agents_info_index"] = agents_info_index
-            self.store.state["agents"] = agents
-
-            history = game_data.get('history', [])
-            # départager les actions dans historique parce certains moves contient deux ou plusieurs actions
+    def replay_game(self, game_data: dict, delay: float = 1.0):
+        """Replay a saved game using the history of moves"""
+        
+        history = self.initialize_replay(game_data)
+        self.store.dispatch({"type": "INIT_GAME"})
+        if not history:
+            return
+            
+        try:
             actions = []
             for move in history:
-                while len(move["pos"])>=2:
+                while len(move["pos"]) >= 2:
                     from_pos = move["pos"].pop(0)
                     to_pos = move["pos"][0]
-                    type = "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER"
+                    
+                    
                     action = {
-                        "type":type ,
+                        "type": "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER",
                         "from_pos": from_pos,
-                        "to_pos":   to_pos,
+                        "to_pos": to_pos,
                         "soldier_value": move["soldier_value"],
                     }
+                    
                     if move.get("captured_soldier"):
                         action["captured_soldier"] = move["captured_soldier"].pop(0)
-
                     actions.append(action)
-
+            
             for action in actions:
-                
-                # if self._stop_replay: 
-                #     self.logger.info("Replay stopped")
-                #     return
-                
-                # Check if replay is paused
+
                 while self.store.get_state().get("is_game_paused", False):
-                    # if self._stop_replay:  # Vérifier aussi pendant la pause
-                    #     return
                     time.sleep(0.1)
                     
                 if self.store.get_state().get("is_game_leaved", False):
                     return
                 
-                # Reconstruct and dispatch the move action
-                type = "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER"
-                action = {
-                    "type":type ,
-                    "from_pos": move["from_pos"],
-                    "to_pos": move["to_pos"],
-                    "soldier_value": move["soldier_value"],
-                }
-                
-                if move.get("captured_soldier"):
-                    action["captured_soldier"] = move["captured_soldier"]
-                
-                # Apply the move
                 self.store.dispatch(action)
                 
-                # Record in history
                 self.store.dispatch({
                     "type": "ADD_MOVE_TO_HISTORY",
-                    "payload": move
+                    "payload": {
+                        "from_pos": action["from_pos"],
+                        "to_pos": action["to_pos"],
+                        "soldier_value": action["soldier_value"],
+                        "captured_soldier": action.get("captured_soldier", None),
+                        "timestamp": 0.0, 
+                        "capture_multiple": False
+                    }
                 })
                 
-                # Change current player
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
                 
-                # Wait before next move
                 time.sleep(delay)
             
-            # End replay with the recorded winner
-            if  metadata.get("winner"):
+            if  self.store.state.get("winner"):
                 self.store.dispatch({
                     "type": "END_GAME",
-                    "winner": metadata["winner"],
+                    "winner": self.store.state.get("winner"),
                     "reason": "replay_completed"
                 })
                 
         except Exception as e:
             self.logger.exception(f"Replay error: {e}")
-            #if not self._stop_replay:
             self.store.dispatch({
                 "type": "END_GAME",
                 "reason": "replay_error",
                 "error": str(e)
             })
+
+
+# import queue
+# import threading
+# import time
+# class GameRunner:
+#     def __init__(self, store):
+#         self.store = store
+#         self._running = False
+#         self._paused = False
+#         self._pause_queue = queue.Queue()
+#         self._stop_event = threading.Event()
+
+#     def start_game(self, agent1, agent2):
+#         self._running = True
+#         self._stop_event.clear()
+
+#         def game_loop():
+#             while self._running:
+#                 if self._paused:
+#                     # Attente en cas de pause
+#                     self._pause_queue.get()
+#                     continue
+
+#                 state = self.store.get_state()
+#                 try:
+#                     self.execute_turn(state, agent1, agent2)
+#                 except Exception as e:
+#                     self.logger.error(f"Erreur dans la boucle de jeu : {e}")
+#                     break
+
+#         game_thread = threading.Thread(target=game_loop, daemon=True)
+#         game_thread.start()
+
+#     def pause(self):
+#         self._paused = True
+#         self._pause_queue.put(True)
+
+#     def resume(self):
+#         self._paused = False
+#         try:
+#             while not self._pause_queue.empty():
+#                 self._pause_queue.get_nowait()
+#         except queue.Empty:
+#             pass
+
+#     def stop(self):
+#         self._running = False
+#         self._stop_event.set()
