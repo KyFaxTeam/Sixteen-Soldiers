@@ -127,16 +127,6 @@ class PlayerView(BaseView):
         )
         self.move_count_frame.pack(side="right", padx=10, pady=5)
         
-        # self.move_count_icon = ctk.CTkLabel(
-        #     self.move_count_frame,
-        #     text="",
-        #     image=ctk.CTkImage(
-        #         light_image=Image.open(Assets.approuve),
-        #         dark_image=Image.open(Assets.cible),
-        #         size=(17, 17)
-        #     )
-        # )
-        # self.move_count_icon.pack(side="left", padx=(0, 5))
 
         self.move_count_label = ctk.CTkLabel(
             self.move_count_frame,

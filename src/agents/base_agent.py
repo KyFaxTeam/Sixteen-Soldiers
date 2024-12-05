@@ -8,15 +8,12 @@ from src.utils.const import Soldier
 
 @dataclass
 class MatchPerformance:
-    issue : Literal["win", "loss", "draw"]
+    issue: Literal["win", "loss", "draw"]
     number_of_moves: int
     time: float
     opponent: str
+    reason: str  # Added 'reason' attribute
 
-@dataclass
-class AgentStats:
-    total_games: int = 0
-    performances: List[MatchPerformance] = field(default_factory=list)
 
 class BaseAgent:
     def __init__(self, soldier_value: Soldier, data: Dict = None):
@@ -28,36 +25,37 @@ class BaseAgent:
         self.soldier_value = soldier_value
         self.pseudo = os.path.basename(sys.modules[self.__module__].__file__).replace(".py", "")
         if data:
+            self.performances = [MatchPerformance(**performance) for performance in data.get("performances", [])]
             self.profile_img = data.get("profile_img", "")
-            self.stats = AgentStats(**data.get("stats", {}))
-        else :
-            self.stats = AgentStats()
+        else:
+            self.performances = []
             self.profile_img = self._get_random_avatar()
 
     
     def _get_random_avatar(self) -> str:
         """Gets a random avatar path from assets"""
         avatar_dir = Assets.dir_avatar
+        print("avatar",avatar_dir)
         avatar_files = [f for f in os.listdir(avatar_dir) 
                        if f.endswith(('.png', '.jpg', '.jpeg'))]
         
+        print("avatar",avatar_files)
         if avatar_files:
             return os.path.join(avatar_dir, random.choice(avatar_files))
         return ""  
     
 
-    def conclude_game(self, issue : Literal['win', 'loss', 'draw'], opponent_name: str, number_of_moves : int, time : float) -> None:
+    def conclude_game(self, issue : Literal['win', 'loss', 'draw'], opponent_name: str, number_of_moves : int, time : float, reason: str) -> None:
         """Updates agent statistics after game conclusion"""
 
-        self.stats.total_games += 1
-        
         performance = MatchPerformance(
             issue=issue,
             number_of_moves= number_of_moves,
             time=   time,
-            opponent=opponent_name
+            opponent=opponent_name,
+            reason=reason  # Include 'reason' when creating MatchPerformance
         )
-        self.stats.performances.append(performance)
+        self.performances.append(performance)
         
 
     def to_dict(self) -> Dict:
@@ -67,5 +65,5 @@ class BaseAgent:
             "name": self.name,
             "soldier_value": self.soldier_value,
             "profile_img": self.profile_img,
-            "stats": self.stats.__dict__
+            "performances": [performance.__dict__ for performance in self.performances]
         }
