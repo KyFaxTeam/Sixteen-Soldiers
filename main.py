@@ -23,7 +23,10 @@ def main():
     store = Store(reducer=root_reducer)
     
     # Add icons to the main window
-    root.iconbitmap(Assets.icon_favicon)
+    try:
+        root.iconbitmap(Assets.icon_favicon)
+    except Exception as e:
+        logger.warning(f"Failed to set window favicon icon: {e}")
     
     app = MainView(root, store)
     app.subscribe(store)
