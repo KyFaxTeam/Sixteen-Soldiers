@@ -33,9 +33,12 @@ class Store:
     def register_agents(self, agent1: BaseAgent, agent2: BaseAgent):
         """Register a new agent in the state using its unique ID if not already registered"""
         
+        print("You are in the store")
         payload_1 = agent1.to_dict()
         payload_2 = agent2.to_dict()
 
+
+        print("You are in the store")
         self.dispatch({
             "type": "REGISTER_AGENTS",
             "payload1": payload_1,

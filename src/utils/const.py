@@ -4,10 +4,8 @@ import screeninfo
 # Base paths for the project
 ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
-DATA_DIR = ROOT_DIR / "data"
 
 THEME_PATH = ASSETS_DIR / 'themes/theme.json'
-
 # Paths for the agents
 AGENT_DIR = ROOT_DIR / "src/agents"
 

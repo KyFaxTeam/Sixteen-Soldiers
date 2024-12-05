@@ -8,9 +8,10 @@ class Assets:
       
       img_red_soldier = ASSETS_DIR / "images/red_soldier.png"
       img_blue_soldier = ASSETS_DIR / "images/blue_soldier.png"
+      img_empty_soldier = ASSETS_DIR / "images/none_soldier_dark.png"
       
       icon_play = ASSETS_DIR / "images/play_icon.png"
-      icon_refresh = ASSETS_DIR / "images/refresh_icon.png"
+      icon_refresh = ASSETS_DIR / "images/refresh.png"
       icon_pause = ASSETS_DIR / "images/pause_icon.png"
       icon_reset = ASSETS_DIR / "images/reset_icon.png"
       icon_favicon = ASSETS_DIR / "images/favicon.ico"

@@ -21,14 +21,6 @@ def convert_data(data, to_json=True):
         return data.name if to_json else data
     elif isinstance(data, str) and not to_json and data in ['RED', 'BLUE']:
         return getattr(Soldier, data)
-    elif isinstance(data, MatchPerformance):
-        if to_json:
-            return {
-                "issue": data.issue,
-                "number_of_moves": data.number_of_moves,
-                "time": data.time,
-                "opponent": data.opponent,
-            }
     return data
 
 def convert_agents_info(agents_info):
