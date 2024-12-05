@@ -17,6 +17,7 @@ initial_state = {
     "winner": None,
     "history": [],
     "agents": {},
+    "game_mode": None,  # Can be 'game', 'replay', or None
     "agents_info_index": {
         Soldier.RED: None,
         Soldier.BLUE: None

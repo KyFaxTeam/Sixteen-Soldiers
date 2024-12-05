@@ -54,6 +54,8 @@ class GameRunner:
         """Configure le mode de jeu (replay ou nouveau jeu)"""
         self.cleanup()  # Nettoie l'état avant de changer de mode
         self.game_mode = GameMode(mode)
+        # Update store with game mode
+        self.store.state["game_mode"] = self.game_mode.value
         if mode == 'replay':
             self.game_data = data
             return self.initialize_replay(data)
@@ -81,7 +83,7 @@ class GameRunner:
                 return False
 
             agents_info = self.store.get_state().get("agents_info_index", {})
-            agents = self.store.get_state().get("agents", {})
+            
 
             # On initialise toujours les agents par défaut si nécessaire
             if not all(agents_info.values()):

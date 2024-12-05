@@ -139,7 +139,7 @@ class PlayerView(BaseView):
         agent_info = self.store.get_agent_info(self.soldier_value)
         self.name_label = ctk.CTkLabel(
             self.info_frame,
-            text=agent_info.get('name', 'Select an agent'),
+            text=agent_info.get('pseudo', 'Select an agent'),
             font=ctk.CTkFont(size=12)
         )
         self.name_label.pack(pady=5)
@@ -151,7 +151,7 @@ class PlayerView(BaseView):
         # Select button
         self.select_button = ctk.CTkButton(
             self.info_frame,
-            text="Select",
+            text= agent_info.get('name', 'Select') ,
             font=ctk.CTkFont(size=10),
             width=100,
             height=32,
@@ -184,6 +184,7 @@ class PlayerView(BaseView):
             )
       
         return label
+    
     def get_agent_list(self):
         """Get list of available agents from the agents directory"""
         
@@ -212,6 +213,9 @@ class PlayerView(BaseView):
     def can_select_agent(self) -> bool:
         """Check if agent selection is allowed based on game state"""
         state = self.store.get_state()
+        # Disable selection in replay mode
+        if state.get('game_mode') == 'replay':
+            return False
         return (not state.get('is_game_started') or 
                 state.get('is_game_paused'))
 
