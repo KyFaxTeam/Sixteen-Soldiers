@@ -3,6 +3,8 @@ from tkinter import filedialog, Tk
 import logging
 import os
 
+from src.utils.const import resolution, screen_width, screen_height
+
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
 from src.views.Others_Windows.home_view import HomeView
@@ -16,6 +18,9 @@ from src.views.Right_Column.setting_view import SettingsView
 
 logger = logging.getLogger(__name__)
 
+# winfo_screenwidth() and winfo_screenheight() to get the screen width and height
+# winfo_x() and winfo_
+
 class MainView(BaseView):
     """Main window of the application"""
 
@@ -24,8 +29,34 @@ class MainView(BaseView):
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
         self.logger = logging.getLogger(__name__)
+        # Set window title
         self.master.title("Sixteen Soldiers")
-        self.master.geometry("400x300")
+        
+        # Get screen dimensions
+        self.adjust_player_column = {
+            "HD": "new",
+            "Full HD": "nsew",
+            "HD+": "nsew",
+            "Quad HD":  "nsew",
+            "4K Ultra HD":  "nsew"
+        }
+
+        
+        # Calculate window sizes
+        if resolution == "HD":
+            self.home_width = int(screen_width * 0.3)
+            self.home_height = int(screen_height * 0.4)
+            self.game_width = int(screen_width * 0.75)
+            self.game_height = int(screen_height * 0.75)
+        else :
+
+            self.home_width = int(screen_width * 0.2)
+            self.home_height = int(screen_height * 0.3)
+            self.game_width = int(screen_width * 0.75)
+            self.game_height = int(screen_height * 0.75)
+        
+        # Set initial size for home view
+        self.master.geometry(f"{self.home_width}x{self.home_height}")
         
         # Initialize all component references as None
         self.players_column = None
@@ -39,10 +70,13 @@ class MainView(BaseView):
         self.home_view = HomeView(self.master, self.start_new_game, self.review_match)
         self.home_view.show()
         
+    
+
     def start_new_game(self):
         """Start a new game and switch to game board view"""
         self.home_view.hide()  # Hide the home screen
-        self.master.geometry("1200x800")
+        self.master.geometry(f"{self.game_width}x{self.game_height}")
+        print(f"Game window size: {self.game_width}x{self.game_height}")
         self.create_main_layout()  # Initialize main layout and sub-views
 
     def review_match(self):
@@ -76,7 +110,7 @@ class MainView(BaseView):
         
 
             self.home_view.hide()  # Hide the home screen
-            self.master.geometry("1200x800")
+            self.master.geometry(f"{self.game_width}x{self.game_height}")
             self.create_main_layout()  # Initialize main layout and sub-views
             
             # Start game replay
@@ -106,21 +140,22 @@ class MainView(BaseView):
         
         # Left column - Players
         self.players_column = PlayersColumn(self.content, self.store)
-        self.players_column.frame.grid(row=0, column=0, sticky="nsew", padx=(0, 0), pady=30)  # Ajout de pady=20
+        self.players_column.frame.grid(row=0, column=0, sticky= self.adjust_player_column[resolution],
+                                        padx=(5, 0), pady=30)  # Ajout de pady=20
         
         # Center column - Game board
         self.center_column = ctk.CTkFrame(self.content)
-        self.center_column.grid(row=0, column=1)
+        self.center_column.grid(row=0, column=1, sticky="n")
         
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store)
-        self.game_board.frame.pack(expand=True, fill="both")
+        self.game_board.frame.grid(row=0, column=0, sticky="nsew")
         self.game_board.subscribe(self.store)
         self.game_board.update(self.store.get_state())
         
         # Right column - Move history and settings
         self.right_column = ctk.CTkFrame(self.content)#, fg_color="transparent")
-        self.right_column.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
+        self.right_column.grid(row=0, column=2, sticky="nsew", padx=(0, 5), pady=(10, 1))
         
         # History view
         self.history_view = HistoryView(self.right_column, self.store)
@@ -192,8 +227,7 @@ class MainView(BaseView):
             self.main_container.pack_forget()
             del self.main_container
 
-        # Resize window for HomeView
-        self.master.geometry("400x300")
+        self.master.geometry(f"{self.home_width}x{self.home_height}")
         
         # Show HomeView again
         self.home_view.show()
@@ -207,33 +241,27 @@ class MainView(BaseView):
     def update(self, state: dict):
         """
         Update the view with new state based on game status.
-        Order of checks matters:
-        1. Game Over
-        2. Game Not Started
-        3. Normal Game Updates
         """
         # First priority: Check if game is over
         if state["is_game_over"]:
-            self.game_board.play_pause_button.configure(state="disabled")
-            self.game_board.reset_button.configure(state="normal")
-            if not self.after_game_view:  # Only show if not already showing
-                self.logger.info("Game is over - Showing after game view")
+            if not self.after_game_view:
                 self.show_after_game_view()
-            
             return
 
+        # Handle game reset/cleanup
+        if not state["is_game_started"] and hasattr(self, 'history_view') and hasattr(self, 'game_board'):
+            if state.get("is_game_leaved"):
+                self.history_view.clear_moves()
+                self.game_board.clear_board()
+                # Reset after_game_view reference when game is reset
+                self.after_game_view = None
+        
         # Always update players column for agent selection
         if hasattr(self, 'players_column'):
             self.players_column.update(state)
         
-        
         # If game hasn't started, don't update game components
         if not state["is_game_started"]:
-            if state["is_game_leaved"] :
-                # self.logger.info("***********Game was left - Resetting history and board*********")
-                self.history_view.clear_moves()
-                self.game_board.clear_board()
-                
             return
 
         # Normal game updates

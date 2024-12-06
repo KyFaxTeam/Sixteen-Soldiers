@@ -202,3 +202,96 @@ class GameRunner:
                 "winner": winner,
                 "error": None
             })
+
+    def replay_game(self, game_data: dict, delay: float = 1.0):
+        """Replay a saved game using the history of moves"""
+        # self._stop_replay = False  
+        try:
+            # Reset the game state
+            self.store.dispatch({"type": "RESET_GAME"})
+            
+            # Setup initial game state from metadata if needed
+            metadata = game_data.get('metadata', {})
+            agents_info_index = metadata.get('agents_info_index', {})
+            agents = metadata.get('agents', {})
+
+            self.store.state["agents_info_index"] = agents_info_index
+            self.store.state["agents"] = agents
+
+            history = game_data.get('history', [])
+            # départager les actions dans historique parce certains moves contient deux ou plusieurs actions
+            actions = []
+            for move in history:
+                while len(move["pos"])>=2:
+                    from_pos = move["pos"].pop(0)
+                    to_pos = move["pos"][0]
+                    type = "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER"
+                    action = {
+                        "type":type ,
+                        "from_pos": from_pos,
+                        "to_pos":   to_pos,
+                        "soldier_value": move["soldier_value"],
+                    }
+                    if move.get("captured_soldier"):
+                        action["captured_soldier"] = move["captured_soldier"].pop(0)
+
+                    actions.append(action)
+
+            for action in actions:
+                
+                # if self._stop_replay: 
+                #     self.logger.info("Replay stopped")
+                #     return
+                
+                # Check if replay is paused
+                while self.store.get_state().get("is_game_paused", False):
+                    # if self._stop_replay:  # Vérifier aussi pendant la pause
+                    #     return
+                    time.sleep(0.1)
+                    
+                if self.store.get_state().get("is_game_leaved", False):
+                    return
+                
+                # Reconstruct and dispatch the move action
+                type = "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER"
+                action = {
+                    "type":type ,
+                    "from_pos": move["from_pos"],
+                    "to_pos": move["to_pos"],
+                    "soldier_value": move["soldier_value"],
+                }
+                
+                if move.get("captured_soldier"):
+                    action["captured_soldier"] = move["captured_soldier"]
+                
+                # Apply the move
+                self.store.dispatch(action)
+                
+                # Record in history
+                self.store.dispatch({
+                    "type": "ADD_MOVE_TO_HISTORY",
+                    "payload": move
+                })
+                
+                # Change current player
+                self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
+                
+                # Wait before next move
+                time.sleep(delay)
+            
+            # End replay with the recorded winner
+            if  metadata.get("winner"):
+                self.store.dispatch({
+                    "type": "END_GAME",
+                    "winner": metadata["winner"],
+                    "reason": "replay_completed"
+                })
+                
+        except Exception as e:
+            self.logger.exception(f"Replay error: {e}")
+            #if not self._stop_replay:
+            self.store.dispatch({
+                "type": "END_GAME",
+                "reason": "replay_error",
+                "error": str(e)
+            })

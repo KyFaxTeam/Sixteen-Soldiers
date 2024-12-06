@@ -1,5 +1,6 @@
 from pathlib import Path
 from enum import Enum
+import screeninfo
 # Base paths for the project
 ROOT_DIR = Path(__file__).parent.parent.parent
 ASSETS_DIR = ROOT_DIR / "assets"
@@ -17,20 +18,46 @@ class Soldier(Enum):
     BLUE = 1
     EMPTY = -1
 
-# Padding around the game board
-PADDING = 50
 
-# Gap between elements on the game board
-GAP = 80
+screen_info = screeninfo.get_monitors()[0]
+screen_width = screen_info.width
+screen_height = screen_info.height
 
-# Thickness of the lines on the game board
-LINE_THICKNESS = 4
+# Simplified resolution classification
+if screen_height <= 800:
+    resolution = "HD"
+elif screen_height <= 1100:
+    resolution = "Full HD"
+elif screen_height <= 1500:
+    resolution = "HD+"
+elif screen_height <= 1600:
+    resolution = "Quad HD"
+else:
+    resolution = "4K Ultra HD"
+
 
 # Max moves without a capture
 MAX_MOVES_WITHOUT_CAPTURE = 60
 
 # Size of the soldiers on the game board (width, height)
-SOLDIER_SIZE = (45, 45)
+if resolution == "HD":
+    SOLDIER_SIZE = (35, 35)
+    # Padding around the game board
+    PADDING = 40
+    # Thickness of the lines on the game board
+    LINE_THICKNESS = 3
+    # Size of the history frame
+    HISTORY_HEIGHT = 250
+
+else : 
+    # Padding around the game board
+    PADDING = 50
+    # Size of the history frame
+    HISTORY_HEIGHT = 300
+
+    SOLDIER_SIZE = (45, 45)
+    # Thickness of the lines on the game board
+    LINE_THICKNESS = 4
 
 SOLDIER_SIZE_HISTORY = (20, 20)
 
@@ -45,4 +72,6 @@ TIMINGS = {
     "ANIMATION_SPEED": 0.5,   # s
     "AI_TIMEOUT": 0.5 # s
 }
+
+
 

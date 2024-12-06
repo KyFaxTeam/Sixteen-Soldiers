@@ -25,7 +25,7 @@ class SettingsView(BaseView):
             self.frame,
             image=self.frame.setting,
             text=" Settings",
-            font=ctk.CTkFont(size=12, weight="bold"),
+            font=ctk.CTkFont(size=13, weight="bold"),
             compound="left"
         )
         self.title.pack(pady=(5, 5))

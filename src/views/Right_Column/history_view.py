@@ -4,8 +4,8 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 
 from src.models.assets.index import Assets
-from src.utils.const import SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
-from src.utils.history_utils import get_last_move, is_equals
+from src.utils.const import HISTORY_HEIGHT, SOLDIER_SIZE_HISTORY, Soldier, EMOJIS_SIZE
+from src.utils.history_utils import is_equals
 from src.views.base_view import BaseView
 
 
@@ -69,11 +69,11 @@ class HistoryView(BaseView):
 
         # History Section
         self.history_frame = ctk.CTkFrame(self.frame)
-        self.history_frame.pack(fill="both", expand=True, pady=(0, 20))
+        self.history_frame.pack(fill="both", expand=True, pady=(0, 0))
 
         # Titre "Move History"
         self.title_frame = ctk.CTkFrame(self.history_frame)
-        self.title_frame.pack(fill="both", padx=0, pady=10)
+        self.title_frame.pack(fill="both", padx=0, pady=(0, 10))
         #self.title_frame.history_icon = ImageTk.PhotoImage(Image.open(Assets.icon_history_collante).resize(EMOJIS_SIZE))
         self.title_frame.history_icon = ctk.CTkImage(
             light_image=Image.open(Assets.icon_history_collante),
@@ -86,12 +86,12 @@ class HistoryView(BaseView):
             image=self.title_frame.history_icon,
             text=" History",
             compound="left",
-            font=ctk.CTkFont(size=11, weight="bold")
+            font=ctk.CTkFont(size=13, weight="bold")
         )
         self.title.pack(pady=(5, 5))
 
         # Container pour l'historique des mouvements
-        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=300)
+        self.moves_container = ctk.CTkScrollableFrame(self.history_frame, height=HISTORY_HEIGHT)
         self.moves_container.pack(fill="both", expand=True)
 
         # Liste pour garder une référence aux mouvements
