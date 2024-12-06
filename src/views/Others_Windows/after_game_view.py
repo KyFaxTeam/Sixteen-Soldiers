@@ -111,6 +111,9 @@ class AfterGameView(ctk.CTkToplevel):
         # Save button
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=lambda: on_save(save_button), width=50)
         save_button.grid(row=0, column=5, padx=(25, 0))
+        if self.store.get_state().get("game_mode") == 'replay':
+            save_button.configure(state="disabled")
+
 
         # Add protocol for window close button (X)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -166,9 +169,3 @@ class AfterGameView(ctk.CTkToplevel):
         }
 
 
-    
-
-    # def update(self, state):
-    #     """Update the view when the state changes"""
-    #     # ...update logic if needed...
-    #     pass

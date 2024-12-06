@@ -166,7 +166,7 @@ class GameBoard(BaseView):
         """Initialise les boutons de contrôle"""
         # Play button
         self.play_pause_button = ctk.CTkButton(
-                    master=self.button_frame, text='Play',
+                    master=self.button_frame, text='Play' if self.store.get_state().get("game_mode") == "game" else 'Replay',
                     image=ctk.CTkImage(
                         light_image=Image.open(Assets.icon_play), size=(20, 20)),
                     compound="left", command=self.toggle_play_pause, width=120, height=32,
@@ -360,7 +360,7 @@ class GameBoard(BaseView):
         self.play_pause_button.configure(
             image=ctk.CTkImage(
                 light_image=Image.open(Assets.icon_play), size=(20, 20)),
-            text="Play"
+            text="Play" if self.store.get_state().get("game_mode") == "game" else "Replay"
         )
         self.play_pause_button.configure(state="normal")
         self.reset_button.configure(state="disabled")
