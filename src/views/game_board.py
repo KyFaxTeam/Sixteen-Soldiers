@@ -216,7 +216,9 @@ class GameBoard(BaseView):
                 # Déplace le pion de façon incrémentale
                 self.canvas.move(soldier_id, dh, dv)
                 # Re-appeler la fonction après un délai
-                self.frame.after(delay, lambda: step_move(step + 1))
+                # print('**************Vitesse de déplacement du board : ', self.store.game_speed.get_board_speed(delay))
+                
+                self.frame.after(self.store.game_speed.get_board_speed(delay), lambda: step_move(step + 1))
             else:
                 # Ajuste les coordonnées finales pour être exactes
                 self.canvas.coords(soldier_id, target_x, target_y)

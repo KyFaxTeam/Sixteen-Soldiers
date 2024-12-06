@@ -97,13 +97,12 @@ class GameRunner:
                 agent_id = agents_info[soldier_value]
                 agent_type = agent_id.rsplit('_', 1)[0]
                 agent_module = __import__(f"src.agents.{agent_type}", fromlist=['Agent'])
-                print("module", agent_module)
+                # print("module", agent_module)
                 return agent_module.Agent(
                     soldier_value=soldier_value,
                     data=None if not self.game_data else self.game_data["metadata"]["agents"].get(agent_id, None)
                 )
             
-            print("You are in the GameRunner")
 
             agent1 = create_agent(Soldier.RED)
             agent2 = create_agent(Soldier.BLUE)
@@ -290,7 +289,7 @@ class GameRunner:
             
         self.store.register_agents(agent1, agent2)
         if not final_state.get("is_game_over"):
-            print("END game conclude_game")
+            # print("END game conclude_game")
             self.store.dispatch({
                 "type": "END_GAME",
                 "reason": reason,
@@ -376,7 +375,7 @@ class GameRunner:
                 time.sleep(delay)
             
             if  self.store.state.get("winner"):
-                print("END game replay_game")
+                # print("END game replay_game")
                 self.store.dispatch({
                     "type": "END_GAME",
                     "winner": self.store.state.get("winner"),
@@ -385,7 +384,7 @@ class GameRunner:
                 
         except Exception as e:
             self.logger.exception(f"Replay error: {e}")
-            print("END game replay_game error")
+            # print("END game replay_game error")
             self.store.dispatch({
                 "type": "END_GAME",
                 "reason": "replay_error",
