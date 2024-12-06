@@ -5,6 +5,7 @@ import sys
 from typing import List, Dict, Literal
 from src.models.assets.index import Assets
 from src.utils.const import Soldier
+from src.utils.const import AGENT_DIR
 
 @dataclass
 class MatchPerformance:
@@ -28,8 +29,14 @@ class BaseAgent:
             self.performances = [MatchPerformance(**performance) for performance in data.get("performances", [])]
             self.profile_img = data.get("profile_img", "")
         else:
-            self.performances = []
-            self.profile_img = self._get_random_avatar()
+            self.performances = []       
+            # verify if an image name like the pseudo exists in the folder of agents
+            # if not, get a random image
+            
+            if os.path.exists(os.path.join(AGENT_DIR, self.pseudo + ".png")):
+                self.profile_img = os.path.join(AGENT_DIR, self.pseudo + ".png")
+            else:  
+                self.profile_img = self._get_random_avatar()
 
     
     def _get_random_avatar(self) -> str:
