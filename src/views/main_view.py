@@ -81,37 +81,39 @@ class MainView(BaseView):
     def review_match(self):
         """Review a match by selecting a saved game file and switching to the history view."""
         try:
-            save_folder = os.path.join(os.getcwd(), "saved_game")
-            if not os.path.exists(save_folder):
-                show_popup("No saved games found. Play and save a game first.", "No Games")
-                return
-            
-            # Open file dialog to select the saved game JSON file
-            root = Tk()
-            root.withdraw()  # Hide the root window
-            root.attributes("-topmost", True)  # Bring the dialog to the front
-            file_path = filedialog.askopenfilename(
-                title="Select Saved Game File",
-                filetypes=[("JSON Files", "*.json")],
-                initialdir=save_folder
-            )
-            
-            if not file_path:
-                return
-            
-            # Load and validate the game file
-            game_data = load_game(file_path)
-            if not game_data or 'history' not in game_data:
-                show_popup("Invalid or corrupted game file.", "Error")
-                return
-            
-            if not game_data['history']:
-                show_popup("This game file contains no moves to replay.", "Empty Game")
-                return
+            root = ctk.CTkToplevel()  # Utiliser CTkToplevel au lieu de Tk
+            try:
+                save_folder = os.path.join(os.getcwd(), "saved_game")
+                if not os.path.exists(save_folder):
+                    show_popup("No saved games found. Play and save a game first.", "No Games")
+                    return
+                
+                root.withdraw()  # Cacher la fenêtre
+                root.attributes("-topmost", True)
+                file_path = filedialog.askopenfilename(
+                    parent=root,  # Spécifier le parent
+                    title="Select Saved Game File",
+                    filetypes=[("JSON Files", "*.json")],
+                    initialdir=save_folder
+                )
+                
+                if not file_path:
+                    return
+                
+                # Load and validate the game file
+                game_data = load_game(file_path)
+                if not game_data or 'history' not in game_data:
+                    show_popup("Invalid or corrupted game file.", "Error")
+                    return
+                
+                if not game_data['history']:
+                    show_popup("This game file contains no moves to replay.", "Empty Game")
+                    return
 
-            # Configure view and start replay
-            self.configure_main_view(game_data=game_data)
-             
+                self.configure_main_view(game_data=game_data)
+            finally:
+                root.destroy()  # S'assurer que la fenêtre est détruite
+                 
         except Exception as e:
             self.logger.error(f"An error occurred while reviewing the match: {e}")
             show_popup("Error loading replay", "Error", "error")
@@ -241,5 +243,3 @@ class MainView(BaseView):
         
         # Fermer la fenêtre
         self.master.destroy()
-
-
