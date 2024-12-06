@@ -11,6 +11,7 @@ from src.utils.history_utils import get_last_move
 def init_game(state: Dict) -> Dict:
     """Initialize a new game"""
     new_state = initial_state.copy()
+    new_state["game_mode"] = state["game_mode"]
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     new_state["is_game_started"] = True
@@ -19,11 +20,20 @@ def init_game(state: Dict) -> Dict:
 def reset_game(state: Dict) -> Dict:
 
     new_state = initial_state.copy()
+    new_state["game_mode"] = state["game_mode"]
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     new_state["is_game_leaved"] = True
 
     return new_state
+
+def restart_game(state: Dict) -> Dict:
+    """Reset game state completely while keeping agents"""
+    new_state = initial_state.copy()
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    return new_state
+
 
 def change_current_player(state: Dict) -> Dict:
     """
@@ -112,6 +122,8 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return register_agents(state, action)
         case "SELECT_AGENT":
             return select_agent(state, action)
+        case "RESTART_GAME":
+            return restart_game(state)
         
         case _:
             return state
