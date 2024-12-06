@@ -90,16 +90,18 @@ class GameRunner:
                         ai = "main_ai" if soldier_value == Soldier.RED else "random_agent"
                         agent_id = f"{ai}_{soldier_value.name}" 
                         agents_info[soldier_value] = agent_id
-                        agents[agent_id] = {"pseudo": "main_ai"}
 
             def create_agent(soldier_value):
                 agent_id = agents_info[soldier_value]
                 agent_type = agent_id.rsplit('_', 1)[0]
                 agent_module = __import__(f"src.agents.{agent_type}", fromlist=['Agent'])
+                print("module", agent_module)
                 return agent_module.Agent(
                     soldier_value=soldier_value,
-                    data=agents.get(agent_id)
+                    data=None if not self.game_data else self.game_data["metadata"]["agents"].get(agent_id, None)
                 )
+            
+            print("You are in the GameRunner")
 
             agent1 = create_agent(Soldier.RED)
             agent2 = create_agent(Soldier.BLUE)
@@ -269,13 +271,20 @@ class GameRunner:
             raise ValueError("Invalid winner value in _conclude_game")
             
 
-        agent1.conclude_game(issue1, opponent_name=agent2.name, 
-                               number_of_moves=total_moves_agent1,
-                               time=time_manager.get_remaining_time(agent1.soldier_value))
-            
-        agent2.conclude_game(issue2, opponent_name=agent1.name, 
-                               number_of_moves=total_moves_agent2,
-                               time=time_manager.get_remaining_time(agent2.soldier_value))
+        agent1.conclude_game(
+            issue1,
+            opponent_name=agent2.name,
+            number_of_moves=total_moves_agent1,
+            time=time_manager.get_remaining_time(agent1.soldier_value),
+            reason=reason  # Pass 'reason' to conclude_game
+        )
+        agent2.conclude_game(
+            issue2,
+            opponent_name=agent1.name,
+            number_of_moves=total_moves_agent2,
+            time=time_manager.get_remaining_time(agent2.soldier_value),
+            reason=reason  # Pass 'reason' to conclude_game
+        )
             
         self.store.register_agents(agent1, agent2)
         if not final_state.get("is_game_over"):
@@ -327,6 +336,7 @@ class GameRunner:
                         "from_pos": from_pos,
                         "to_pos": to_pos,
                         "soldier_value": move["soldier_value"],
+                        "timestamp":move["timestamp"].pop(0)
                     }
                     
                     if move.get("captured_soldier"):
@@ -350,7 +360,7 @@ class GameRunner:
                         "to_pos": action["to_pos"],
                         "soldier_value": action["soldier_value"],
                         "captured_soldier": action.get("captured_soldier", None),
-                        "timestamp": 0.0, 
+                        "timestamp": action["timestamp"], 
                         "capture_multiple": False
                     }
                 })

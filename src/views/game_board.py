@@ -276,7 +276,7 @@ class GameBoard(BaseView):
         if state.get("is_game_over"):
             self.previous_move = None
             self.logger.info("Game is over - disabling play button")
-            self.play_pause_button.configure(state="disabled")
+            # self.play_pause_button.configure(state="disabled")
             self.play_pause_button.configure(
                 image=ctk.CTkImage(
                     light_image=Image.open(Assets.icon_play), size=(20, 20)),
@@ -312,13 +312,6 @@ class GameBoard(BaseView):
                 0 if mode == "light" else 1
             ]
         )
-        
-        # # Change the color of the button frame
-        # self.button_frame.configure(
-        #     fg_color=ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"][
-        #         0 if mode == "light" else 1
-        #     ]
-        # )
         mode = ctk.get_appearance_mode().lower()
         text_color = ctk.ThemeManager.theme["CTkTextbox"]["text_color"][0 if mode == "light" else 1]
             
