@@ -321,7 +321,7 @@ class GameRunner:
         """Replay a saved game using the history of moves"""
         
         history = self.initialize_replay(game_data)
-        self.store.dispatch({"type": "INIT_GAME"})
+        
         if not history:
             return
             

@@ -277,12 +277,12 @@ class GameBoard(BaseView):
         
         if state.get("is_game_over"):
             self.previous_move = None
-            self.logger.info("Game is over - disabling play button")
+            self.logger.info("Game is over - Change the text on play button")
             # self.play_pause_button.configure(state="disabled")
             self.play_pause_button.configure(
                 image=ctk.CTkImage(
                     light_image=Image.open(Assets.icon_play), size=(20, 20)),
-                text="Play"
+                text="Play" if state.get("game_mode") == "game" else "Replay"
             )
             self.reset_button.configure(state="normal")
             return
