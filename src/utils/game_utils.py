@@ -359,6 +359,12 @@ class GameRunner:
                 self.store.dispatch(action)
                 
                 self.store.dispatch({
+                    "type": "UPDATE_TIME",
+                    "soldier_value": action["soldier_value"],
+                    "elapsed_time": action["timestamp"]
+                })
+
+                self.store.dispatch({
                     "type": "ADD_MOVE_TO_HISTORY",
                     "payload": {
                         "from_pos": action["from_pos"],
