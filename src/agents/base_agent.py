@@ -35,11 +35,11 @@ class BaseAgent:
     def _get_random_avatar(self) -> str:
         """Gets a random avatar path from assets"""
         avatar_dir = Assets.dir_avatar
-        print("avatar",avatar_dir)
+        # print("avatar",avatar_dir)
         avatar_files = [f for f in os.listdir(avatar_dir) 
                        if f.endswith(('.png', '.jpg', '.jpeg'))]
         
-        print("avatar",avatar_files)
+        # print("avatar",avatar_files)
         if avatar_files:
             return os.path.join(avatar_dir, random.choice(avatar_files))
         return ""  
