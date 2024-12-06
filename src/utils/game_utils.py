@@ -122,7 +122,7 @@ class GameRunner:
             return False
             
         self.store.dispatch({"type": "INIT_GAME"})
-        
+                    
         def run():
             if self.game_mode == GameMode.REPLAY:
                 self.replay_game(self.game_data)
@@ -290,6 +290,7 @@ class GameRunner:
             
         self.store.register_agents(agent1, agent2)
         if not final_state.get("is_game_over"):
+            print("END game conclude_game")
             self.store.dispatch({
                 "type": "END_GAME",
                 "reason": reason,
@@ -302,7 +303,7 @@ class GameRunner:
         try:
             metadata = game_data.get('metadata', {})
             agents_info_index = metadata.get('agents_info_index', {})
-            
+
             if agents_info_index and all(isinstance(k, Soldier) for k in agents_info_index.keys()):
                 self.store.state["agents_info_index"] = agents_info_index
                 self.store.state["agents"] = metadata.get('agents', {})
@@ -326,25 +327,28 @@ class GameRunner:
             return
             
         try:
+            # Pré-traiter les actions sans modifier les données originales
             actions = []
             for move in history:
-                while len(move["pos"]) >= 2:
-                    from_pos = move["pos"].pop(0)
-                    to_pos = move["pos"][0]
-                    
-                    
+                positions = move["pos"]
+                timestamps = move.get("timestamp", [])
+                captured = move.get("captured_soldier", [])
+                
+                # Utiliser des indices au lieu de pop()
+                for i in range(len(positions) - 1):
                     action = {
-                        "type": "CAPTURE_SOLDIER" if move.get("captured_soldier") else "MOVE_SOLDIER",
-                        "from_pos": from_pos,
-                        "to_pos": to_pos,
+                        "type": "CAPTURE_SOLDIER" if captured else "MOVE_SOLDIER",
+                        "from_pos": positions[i],
+                        "to_pos": positions[i + 1],
                         "soldier_value": move["soldier_value"],
-                        "timestamp":move["timestamp"].pop(0)
+                        "timestamp": timestamps[i] if timestamps else 0
                     }
                     
-                    if move.get("captured_soldier"):
-                        action["captured_soldier"] = move["captured_soldier"].pop(0)
+                    if captured:
+                        action["captured_soldier"] = captured[i]
                     actions.append(action)
             
+            # Reste du code inchangé pour la boucle d'exécution des actions
             for action in actions:
 
                 while self.store.get_state().get("is_game_paused", False):
@@ -372,6 +376,7 @@ class GameRunner:
                 time.sleep(delay)
             
             if  self.store.state.get("winner"):
+                print("END game replay_game")
                 self.store.dispatch({
                     "type": "END_GAME",
                     "winner": self.store.state.get("winner"),
@@ -380,6 +385,7 @@ class GameRunner:
                 
         except Exception as e:
             self.logger.exception(f"Replay error: {e}")
+            print("END game replay_game error")
             self.store.dispatch({
                 "type": "END_GAME",
                 "reason": "replay_error",

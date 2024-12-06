@@ -68,6 +68,9 @@ class MainView(BaseView):
         self.home_view.show()
         self.game_runner = GameRunner(self.store)
 
+        # Ajouter un gestionnaire pour la fermeture de la fenêtre
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
+
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""
         self.home_view.hide()
@@ -189,6 +192,8 @@ class MainView(BaseView):
         # Clean up game runner state
         self.game_runner.cleanup()
         
+        self.store.dispatch({"type": "RESTART_GAME"})
+        
         self.master.geometry(f"{self.home_width}x{self.home_height}")
         self.home_view.show()
       
@@ -226,5 +231,15 @@ class MainView(BaseView):
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
+
+    def on_closing(self):
+        """Gestionnaire de l'événement de fermeture de la fenêtre"""
+        # Nettoyer le game_runner
+        if hasattr(self, 'game_runner'):
+            self.store.dispatch({"type": "RESTART_GAME"})
+            self.game_runner.cleanup()
+        
+        # Fermer la fenêtre
+        self.master.destroy()
 
 
