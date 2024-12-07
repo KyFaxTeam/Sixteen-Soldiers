@@ -1,10 +1,9 @@
-from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
-from tkinter import filedialog, Tk
+from tkinter import filedialog
 import logging
 import os
 
-from src.utils.const import Soldier, resolution, screen_width, screen_height
+from src.utils.const import  resolution, screen_width, screen_height
 
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
@@ -17,6 +16,8 @@ from src.views.Left_Column.players_column import PlayersColumn
 from src.views.Right_Column.history_view import HistoryView
 from src.views.Right_Column.setting_view import SettingsView
 from src.utils.game_utils import GameRunner, show_popup
+
+from src.tournament.tournament_manager import TournamentManager
 
 logger = logging.getLogger(__name__)
 class MainView(BaseView):
@@ -71,12 +72,22 @@ class MainView(BaseView):
         # Ajouter un gestionnaire pour la fermeture de la fenêtre
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+        self.tournament_mode = False # Gardez cette ligne
+        self.tournament_manager = None
+        # Supprimez l'appel à start_tournament() ici
+
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""
         self.home_view.hide()
         self.master.geometry(f"{self.game_width}x{self.game_height}")
         self.game_runner.set_mode('replay' if game_data else 'game', game_data)
-        self.build_main_view()
+        # Si on vient de la home view (pas de game_data) et qu'on est en mode tournoi
+        if not game_data and self.tournament_mode:
+            self.build_main_view()
+            self.start_tournament()
+        else:
+            
+            self.build_main_view()
 
     def review_match(self):
         """Review a match by selecting a saved game file and switching to the history view."""
@@ -208,7 +219,9 @@ class MainView(BaseView):
         """
         # First priority: Check if game is over
         if state["is_game_over"]:
-            if not self.after_game_view:
+            if self.tournament_mode:
+                self.handle_tournament_match_end()
+            elif not self.after_game_view:
                 self.show_after_game_view()
             return
 
@@ -243,3 +256,32 @@ class MainView(BaseView):
         
         # Fermer la fenêtre
         self.master.destroy()
+
+    def handle_tournament_match_end(self):
+        """Gère la fin d'un match de tournoi"""
+        if not self.tournament_manager:
+            return
+            
+        self.tournament_manager.record_match_result()
+        
+        # Configure le prochain match
+        if self.tournament_manager.setup_next_match():
+            self.game_runner.set_mode("game")
+            if self.game_runner.prepare_agents():
+                self.game_runner.start()
+        else:
+            self.tournament_mode = False
+            print("Tournament completed! Check results in tournament/results/")
+            self.return_to_home()
+
+    def start_tournament(self):
+        """Démarre un nouveau tournoi"""
+        self.tournament_mode = True
+        self.tournament_manager = TournamentManager(self.store)
+        self.tournament_manager.initialize_tournament()
+        
+        # Démarre le premier match
+        if self.tournament_manager.setup_next_match():
+            self.game_runner.set_mode("game")
+            if self.game_runner.prepare_agents():
+                self.game_runner.start()
