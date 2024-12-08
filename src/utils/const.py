@@ -8,6 +8,7 @@ ASSETS_DIR = ROOT_DIR / "assets"
 THEME_PATH = ASSETS_DIR / 'themes/theme.json'
 # Paths for the agents
 AGENT_DIR = ROOT_DIR / "src/agents"
+AGENT_AVATAR_DIR = AGENT_DIR / "avatars"
 
 
 # Configuration du jeu
