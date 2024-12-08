@@ -78,7 +78,7 @@ class MainView(BaseView):
         self.tournament_manager = None
         self.handling_tournament_end = False
         self.match_start_time = None
-        self.match_duration = timedelta(minutes=6)
+        self.match_duration = timedelta(minutes=5)
 
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""

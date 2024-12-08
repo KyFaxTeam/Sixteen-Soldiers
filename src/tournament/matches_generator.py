@@ -42,7 +42,9 @@ def save_pool_distribution(teams_by_pool, filename="teams.txt"):
 def load_teams(filename="teams.txt"):
     """Charge les équipes depuis le fichier de répartition"""
     teams = {pool: [] for pool in POOLS}
-    with open(filename, 'r', encoding='utf-8') as f:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    filepath = os.path.join(current_dir, filename)
+    with open(filepath, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 team_name, pool = line.strip().split(',')
@@ -206,11 +208,11 @@ def optimize_match_order(matches):
 
 if __name__ == "__main__":
     teams = [
-        "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "Dream team",
+        "Alverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
         "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
-        "IFRI", "Innovation Group", "JoLyCh", "Jos_team", "KACW",
+        "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW",
         "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
-        "Mugiwara", "Némésis", "Questcoders", "Vegapunk-Stella"
+        "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella"
     ]
     
     # Génération et sauvegarde de la répartition des équipes

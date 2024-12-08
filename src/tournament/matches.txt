@@ -1,60 +1,60 @@
 === Round 1 ===
-Les leaders vs Bee Light
-Limitless Nexus vs Vegapunk-Stella
-Dream team vs Mind Misters
-gildasWebSite vs AIverse
+JoLyCh vs Vegapunk-Stella
+Limitless Nexus vs AI_MAU
+Phil Kong vs Questcoders
+Blacknight01 vs Eriatech
 
 === Round 2 ===
-Les leaders vs Les sisters
-Limitless Nexus vs Gojok
-Dream team vs Questcoders
-Némésis vs AIverse
-
-=== Round 3 ===
-Les leaders vs Jos_team
-Limitless Nexus vs AI_MAU
-Dream team vs IFRI
-Némésis vs Blacknight01
-
-=== Round 4 ===
-Les leaders vs EL-LINE
-Limitless Nexus vs Eriatech
-Dream team vs Mugiwara
-Némésis vs Firesky
-
-=== Round 5 ===
-Les leaders vs KACW
-Limitless Nexus vs JoLyCh
-Dream team vs Innovation Group
-Némésis vs gildasWebSite
-
-=== Round 6 ===
-Bee Light vs Les leaders
-Vegapunk-Stella vs Limitless Nexus
-Mind Misters vs Dream team
-AIverse vs gildasWebSite
-
-=== Round 7 ===
-Les sisters vs Les leaders
-Gojok vs Limitless Nexus
-Questcoders vs Dream team
-AIverse vs Némésis
-
-=== Round 8 ===
-Jos_team vs Les leaders
-AI_MAU vs Limitless Nexus
-IFRI vs Dream team
+JoLyCh vs Dream team
+Limitless Nexus vs KACW
+Phil Kong vs BOÏZ
 Blacknight01 vs Némésis
 
+=== Round 3 ===
+JoLyCh vs Gojok
+Limitless Nexus vs Les sisters
+Phil Kong vs Bee Light
+Blacknight01 vs Mugiwara
+
+=== Round 4 ===
+JoLyCh vs Les leaders
+Limitless Nexus vs IFRI
+Phil Kong vs gildasWebSite
+Blacknight01 vs Firesky
+
+=== Round 5 ===
+JoLyCh vs Mind Misters
+Limitless Nexus vs Innovation Group (IG)
+Phil Kong vs EL-LINE
+Blacknight01 vs Alverse
+
+=== Round 6 ===
+Vegapunk-Stella vs JoLyCh
+AI_MAU vs Limitless Nexus
+Questcoders vs Phil Kong
+Eriatech vs Blacknight01
+
+=== Round 7 ===
+Dream team vs JoLyCh
+KACW vs Limitless Nexus
+BOÏZ vs Phil Kong
+Némésis vs Blacknight01
+
+=== Round 8 ===
+Gojok vs JoLyCh
+Les sisters vs Limitless Nexus
+Bee Light vs Phil Kong
+Mugiwara vs Blacknight01
+
 === Round 9 ===
-EL-LINE vs Les leaders
-Eriatech vs Limitless Nexus
-Mugiwara vs Dream team
-Firesky vs Némésis
+Les leaders vs JoLyCh
+IFRI vs Limitless Nexus
+gildasWebSite vs Phil Kong
+Firesky vs Blacknight01
 
 === Round 10 ===
-KACW vs Les leaders
-JoLyCh vs Limitless Nexus
-Innovation Group vs Dream team
-gildasWebSite vs Némésis
+Mind Misters vs JoLyCh
+Innovation Group (IG) vs Limitless Nexus
+EL-LINE vs Phil Kong
+Alverse vs Blacknight01
 
