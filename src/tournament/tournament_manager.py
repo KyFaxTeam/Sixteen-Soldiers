@@ -1,120 +1,145 @@
 import os
 import json
-import time
 from datetime import datetime, timedelta
+import time
 from src.utils.const import Soldier
-from src.store.store import Store
-from itertools import combinations
-from src.tournament.matches_generator import generate_pool_matches, POOLS, NUM_POOLS, POOL_LETTERS
+from src.tournament.matches_generator import CURRENT_POOL_LETTER
 
 class TournamentManager:
     def __init__(self, store):
         self.store = store
         self.matches = []
-        self.current_match = None
-        self.results = []
-        self.match_start_time = None
-        self.match_duration = timedelta(minutes=6)
-        self.teams = {}
-        self.pool_standings = {i: [] for i in range(1, NUM_POOLS + 1)}
-        
-    def initialize_tournament(self, matches_file="tournament/matches.txt"):
-        """Load predefined matches and team information"""
-        self.matches, self.teams = generate_pool_matches()
         self.current_match = 0
-        self.match_start_time = None
-        return len(self.matches)
+        self.current_pool = CURRENT_POOL_LETTER
+        self.total_matches = 0
+        self.teams_mapping = self._create_teams_mapping()
+
+    def _normalize_team_name(self, team_name):
+        """Convert team name to valid filename"""
+        return team_name.lower().replace(' ', '').replace('-', '').replace('_', '')\
+            .replace('é', 'e').replace('è', 'e').replace('à', 'a')
+
+    def _create_teams_mapping(self):
+        """Create a dictionary mapping original team names to normalized filenames"""
+        all_teams = set()
+
+        with open("src/tournament/matches.txt", 'r', encoding='utf-8') as f:
+            for line in f:
+                if ' vs ' in line:
+                    team1, team2 = line.strip().split(' vs ')
+                    all_teams.add(team1)
+                    all_teams.add(team2)
         
-    def setup_next_match(self):
-        """Setup next match with timing control"""
-        if self.current_match >= len(self.matches):
-            self.finish_tournament()
-            return False
+        return {team: self._normalize_team_name(team) for team in all_teams}
+
+    def initialize_tournament(self, matches_file="src/tournament/matches.txt"):
+        """Load only matches for the current pool and reset match counter"""
+        self.current_match = 0  # Reset counter
+        with open(matches_file, 'r', encoding='utf-8') as f:
+            current_round = []
+            matches = []
+            pool_index = ['A', 'B', 'C', 'D'].index(self.current_pool)
             
-        current_time = datetime.now()
-        
-        # If this is the first match or previous match has ended
-        if self.match_start_time is None:
-            self.match_start_time = current_time
-        else:
-            # Check if we need to wait for the 6-minute interval
-            elapsed_time = current_time - self.match_start_time
-            if elapsed_time < self.match_duration:
-                # Wait until the 6-minute mark
-                remaining_time = (self.match_duration - elapsed_time).total_seconds()
-                time.sleep(remaining_time)
-            self.match_start_time = datetime.now()
-        
+            for line in f:
+                if line.startswith('==='):
+                    if current_round:
+                        matches.append(current_round[pool_index])
+                    current_round = []
+                elif ' vs ' in line:
+                    team1, team2 = line.strip().split(' vs ')
+                    current_round.append((team1, team2))
+            
+            if current_round:
+                matches.append(current_round[pool_index])
+                
+        self.matches = matches
+        return len(matches)
+
+    def setup_next_match(self):
+        """Retourne les informations des agents à configurer pour le prochain match"""
+        if self.current_match >= len(self.matches):
+            self.update_tournament_results()
+            return None
+            
         team1_name, team2_name = self.matches[self.current_match]
         self.current_match += 1
         
-        self.store.dispatch({"type": "RESET_GAME"})
-        self.store.state["agents_info_index"] = {
-            Soldier.RED: f"{team1_name}_{Soldier.RED.name}",
-            Soldier.BLUE: f"{team2_name}_{Soldier.BLUE.name}"
+        return {
+            "red_agent": team1_name,
+            "blue_agent": team2_name,
+            "red_agent_file": self.teams_mapping[team1_name],
+            "blue_agent_file": self.teams_mapping[team2_name],
+            "round": self.current_match,
+            "total_rounds": len(self.matches)
         }
-        return True
 
-    def record_match_result(self):
-        """Enregistre le résultat du match en cours"""
+    def start_match(self, match_info):
+        """Démarre un nouveau match avec les informations fournies"""
+        print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Pool {match_info['pool']}")
+        print(f"{match_info['team1']} vs {match_info['team2']}\n")
+
+    def update_tournament_results(self):
+        """Met à jour le fichier results.md avec les résultats actuels"""
         state = self.store.get_state()
-        team1_name, team2_name = self.matches[self.current_match - 1]
+        agents = state.get("agents", {})
         
-        result = {
-            "timestamp": datetime.now().isoformat(),
-            "agent1": team1_name,
-            "agent2": team2_name,
-            "winner": state.get("winner"),
-            "moves_count": len(state.get("history", [])),
-            "reason": state.get("game_over_reason"),
-            "pool": self.teams[team1_name]['pool']
-        }
-        self.results.append(result)
+        # Collecter les résultats par équipe
+        team_stats = {}
+        for agent_id, agent in agents.items():
+            team_name = agent_id.rsplit('_', 1)[0]
+            if team_name not in team_stats:
+                team_stats[team_name] = {
+                    "points": 0,
+                    "matches": 0,
+                    "wins": 0,
+                    "draws": 0,
+                    "losses": 0,
+                    "moves_total": 0
+                }
+            
+            # Analyser les performances
+            for perf in agent.get("performances", []):
+                if perf["issue"] == "win":
+                    team_stats[team_name]["wins"] += 1
+                    team_stats[team_name]["points"] += 3
+                elif perf["issue"] == "draw":
+                    team_stats[team_name]["draws"] += 1
+                    team_stats[team_name]["points"] += 1
+                else:  # loss
+                    team_stats[team_name]["losses"] += 1
+                team_stats[team_name]["matches"] += 1
+                team_stats[team_name]["moves_total"] += perf["number_of_moves"]
         
-        # Update team statistics
-        winner = state.get("winner")
-        if winner == "RED":
-            self.teams[team1_name]['points'] += 3
-        elif winner == "BLUE":
-            self.teams[team2_name]['points'] += 3
-        elif winner == "DRAW":
-            self.teams[team1_name]['points'] += 1
-            self.teams[team2_name]['points'] += 1
-            
-        self.teams[team1_name]['matches_played'] += 1
-        self.teams[team2_name]['matches_played'] += 1
-
-    def finish_tournament(self):
-        """Génère les rapports finaux"""
-        output_dir = "tournament/results"
-        os.makedirs(output_dir, exist_ok=True)
+        # Générer le rapport markdown
+        report = self._generate_markdown_report(team_stats)
         
-        # Sauvegarde les résultats bruts
-        with open(f"{output_dir}/tournament_results.json", "w") as f:
-            json.dump(self.results, f, indent=2)
-            
-        # Génère les statistiques et le rapport
-        self._generate_markdown_report(output_dir)
-        
-    def _generate_markdown_report(self, output_dir):
-        """Génère un rapport en markdown avec les résultats par pool"""
-        report = "# Tournament Results\n\n"
-        
-        for pool_num in range(1, NUM_POOLS + 1):
-            pool_letter = POOL_LETTERS[pool_num]
-            pool_teams = [(id, team) for id, team in self.teams.items() 
-                         if team['pool'] == pool_letter]
-            sorted_teams = sorted(pool_teams, key=lambda x: x[1]['points'], reverse=True)
-            
-            report += f"## Pool {pool_letter}\n\n"
-            report += "| Team | Points | Matches |\n"
-            report += "|------|---------|----------|\n"
-            
-            for team_id, team in sorted_teams:
-                report += f"| {team['name']} | {team['points']} | {team['matches_played']} |\n"
-            
-            report += "\n"
-
-        # Écrire le rapport
-        with open(f"{output_dir}/tournament_report.md", "w") as f:
+        # Sauvegarder dans results.md
+        os.makedirs("src/tournament/results", exist_ok=True)
+        with open(f"src/tournament/results/results_pool_{self.current_pool}.md", "w", encoding='utf-8') as f:
             f.write(report)
+
+    def _generate_markdown_report(self, team_stats):
+        """Génère le rapport markdown des résultats"""
+        report = [
+            f"# Résultats Pool {self.current_pool}",
+            "\n## Classement",
+            "| Position | Équipe | Points | Matchs | V | N | D | Moy. coups |",
+            "|----------|---------|---------|---------|---|---|---|------------|"
+        ]
+        
+        # Trier les équipes par points puis par victoires
+        sorted_teams = sorted(
+            team_stats.items(),
+            key=lambda x: (x[1]["points"], x[1]["wins"]),
+            reverse=True
+        )
+        
+        for pos, (team, stats) in enumerate(sorted_teams, 1):
+            avg_moves = stats["moves_total"] / stats["matches"] if stats["matches"] > 0 else 0
+            report.append(
+                f"| {pos} | {team} | {stats['points']} | {stats['matches']} | "
+                f"{stats['wins']} | {stats['draws']} | {stats['losses']} | "
+                f"{avg_moves:.1f} |"
+            )
+        
+        return "\n".join(report)

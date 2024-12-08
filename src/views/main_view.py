@@ -2,8 +2,10 @@ import customtkinter as ctk
 from tkinter import filedialog
 import logging
 import os
+from datetime import datetime, timedelta
+import time
 
-from src.utils.const import  resolution, screen_width, screen_height
+from src.utils.const import  Soldier, resolution, screen_width, screen_height
 
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
@@ -72,9 +74,11 @@ class MainView(BaseView):
         # Ajouter un gestionnaire pour la fermeture de la fenêtre
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.tournament_mode = False # Gardez cette ligne
+        self.tournament_mode = True
         self.tournament_manager = None
-        # Supprimez l'appel à start_tournament() ici
+        self.handling_tournament_end = False
+        self.match_start_time = None
+        self.match_duration = timedelta(minutes=6)
 
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""
@@ -217,22 +221,19 @@ class MainView(BaseView):
         """
         Update the view with new state based on game status.
         """
-        # First priority: Check if game is over
         if state["is_game_over"]:
-            if self.tournament_mode:
+            if self.tournament_mode and not self.handling_tournament_end:
                 self.handle_tournament_match_end()
-            elif not self.after_game_view:
+            elif not self.tournament_mode and not self.after_game_view:
                 self.show_after_game_view()
             return
 
         # Handle game reset/cleanup
-        if not state["is_game_started"] and hasattr(self, 'history_view') and hasattr(self, 'game_board'):
+        if hasattr(self, 'history_view') and hasattr(self, 'game_board'):
             if state.get("is_game_leaved"):
                 self.history_view.clear_moves()
                 self.game_board.clear_board()
-                # Reset after_game_view reference when game is reset
-                self.after_game_view = None
-
+                
         # Always update players column for agent selection
         if hasattr(self, 'players_column'):
             self.players_column.update(state)
@@ -243,6 +244,7 @@ class MainView(BaseView):
 
         # Normal game updates
         if hasattr(self, 'game_board'):
+            print("Updating game board...")
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
@@ -258,30 +260,126 @@ class MainView(BaseView):
         self.master.destroy()
 
     def handle_tournament_match_end(self):
-        """Gère la fin d'un match de tournoi"""
-        if not self.tournament_manager:
+        """Gère la fin d'un match de tournoi et prépare le suivant après le délai"""
+        if not self.tournament_manager or self.handling_tournament_end:
             return
             
-        self.tournament_manager.record_match_result()
+        self.handling_tournament_end = True
+        print("\n=== Tournament match end handling ===")
         
-        # Configure le prochain match
-        if self.tournament_manager.setup_next_match():
-            self.game_runner.set_mode("game")
-            if self.game_runner.prepare_agents():
+        try:
+            # 1. Afficher les résultats et attendre
+            print("1. Affichage des résultats...")
+            self.show_after_game_view()
+            
+            # 2. Mise à jour des résultats du tournoi après chaque match
+            print("2. Mise à jour des résultats du tournoi...")
+            self.tournament_manager.update_tournament_results()
+            
+            print("3. Attente du délai minimum...")
+            elapsed = datetime.now() - self.match_start_time
+            if elapsed < self.match_duration:
+                remaining = (self.match_duration - elapsed).total_seconds()
+                print(f"   Attente de {remaining:.1f} secondes...")
+                time.sleep(remaining)
+            
+            # 4. Nettoyage de l'interface...
+            print("4. Nettoyage de l'interface...")
+            if self.after_game_view:
+                print("   4.1 Fermeture propre de l'after_game_view...")
+                self.after_game_view.grab_release()  # Relâche le focus
+                self.master.focus_set()  # Redonne le focus à la fenêtre principale
+                self.after_game_view.destroy()  # Détruit la fenêtre
+                self.after_game_view = None
+
+            print("4. Préparation du prochain match...")
+            next_match = self.tournament_manager.setup_next_match()
+            
+            if next_match:
+                print("5. Nettoyage du plateau...")
+                if hasattr(self, 'game_board'):
+                    print("   5.1 Reset du game board...")
+                    self.game_board.reset_game()
+                
+                print("6. Redémarrage du jeu...")
+                self.store.dispatch({"type": "RESTART_GAME"})
+                
+                print("7. Configuration des agents...")
+                self.store.dispatch({
+                    "type": "SELECT_AGENT",
+                    "soldier_value": Soldier.RED,
+                    "info_index": f"{next_match['red_agent_file']}_{Soldier.RED.name}"
+                })
+                self.store.dispatch({
+                    "type": "SELECT_AGENT",
+                    "soldier_value": Soldier.BLUE,
+                    "info_index": f"{next_match['blue_agent_file']}_{Soldier.BLUE.name}"
+                })
+                
+                print(f"\nMatch {next_match['round']}/{next_match['total_rounds']}")
+                print(f"{next_match['red_agent']} vs {next_match['blue_agent']}\n")
+                
+                print("8. Démarrage du nouveau match...")
+                self.match_start_time = datetime.now()
+                self.game_runner.set_mode("game")
                 self.game_runner.start()
-        else:
-            self.tournament_mode = False
-            print("Tournament completed! Check results in tournament/results/")
-            self.return_to_home()
+                print("=== Nouveau match démarré ===\n")
+            else:
+                print("Tournoi terminé, nettoyage...")
+                if self.after_game_view:
+                    print("Fermeture de l'affichage final...")
+                    self.after_game_view.on_closing()
+                
+                self.tournament_mode = False
+                show_popup(
+                    f"Tournament Pool {self.tournament_manager.current_pool} completed!\n"
+                    "Check results in tournament/results/",
+                    "Tournament Complete"
+                )
+                self.return_to_home()
+        except Exception as e:
+            print(f"ERREUR dans handle_tournament_match_end: {e}")
+            self.logger.error(f"Error in handle_tournament_match_end: {e}")
+            import traceback
+            print(traceback.format_exc())
+        finally:
+            print("=== Tournament match end handling terminé ===\n")
+            self.handling_tournament_end = False
 
     def start_tournament(self):
         """Démarre un nouveau tournoi"""
         self.tournament_mode = True
         self.tournament_manager = TournamentManager(self.store)
-        self.tournament_manager.initialize_tournament()
+        self.handling_tournament_end = False
         
-        # Démarre le premier match
-        if self.tournament_manager.setup_next_match():
-            self.game_runner.set_mode("game")
-            if self.game_runner.prepare_agents():
+        # S'assurer que le jeu est dans un état propre
+        self.store.dispatch({"type": "RESTART_GAME"})
+        
+        num_matches = self.tournament_manager.initialize_tournament()
+        
+        if num_matches > 0:
+            next_match = self.tournament_manager.setup_next_match()
+            if next_match:
+                # Configurer les agents pour le premier match
+                self.store.dispatch({
+                    "type": "SELECT_AGENT",
+                    "soldier_value": Soldier.RED,
+                    "info_index": f"{next_match['red_agent_file']}_{Soldier.RED.name}"
+                })
+                self.store.dispatch({
+                    "type": "SELECT_AGENT",
+                    "soldier_value": Soldier.BLUE,
+                    "info_index": f"{next_match['blue_agent_file']}_{Soldier.BLUE.name}"
+                })
+                
+                print(f"\nMatch {next_match['round']}/{next_match['total_rounds']}")
+                print(f"{next_match['red_agent']} vs {next_match['blue_agent']}\n")
+                
+                # Démarrer le premier match
+                self.match_start_time = datetime.now()
+                self.game_runner.set_mode("game")
                 self.game_runner.start()
+        else:
+            show_popup("No matches found for this pool", "Tournament Error")
+            self.tournament_mode = False
+            self.return_to_home()

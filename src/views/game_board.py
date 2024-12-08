@@ -215,9 +215,6 @@ class GameBoard(BaseView):
             if step < steps:
                 # Déplace le pion de façon incrémentale
                 self.canvas.move(soldier_id, dh, dv)
-                # Re-appeler la fonction après un délai
-                # print('**************Vitesse de déplacement du board : ', self.store.game_speed.get_board_speed(delay))
-                
                 self.frame.after(self.store.game_speed.get_board_speed(delay), lambda: step_move(step + 1))
             else:
                 # Ajuste les coordonnées finales pour être exactes
@@ -242,9 +239,6 @@ class GameBoard(BaseView):
         to_pos = move["pos"][-1]
         player = move["soldier_value"].value
  
-        
-        # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
-        
         soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_), player=player)
  
         if soldier_id is None:
@@ -292,6 +286,8 @@ class GameBoard(BaseView):
         
         try:
             last_move = get_last_move(state)
+            if last_move is None :
+                return
             if not is_equals(last_move, self.previous_move):
                 # self.logger.info(f"Processing new move: {last_move}")
                 try:
@@ -355,17 +351,18 @@ class GameBoard(BaseView):
         self.reset_button.configure(state="disabled" if is_playing else "normal")
 
     def reset_game(self):
-        self.store.dispatch({"type": "RESET_GAME"})
-        self.previous_move = None
-        
-        # Reset buttons
-        self.play_pause_button.configure(
-            image=ctk.CTkImage(
-                light_image=Image.open(Assets.icon_play), size=(20, 20)),
-            text="Play" if self.store.get_state().get("game_mode") == "game" else "Replay"
-        )
-        self.play_pause_button.configure(state="normal")
-        self.reset_button.configure(state="disabled")
+        """Reset the game board"""
+  
+        try:
+            self.canvas.delete("all")
+            self.__draw_board()
+            self._draw_pieces()
+            
+        except Exception as e:
+            print(f"ERROR in reset_game: {e}")
+            self.logger.error(f"Error in reset_game: {e}")
+            import traceback
+            print(traceback.format_exc())
 
     def clear_board(self):
         self.canvas.delete("all")

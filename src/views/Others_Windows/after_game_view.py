@@ -117,10 +117,7 @@ class AfterGameView(ctk.CTkToplevel):
 
         # Add protocol for window close button (X)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-    def on_closing(self):
-        """Handle window closing event - just close the window"""
-        self.destroy()
+        self.grab_set()  # Rend la fenêtre modale
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
@@ -167,5 +164,14 @@ class AfterGameView(ctk.CTkToplevel):
             "remaining_pawns": None,
             "total_moves": None
         }
+
+    def on_closing(self):
+        """Handle window closing event properly"""
+        try:
+            self.grab_release()  # Relâche le focus modal
+            self.master.focus_set()  # Redonne le focus à la fenêtre principale
+            self.destroy()  # Détruit la fenêtre
+        except Exception as e:
+            print(f"Error closing AfterGameView: {e}")
 
 
