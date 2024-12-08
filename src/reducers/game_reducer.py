@@ -8,14 +8,32 @@ from src.utils.history_utils import get_last_move
 
 
 
+def init_game(state: Dict) -> Dict:
+    """Initialize a new game"""
+    new_state = initial_state.copy()
+    new_state["game_mode"] = state["game_mode"]
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    new_state["is_game_started"] = True
+    return new_state
+
 def reset_game(state: Dict) -> Dict:
 
     new_state = initial_state.copy()
+    new_state["game_mode"] = state["game_mode"]
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     new_state["is_game_leaved"] = True
 
     return new_state
+
+def restart_game(state: Dict) -> Dict:
+    """Reset game state completely while keeping agents"""
+    new_state = initial_state.copy()
+    new_state["agents"] = state["agents"]
+    new_state["agents_info_index"] = state["agents_info_index"]
+    return new_state
+
 
 def change_current_player(state: Dict) -> Dict:
     """
@@ -67,8 +85,6 @@ def select_agent(state: Dict, action: Dict) -> Dict:
     return new_state
 
 def register_agents(state: Dict, action: Dict) -> Dict:
-    
-    
     new_state = state.copy()
     for payload in [action["payload1"], action["payload2"]]:
         if payload is None:
@@ -83,6 +99,7 @@ def register_agents(state: Dict, action: Dict) -> Dict:
             new_state["agents_info_index"][soldier_value] = info_index
     
     # logging.info(f"Have registered agent {new_state['agents']}")
+    # print(f"Have registered agent {new_state['agents']}")
     return new_state
 
 def game_reducer(state: Dict, action: Dict) -> Dict:
@@ -99,10 +116,14 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
             return pause_game(state)
         case "RESUME_GAME":
             return resume_game(state)
+        case "INIT_GAME":
+            return init_game(state)
         case "REGISTER_AGENTS":
             return register_agents(state, action)
         case "SELECT_AGENT":
             return select_agent(state, action)
+        case "RESTART_GAME":
+            return restart_game(state)
         
         case _:
             return state

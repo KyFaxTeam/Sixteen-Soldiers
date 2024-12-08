@@ -36,16 +36,16 @@ class GameSpeed:
             self.MAX_VISIBLE_DELAY = 7000
 
         elif 1 <= self.current_speed < 1.5: 
-            self.MIN_VISIBLE_DELAY = 1100
+            self.MIN_VISIBLE_DELAY = 1000
             self.MAX_VISIBLE_DELAY = 5000
 
         elif 1.5 <= self.current_speed < 2: 
-            self.MIN_VISIBLE_DELAY = 700
+            self.MIN_VISIBLE_DELAY = 600
             self.MAX_VISIBLE_DELAY = 4000
 
         elif 2 <= self.current_speed <= 2.5: 
-            self.MIN_VISIBLE_DELAY = 400
-            self.MAX_VISIBLE_DELAY = 2000
+            self.MIN_VISIBLE_DELAY = 200
+            self.MAX_VISIBLE_DELAY = 1500
 
     
     def get_delay_time(self, ai_thinking_time):
@@ -71,3 +71,11 @@ class GameSpeed:
     def get_current_speed(self) -> float:
         return self.current_speed
 
+
+    def get_board_speed(self, delay) -> int:
+        max_value = 15
+        min_value = 5
+
+        calculated_speed = ((3 - self.current_speed) * delay)
+
+        return int(min(max(calculated_speed, min_value), max_value))

@@ -2,8 +2,9 @@ import os
 import customtkinter as ctk
 from PIL import Image
 from src.utils.audio import Sounds
-from src.utils.const import ASSETS_DIR, Soldier
+from src.utils.const import  Soldier
 from src.utils.logger_config import get_logger
+from src.models.assets.index import Assets
 
 class AfterGameView(ctk.CTkToplevel):
     def __init__(self, master, store, on_restart, on_save):
@@ -21,11 +22,10 @@ class AfterGameView(ctk.CTkToplevel):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         self.geometry(f"400x300+{(screen_width-400)//2}+{(screen_height-300)//2}")
-        # self.geometry("400x300")
+       
         self.transient(master)
-        #self.grab_set()  # Block interaction with MainView
         self.sounds.game_completed()
-        # self.logger.info("**************Game Over window created*************")
+
         # Fetch winner's data from store
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
@@ -35,24 +35,20 @@ class AfterGameView(ctk.CTkToplevel):
         team_pseudo = winner_data.get("team_pseudo")
         ai_name = winner_data.get("ai_name")
         soldier_value = winner_data.get("soldier_value")
-        if soldier_value == Soldier.BLUE:
-            pawns_image_filename = "blue_soldier.png"
-        else:
-            pawns_image_filename = "red_soldier.png"  # Default to red if value is null or not BLUE
+         
+        
         remaining_time = winner_data.get("remaining_time")
         remaining_pawns = winner_data.get("remaining_pawns")
 
-        total_moves = int(len(state.get("history", [])) / 2)
+        total_moves = winner_data.get("total_moves") if winner_data.get("total_moves") else len(state.get("history", []))//2
 
         # Display "Gagnant" title
         ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
 
-        # Display profile picture
+        # Display profile picturei,ik
         self.profile_image = ctk.CTkLabel(self, text="")
         if profile_img_path:
-            # Use os.path.join to construct the full path
-            profile_img_full_path = os.path.join(ASSETS_DIR, profile_img_path)
-            image = Image.open(profile_img_full_path)
+            image = Image.open(profile_img_path)
             self.photo = ctk.CTkImage(image, size=(100, 100))
             self.profile_image.configure(image=self.photo)
         self.profile_image.pack(pady=(0, 5))
@@ -71,8 +67,13 @@ class AfterGameView(ctk.CTkToplevel):
         time_label.grid(row=0, column=0, padx=10)
 
         # Display pawns remaining icon
-        pawns_image_path = os.path.join(ASSETS_DIR, "images", pawns_image_filename)
-        pawns_image = Image.open(pawns_image_path)
+        if soldier_value == Soldier.BLUE:
+            pawns_image  = Image.open(Assets.img_blue_soldier)
+        elif soldier_value == Soldier.RED:
+            pawns_image = Image.open(Assets.img_red_soldier)
+        else:
+            pawns_image = Image.open(Assets.img_empty_soldier)
+
         self.pawns_photo = ctk.CTkImage(pawns_image, size=(20, 20))
         pawns_label = ctk.CTkLabel(bottom_frame, image=self.pawns_photo, text="")  
         pawns_label.grid(row=0, column=1, padx=((10, 0)))
@@ -82,17 +83,10 @@ class AfterGameView(ctk.CTkToplevel):
         remaining_pawns_label.grid(row=0, column=2, padx=(0, 15))
 
         # Restart button with icon
-        try:
-            restart_image_path = os.path.join(ASSETS_DIR, "images", "refresh.png")
-            if os.path.exists(restart_image_path):
-                restart_image = Image.open(restart_image_path).resize((25, 25))
-                self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
-            else:
-                self.logger.warning(f"Refresh icon not found at {restart_image_path}")
-                self.restart_photo = None
-        except Exception as e:
-            self.logger.error(f"Failed to load restart image: {e}")
-            self.restart_photo = None
+        restart_image_path = Assets.icon_refresh
+        restart_image = Image.open(restart_image_path).resize((25, 25))
+        self.restart_photo = ctk.CTkImage(restart_image, size=(25, 25))
+        
 
         # Create restart button with or without image
         restart_button = ctk.CTkButton(
@@ -117,6 +111,9 @@ class AfterGameView(ctk.CTkToplevel):
         # Save button
         save_button = ctk.CTkButton(bottom_frame, text="Save", command=lambda: on_save(save_button), width=50)
         save_button.grid(row=0, column=5, padx=(25, 0))
+        if self.store.get_state().get("game_mode") == 'replay':
+            save_button.configure(state="disabled")
+
 
         # Add protocol for window close button (X)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -136,17 +133,20 @@ class AfterGameView(ctk.CTkToplevel):
         #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
         # self.logger.info(winner_data)
-
+        
         if not winner_data:
             self.logger.warning("No winner data found")
             return self._get_default_winner_data()
 
         # Get the latest performance from agent stats
-        stats = winner_data.get("stats", {})
-        performances = stats.get("performances", [])
-        latest_time = "00:00"
+        performances = winner_data.get("performances", [])
+        latest_time = None
+        number_of_moves = 0
         if performances:
-            latest_time = performances[-1].time  # Le temps est déjà sauvegardé par conclude_game
+            latest_performance = performances[-1]
+            latest_time = latest_performance['time']
+            number_of_moves = latest_performance['number_of_moves']
+            reason = latest_performance.get("reason")
 
         return {
             "profile_img": winner_data.get("profile_img"),
@@ -154,22 +154,18 @@ class AfterGameView(ctk.CTkToplevel):
             "ai_name": winner_data.get("name", "AI"),
             "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
-            "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value'))
+            "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
+            "total_moves": number_of_moves
         }
 
     def _get_default_winner_data(self):
         return {
-            "profile_img": os.path.join("images", "kyfax_logo-removebg-preview.png"),
+            "profile_img": Assets.kyfax_logo,
             "team_pseudo": "Aucun",
             "ai_name": "Vainqueur",
             "remaining_time": None,
-            "remaining_pawns": None
+            "remaining_pawns": None,
+            "total_moves": None
         }
 
 
-    
-
-    # def update(self, state):
-    #     """Update the view when the state changes"""
-    #     # ...update logic if needed...
-    #     pass

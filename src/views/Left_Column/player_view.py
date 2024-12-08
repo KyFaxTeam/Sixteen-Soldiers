@@ -10,6 +10,8 @@ from src.views.base_view import BaseView
 from src.utils.const import AGENT_DIR
 from PIL import Image
 import logging
+
+from src.utils.history_utils import get_move_player_count
 logger = logging.getLogger(__name__)
 
 
@@ -26,9 +28,10 @@ class PlayerView(BaseView):
             initial_time = initial_state.get("time_manager", {}).get_remaining_time(self.soldier_value)
             initial_time = int(initial_time*1000)  # Convert to milliseconds
             initial_soldier_count = initial_state["board"].count_soldiers(self.soldier_value)
+            move_count = 0   # Get initial move count
         else:
             logger.warning("Store not provided. PlayerView will not be able to update.")
-        
+            move_count = 0  # Initialize move count to 0
 
         self.joueur_frame = ctk.CTkFrame(
             self.frame,
@@ -46,8 +49,6 @@ class PlayerView(BaseView):
         )
         self.avatar_container.grid(row=0, column=0, sticky="ew", padx=15, pady=(15, 5))
         self.avatar_container.grid_propagate(False)
-        
-      
         
         # Enhanced avatar with random image
         self.avatar_image = self.load_random_avatar()
@@ -84,13 +85,13 @@ class PlayerView(BaseView):
         )
         self.timer_frame.pack(side="left", padx=10, pady=5)
 
-        self.timer_icon =  ctk.CTkLabel(
-                self.timer_frame,
-                text="",
-                image= ctk.CTkImage(
-                    light_image=Image.open(Assets.horloge),
-                    dark_image=Image.open(Assets.horloge_1),
-                    size=(17,17)
+        self.timer_icon = ctk.CTkLabel(
+            self.timer_frame,
+            text="",
+            image=ctk.CTkImage(
+                light_image=Image.open(Assets.horloge),
+                dark_image=Image.open(Assets.horloge_1),
+                size=(17, 17)
             )
         )
         self.timer_icon.pack(side="left", padx=(0, 5))
@@ -119,11 +120,26 @@ class PlayerView(BaseView):
         )
         self.pieces_label.pack(side="left")
         
+        # Move count with icon
+        self.move_count_frame = ctk.CTkFrame(
+            self.stats_container,
+            fg_color="transparent"
+        )
+        self.move_count_frame.pack(side="right", padx=10, pady=5)
+        
+
+        self.move_count_label = ctk.CTkLabel(
+            self.move_count_frame,
+            text=str(move_count),
+            font=ctk.CTkFont(size=14, weight="bold")
+        )
+        self.move_count_label.pack(side="left")
+        
         # Player name
         agent_info = self.store.get_agent_info(self.soldier_value)
         self.name_label = ctk.CTkLabel(
             self.info_frame,
-            text=agent_info.get('name', 'Select an agent'),
+            text=agent_info.get('pseudo', 'Select an agent'),
             font=ctk.CTkFont(size=12)
         )
         self.name_label.pack(pady=5)
@@ -135,7 +151,7 @@ class PlayerView(BaseView):
         # Select button
         self.select_button = ctk.CTkButton(
             self.info_frame,
-            text="Select",
+            text= agent_info.get('name', 'Select') ,
             font=ctk.CTkFont(size=10),
             width=100,
             height=32,
@@ -143,7 +159,6 @@ class PlayerView(BaseView):
             command=self.toggle_agent_dropdown
         )
         self.select_button.pack(pady=10)
-        
   
         
     def create_soldier_icon(self, master) -> ctk.CTkLabel:
@@ -169,6 +184,7 @@ class PlayerView(BaseView):
             )
       
         return label
+    
     def get_agent_list(self):
         """Get list of available agents from the agents directory"""
         
@@ -197,6 +213,9 @@ class PlayerView(BaseView):
     def can_select_agent(self) -> bool:
         """Check if agent selection is allowed based on game state"""
         state = self.store.get_state()
+        # Disable selection in replay mode
+        if state.get('game_mode') == 'replay':
+            return False
         return (not state.get('is_game_started') or 
                 state.get('is_game_paused'))
 
@@ -358,10 +377,17 @@ class PlayerView(BaseView):
             # Update pieces count
             if 'board' in state:
                 
-                soldier_count = sum(1 for value in state['board'].soldiers.values() 
-                                if value ==self.soldier_value)
+                soldier_count = state['board'].count_soldiers(self.soldier_value)
                 # self.logger.debug(f"Updating piece count: {soldier_count}")
                 self.pieces_label.configure(text=str(soldier_count))
+
+            # Update move count
+            if 'history' in state:
+                move_count = get_move_player_count(state['history'], self.soldier_value)
+                # self.logger.debug(f"Updating move count: {move_count}")
+                self.move_count_label.configure(text=str(move_count))
+
+
             
             
         except Exception as e:

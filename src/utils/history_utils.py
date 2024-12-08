@@ -56,19 +56,18 @@ def get_move_count(state: Dict) -> int:
     return len(get_history(state))
 
 
-def get_move_player_count(state: Dict, soldier_value: Soldier) -> int:
+def get_move_player_count(history: List, soldier_value: Soldier) -> int:
     """
     Get total number of moves in history for a specific player
     
     Args:
-        state (Dict): Current state
+        History (List): Current history
         player_id (int): ID of the player to count moves for
 
     Returns:
         int: Number of moves made by the specified player
     """
-    history = get_history(state)
-    return sum(1 for move_dict in history if Move.from_dict(move_dict).soldier_value == soldier_value)
+    return sum(len(move_dict["timestamp"]) for move_dict in history if move_dict["soldier_value"] == soldier_value)
 
 # def get_total_move_count(state: Dict) -> int:
 #     """
