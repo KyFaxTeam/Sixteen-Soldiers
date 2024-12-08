@@ -76,7 +76,7 @@ def save_game(state: Dict) -> Dict:
         
         return converted_data
     except Exception as e:
-        print(f"An error occurred while saving the game: {e}")
+
         return None
 
 def load_game(save_file: str) -> Dict:

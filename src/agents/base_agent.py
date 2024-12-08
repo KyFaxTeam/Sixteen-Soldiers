@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 import sys
 from typing import List, Dict, Literal
 from src.models.assets.index import Assets
-from src.utils.const import Soldier
+from src.utils.const import AGENT_AVATAR_DIR, Soldier
+from src.utils.const import AGENT_DIR
 
 @dataclass
 class MatchPerformance:
@@ -28,18 +29,21 @@ class BaseAgent:
             self.performances = [MatchPerformance(**performance) for performance in data.get("performances", [])]
             self.profile_img = data.get("profile_img", "")
         else:
-            self.performances = []
-            self.profile_img = self._get_random_avatar()
+            self.performances = []       
+            
+            if os.path.exists(os.path.join(AGENT_AVATAR_DIR, self.pseudo + ".png")):
+                self.profile_img = os.path.join(AGENT_AVATAR_DIR, self.pseudo + ".png")
+            else:  
+                self.profile_img = self._get_random_avatar()
 
     
     def _get_random_avatar(self) -> str:
         """Gets a random avatar path from assets"""
         avatar_dir = Assets.dir_avatar
-        # print("avatar",avatar_dir)
+        
         avatar_files = [f for f in os.listdir(avatar_dir) 
                        if f.endswith(('.png', '.jpg', '.jpeg'))]
         
-        # print("avatar",avatar_files)
         if avatar_files:
             return os.path.join(avatar_dir, random.choice(avatar_files))
         return ""  
