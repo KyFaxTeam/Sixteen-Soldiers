@@ -176,7 +176,7 @@ class Board:
         """
         Checks if a specific move is valid
         """
-        valid_actions = self.get_valid_actions(soldier_value)
+        valid_actions = self.get_valid_actions()
         return any(
             action['from_pos'] == from_pos and 
             action['to_pos'] == to_pos 
