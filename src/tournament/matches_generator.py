@@ -108,7 +108,7 @@ def generate_round_robin(teams):
     return rounds
 
 # Configuration de la poule gérée par cette instance
-CURRENT_POOL_LETTER = 'A'  # Changer cette valeur selon la poule à gérer (A, B, C ou D)
+CURRENT_POOL_LETTER = 'B'  # Changer cette valeur selon la poule à gérer (A, B, C ou D)
 
 def organize_simultaneous_matches(pool_matches):
     """
