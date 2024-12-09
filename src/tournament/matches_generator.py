@@ -29,15 +29,11 @@ def distribute_teams_to_pools(teams_list, seed=None):
     return teams_by_pool
 
 def save_pool_distribution(teams_by_pool, filename="teams.txt"):
-    """Sauvegarde la répartition des équipes au format 'equipe,lettre_poule'"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    filepath = os.path.join(current_dir, filename)
-    
+    filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
     with open(filepath, 'w', encoding='utf-8') as f:
-        for pool_num, teams in teams_by_pool.items():
-            pool_letter = POOL_LETTERS[pool_num]
-            for team in teams:
-                f.write(f"{team},{pool_letter}\n")
+        f.writelines(f"{team},{POOL_LETTERS[pool]}\n" 
+                    for pool, teams in teams_by_pool.items() 
+                    for team in teams)
 
 def load_teams(filename="teams.txt"):
     """Charge les équipes depuis le fichier de répartition"""
@@ -51,33 +47,11 @@ def load_teams(filename="teams.txt"):
 
 def generate_pool_matches(teams_file="teams.txt"):
     teams_by_pool = load_teams(teams_file)
-    all_matches = []
-    teams_info = {}
-    
-    # Initialiser les informations des équipes
-    for pool, teams in teams_by_pool.items():
-        for team in teams:
-            teams_info[team] = {
-                'name': team,
-                'pool': pool,
-                'points': 0,
-                'matches_played': 0
-            }
-    
-    # Générer les matchs pour chaque pool
-    pool_matches = {pool: [] for pool in POOLS}
-    for pool in POOLS:
-        pool_teams = teams_by_pool[pool]
-        matches = list(combinations(pool_teams, 2))
-        pool_matches[pool] = matches
-    
-    # Organiser les matchs en groupes de 4 (un de chaque poule)
+    pool_matches = {pool: list(combinations(teams, 2)) 
+                   for pool, teams in teams_by_pool.items()}
     all_matches = organize_simultaneous_matches(pool_matches)
-    
-    # Sauvegarder les matchs dans un fichier
     save_matches_to_file(all_matches)
-    
-    return all_matches, teams_info
+    return all_matches
 
 def generate_round_robin(teams):
     """
@@ -109,50 +83,32 @@ def generate_round_robin(teams):
 CURRENT_POOL_LETTER = 'D'  # Changer cette valeur selon la poule à gérer (A, B, C ou D)
 
 def organize_simultaneous_matches(pool_matches):
-    """
-    Organise les matchs en s'assurant que:
-    1. Les matchs d'une même poule sont toujours à la même position
-    2. Chaque confrontation a un match aller et retour
-    """
     pool_schedules = {}
     for pool, matches in pool_matches.items():
         teams = list(set([team for match in matches for team in match]))
-        # Générer les matchs aller
         matches_aller = generate_round_robin(teams)
-        # Générer les matchs retour en inversant les équipes
-        matches_retour = [[(match[1], match[0]) for match in round] 
-                         for round in matches_aller]
-        # Combiner aller et retour
+        matches_retour = [[(m[1], m[0]) for m in round] for round in matches_aller]
         pool_schedules[pool] = matches_aller + matches_retour
     
-    # Réorganiser en maintenant l'ordre des poules
     simultaneous_matches = []
     max_rounds = max(len(schedule) for schedule in pool_schedules.values())
     
     for round_num in range(max_rounds):
-        round_matches = []
-        # Maintenir l'ordre fixe: A=0, B=1, C=2, D=3
-        for pool in ['A', 'B', 'C', 'D']:
-            if round_num < len(pool_schedules[pool]):
-                round_matches.append(pool_schedules[pool][round_num][0])
-                pool_schedules[pool][round_num] = pool_schedules[pool][round_num][1:]
+        round_matches = [pool_schedules[pool][round_num][0]
+                        for pool in POOLS
+                        if round_num < len(pool_schedules[pool])]
+        pool_schedules[pool][round_num] = pool_schedules[pool][round_num][1:]
         simultaneous_matches.extend(round_matches)
     
     return simultaneous_matches
 
 def save_matches_to_file(matches, filename="matches.txt"):
-    """Sauvegarde les matchs par groupes de 4 (un match par poule)"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    filepath = os.path.join(current_dir, filename)
-    
+    filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
     with open(filepath, 'w', encoding='utf-8') as f:
         for i in range(0, len(matches), 4):
-            group = matches[i:i+4]
             f.write(f"=== Round {i//4 + 1} ===\n")
-            for match in group:
-                team1, team2 = match
-                f.write(f"{team1} vs {team2}\n")
-            f.write("\n")
+            f.write("\n".join(f"{t1} vs {t2}" for t1, t2 in matches[i:i+4]))
+            f.write("\n\n")
 
 def optimize_match_order(matches):
     """

@@ -304,7 +304,6 @@ class PlayerView(BaseView):
             random_avatar = random.choice(avatar_files)
             avatar_path = os.path.join(avatar_dir, random_avatar)
             self.logger.debug(f"Avatar sélectionné: {avatar_path}")
-            # print(f"Loading avatar image from: {avatar_path}")  # Debugging line
             try:
                 image = Image.open(avatar_path).convert('RGBA')
                 return image
@@ -313,7 +312,6 @@ class PlayerView(BaseView):
                 return None
         else:
             self.logger.debug("Aucun fichier d'avatar trouvé")
-            # print("No avatar images found in the directory.")  # Debugging line
             # Fallback if no images are found
             fallback_image = Image.new('RGBA', (60, 60), (200, 200, 200, 255))  # Gray placeholder
 

@@ -4,8 +4,8 @@ from PIL import Image, ImageTk
 import screeninfo
 from src.models.assets.index import Assets
 from src.utils.audio import Sounds
-from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, resolution
-from src.utils.game_utils import GameRunner, show_popup
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, resolution
+from src.utils.game_utils import GameRunner
 from src.views.base_view import BaseView
 from src.utils.board_utils import BoardUtils  
 from src.utils.history_utils import get_last_move, is_equals  
@@ -357,12 +357,10 @@ class GameBoard(BaseView):
             self.canvas.delete("all")
             self.__draw_board()
             self._draw_pieces()
-            
+
         except Exception as e:
-            print(f"ERROR in reset_game: {e}")
             self.logger.error(f"Error in reset_game: {e}")
-            import traceback
-            print(traceback.format_exc())
+            
 
     def clear_board(self):
         self.canvas.delete("all")

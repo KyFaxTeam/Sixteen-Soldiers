@@ -97,10 +97,10 @@ def load_game(save_file: str) -> Dict:
         return converted_state
         
     except FileNotFoundError:
-        print(f"No saved game found at {save_file}.")
+        
         return None
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
+        
         return None
 
 def save_reducer(state: Dict, action: Dict) -> Dict:
