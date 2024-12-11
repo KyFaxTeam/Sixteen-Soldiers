@@ -17,6 +17,9 @@ INITIAL_POOLS = {
     'C': [],
     'D': []
 }
+
+CURRENT_POOL = 'B'
+
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Python Trident", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Jos_team"}
 for team in sorted(fixed_teams):
     available_pools = [pool for pool in INITIAL_POOLS if len(INITIAL_POOLS[pool]) < 2]

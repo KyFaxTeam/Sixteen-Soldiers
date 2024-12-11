@@ -1,20 +1,40 @@
-
-from src.tournament.config import TOURNAMENT_DIR, POOLS, TEAMS_MAPPING, normalize_team_name
+from src.tournament.config import TOURNAMENT_DIR, POOLS, TEAMS_MAPPING, CURRENT_POOL, normalize_team_name
+import json
 
 class TournamentManager:
-    def __init__(self, store, pool='A'):
+    def __init__(self, store):
         self.store = store
         self.matches = []
         self.current_match = 0
-        self.current_pool = pool
+        self.current_pool = CURRENT_POOL
         self.total_matches = 0
         self.teams_mapping = TEAMS_MAPPING
+        self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
+        self._load_state()
+
+    def _load_state(self):
+        """Charge l'état du tournoi s'il existe"""
+        if self.state_file.exists():
+            with open(self.state_file, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+                self.current_match = state.get('current_match', 0)
+        else:
+            self.current_match = 0
+
+    def _save_state(self):
+        """Sauvegarde l'état actuel du tournoi"""
+        state = {
+            'current_match': self.current_match,
+            'pool': self.current_pool
+        }
+        with open(self.state_file, 'w', encoding='utf-8') as f:
+            json.dump(state, f)
 
     def initialize_tournament(self, matches_file=None):
-        """Load only matches for the current pool and reset match counter"""
+        """Load only matches for the current pool and reset match counter if no saved state"""
         if matches_file is None:
             matches_file = TOURNAMENT_DIR / "matches.txt"
-        self.current_match = 0  # Reset counter
+        # self.current_match = 0  # Reset counter    
         with open(matches_file, 'r', encoding='utf-8') as f:
             current_round = []
             matches = []
@@ -43,6 +63,7 @@ class TournamentManager:
             
         team1_name, team2_name = self.matches[self.current_match]
         self.current_match += 1
+        self._save_state()  # Sauvegarde l'état après chaque match
         
         return {
             "red_agent": team1_name,
