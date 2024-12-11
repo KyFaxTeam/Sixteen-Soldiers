@@ -10,6 +10,7 @@ THEME_PATH = ASSETS_DIR / 'themes/theme.json'
 AGENT_DIR = ROOT_DIR / "src/agents"
 AGENT_AVATAR_DIR = AGENT_DIR / "avatars"
 
+TOURNAMENT_DIR = ROOT_DIR / "src/tournament"
 
 # Configuration du jeu
 class Soldier(Enum):
