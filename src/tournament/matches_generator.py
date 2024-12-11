@@ -82,9 +82,9 @@ def save_matches_to_file(matches, filename="matches.txt"):
 
 if __name__ == "__main__":
     teams = [
-        "Alverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ",
-        "Dream team", "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", 
-        "Gojok", "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW",
+        "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
+        "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
+        "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW",
         "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
         "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella"
     ]
