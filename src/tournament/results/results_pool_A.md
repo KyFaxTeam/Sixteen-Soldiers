@@ -3,5 +3,9 @@
 ## Classement
 | Position | Équipe | Points | Matchs | V | N | D | Moy. coups |
 |----------|---------|---------|---------|---|---|---|------------|
-| 1 | vegapunkstella | 3 | 1 | 1 | 0 | 0 | 105.0 |
-| 2 | jolych | 0 | 1 | 0 | 0 | 1 | 101.0 |
+| 1 | jolych | 6 | 2 | 2 | 0 | 0 | 162.5 |
+| 2 | vegapunkstella | 6 | 2 | 2 | 0 | 0 | 172.0 |
+| 3 | gojok | 6 | 2 | 2 | 0 | 0 | 161.0 |
+| 4 | lesleaders | 3 | 2 | 1 | 0 | 1 | 141.5 |
+| 5 | dreamteam | 1 | 2 | 0 | 1 | 1 | 195.5 |
+| 6 | mindmisters | 0 | 1 | 0 | 0 | 1 | 180.0 |
