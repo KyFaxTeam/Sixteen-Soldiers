@@ -7,7 +7,7 @@ TOURNAMENT_DIR = Path(__file__).parent
 # Configuration du tournoi
 NUM_POOLS = 4
 POOLS = ['A', 'B', 'C', 'D']
-RANDOM_SEED =35
+RANDOM_SEED = 8016322820246606
 random.seed(RANDOM_SEED)
 # Configuration initiale des poules (équipes pré-assignées)
 
