@@ -111,7 +111,7 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
             f.write(f"=== Round {round_num} ===\n")
             for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
                 for match in matches:
-                    f.write(f"Poule {pool}: {match[0]} vs {match[1]}\n")
+                    f.write(f"{pool}: {match[0]} vs {match[1]}\n")
             f.write("\n")
             
         # Phase retour
@@ -120,7 +120,7 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
             f.write(f"=== Round {round_num} ===\n")
             for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
                 for match in matches:
-                    f.write(f"Poule {pool}: {match[0]} vs {match[1]}\n")
+                    f.write(f"{pool}: {match[0]} vs {match[1]}\n")
             f.write("\n")
 
 if __name__ == "__main__":
