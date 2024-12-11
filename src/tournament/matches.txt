@@ -1,48 +1,340 @@
+======= PHASE ALLER =======
+
 === Round 1 ===
-JoLyCh vs Mugiwara
-Alverse vs IFRI
-Innovation Group (IG) vs gildasWebSite
-Mind Misters vs Les sisters
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Mugiwara
+Poule B: BOÏZ vs AI_MAU
+Poule C: Team Zero vs Dream team
+Poule D: Avec l'IA vs Mind Misters
 
 === Round 2 ===
-JoLyCh vs Firesky
-Alverse vs Bee Light
-Innovation Group (IG) vs EL-LINE
-Mind Misters vs KACW
+Poule A: JoLyCh vs Némésis
+Poule B: Bélion vs IFRI
+Poule C: Gojok vs EL-LINE
+Poule D: Jos_team vs Phil Kong
 
 === Round 3 ===
-Mugiwara vs Firesky
-IFRI vs Bee Light
-gildasWebSite vs EL-LINE
-Les sisters vs KACW
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Firesky
+Poule B: BOÏZ vs Eriatech
+Poule C: Bandit binaire vs gildasWebSite
+Poule D: Vegapunk-Stella vs Limitless Nexus
 
 === Round 4 ===
-Blacknight01 vs Questcoders
-Eriatech vs AI_MAU
-Les leaders vs Dream team
-Vegapunk-Stella vs Limitless Nexus
+Poule A: JoLyCh vs Blacknight01
+Poule B: Python Trident vs Bee Light
+Poule C: Team Zero vs Gojok
+Poule D: Les sisters vs Phil Kong
 
 === Round 5 ===
-Némésis vs JoLyCh
-BOÏZ vs Alverse
-Gojok vs Innovation Group (IG)
-Phil Kong vs Mind Misters
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Némésis
+Poule B: AIverse vs BOÏZ
+Poule C: Bandit binaire vs Dream team
+Poule D: Jos_team vs Vegapunk-Stella
 
 === Round 6 ===
-Némésis vs Mugiwara
-BOÏZ vs IFRI
-Gojok vs gildasWebSite
-Phil Kong vs Les sisters
+Poule A: Turk_3.0 vs JoLyCh
+Poule B: Bélion vs AI_MAU
+Poule C: Gojok vs Les leaders
+Poule D: Phil Kong vs Limitless Nexus
 
 === Round 7 ===
-Blacknight01 vs Némésis
-Eriatech vs BOÏZ
-Les leaders vs Gojok
-Vegapunk-Stella vs Phil Kong
+Poule A: Mugiwara vs Firesky
+Poule B: Python Trident vs BOÏZ
+Poule C: gildasWebSite vs Dream team
+Poule D: Mind Misters vs KACW
 
 === Round 8 ===
-Firesky vs Blacknight01
-Bee Light vs Eriatech
-EL-LINE vs Les leaders
-KACW vs Vegapunk-Stella
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Turk_3.0
+Poule B: Bélion vs Bee Light
+Poule C: Bandit binaire vs Les leaders
+Poule D: Jos_team vs Limitless Nexus
+
+=== Round 9 ===
+Poule A: Mugiwara vs Blacknight01
+Poule B: IFRI vs BOÏZ
+Poule C: Team Zero vs Innovation Group (IG)
+Poule D: Avec l'IA vs KACW
+
+=== Round 10 ===
+Poule A: Questcoders vs Firesky
+Poule B: AIverse vs AI_MAU
+Poule C: Les leaders vs EL-LINE
+Poule D: Jos_team vs Mind Misters
+
+=== Round 11 ===
+Poule A: Némésis vs Blacknight01
+Poule B: Bélion vs BOÏZ
+Poule C: Bandit binaire vs Team Zero
+Poule D: Les sisters vs Vegapunk-Stella
+
+=== Round 12 ===
+Poule A: Mugiwara vs Questcoders
+Poule B: Python Trident vs Eriatech
+Poule C: gildasWebSite vs EL-LINE
+Poule D: Mind Misters vs Limitless Nexus
+
+=== Round 13 ===
+Poule A: Turk_3.0 vs Firesky
+Poule B: BOÏZ vs Bee Light
+Poule C: Gojok vs Dream team
+Poule D: Jos_team vs Les sisters
+
+=== Round 14 ===
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Questcoders
+Poule B: AIverse vs IFRI
+Poule C: Innovation Group (IG) vs gildasWebSite
+Poule D: Vegapunk-Stella vs KACW
+
+=== Round 15 ===
+Poule A: Mugiwara vs Némésis
+Poule B: Eriatech vs AI_MAU
+Poule C: Bandit binaire vs EL-LINE
+Poule D: Mind Misters vs Les sisters
+
+=== Round 16 ===
+Poule A: Turk_3.0 vs Questcoders
+Poule B: AIverse vs Bee Light
+Poule C: gildasWebSite vs Gojok
+Poule D: Jos_team vs KACW
+
+=== Round 17 ===
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs JoLyCh
+Poule B: IFRI vs AI_MAU
+Poule C: Innovation Group (IG) vs Les leaders
+Poule D: Mind Misters vs Phil Kong
+
+=== Round 18 ===
+Poule A: Turk_3.0 vs Mugiwara
+Poule B: Eriatech vs Bee Light
+Poule C: Bandit binaire vs Gojok
+Poule D: Les sisters vs Limitless Nexus
+
+=== Round 19 ===
+Poule A: JoLyCh vs Questcoders
+Poule B: Python Trident vs AI_MAU
+Poule C: Team Zero vs Les leaders
+Poule D: Mind Misters vs Vegapunk-Stella
+
+=== Round 20 ===
+Poule A: Turk_3.0 vs Némésis
+Poule B: IFRI vs Eriatech
+Poule C: Innovation Group (IG) vs EL-LINE
+Poule D: Limitless Nexus vs KACW
+
+=== Round 21 ===
+Poule A: JoLyCh vs Mugiwara
+Poule B: AI_MAU vs Bee Light
+Poule C: Les leaders vs Dream team
+Poule D: Avec l'IA vs Vegapunk-Stella
+
+=== Round 22 ===
+Poule A: Blacknight01 vs Questcoders
+Poule B: Python Trident vs IFRI
+Poule C: Innovation Group (IG) vs Gojok
+Poule D: Phil Kong vs KACW
+
+=== Round 23 ===
+Poule A: Némésis vs Firesky
+Poule B: Bélion vs AIverse
+Poule C: Dream team vs EL-LINE
+Poule D: Avec l'IA vs Limitless Nexus
+
+=== Round 24 ===
+Poule A: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Blacknight01
+Poule B: IFRI vs Bee Light
+Poule C: Team Zero vs gildasWebSite
+Poule D: Phil Kong vs Vegapunk-Stella
+
+=== Round 25 ===
+Poule A: Némésis vs Questcoders
+Poule B: Python Trident vs Bélion
+Poule C: Innovation Group (IG) vs Dream team
+Poule D: Avec l'IA vs Les sisters
+
+=== Round 26 ===
+Poule A: Blacknight01 vs Firesky
+Poule B: AIverse vs Eriatech
+Poule C: Team Zero vs EL-LINE
+Poule D: Avec l'IA vs Phil Kong
+
+=== Round 27 ===
+Poule A: Turk_3.0 vs Blacknight01
+Poule B: Python Trident vs AIverse
+Poule C: Bandit binaire vs Innovation Group (IG)
+Poule D: Les sisters vs KACW
+
+=== Round 28 ===
+Poule A: JoLyCh vs Firesky
+Poule B: Bélion vs Eriatech
+Poule C: gildasWebSite vs Les leaders
+Poule D: Avec l'IA vs Jos_team
+
+======= PHASE RETOUR =======
+
+=== Round 1 ===
+Poule A: Mugiwara vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: AI_MAU vs BOÏZ
+Poule C: Dream team vs Team Zero
+Poule D: Mind Misters vs Avec l'IA
+
+=== Round 2 ===
+Poule A: Némésis vs JoLyCh
+Poule B: IFRI vs Bélion
+Poule C: EL-LINE vs Gojok
+Poule D: Phil Kong vs Jos_team
+
+=== Round 3 ===
+Poule A: Firesky vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: Eriatech vs BOÏZ
+Poule C: gildasWebSite vs Bandit binaire
+Poule D: Limitless Nexus vs Vegapunk-Stella
+
+=== Round 4 ===
+Poule A: Blacknight01 vs JoLyCh
+Poule B: Bee Light vs Python Trident
+Poule C: Gojok vs Team Zero
+Poule D: Phil Kong vs Les sisters
+
+=== Round 5 ===
+Poule A: Némésis vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: BOÏZ vs AIverse
+Poule C: Dream team vs Bandit binaire
+Poule D: Vegapunk-Stella vs Jos_team
+
+=== Round 6 ===
+Poule A: JoLyCh vs Turk_3.0
+Poule B: AI_MAU vs Bélion
+Poule C: Les leaders vs Gojok
+Poule D: Limitless Nexus vs Phil Kong
+
+=== Round 7 ===
+Poule A: Firesky vs Mugiwara
+Poule B: BOÏZ vs Python Trident
+Poule C: Dream team vs gildasWebSite
+Poule D: KACW vs Mind Misters
+
+=== Round 8 ===
+Poule A: Turk_3.0 vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: Bee Light vs Bélion
+Poule C: Les leaders vs Bandit binaire
+Poule D: Limitless Nexus vs Jos_team
+
+=== Round 9 ===
+Poule A: Blacknight01 vs Mugiwara
+Poule B: BOÏZ vs IFRI
+Poule C: Innovation Group (IG) vs Team Zero
+Poule D: KACW vs Avec l'IA
+
+=== Round 10 ===
+Poule A: Firesky vs Questcoders
+Poule B: AI_MAU vs AIverse
+Poule C: EL-LINE vs Les leaders
+Poule D: Mind Misters vs Jos_team
+
+=== Round 11 ===
+Poule A: Blacknight01 vs Némésis
+Poule B: BOÏZ vs Bélion
+Poule C: Team Zero vs Bandit binaire
+Poule D: Vegapunk-Stella vs Les sisters
+
+=== Round 12 ===
+Poule A: Questcoders vs Mugiwara
+Poule B: Eriatech vs Python Trident
+Poule C: EL-LINE vs gildasWebSite
+Poule D: Limitless Nexus vs Mind Misters
+
+=== Round 13 ===
+Poule A: Firesky vs Turk_3.0
+Poule B: Bee Light vs BOÏZ
+Poule C: Dream team vs Gojok
+Poule D: Les sisters vs Jos_team
+
+=== Round 14 ===
+Poule A: Questcoders vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: IFRI vs AIverse
+Poule C: gildasWebSite vs Innovation Group (IG)
+Poule D: KACW vs Vegapunk-Stella
+
+=== Round 15 ===
+Poule A: Némésis vs Mugiwara
+Poule B: AI_MAU vs Eriatech
+Poule C: EL-LINE vs Bandit binaire
+Poule D: Les sisters vs Mind Misters
+
+=== Round 16 ===
+Poule A: Questcoders vs Turk_3.0
+Poule B: Bee Light vs AIverse
+Poule C: Gojok vs gildasWebSite
+Poule D: KACW vs Jos_team
+
+=== Round 17 ===
+Poule A: JoLyCh vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: AI_MAU vs IFRI
+Poule C: Les leaders vs Innovation Group (IG)
+Poule D: Phil Kong vs Mind Misters
+
+=== Round 18 ===
+Poule A: Mugiwara vs Turk_3.0
+Poule B: Bee Light vs Eriatech
+Poule C: Gojok vs Bandit binaire
+Poule D: Limitless Nexus vs Les sisters
+
+=== Round 19 ===
+Poule A: Questcoders vs JoLyCh
+Poule B: AI_MAU vs Python Trident
+Poule C: Les leaders vs Team Zero
+Poule D: Vegapunk-Stella vs Mind Misters
+
+=== Round 20 ===
+Poule A: Némésis vs Turk_3.0
+Poule B: Eriatech vs IFRI
+Poule C: EL-LINE vs Innovation Group (IG)
+Poule D: KACW vs Limitless Nexus
+
+=== Round 21 ===
+Poule A: Mugiwara vs JoLyCh
+Poule B: Bee Light vs AI_MAU
+Poule C: Dream team vs Les leaders
+Poule D: Vegapunk-Stella vs Avec l'IA
+
+=== Round 22 ===
+Poule A: Questcoders vs Blacknight01
+Poule B: IFRI vs Python Trident
+Poule C: Gojok vs Innovation Group (IG)
+Poule D: KACW vs Phil Kong
+
+=== Round 23 ===
+Poule A: Firesky vs Némésis
+Poule B: AIverse vs Bélion
+Poule C: EL-LINE vs Dream team
+Poule D: Limitless Nexus vs Avec l'IA
+
+=== Round 24 ===
+Poule A: Blacknight01 vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
+Poule B: Bee Light vs IFRI
+Poule C: gildasWebSite vs Team Zero
+Poule D: Vegapunk-Stella vs Phil Kong
+
+=== Round 25 ===
+Poule A: Questcoders vs Némésis
+Poule B: Bélion vs Python Trident
+Poule C: Dream team vs Innovation Group (IG)
+Poule D: Les sisters vs Avec l'IA
+
+=== Round 26 ===
+Poule A: Firesky vs Blacknight01
+Poule B: Eriatech vs AIverse
+Poule C: EL-LINE vs Team Zero
+Poule D: Phil Kong vs Avec l'IA
+
+=== Round 27 ===
+Poule A: Blacknight01 vs Turk_3.0
+Poule B: AIverse vs Python Trident
+Poule C: Innovation Group (IG) vs Bandit binaire
+Poule D: KACW vs Les sisters
+
+=== Round 28 ===
+Poule A: Firesky vs JoLyCh
+Poule B: Eriatech vs Bélion
+Poule C: Les leaders vs gildasWebSite
+Poule D: Jos_team vs Avec l'IA
 

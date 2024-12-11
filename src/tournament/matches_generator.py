@@ -6,31 +6,48 @@ from pathlib import Path
 TOURNAMENT_DIR = Path(__file__).parent
 NUM_POOLS = 4
 POOLS = ['A', 'B', 'C', 'D']
-POOL_LETTERS = {i+1: letter for i, letter in enumerate(POOLS)}
 RANDOM_SEED = 11  # Changez cette valeur pour une distribution différente
+
+# Configuration initiale des poules (équipes pré-assignées)
+INITIAL_POOLS = {
+    'A': ["🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Turk_3.0"],
+    'B': ["Python Trident", "Bélion"],
+    'C': ["Bandit binaire", "Team Zero"],
+    'D': ["Avec l'IA", "Jos_team"]
+}
+
+ 
 
 def distribute_teams_to_pools(teams_list, filename="teams.txt"):
     """Répartit aléatoirement les équipes dans les poules A, B, C, D et sauvegarde la distribution"""
     random.seed(RANDOM_SEED)
-    teams = teams_list.copy()
-    random.shuffle(teams)
     
-    # Distribution des équipes
-    teams_per_pool = len(teams) // NUM_POOLS
-    remainder = len(teams) % NUM_POOLS
+    # Initialiser avec les équipes pré-assignées
+    teams_by_pool = {i+1: INITIAL_POOLS[pool].copy() for i, pool in enumerate(POOLS)}
     
-    teams_by_pool = {}
-    start = 0
+    # Filtrer les équipes déjà assignées
+    pre_assigned = set(team for teams in INITIAL_POOLS.values() for team in teams)
+    remaining_teams = [team for team in teams_list if team not in pre_assigned]
+    random.shuffle(remaining_teams)
+    
+    # Calculer combien d'équipes ajouter dans chaque poule
+    total_teams = len(remaining_teams) + sum(len(teams) for teams in INITIAL_POOLS.values())
+    teams_per_pool = total_teams // NUM_POOLS
+    
+    # Distribuer les équipes restantes
+    current_team = 0
     for pool_num in range(1, NUM_POOLS + 1):
-        extra = 1 if pool_num <= remainder else 0
-        end = start + teams_per_pool + extra
-        teams_by_pool[pool_num] = teams[start:end]
-        start = end
-    
+        current_size = len(teams_by_pool[pool_num])
+        needed = teams_per_pool - current_size
+        if pool_num <= (total_teams % NUM_POOLS):  # Ajouter une équipe de plus si nécessaire
+            needed += 1
+        teams_by_pool[pool_num].extend(remaining_teams[current_team:current_team + needed])
+        current_team += needed
+
     # Sauvegarde directe dans le fichier
     filepath = TOURNAMENT_DIR / filename
     with open(filepath, 'w', encoding='utf-8') as f:
-        f.writelines(f"{team},{POOL_LETTERS[pool]}\n" 
+        f.writelines(f"{team},{POOLS[pool-1]}\n" 
                     for pool, teams in teams_by_pool.items() 
                     for team in teams)
     
@@ -47,38 +64,35 @@ def load_teams(filename="teams.txt"):
                 teams[pool].append(team_name)
     return teams
 
-def generate_pool_matches(teams_file="teams.txt"):
-    """Génère les matchs pour chaque poule (aller-retour)"""
+def generate_pool_matches(teams_file="teams.txt", output_file="matches.txt"):
+    """Génère les matchs pour chaque poule (aller-retour) et les sauvegarde dans un fichier"""
     teams_by_pool = load_teams(teams_file)
-    pool_matches = {}
+    matches_by_pool = {}
     
-    # Générer les matchs aller-retour pour chaque poule
-    for pool, teams in teams_by_pool.items():
+    # Générer tous les matchs aller-retour par poule
+    for pool in POOLS:
+        teams = teams_by_pool[pool]
         matches_aller = list(combinations(teams, 2))
         matches_retour = [(team2, team1) for team1, team2 in matches_aller]
-        pool_matches[pool] = matches_aller + matches_retour
-    
-    # Organiser les matchs par groupes de 4 (un de chaque poule)
-    all_matches = []
-    max_matches = max(len(matches) for matches in pool_matches.values())
-    
-    for i in range(0, max_matches, 4):
-        round_matches = []
-        for pool in POOLS:
-            if i < len(pool_matches[pool]):
-                round_matches.append(pool_matches[pool][i])
-        all_matches.extend(round_matches)
-    
-    save_matches_to_file(all_matches)
-    return all_matches
+        matches_by_pool[pool] = matches_aller + matches_retour
 
-def save_matches_to_file(matches, filename="matches.txt"):
-    filepath = TOURNAMENT_DIR / filename
+    # Déterminer le nombre maximum de matchs dans une poule
+    max_matches = max(len(matches) for matches in matches_by_pool.values())
+    
+    # Sauvegarder les matchs en alternant les poules dans chaque round
+    filepath = TOURNAMENT_DIR / output_file
     with open(filepath, 'w', encoding='utf-8') as f:
-        for i in range(0, len(matches), 4):
-            f.write(f"=== Round {i//4 + 1} ===\n")
-            f.write("\n".join(f"{t1} vs {t2}" for t1, t2 in matches[i:i+4]))
-            f.write("\n\n")
+        round_num = 1
+        for i in range(0, max_matches, NUM_POOLS):
+            f.write(f"=== Round {round_num} ===\n")
+            for pool in POOLS:
+                if i < len(matches_by_pool[pool]):
+                    match = matches_by_pool[pool][i]
+                    f.write(f"Poule {pool}: {match[0]} vs {match[1]}\n")
+            f.write("\n")
+            round_num += 1
+    
+    return matches_by_pool
 
 if __name__ == "__main__":
     teams = [

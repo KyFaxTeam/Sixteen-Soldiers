@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from src.tournament.tournament_manager import TournamentManager
 

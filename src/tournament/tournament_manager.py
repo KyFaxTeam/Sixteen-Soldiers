@@ -1,4 +1,4 @@
-import os
+
 from pathlib import Path
 
 TOURNAMENT_DIR = Path(__file__).parent
