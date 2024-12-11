@@ -1,24 +1,24 @@
-Les leaders,A
-Dream team,A
-Mind Misters,A
-Vegapunk-Stella,A
 JoLyCh,A
-Gojok,A
-Limitless Nexus,B
+Mugiwara,A
+Némésis,A
+Blacknight01,A
+Questcoders,A
+Firesky,A
+Alverse,B
 IFRI,B
-KACW,B
-Les sisters,B
+BOÏZ,B
+Eriatech,B
 AI_MAU,B
-Innovation Group (IG),B
-Phil Kong,C
-EL-LINE,C
+Bee Light,B
+Innovation Group (IG),C
 gildasWebSite,C
-Bee Light,C
-Questcoders,C
-BOÏZ,C
-Mugiwara,D
-Eriatech,D
-Firesky,D
-Alverse,D
-Blacknight01,D
-Némésis,D
+Gojok,C
+Les leaders,C
+Dream team,C
+EL-LINE,C
+Mind Misters,D
+Les sisters,D
+Phil Kong,D
+Vegapunk-Stella,D
+Limitless Nexus,D
+KACW,D

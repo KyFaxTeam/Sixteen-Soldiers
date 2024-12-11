@@ -1,60 +1,48 @@
 === Round 1 ===
-JoLyCh vs Vegapunk-Stella
-Limitless Nexus vs AI_MAU
-Phil Kong vs Questcoders
-Blacknight01 vs Eriatech
+JoLyCh vs Mugiwara
+Alverse vs IFRI
+Innovation Group (IG) vs gildasWebSite
+Mind Misters vs Les sisters
 
 === Round 2 ===
-JoLyCh vs Dream team
-Limitless Nexus vs KACW
-Phil Kong vs BOÏZ
-Blacknight01 vs Némésis
+JoLyCh vs Firesky
+Alverse vs Bee Light
+Innovation Group (IG) vs EL-LINE
+Mind Misters vs KACW
 
 === Round 3 ===
-JoLyCh vs Gojok
-Limitless Nexus vs Les sisters
-Phil Kong vs Bee Light
-Blacknight01 vs Mugiwara
+Mugiwara vs Firesky
+IFRI vs Bee Light
+gildasWebSite vs EL-LINE
+Les sisters vs KACW
 
 === Round 4 ===
-JoLyCh vs Les leaders
-Limitless Nexus vs IFRI
-Phil Kong vs gildasWebSite
-Blacknight01 vs Firesky
+Blacknight01 vs Questcoders
+Eriatech vs AI_MAU
+Les leaders vs Dream team
+Vegapunk-Stella vs Limitless Nexus
 
 === Round 5 ===
-JoLyCh vs Mind Misters
-Limitless Nexus vs Innovation Group (IG)
-Phil Kong vs EL-LINE
-Blacknight01 vs Alverse
+Némésis vs JoLyCh
+BOÏZ vs Alverse
+Gojok vs Innovation Group (IG)
+Phil Kong vs Mind Misters
 
 === Round 6 ===
-Vegapunk-Stella vs JoLyCh
-AI_MAU vs Limitless Nexus
-Questcoders vs Phil Kong
-Eriatech vs Blacknight01
+Némésis vs Mugiwara
+BOÏZ vs IFRI
+Gojok vs gildasWebSite
+Phil Kong vs Les sisters
 
 === Round 7 ===
-Dream team vs JoLyCh
-KACW vs Limitless Nexus
-BOÏZ vs Phil Kong
-Némésis vs Blacknight01
+Blacknight01 vs Némésis
+Eriatech vs BOÏZ
+Les leaders vs Gojok
+Vegapunk-Stella vs Phil Kong
 
 === Round 8 ===
-Gojok vs JoLyCh
-Les sisters vs Limitless Nexus
-Bee Light vs Phil Kong
-Mugiwara vs Blacknight01
-
-=== Round 9 ===
-Les leaders vs JoLyCh
-IFRI vs Limitless Nexus
-gildasWebSite vs Phil Kong
 Firesky vs Blacknight01
-
-=== Round 10 ===
-Mind Misters vs JoLyCh
-Innovation Group (IG) vs Limitless Nexus
-EL-LINE vs Phil Kong
-Alverse vs Blacknight01
+Bee Light vs Eriatech
+EL-LINE vs Les leaders
+KACW vs Vegapunk-Stella
 
