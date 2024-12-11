@@ -300,6 +300,7 @@ class MainView(BaseView):
                 if hasattr(self, 'game_board'):
                     print("   5.1 Reset du game board...")
                     self.game_board.reset_game()
+                    self.history_view.clear_moves()
                 
                 print("6. Redémarrage du jeu...")
                 self.store.dispatch({"type": "RESTART_GAME"})
