@@ -36,7 +36,7 @@ def distribute_teams_to_pools(teams_list, filename="teams.txt"):
     with open(filepath, 'w', encoding='utf-8') as f:
         f.writelines(f"{team},{POOLS[pool-1]}\n" 
                     for pool, teams in teams_by_pool.items() 
-                    for team in teams)
+                    for team in sorted(teams))
     
     return teams_by_pool
 
