@@ -1,44 +1,24 @@
-import os
-import json
-from datetime import datetime, timedelta
-import time
-from src.utils.const import Soldier
-from src.tournament.matches_generator import CURRENT_POOL_LETTER
+
+from src.tournament.config import TOURNAMENT_DIR, POOLS, TEAMS_MAPPING, normalize_team_name
 
 class TournamentManager:
-    def __init__(self, store):
+    def __init__(self, store, pool='A'):
         self.store = store
         self.matches = []
         self.current_match = 0
-        self.current_pool = CURRENT_POOL_LETTER
+        self.current_pool = pool
         self.total_matches = 0
-        self.teams_mapping = self._create_teams_mapping()
+        self.teams_mapping = TEAMS_MAPPING
 
-    def _normalize_team_name(self, team_name):
-        """Convert team name to valid filename"""
-        return team_name.lower().replace(' ', '').replace('-', '').replace('_', '')\
-            .replace('é', 'e').replace('è', 'e').replace('à', 'a')
-
-    def _create_teams_mapping(self):
-        """Create a dictionary mapping original team names to normalized filenames"""
-        all_teams = set()
-
-        with open("src/tournament/matches.txt", 'r', encoding='utf-8') as f:
-            for line in f:
-                if ' vs ' in line:
-                    team1, team2 = line.strip().split(' vs ')
-                    all_teams.add(team1)
-                    all_teams.add(team2)
-        
-        return {team: self._normalize_team_name(team) for team in all_teams}
-
-    def initialize_tournament(self, matches_file="src/tournament/matches.txt"):
+    def initialize_tournament(self, matches_file=None):
         """Load only matches for the current pool and reset match counter"""
+        if matches_file is None:
+            matches_file = TOURNAMENT_DIR / "matches.txt"
         self.current_match = 0  # Reset counter
         with open(matches_file, 'r', encoding='utf-8') as f:
             current_round = []
             matches = []
-            pool_index = ['A', 'B', 'C', 'D'].index(self.current_pool)
+            pool_index = POOLS.index(self.current_pool)
             
             for line in f:
                 if line.startswith('==='):
@@ -114,8 +94,9 @@ class TournamentManager:
         report = self._generate_markdown_report(team_stats)
         
         # Sauvegarder dans results.md
-        os.makedirs("src/tournament/results", exist_ok=True)
-        with open(f"src/tournament/results/results_pool_{self.current_pool}.md", "w", encoding='utf-8') as f:
+        results_dir = TOURNAMENT_DIR / "results"
+        results_dir.mkdir(exist_ok=True)
+        with open(results_dir / f"results_pool_{self.current_pool}.md", "w", encoding='utf-8') as f:
             f.write(report)
 
     def _generate_markdown_report(self, team_stats):

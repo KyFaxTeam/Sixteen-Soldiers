@@ -244,7 +244,7 @@ class MainView(BaseView):
 
         # Normal game updates
         if hasattr(self, 'game_board'):
-            print("Updating game board...")
+            
             self.game_board.update(state)
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
@@ -268,25 +268,22 @@ class MainView(BaseView):
         print("\n=== Tournament match end handling ===")
         
         try:
-            # 1. Afficher les résultats et attendre
-            print("1. Affichage des résultats...")
+           
             self.show_after_game_view()
             
-            # 2. Mise à jour des résultats du tournoi après chaque match
-            print("2. Mise à jour des résultats du tournoi...")
+           
             self.tournament_manager.update_tournament_results()
             
-            print("3. Attente du délai minimum...")
+            print(" Attente du délai minimum...")
             elapsed = datetime.now() - self.match_start_time
             if elapsed < self.match_duration:
                 remaining = (self.match_duration - elapsed).total_seconds()
                 print(f"   Attente de {remaining:.1f} secondes...")
                 time.sleep(remaining)
             
-            # 4. Nettoyage de l'interface...
-            print("4. Nettoyage de l'interface...")
+           
             if self.after_game_view:
-                print("   4.1 Fermeture propre de l'after_game_view...")
+                
                 self.after_game_view.grab_release()  # Relâche le focus
                 self.master.focus_set()  # Redonne le focus à la fenêtre principale
                 self.after_game_view.destroy()  # Détruit la fenêtre
@@ -296,15 +293,16 @@ class MainView(BaseView):
             next_match = self.tournament_manager.setup_next_match()
             
             if next_match:
-                print("5. Nettoyage du plateau...")
-                if hasattr(self, 'game_board'):
-                    print("   5.1 Reset du game board...")
-                    self.game_board.reset_game()
                 
-                print("6. Redémarrage du jeu...")
+                if hasattr(self, 'game_board'):
+                    
+                    self.game_board.reset_game()
+                    self.history_view.clear_moves()
+                
+                
                 self.store.dispatch({"type": "RESTART_GAME"})
                 
-                print("7. Configuration des agents...")
+          
                 self.store.dispatch({
                     "type": "SELECT_AGENT",
                     "soldier_value": Soldier.RED,
@@ -319,7 +317,7 @@ class MainView(BaseView):
                 print(f"\nMatch {next_match['round']}/{next_match['total_rounds']}")
                 print(f"{next_match['red_agent']} vs {next_match['blue_agent']}\n")
                 
-                print("8. Démarrage du nouveau match...")
+                
                 self.match_start_time = datetime.now()
                 self.game_runner.set_mode("game")
                 self.game_runner.start()
@@ -327,7 +325,7 @@ class MainView(BaseView):
             else:
                 print("Tournoi terminé, nettoyage...")
                 if self.after_game_view:
-                    print("Fermeture de l'affichage final...")
+                    
                     self.after_game_view.on_closing()
                 
                 self.tournament_mode = False
@@ -338,10 +336,9 @@ class MainView(BaseView):
                 )
                 self.return_to_home()
         except Exception as e:
-            print(f"ERREUR dans handle_tournament_match_end: {e}")
             self.logger.error(f"Error in handle_tournament_match_end: {e}")
-            import traceback
-            print(traceback.format_exc())
+            
+            
         finally:
             print("=== Tournament match end handling terminé ===\n")
             self.handling_tournament_end = False
