@@ -3,8 +3,6 @@ from tkinter import filedialog
 import logging
 import os
 from datetime import datetime, timedelta
-import time
-
 from src.utils.const import  Soldier, resolution, screen_width, screen_height
 
 from src.store.store import Store
@@ -275,6 +273,13 @@ class MainView(BaseView):
             print("Affichage de la vue après-match...")
             self.show_after_game_view()
 
+            # 2. Enregistrer le résultat du match
+            state = self.store.get_state()
+            self.tournament_manager.record_match_result(
+                winner=state.get("winner"),
+                moves=len(state.get("move_history", [])),
+                forfeit=state.get("forfeit", False)
+            )
             # 2. Calculer le délai nécessaire
             if self.match_start_time:
                 elapsed = datetime.now() - self.match_start_time
@@ -304,10 +309,10 @@ class MainView(BaseView):
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
-            # 2. Réinitialiser l'état du jeu
-            self.store.dispatch({"type": "RESTART_GAME"})
+            
 
-            # 3. Nettoyer les composants
+            # 3. Réinitialiser le jeu
+            self.store.dispatch({"type": "RESTART_GAME"})
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
             if hasattr(self, 'history_view'):
@@ -341,13 +346,12 @@ class MainView(BaseView):
 
     def end_tournament(self):
         """Termine le tournoi"""
-        self.tournament_manager.save_tournament_results()
         self.tournament_mode = False
         self.tournament_manager = None
         self.match_start_time = None
         
         show_popup(
-            "Le tournoi est terminé.\nLes résultats ont été sauvegardés.",
+            "Le tournoi est terminé.\nLes résultats ont été sauvegardés dans le dossier 'results'.",
             "Fin du tournoi"
         )
         
@@ -361,7 +365,7 @@ class MainView(BaseView):
             self.handling_tournament_end = False
             
             # Initialiser le tournoi
-            num_matches = self.tournament_manager.initialize_tournament()
+            num_matches = self.tournament_manager._initialize_matches()
             
             if num_matches == 0:
                 raise ValueError("Aucun match trouvé pour cette pool")
