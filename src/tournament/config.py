@@ -21,12 +21,13 @@ INITIAL_POOLS = {
 CURRENT_POOL = 'B'
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Python Trident", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
+FORFEIT_TEAMS = fixed_teams
 for team in sorted(fixed_teams):
     available_pools = [pool for pool in INITIAL_POOLS if len(INITIAL_POOLS[pool]) < 2]
     chosen_pool = random.choice(available_pools)
     INITIAL_POOLS[chosen_pool].append(team)
 
-print(INITIAL_POOLS)
+
 # Liste des équipes restantes
 TEAMS = [
     "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",

@@ -15,7 +15,7 @@ Questcoders,B
 Vegapunk-Stella,B
 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️,B
 BOÏZ,C
-Bélion,C
+Black Witches,C
 Dream team,C
 EL-LINE,C
 Eriatech,C
@@ -24,9 +24,9 @@ KACW,C
 Python Trident,C
 AI_MAU,D
 Blacknight01,D
+Bélion,D
 Firesky,D
 Gojok,D
 Innovation Group (IG),D
-Jos_team,D
 Mugiwara,D
 Team Zero,D

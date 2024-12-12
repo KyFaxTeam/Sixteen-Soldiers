@@ -362,9 +362,5 @@ class GameBoard(BaseView):
             self.logger.error(f"Error in reset_game: {e}")
             
 
-    def clear_board(self):
-        self.canvas.delete("all")
-        self.__draw_board()
-        self._draw_pieces()
 
 

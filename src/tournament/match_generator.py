@@ -1,9 +1,8 @@
 from itertools import combinations
-from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Tuple, Set
 import random
-from config import TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED
+from .config import TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED, FORFEIT_TEAMS
 
 # Set random seed at module level
 random.seed(RANDOM_SEED)
@@ -104,6 +103,14 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
     Sauvegarde les matchs dans un fichier en séparant clairement les phases aller et retour
     """
     filepath = TOURNAMENT_DIR / output_file
+    pool_matches_order = {pool: [] for pool in POOLS}
+    
+    # Collect matches by pool in order
+    for rounds in [rounds_aller, rounds_retour]:
+        for round_matches in rounds:
+            for pool, matches in round_matches.items():
+                pool_matches_order[pool].extend(matches)
+    
     with open(filepath, 'w', encoding='utf-8') as f:
         # Phase aller
         f.write("======= PHASE ALLER =======\n\n")
@@ -111,7 +118,12 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
             f.write(f"=== Round {round_num} ===\n")
             for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
                 for match in matches:
-                    f.write(f"Poule {pool}: {match[0]} vs {match[1]}\n")
+                    pool_display = pool
+                    if any(team in FORFEIT_TEAMS for team in match):
+                        pool_display += 'f'
+                        # Skip to next match for the pool
+                        pool_matches_order[pool].pop(0)
+                    f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
             
         # Phase retour
@@ -120,8 +132,49 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
             f.write(f"=== Round {round_num} ===\n")
             for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
                 for match in matches:
-                    f.write(f"Poule {pool}: {match[0]} vs {match[1]}\n")
+                    pool_display = pool
+                    if any(team in FORFEIT_TEAMS for team in match):
+                        pool_display += 'f'
+                        # Skip to next match for the pool
+                        pool_matches_order[pool].pop(0)
+                    f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
+
+def load_matches(filename: str, start_round: int, phase: str, pool: str) -> List[Tuple[str, str, bool]]:
+    """
+    Charge uniquement les matchs de la pool spécifiée
+    """
+    filepath = TOURNAMENT_DIR / filename
+    matches = []
+
+    with open(filepath, 'r', encoding='utf-8') as f:
+        current_phase = None
+        current_round = 0
+        
+        for line in f:
+            line = line.strip()
+            if line.startswith("======="):
+                current_phase = line.split()[-2]
+                current_round = 0
+            elif line.startswith("==="):
+                current_round += 1
+                if current_round < start_round:
+                    continue
+            elif ":" in line and current_phase == phase:
+                pool_info, match = line.split(":")
+                pool_info = pool_info.strip()
+                base_pool = pool_info[0]  # A, B, C ou D sans le 'f'
+                
+                # Ne traiter que les matchs de la pool demandée
+                if base_pool == pool:
+                    team1, team2 = match.strip().split(" vs ")
+                    matches.append((
+                        team1.strip(),
+                        team2.strip(),
+                        pool_info.endswith('f')
+                    ))
+    
+    return matches
 
 if __name__ == "__main__":
     generate_pool_matches()
