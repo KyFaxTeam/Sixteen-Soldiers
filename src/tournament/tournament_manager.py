@@ -1,126 +1,163 @@
-
-from src.tournament.config import TOURNAMENT_DIR, POOLS, TEAMS_MAPPING, normalize_team_name
+from src.tournament.config import TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
+from src.tournament.match_generator import load_matches
+import json
+from datetime import datetime
 
 class TournamentManager:
-    def __init__(self, store, pool='A'):
+    def __init__(self, store):
         self.store = store
         self.matches = []
         self.current_match = 0
-        self.current_pool = pool
-        self.total_matches = 0
+        self.current_pool = CURRENT_POOL
         self.teams_mapping = TEAMS_MAPPING
+        
+        # Chemins des fichiers
+        self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
+        self.results_file = TOURNAMENT_DIR / "results" / f"results_pool_{CURRENT_POOL}.md"
+        
+        # Créer les dossiers nécessaires
+        self.state_file.parent.mkdir(exist_ok=True)
+        self.results_file.parent.mkdir(exist_ok=True)
+        
+        # Charger ou initialiser l'état
+        self._load_state()
 
-    def initialize_tournament(self, matches_file=None):
-        """Load only matches for the current pool and reset match counter"""
-        if matches_file is None:
-            matches_file = TOURNAMENT_DIR / "matches.txt"
-        self.current_match = 0  # Reset counter
-        with open(matches_file, 'r', encoding='utf-8') as f:
-            current_round = []
-            matches = []
-            pool_index = POOLS.index(self.current_pool)
-            
-            for line in f:
-                if line.startswith('==='):
-                    if current_round:
-                        matches.append(current_round[pool_index])
-                    current_round = []
-                elif ' vs ' in line:
-                    team1, team2 = line.strip().split(' vs ')
-                    current_round.append((team1, team2))
-            
-            if current_round:
-                matches.append(current_round[pool_index])
-                
-        self.matches = matches
-        return len(matches)
+    def _load_state(self):
+        """Charge l'état du tournoi ou crée un nouveau"""
+        if self.state_file.exists():
+            with open(self.state_file, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+                self.current_match = state.get('current_match', 0)
+                self.matches = state.get('matches', [])
+        else:
+            self._initialize_matches()
+
+    def _initialize_matches(self):
+        """Initialise la liste des matchs pour la pool"""
+        start_round = (self.current_match // 1) + 1
+        phase = "ALLER" if start_round <= 28 else "RETOUR"
+        if phase == "RETOUR":
+            start_round -= 28
+        
+        self.matches = load_matches("matches.txt", start_round, phase, self.current_pool)
+        self._save_state()
+
+    def _save_state(self):
+        """Sauvegarde l'état actuel du tournoi"""
+        state = {
+            'current_match': self.current_match,
+            'matches': self.matches,
+            'pool': self.current_pool
+        }
+        with open(self.state_file, 'w', encoding='utf-8') as f:
+            json.dump(state, f)
 
     def setup_next_match(self):
-        """Retourne les informations des agents à configurer pour le prochain match"""
+        """Prépare le prochain match"""
         if self.current_match >= len(self.matches):
-            self.update_tournament_results()
             return None
-            
-        team1_name, team2_name = self.matches[self.current_match]
+
+        team1, team2, is_forfeit = self.matches[self.current_match]
         self.current_match += 1
-        
+        self._save_state()
+
         return {
-            "red_agent": team1_name,
-            "blue_agent": team2_name,
-            "red_agent_file": self.teams_mapping[team1_name],
-            "blue_agent_file": self.teams_mapping[team2_name],
+            "red_agent": team1,
+            "blue_agent": team2,
+            "red_agent_file": self.teams_mapping[team1],
+            "blue_agent_file": self.teams_mapping[team2],
             "round": self.current_match,
-            "total_rounds": len(self.matches)
+            "total_rounds": len(self.matches),
+            "is_forfeit": is_forfeit
         }
 
-    def start_match(self, match_info):
-        """Démarre un nouveau match avec les informations fournies"""
-        print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Pool {match_info['pool']}")
-        print(f"{match_info['team1']} vs {match_info['team2']}\n")
+    def record_match_result(self, winner, moves, forfeit=False):
+        """Enregistre le résultat d'un match et met à jour le markdown"""
+        if not winner or self.current_match == 0:
+            return
 
-    def update_tournament_results(self):
-        """Met à jour le fichier results.md avec les résultats actuels"""
-        state = self.store.get_state()
-        agents = state.get("agents", {})
-        
-        # Collecter les résultats par équipe
-        team_stats = {}
-        for agent_id, agent in agents.items():
-            team_name = agent_id.rsplit('_', 1)[0]
-            if team_name not in team_stats:
-                team_stats[team_name] = {
-                    "points": 0,
-                    "matches": 0,
-                    "wins": 0,
-                    "draws": 0,
-                    "losses": 0,
-                    "moves_total": 0
-                }
-            
-            # Analyser les performances
-            for perf in agent.get("performances", []):
-                if perf["issue"] == "win":
-                    team_stats[team_name]["wins"] += 1
-                    team_stats[team_name]["points"] += 3
-                elif perf["issue"] == "draw":
-                    team_stats[team_name]["draws"] += 1
-                    team_stats[team_name]["points"] += 1
-                else:  # loss
-                    team_stats[team_name]["losses"] += 1
-                team_stats[team_name]["matches"] += 1
-                team_stats[team_name]["moves_total"] += perf["number_of_moves"]
-        
-        # Générer le rapport markdown
-        report = self._generate_markdown_report(team_stats)
-        
-        # Sauvegarder dans results.md
-        results_dir = TOURNAMENT_DIR / "results"
-        results_dir.mkdir(exist_ok=True)
-        with open(results_dir / f"results_pool_{self.current_pool}.md", "w", encoding='utf-8') as f:
-            f.write(report)
+        # Obtenir les équipes du match qui vient de se terminer
+        team1, team2, _ = self.matches[self.current_match - 1]
+        loser = team2 if winner == team1 else team1
 
-    def _generate_markdown_report(self, team_stats):
-        """Génère le rapport markdown des résultats"""
-        report = [
-            f"# Résultats Pool {self.current_pool}",
-            "\n## Classement",
-            "| Position | Équipe | Points | Matchs | V | N | D | Moy. coups |",
-            "|----------|---------|---------|---------|---|---|---|------------|"
-        ]
+        # Mettre à jour le fichier markdown
+        self._update_markdown(winner, loser, moves, forfeit)
+
+    def _update_markdown(self, winner, loser, moves, forfeit):
+        """Met à jour le fichier markdown des résultats"""
+        css = """<style>
+.tournament-results {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+.tournament-results table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.tournament-results th, .tournament-results td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.tournament-results th {
+    background: #3498db;
+    color: white;
+    font-weight: 600;
+}
+.tournament-results tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.tournament-results tr:hover {
+    background: #f1f4f7;
+}
+</style>
+
+"""  # Notez le saut de ligne après le style
+
+        # Lire les résultats existants ou créer un nouveau fichier
+        results = []
+        if self.results_file.exists():
+            with open(self.results_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                if '<style>' in content:
+                    results = [line for line in content.split('\n') 
+                             if line.strip() and not ('<style>' in line or '</style>' in line)]
+                else:
+                    results = [line for line in content.split('\n') if line.strip()]
+
+        # Ajouter le nouveau résultat
+        match_info = f"| {self.current_match} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
         
-        # Trier les équipes par points puis par victoires
-        sorted_teams = sorted(
-            team_stats.items(),
-            key=lambda x: (x[1]["points"], x[1]["wins"]),
-            reverse=True
-        )
-        
-        for pos, (team, stats) in enumerate(sorted_teams, 1):
-            avg_moves = stats["moves_total"] / stats["matches"] if stats["matches"] > 0 else 0
-            report.append(
-                f"| {pos} | {team} | {stats['points']} | {stats['matches']} | "
-                f"{stats['wins']} | {stats['draws']} | {stats['losses']} | "
-                f"{avg_moves:.1f} |"
-            )
-        
-        return "\n".join(report)
+        if not results:
+            # Créer le fichier avec les en-têtes, noter les sauts de ligne
+            results = [
+                css,
+                '<div class="tournament-results">',
+                f"# Résultats Pool {self.current_pool}",
+                "",  # Ligne vide importante
+                "## Matchs",
+                "",  # Ligne vide importante
+                "| N° | Vainqueur | Perdant | Coups | Forfait |",
+                "|---|-----------|----------|--------|---------|",
+                match_info,
+                "",  # Ligne vide avant la date
+                f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_",
+                "</div>"
+            ]
+        else:
+            # Trouver l'index de la dernière ligne avant la mise à jour
+            update_index = next((i for i, line in enumerate(results) if "_Dernière mise à jour" in line), -1)
+            if update_index != -1:
+                results.insert(update_index, match_info)
+                results[update_index + 1] = f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_"
+            else:
+                results.append("")  # Ligne vide
+                results.append(match_info)
+
+        # Écrire les résultats mis à jour
+        with open(self.results_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(results))

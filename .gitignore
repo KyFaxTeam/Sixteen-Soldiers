@@ -15,6 +15,12 @@ docs/doc_code.pdf
 docs/github.pdf
 docs/rules.pdf
 
+# Fichiers de sauvegarde
+src/tournament/states/*
+
+# Fichiers github
+src/tournament/github/*
+src/tournament/github/script.py
 
 saved_game/*
 
