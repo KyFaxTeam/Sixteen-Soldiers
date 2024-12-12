@@ -12,7 +12,7 @@ class Agent(BaseAgent):
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
         self.name = "Time Strategist"
-        self.max_time = 1  # Temps max autorisé (en secondes)
+        self.max_time = 0.9  # Temps max autorisé (en secondes)
         self.start_time = None
     
     def choose_action(self, board: Board) -> Dict:
@@ -30,7 +30,7 @@ class Agent(BaseAgent):
         self.start_time = time.perf_counter()
         
         # Essayer différentes profondeurs de recherche
-        for depth in range(1, 10):
+        for depth in range(1, 6):  # De profondeur 1 à 5
             best_action = self._time_constrained_minimax(board, depth)
             
             # Si un temps limite est dépassé, retourner l'action trouvée
@@ -45,6 +45,109 @@ class Agent(BaseAgent):
         Minimax avec contrainte de temps
         
         Args:
+<<<<<<< HEAD
+            board: État actuel du plateau.
+            time_limit: Temps maximum alloué pour la recherche (en secondes).
+
+        Returns:
+            Une action valide sélectionnée.
+        """
+        root = MCTSNode(board)
+        start_time = time.time()
+
+<<<<<<< HEAD
+    
+        valid_actions = board.get_valid_actions()
+        
+        return random.choice(valid_actions) # You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
+        
+    
+=======
+        # Boucle de recherche limitée par le temps
+        while time.time() - start_time < time_limit * 0.9:  # Marge de sécurité de 10%
+            node = self.select(root)
+            reward = self.simulate(node)
+            self.backpropagate(node, reward)
+
+        # Retourner le meilleur enfant après la recherche
+        return root.best_child(exploration_weight=0).action
+
+    def select(self, node: MCTSNode) -> MCTSNode:
+        """
+        Sélectionne un nœud à explorer en suivant le chemin le plus prometteur.
+        """
+        while not node.is_terminal():
+            if not node.is_fully_expanded():
+                return self.expand(node)
+            else:
+                node = node.best_child(self.exploration_weight)
+        return node
+
+    def expand(self, node: MCTSNode) -> MCTSNode:
+        """
+        Étend le nœud en explorant une action non encore explorée.
+        """
+        action = node.untried_actions.pop()
+        new_board = self.apply_action(node.board_state, action)
+        child = MCTSNode(new_board, parent=node, action=action)
+        node.children.append(child)
+        return child
+
+    def simulate(self, node: MCTSNode) -> float:
+        """
+        Effectue une simulation aléatoire depuis le nœud donné et retourne la récompense.
+        """
+        current_board = node.board_state.copy()
+        current_player = self.soldier_value
+
+        while not current_board.is_game_over():
+            valid_actions = current_board.get_valid_actions()
+            if not valid_actions:
+                break
+            action = random.choice(valid_actions)
+            current_board = self.apply_action(current_board, action)
+            current_player = self.opponent_color(current_player)
+
+        # Évaluation du plateau après la simulation
+        return self.evaluate_board(current_board, self.soldier_value)
+
+    def backpropagate(self, node: MCTSNode, reward: float):
+        """
+        Met à jour les statistiques des nœuds en remontant l'arbre.
+        """
+        while node is not None:
+            node.visits += 1
+            node.total_reward += reward
+            node = node.parent
+
+    def apply_action(self, board: Board, action: Dict) -> Board:
+        """
+        Applique une action sur une copie du plateau et retourne le nouveau plateau.
+        """
+        new_board = board.copy()
+        new_board.move_soldier(action)
+        return new_board
+
+    def evaluate_board(self, board: Board, player_color: Soldier) -> float:
+        """
+        Évalue le plateau en fonction de critères stratégiques.
+        """
+        my_pieces = board.count_soldiers(player_color)
+        opponent_pieces = board.count_soldiers(self.opponent_color(player_color))
+        
+        # Opportunités de capture
+        capture_actions = [a for a in board.get_valid_actions() if a['type'] == 'CAPTURE_SOLDIER']
+
+        # Score basé sur le nombre de pièces et les opportunités de capture
+        score = (my_pieces - opponent_pieces) * 10 + len(capture_actions) * 5
+
+        return score
+
+    def opponent_color(self, color: Soldier) -> Soldier:
+        """Retourne la couleur opposée."""
+        return Soldier.BLUE if color == Soldier.RED else Soldier.RED
+>>>>>>> 35022fa (merge)
+=======
             board: État du plateau
             depth: Profondeur de recherche
         
@@ -188,3 +291,4 @@ class Agent(BaseAgent):
         capture_bonus = 10 if last_action and last_action['type'] == 'CAPTURE_SOLDIER' else 0
         
         return (own_pieces - opponent_pieces) * 10 + capture_bonus
+>>>>>>> 7363695 (Premier push KACW)
