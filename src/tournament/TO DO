@@ -1,1 +1,5 @@
 - start-round peut être 1 et être en phase RETOUR
+- ne pas oublier states avant le début du tournoi
+- laisser le nombre de minutes pour le match à 4 minutes mais imposer
+- gérer le crash d'une IA
+- définir le nombre de moves d'un forfait
