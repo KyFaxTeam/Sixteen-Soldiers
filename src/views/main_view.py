@@ -3,8 +3,6 @@ from tkinter import filedialog
 import logging
 import os
 from datetime import datetime, timedelta
-import time
-
 from src.utils.const import  Soldier, resolution, screen_width, screen_height
 
 from src.store.store import Store
@@ -26,6 +24,7 @@ class MainView(BaseView):
     """Main window of the application"""
     def __init__(self, master, store):
         super().__init__(master)
+
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
         self.logger = logging.getLogger(__name__)
@@ -275,6 +274,13 @@ class MainView(BaseView):
             print("Affichage de la vue après-match...")
             self.show_after_game_view()
 
+            # 2. Enregistrer le résultat du match
+            state = self.store.get_state()
+            self.tournament_manager.record_match_result(
+                winner=state.get("winner"),
+                moves=len(state.get("move_history", [])),
+                forfeit=state.get("forfeit", False)
+            )
             # 2. Calculer le délai nécessaire
             if self.match_start_time:
                 elapsed = datetime.now() - self.match_start_time
@@ -284,10 +290,12 @@ class MainView(BaseView):
                     # Programmer le nettoyage après le délai
                     self.master.after(delay, self._prepare_next_match)
                 else:
-                    # Attente minimale de 3 secondes
-                    self.master.after(3000, self._prepare_next_match)
+                    
+                    # Attente minimale de 30 secondes
+                    # print("Programmation du nettoyage dans 30 secondes")
+                    self.master.after(30000, self._prepare_next_match)
             else:
-                self.master.after(3000, self._prepare_next_match)
+                self.master.after(30000, self._prepare_next_match)
             
         except Exception as e:
             print(f"Erreur dans handle_tournament_match_end: {e}")
@@ -301,24 +309,24 @@ class MainView(BaseView):
             
             # 1. Nettoyer l'interface actuelle
             if self.after_game_view:
+                self.after_game_view.sounds.unpause()
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
-            # 2. Réinitialiser l'état du jeu
+            # 2. Réinitialiser le jeu
             self.store.dispatch({"type": "RESTART_GAME"})
-
-            # 3. Nettoyer les composants
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
             if hasattr(self, 'history_view'):
                 self.history_view.clear_moves()
 
-            # 4. Configurer le prochain match
+            # 3. Configurer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
-                self._configure_match_agents(next_match)
+                should_start_game = self._configure_match_agents(next_match)
                 self.match_start_time = datetime.now()
-                self.game_runner.start()
+                if should_start_game:
+                    self.game_runner.start()
             else:
                 self.end_tournament()
 
@@ -339,15 +347,26 @@ class MainView(BaseView):
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
         print(f"{match_info['red_agent']} vs {match_info['blue_agent']}\n")
 
+        # Si c'est un match forfait, on termine immédiatement le match
+        if match_info["is_forfeit"]:
+            print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
+            self.store.dispatch({
+                "type": "END_GAME",
+                "winner": match_info["is_forfeit"],
+                "reason": "forfeit"
+            })
+            self.match_start_time = None # Pour le délai minimum
+            return False  # Pour indiquer qu'il ne faut pas démarrer le game_runner
+        return True
+
     def end_tournament(self):
         """Termine le tournoi"""
-        self.tournament_manager.save_tournament_results()
         self.tournament_mode = False
         self.tournament_manager = None
         self.match_start_time = None
         
         show_popup(
-            "Le tournoi est terminé.\nLes résultats ont été sauvegardés.",
+            "Le tournoi est terminé.\nLes résultats ont été sauvegardés dans le dossier 'results'.",
             "Fin du tournoi"
         )
         
@@ -359,14 +378,14 @@ class MainView(BaseView):
             self.tournament_mode = True
             self.tournament_manager = TournamentManager(self.store)
             self.handling_tournament_end = False
-            
+            ()
             # Initialiser le tournoi
-            num_matches = self.tournament_manager.initialize_tournament()
+            num_matches = self.tournament_manager._initialize_matches()
             
             if num_matches == 0:
                 raise ValueError("Aucun match trouvé pour cette pool")
             
-            # Démarrer le premier match en utilisant la nouvelle méthode
+            # Démarrer le premier match 
             self._prepare_next_match()
             
         except Exception as e:
