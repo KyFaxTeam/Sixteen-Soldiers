@@ -22,6 +22,8 @@ src/tournament/states/*
 src/tournament/github/*
 src/tournament/github/script.py
 
+src/tournament/states/*
+
 saved_game/*
 
 # Fichiers spécifiques à l'IDE (PyCharm, VSCode, etc.)
