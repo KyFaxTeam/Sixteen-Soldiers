@@ -10,8 +10,8 @@ class Agent(BaseAgent):
     
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Your Team" # You need to replace Your Team with your team name
-        
+        self.name = "Firesky" # You need to replace Your Team with your team name
+ 
     
     
     def choose_action(self, board: Board) -> Dict:
@@ -26,8 +26,6 @@ class Agent(BaseAgent):
 
     
         valid_actions = board.get_valid_actions()
-
-        print("Just a test")
         
         return random.choice(valid_actions) # You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
         
