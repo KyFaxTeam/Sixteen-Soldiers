@@ -11,7 +11,7 @@ class TournamentManager:
         self.current_pool = CURRENT_POOL
         self.teams_mapping = TEAMS_MAPPING
         self.current_phase = "ALLER"
-        self.current_round = 0  # Ajout pour suivre le numéro de round dans la phase actuelle
+        self.current_round = 0
         
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
@@ -36,7 +36,7 @@ class TournamentManager:
 
     def _initialize_matches(self):
         """Initialise la liste des matchs pour la pool"""
-        # Utiliser current_round au lieu de current_match
+       
         start_round = self.current_round + 1  
         
         self.matches = self.load_matches("matches.txt", start_round, self.current_phase, self.current_pool)
@@ -55,7 +55,7 @@ class TournamentManager:
 
     def setup_next_match(self):
         """Prépare le prochain match"""
-        if self.current_round >= len(self.matches):  # Utiliser current_round au lieu de current_match
+        if self.current_round >= len(self.matches): 
             if self.current_phase == "ALLER":
                 self.current_phase = "RETOUR"
                 self.current_round = 0
@@ -73,7 +73,7 @@ class TournamentManager:
             "blue_agent": team2,
             "red_agent_file": self.teams_mapping[team1],
             "blue_agent_file": self.teams_mapping[team2],
-            "round": self.current_round,  # Utiliser current_round au lieu de current_match
+            "round": self.current_round,  
             "total_rounds": len(self.matches) // 2,  # Diviser par 2 car on compte par phase
             "is_forfeit": is_forfeit,
             "phase": self.current_phase
@@ -146,7 +146,20 @@ class TournamentManager:
 
     def _update_markdown(self, winner, loser, moves, forfeit):
         """Met à jour le fichier markdown des résultats"""
-        css = """<style>
+        # Lire les résultats existants
+        results = []
+        if self.results_file.exists():
+            with open(self.results_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                results = [line for line in content.split('\n') 
+                          if line.strip() and not line.startswith('.tournament-results')]
+
+        # Préparer le nouveau résultat
+        match_info = f"| {self.current_round} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
+        
+        if not results:
+            # CSS directement dans le markdown pour plus de simplicité
+            css = """<style>
 .tournament-results {
     font-family: 'Segoe UI', system-ui, sans-serif;
     max-width: 1200px;
@@ -177,48 +190,31 @@ class TournamentManager:
 }
 </style>
 
-"""  # Notez le saut de ligne après le style
-
-        # Lire les résultats existants ou créer un nouveau fichier
-        results = []
-        if self.results_file.exists():
-            with open(self.results_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                if '<style>' in content:
-                    results = [line for line in content.split('\n') 
-                             if line.strip() and not ('<style>' in line or '</style>' in line)]
-                else:
-                    results = [line for line in content.split('\n') if line.strip()]
-
-        # Ajouter le nouveau résultat
-        match_info = f"| {self.current_round} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
-        
-        if not results:
-            # Créer le fichier avec les en-têtes, noter les sauts de ligne
+"""
             results = [
                 css,
                 '<div class="tournament-results">',
                 f"# Résultats Pool {self.current_pool}",
-                "",  # Ligne vide importante
+                "",
                 "## Matchs",
-                "",  # Ligne vide importante
                 "| N° | Vainqueur | Perdant | Coups | Forfait |",
                 "|---|-----------|----------|--------|---------|",
                 match_info,
-                "",  # Ligne vide avant la date
+                "",
                 f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_",
                 "</div>"
             ]
         else:
-            # Trouver l'index de la dernière ligne avant la mise à jour
+            # Mise à jour des résultats existants
             update_index = next((i for i, line in enumerate(results) if "_Dernière mise à jour" in line), -1)
             if update_index != -1:
                 results.insert(update_index, match_info)
                 results[update_index + 1] = f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_"
             else:
-                results.append("")  # Ligne vide
-                results.append(match_info)
+                results.insert(-1, match_info)
+                results.insert(-1, "")
+                results.insert(-1, f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_")
 
-        # Écrire les résultats mis à jour
+        # Sauvegarder les résultats
         with open(self.results_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(results))

@@ -1,33 +1,42 @@
-# Résultats Pool A
-## Classement
-| Position | Équipe         | Points | Matchs | V   | N   | D   | Moy. coups |
-| -------- | -------------- | ------ | ------ | --- | --- | --- | ---------- |
-| 1        | jolych         | 6      | 2      | 2   | 0   | 0   | 162.5      |
-| 2        | vegapunkstella | 6      | 2      | 2   | 0   | 0   | 172.0      |
-| 3        | gojok          | 6      | 2      | 2   | 0   | 0   | 161.0      |
-| 4        | lesleaders     | 3      | 2      | 1   | 0   | 1   | 141.5      |
-| 5        | dreamteam      | 1      | 2      | 0   | 1   | 1   | 195.5      |
-| 6        | mindmisters    | 0      | 1      | 0   | 0   | 1   | 180.0      |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 1 | Soldier.BLUE | JoLyCh | 0 | Non |
-| 2 | Bandit binaire | Les sisters | 0 | Non |
-| 3 | Soldier.BLUE | JoLyCh | 0 | Non |
-| 5 | Avec l'IA | Turk_3.0 | 0 | Non |
-| 10 | Bandit binaire | Avec l'IA | 0 | Non |
-| 12 | Avec l'IA | Les leaders | 0 | Non |
-| 14 | Avec l'IA | gildasWebSite | 0 | Non |
-| 17 | Bandit binaire | JoLyCh | 0 | Non |
-| 18 | Avec l'IA | Limitless Nexus | 0 | Non |
-| 20 | Bandit binaire | Turk_3.0 | 0 | Non |
-| 22 | Bandit binaire | Les leaders | 0 | Non |
-| 24 | Bandit binaire | gildasWebSite | 0 | Non |
-| 25 | Avec l'IA | JoLyCh | 0 | Non |
-| 26 | Bandit binaire | Limitless Nexus | 0 | Non |
+<style>
+.tournament-results {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+.tournament-results table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.tournament-results th, .tournament-results td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.tournament-results th {
+    background: #3498db;
+    color: white;
+    font-weight: 600;
+}
+.tournament-results tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.tournament-results tr:hover {
+    background: #f1f4f7;
+}
+</style>
 
-| 28 | Avec l'IA | Les sisters | 0 | Non |
+
+<div class="tournament-results">
+# Résultats Pool A
+
+## Matchs
+| N° | Vainqueur | Perdant | Coups | Forfait |
+|---|-----------|----------|--------|---------|
+| 5 | Avec l'IA | Turk_3.0 | 0 | Non |
+
+_Dernière mise à jour: 14/12/2024 00:17:47_
+</div>

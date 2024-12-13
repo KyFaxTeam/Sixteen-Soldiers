@@ -264,12 +264,12 @@ class MainView(BaseView):
             return
 
         self.handling_tournament_end = True
-        print("\n=== Début handle_tournament_match_end ===")
-        print("État du tournoi:")
-        print(f"Tournament mode: {self.tournament_mode}")
-        print(f"Current match: {self.tournament_manager.current_match}")
-
         try:
+            print("\n=== Début handle_tournament_match_end ===")
+            print("État du tournoi:")
+            print(f"Tournament mode: {self.tournament_mode}")
+            print(f"Round actuel: {self.tournament_manager.current_round}")
+
             # 1. Afficher la vue après-match
             print("Affichage de la vue après-match...")
             self.show_after_game_view()
@@ -286,18 +286,15 @@ class MainView(BaseView):
                 moves=len(state.get("move_history", [])),
                 forfeit=state.get("forfeit", False)
             )
-            # 2. Calculer le délai nécessaire
+
+            # 3. Programmer le prochain match avec délai
             if self.match_start_time:
                 elapsed = datetime.now() - self.match_start_time
                 if elapsed < self.match_duration:
                     delay = int((self.match_duration - elapsed).total_seconds() * 1000)
                     print(f"Programmation du nettoyage dans {delay/1000:.1f} secondes")
-                    # Programmer le nettoyage après le délai
                     self.master.after(delay, self._prepare_next_match)
                 else:
-                    
-                    # Attente minimale de 30 secondes
-                    # print("Programmation du nettoyage dans 30 secondes")
                     self.master.after(20000, self._prepare_next_match)
             else:
                 self.master.after(20000, self._prepare_next_match)
