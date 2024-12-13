@@ -31,10 +31,15 @@ class BaseAgent:
         else:
             self.performances = []       
             
-            if os.path.exists(os.path.join(AGENT_AVATAR_DIR, self.pseudo + ".png")):
-                self.profile_img = os.path.join(AGENT_AVATAR_DIR, self.pseudo + ".png")
-            else:  
-                self.profile_img = self._get_random_avatar()
+            self.profile_img = self._get_random_avatar()
+            
+            extensions = ['.png', '.jpg', '.jpeg']
+            for ext in extensions:
+                if os.path.exists(os.path.join(AGENT_AVATAR_DIR, self.pseudo + ext)):
+                    self.profile_img = os.path.join(AGENT_AVATAR_DIR, self.pseudo + ext)
+                    break
+        
+            
 
     
     def _get_random_avatar(self) -> str:

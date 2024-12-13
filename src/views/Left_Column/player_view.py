@@ -42,6 +42,7 @@ class PlayerView(BaseView):
         self.joueur_frame.grid_columnconfigure(0, weight=1)
         
         # Avatar container
+        
         self.avatar_container = ctk.CTkFrame(
             self.joueur_frame,
             fg_color="transparent",

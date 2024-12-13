@@ -22,7 +22,7 @@ src/tournament/states/*
 src/tournament/github/*
 src/tournament/github/script.py
 
-src/tournament/states/*
+src/tournament/states
 
 saved_game/*
 
