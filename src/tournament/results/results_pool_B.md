@@ -38,5 +38,7 @@
 | 4 | Soldier.RED | Mind Misters | 0 | Non |
 | 5 | Soldier.RED | Némésis | 0 | Non |
 | 6 | Soldier.RED | Bee Light | 0 | Non |
-_Dernière mise à jour: 13/12/2024 12:02:15_
+| 8 | 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ | Phil Kong | 0 | Non |
+| 11 | 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ | Bee Light | 0 | Non |
+_Dernière mise à jour: 13/12/2024 13:08:58_
 </div>

@@ -166,12 +166,21 @@ def load_matches(filename: str, start_round: int, phase: str, pool: str) -> List
                 base_pool = pool_info[0]  # A, B, C ou D sans le 'f'
                 
                 # Ne traiter que les matchs de la pool demandée
+                if pool_info.endswith('f'):
+                    team1, team2 = match.strip().split(" vs ")
+                    if team1 in FORFEIT_TEAMS :
+                        forfeit = team1
+                    if team2 in FORFEIT_TEAMS:
+                        forfeit = team2
+                else : 
+                    forfeit = None
+                    
                 if base_pool == pool:
                     team1, team2 = match.strip().split(" vs ")
                     matches.append((
                         team1.strip(),
                         team2.strip(),
-                        pool_info.endswith('f')
+                        forfeit
                     ))
     
     return matches

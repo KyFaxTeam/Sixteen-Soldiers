@@ -290,10 +290,12 @@ class MainView(BaseView):
                     # Programmer le nettoyage après le délai
                     self.master.after(delay, self._prepare_next_match)
                 else:
-                    # Attente minimale de 3 secondes
-                    self.master.after(3000, self._prepare_next_match)
+                    
+                    # Attente minimale de 30 secondes
+                    # print("Programmation du nettoyage dans 30 secondes")
+                    self.master.after(30000, self._prepare_next_match)
             else:
-                self.master.after(3000, self._prepare_next_match)
+                self.master.after(30000, self._prepare_next_match)
             
         except Exception as e:
             print(f"Erreur dans handle_tournament_match_end: {e}")
@@ -350,10 +352,10 @@ class MainView(BaseView):
             print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
             self.store.dispatch({
                 "type": "END_GAME",
-                "winner": match_info["blue_agent"],
+                "winner": match_info["is_forfeit"],
                 "reason": "forfeit"
             })
-            self.match_start_time = datetime.now()  # Pour le délai minimum
+            self.match_start_time = None # Pour le délai minimum
             return False  # Pour indiquer qu'il ne faut pas démarrer le game_runner
         return True
 
