@@ -298,9 +298,9 @@ class MainView(BaseView):
                     
                     # Attente minimale de 30 secondes
                     # print("Programmation du nettoyage dans 30 secondes")
-                    self.master.after(30000, self._prepare_next_match)
+                    self.master.after(20000, self._prepare_next_match)
             else:
-                self.master.after(30000, self._prepare_next_match)
+                self.master.after(20000, self._prepare_next_match)
             
         except Exception as e:
             print(f"Erreur dans handle_tournament_match_end: {e}")
@@ -311,7 +311,7 @@ class MainView(BaseView):
         """Prépare le prochain match dans le bon ordre"""
         try:
             print("Préparation du prochain match...")
-            print(f"handling_tournament_end: {self.handling_tournament_end}")  # Debug
+            print(f"handling_tournament_end: {self.handling_tournament_end}")
             
             # 1. Nettoyer l'interface actuelle
             if self.after_game_view:
@@ -326,17 +326,26 @@ class MainView(BaseView):
             if hasattr(self, 'history_view'):
                 self.history_view.clear_moves()
 
-            # S'assurer que handling_tournament_end est False avant de continuer
             self.handling_tournament_end = False
             
             # 3. Configurer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
+                if next_match.get("phase_transition"):
+                    show_popup(
+                        "Fin de la phase ALLER\nDébut de la phase RETOUR",
+                        "Transition de phase",
+                        auto_close=True,
+                        duration=10000  # 10 secondes de pause
+                    )
+                    self.tournament_manager._initialize_matches()
+                    self._prepare_next_match()
+                    return
+                    
                 if next_match["is_forfeit"]:
                     print(f"\nDétection d'un forfait!")
                     print(f"Équipe forfait: {next_match['is_forfeit']}")
                     print("Dispatch de l'événement END_GAME avec forfait...")
-                    # Ne PAS remettre handling_tournament_end à False ici
                     self.store.dispatch({
                         "type": "END_GAME",
                         "winner": next_match["is_forfeit"],
@@ -358,6 +367,8 @@ class MainView(BaseView):
         print("\n=== Configuration du match ===")
         print(f"Match info: {match_info}")
         
+        print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Phase {match_info['phase']}")
+        # ...existing code...
         
         print("\nConfiguration des agents:")
         for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
@@ -393,7 +404,7 @@ class MainView(BaseView):
             self.tournament_mode = True
             self.tournament_manager = TournamentManager(self.store)
             self.handling_tournament_end = False
-            ()
+            
             # Initialiser le tournoi
             num_matches = self.tournament_manager._initialize_matches()
             

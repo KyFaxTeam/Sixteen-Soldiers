@@ -8,9 +8,10 @@ class TournamentManager:
     def __init__(self, store):
         self.store = store
         self.matches = []
-        self.current_match = 0
         self.current_pool = CURRENT_POOL
         self.teams_mapping = TEAMS_MAPPING
+        self.current_phase = "ALLER"
+        self.current_round = 0  # Ajout pour suivre le numéro de round dans la phase actuelle
         
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
@@ -28,37 +29,43 @@ class TournamentManager:
         if self.state_file.exists():
             with open(self.state_file, 'r', encoding='utf-8') as f:
                 state = json.load(f)
-                self.current_match = state.get('current_match', 0)
-                
+                self.current_round = state.get('round', 0)
+                self.current_phase = state.get('phase', "ALLER")
         else:
             self._initialize_matches()
 
     def _initialize_matches(self):
         """Initialise la liste des matchs pour la pool"""
-        start_round = (self.current_match // 1) + 1
-        phase = "ALLER" if start_round <= 28 else "RETOUR"
-        if phase == "RETOUR":
-            start_round -= 28
+        # Utiliser current_round au lieu de current_match
+        start_round = self.current_round + 1  
         
-        self.matches = self.load_matches("matches.txt", start_round, phase, self.current_pool)
+        self.matches = self.load_matches("matches.txt", start_round, self.current_phase, self.current_pool)
         self._save_state()
+        return len(self.matches)
 
     def _save_state(self):
         """Sauvegarde l'état actuel du tournoi"""
         state = {
-            'current_match': self.current_match,
-            'pool': self.current_pool
+            'pool': self.current_pool,
+            'phase': self.current_phase,
+            'round': self.current_round
         }
         with open(self.state_file, 'w', encoding='utf-8') as f:
             json.dump(state, f)
 
     def setup_next_match(self):
         """Prépare le prochain match"""
-        if self.current_match >= len(self.matches):
+        if self.current_round >= len(self.matches):  # Utiliser current_round au lieu de current_match
+            if self.current_phase == "ALLER":
+                self.current_phase = "RETOUR"
+                self.current_round = 0
+                self._save_state()
+                return {"phase_transition": True}
             return None
 
-        team1, team2, is_forfeit = self.matches[self.current_match]
-        self.current_match += 1
+        current_match = self.matches[self.current_round]  # Utiliser current_round comme index
+        team1, team2, is_forfeit = current_match
+        self.current_round += 1
         self._save_state()
 
         return {
@@ -66,9 +73,10 @@ class TournamentManager:
             "blue_agent": team2,
             "red_agent_file": self.teams_mapping[team1],
             "blue_agent_file": self.teams_mapping[team2],
-            "round": self.current_match,
-            "total_rounds": len(self.matches),
-            "is_forfeit": is_forfeit
+            "round": self.current_round,  # Utiliser current_round au lieu de current_match
+            "total_rounds": len(self.matches) // 2,  # Diviser par 2 car on compte par phase
+            "is_forfeit": is_forfeit,
+            "phase": self.current_phase
         }
 
     def load_matches(self, filename: str, start_round: int, phase: str, pool: str) -> List[Tuple[str, str, bool]]:
@@ -86,10 +94,10 @@ class TournamentManager:
                 line = line.strip()
                 if line.startswith("======="):
                     current_phase = line.split()[-2]
-                    current_round = 0
+                    current_round = 0  # Réinitialiser le compteur pour chaque phase
                 elif line.startswith("==="):
                     current_round += 1
-                    if current_round < start_round:
+                    if phase != current_phase or current_round < start_round:
                         continue
                 elif ":" in line and current_phase == phase:
                     pool_info, match = line.split(":")
@@ -126,11 +134,11 @@ class TournamentManager:
 
     def record_match_result(self, winner, moves, forfeit=False):
         """Enregistre le résultat d'un match et met à jour le markdown"""
-        if not winner or self.current_match == 0:
+        if not winner or self.current_round == 0:  # Utiliser current_round
             return
 
         # Obtenir les équipes du match qui vient de se terminer
-        team1, team2, _ = self.matches[self.current_match - 1]
+        team1, team2, _ = self.matches[self.current_round - 1]  # Utiliser current_round
         loser = team2 if winner == team1 else team1
 
         # Mettre à jour le fichier markdown
@@ -183,7 +191,7 @@ class TournamentManager:
                     results = [line for line in content.split('\n') if line.strip()]
 
         # Ajouter le nouveau résultat
-        match_info = f"| {self.current_match} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
+        match_info = f"| {self.current_round} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
         
         if not results:
             # Créer le fichier avec les en-têtes, noter les sauts de ligne
