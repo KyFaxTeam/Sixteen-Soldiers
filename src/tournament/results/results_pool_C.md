@@ -1,5 +1,4 @@
 # Résultats Pool C
-
 ## Classement
 | Position | Équipe | Points | Matchs | V | N | D | Moy. coups |
 |----------|---------|---------|---------|---|---|---|------------|
@@ -9,3 +8,7 @@
 | 4 | questcoders | 3 | 2 | 1 | 0 | 1 | 107.5 |
 | 5 | gildaswebsite | 3 | 2 | 1 | 0 | 1 | 128.0 |
 | 6 | elline | 3 | 2 | 1 | 0 | 1 | 83.0 |
+| 6 | Black Witches | BOÏZ | 0 | Non |
+| 7 | Python Trident | KACW | 0 | Non |
+
+| 8 | Soldier.BLUE | EL-LINE | 0 | Non |
