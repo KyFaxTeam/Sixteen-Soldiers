@@ -352,7 +352,7 @@ class GameBoard(BaseView):
 
     def reset_game(self):
         """Reset the game board"""
-  
+   
         try:
             self.canvas.delete("all")
             self.__draw_board()

@@ -24,6 +24,7 @@ class MainView(BaseView):
     """Main window of the application"""
     def __init__(self, master, store):
         super().__init__(master)
+
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
         self.logger = logging.getLogger(__name__)
@@ -306,24 +307,24 @@ class MainView(BaseView):
             
             # 1. Nettoyer l'interface actuelle
             if self.after_game_view:
+                self.after_game_view.sounds.unpause()
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
-            
-
-            # 3. Réinitialiser le jeu
+            # 2. Réinitialiser le jeu
             self.store.dispatch({"type": "RESTART_GAME"})
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
             if hasattr(self, 'history_view'):
                 self.history_view.clear_moves()
 
-            # 4. Configurer le prochain match
+            # 3. Configurer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
-                self._configure_match_agents(next_match)
+                should_start_game = self._configure_match_agents(next_match)
                 self.match_start_time = datetime.now()
-                self.game_runner.start()
+                if should_start_game:
+                    self.game_runner.start()
             else:
                 self.end_tournament()
 
@@ -344,6 +345,18 @@ class MainView(BaseView):
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
         print(f"{match_info['red_agent']} vs {match_info['blue_agent']}\n")
 
+        # Si c'est un match forfait, on termine immédiatement le match
+        if match_info["is_forfeit"]:
+            print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
+            self.store.dispatch({
+                "type": "END_GAME",
+                "winner": match_info["blue_agent"],
+                "reason": "forfeit"
+            })
+            self.match_start_time = datetime.now()  # Pour le délai minimum
+            return False  # Pour indiquer qu'il ne faut pas démarrer le game_runner
+        return True
+
     def end_tournament(self):
         """Termine le tournoi"""
         self.tournament_mode = False
@@ -363,14 +376,14 @@ class MainView(BaseView):
             self.tournament_mode = True
             self.tournament_manager = TournamentManager(self.store)
             self.handling_tournament_end = False
-            
+            ()
             # Initialiser le tournoi
             num_matches = self.tournament_manager._initialize_matches()
             
             if num_matches == 0:
                 raise ValueError("Aucun match trouvé pour cette pool")
             
-            # Démarrer le premier match en utilisant la nouvelle méthode
+            # Démarrer le premier match 
             self._prepare_next_match()
             
         except Exception as e:
