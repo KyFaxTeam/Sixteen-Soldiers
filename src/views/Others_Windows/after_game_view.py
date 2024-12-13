@@ -30,7 +30,7 @@ class AfterGameView(ctk.CTkToplevel):
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
         
-        # Winner's data"qs
+        # Winner's data"
         profile_img_path = winner_data.get("profile_img")
         team_pseudo = winner_data.get("team_pseudo")
         ai_name = winner_data.get("ai_name")
@@ -41,9 +41,10 @@ class AfterGameView(ctk.CTkToplevel):
         remaining_pawns = winner_data.get("remaining_pawns")
 
         total_moves = winner_data.get("total_moves") if winner_data.get("total_moves") else len(state.get("history", []))//2
+        reason = winner_data.get("reason")
 
         # Display "Gagnant" title
-        ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
+        ctk.CTkLabel(self, text="Winner", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
 
         # Display profile picturei,ik
         self.profile_image = ctk.CTkLabel(self, text="")
@@ -55,6 +56,15 @@ class AfterGameView(ctk.CTkToplevel):
 
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
+
+        reason_label = ctk.CTkLabel(
+            self,
+            text=f"Reason: {reason}",
+            font=("Helvetica",14)
+        )
+        # if reason:
+        #     print(f'Reason: {reason}')
+        reason_label.place(relx=0.075, rely=0.675)
 
         # Bottom frame for time, restart button, moves and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
@@ -102,7 +112,7 @@ class AfterGameView(ctk.CTkToplevel):
         # Add label for total moves made by the winner
         total_moves_label = ctk.CTkLabel(
             bottom_frame, 
-            text=f"Coups: {total_moves}", 
+            text=f"Moves: {total_moves}", 
             font=("Helvetica", 12)
         )
         total_moves_label.grid(row=0, column=4, padx=((0, 0)))
@@ -152,7 +162,9 @@ class AfterGameView(ctk.CTkToplevel):
             "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
             "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
-            "total_moves": number_of_moves
+            "total_moves": number_of_moves,
+            "reason": reason
+
         }
 
     def _get_default_winner_data(self):
@@ -162,7 +174,8 @@ class AfterGameView(ctk.CTkToplevel):
             "ai_name": "Vainqueur",
             "remaining_time": None,
             "remaining_pawns": None,
-            "total_moves": None
+            "total_moves": None,
+            "reason": "pas de capture sur les 50 derniers coups"
         }
 
     def on_closing(self):
