@@ -64,6 +64,7 @@ def end_game(state: Dict, winner: Soldier) -> Dict:
     new_state["is_game_started"] = False
     new_state["current_soldier_value"] = None
     new_state["winner"] = winner
+
     return new_state
 
 def pause_game(state: Dict) -> Dict:

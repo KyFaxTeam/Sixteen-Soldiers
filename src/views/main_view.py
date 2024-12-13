@@ -224,6 +224,7 @@ class MainView(BaseView):
         if state["is_game_over"]:
             if self.tournament_mode:
                 if not self.handling_tournament_end:
+                    print("Fin de match en mode tournoi")
                     self.handle_tournament_match_end()
                 return  # En mode tournoi, on ne fait rien d'autre
             else:
@@ -327,19 +328,22 @@ class MainView(BaseView):
                 self.match_start_time = datetime.now()
                 if should_start_game:
                     self.game_runner.start()
+                else :
+                    print("Match forfait - Victoire attribuée à")
             else:
                 self.end_tournament()
 
         except Exception as e:
             print(f"Erreur lors de la préparation du prochain match: {e}")
         finally:
+            print("=== Fin de la préparation du prochain match ===")
             self.handling_tournament_end = False
 
     def _configure_match_agents(self, match_info):
         """Configure les agents pour le match"""
         # Si c'est un match forfait, on termine immédiatement le match
         if match_info["is_forfeit"]:
-            print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
+            print("Match forfait - Victoire attribuée à", match_info["is_forfeit"])
             self.store.dispatch({
                 "type": "END_GAME",
                 "winner": match_info["is_forfeit"],

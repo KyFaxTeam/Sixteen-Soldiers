@@ -28,7 +28,7 @@ class TournamentManager:
             with open(self.state_file, 'r', encoding='utf-8') as f:
                 state = json.load(f)
                 self.current_match = state.get('current_match', 0)
-                self.matches = state.get('matches', [])
+                
         else:
             self._initialize_matches()
 
@@ -46,7 +46,6 @@ class TournamentManager:
         """Sauvegarde l'état actuel du tournoi"""
         state = {
             'current_match': self.current_match,
-            'matches': self.matches,
             'pool': self.current_pool
         }
         with open(self.state_file, 'w', encoding='utf-8') as f:
