@@ -271,6 +271,14 @@ class GameRunner:
             issue1, issue2 = 'draw', 'draw'
             raise ValueError("Invalid winner value in _conclude_game")
             
+        # S'assurer que la raison est toujours définie
+        if not reason:
+            if winner is None:
+                reason = "draw"
+            elif winner == agent1.soldier_value:
+                reason = "victory"
+            elif winner == agent2.soldier_value:
+                reason = "victory"
 
         agent1.conclude_game(
             issue1,

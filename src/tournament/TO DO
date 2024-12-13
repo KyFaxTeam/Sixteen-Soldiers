@@ -3,3 +3,6 @@
 - laisser le nombre de minutes pour le match à 4 minutes mais imposer
 - gérer le crash d'une IA
 - définir le nombre de moves d'un forfait
+- gérer la phase aller puis 
+- ajouter un reason dans le state
+- revoir states pourquoi ça ne fasse déclencher le match suivant que si on a pas eu de problème avec l'actuel

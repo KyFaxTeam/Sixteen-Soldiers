@@ -132,14 +132,38 @@ class AfterGameView(ctk.CTkToplevel):
     def get_winner_data(self, state):
         """Extract winner data from the state"""
         winner = state.get("winner")
+        reason = state.get("reason", "unknown")
+        print("YOooooooooo",winner, reason)
+        
+        # Si c'est un match nul (draw) ou une erreur
         if winner is None:
-            # self.logger.info("No winner found in state")
-            return self._get_default_winner_data()
+            # Personnaliser l'affichage selon la raison
+            default_data = {
+                "profile_img": Assets.kyfax_logo,
+                "team_pseudo": "Match nul",
+                "ai_name": "",
+                "soldier_value": None,
+                "remaining_time": None,
+                "remaining_pawns": None,
+                "total_moves": len(state.get("history", [])) // 2,
+                "reason": reason
+            }
             
+            if reason == "draw_few_pieces":
+                default_data["team_pseudo"] = "Match nul"
+                default_data["ai_name"] = "Trop peu de pièces"
+            elif reason == "more_pieces_wins":
+                default_data["team_pseudo"] = "Match nul"
+                default_data["ai_name"] = "Même nombre de pièces"
+            elif reason == "error":
+                default_data["team_pseudo"] = "Erreur"
+                default_data["ai_name"] = "Partie invalide"
+            
+            return default_data
+                
+        # Si on a un gagnant
         info_index = state.get("agents_info_index", {}).get(winner)
-        #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
-        # self.logger.info(winner_data)
         
         if not winner_data:
             self.logger.warning("No winner data found")
@@ -153,7 +177,6 @@ class AfterGameView(ctk.CTkToplevel):
             latest_performance = performances[-1]
             latest_time = latest_performance['time']
             number_of_moves = latest_performance['number_of_moves']
-            reason = latest_performance.get("reason")
 
         return {
             "profile_img": winner_data.get("profile_img"),
@@ -164,18 +187,18 @@ class AfterGameView(ctk.CTkToplevel):
             "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
             "total_moves": number_of_moves,
             "reason": reason
-
         }
 
     def _get_default_winner_data(self):
+        """Données par défaut avec une meilleure gestion des cas d'erreur"""
         return {
             "profile_img": Assets.kyfax_logo,
-            "team_pseudo": "Aucun",
-            "ai_name": "Vainqueur",
+            "team_pseudo": "Inconnu",
+            "ai_name": "Erreur",
             "remaining_time": None,
             "remaining_pawns": None,
             "total_moves": None,
-            "reason": "pas de capture sur les 50 derniers coups"
+            "reason": "erreur inattendue"
         }
 
     def on_closing(self):

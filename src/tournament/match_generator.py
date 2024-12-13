@@ -140,50 +140,7 @@ def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]],
                     f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
 
-def load_matches(filename: str, start_round: int, phase: str, pool: str) -> List[Tuple[str, str, bool]]:
-    """
-    Charge uniquement les matchs de la pool spécifiée
-    """
-    filepath = TOURNAMENT_DIR / filename
-    matches = []
 
-    with open(filepath, 'r', encoding='utf-8') as f:
-        current_phase = None
-        current_round = 0
-        
-        for line in f:
-            line = line.strip()
-            if line.startswith("======="):
-                current_phase = line.split()[-2]
-                current_round = 0
-            elif line.startswith("==="):
-                current_round += 1
-                if current_round < start_round:
-                    continue
-            elif ":" in line and current_phase == phase:
-                pool_info, match = line.split(":")
-                pool_info = pool_info.strip()
-                base_pool = pool_info[0]  # A, B, C ou D sans le 'f'
-                
-                # Ne traiter que les matchs de la pool demandée
-                if pool_info.endswith('f'):
-                    team1, team2 = match.strip().split(" vs ")
-                    if team1 in FORFEIT_TEAMS :
-                        forfeit = team1
-                    if team2 in FORFEIT_TEAMS:
-                        forfeit = team2
-                else : 
-                    forfeit = None
-                    
-                if base_pool == pool:
-                    team1, team2 = match.strip().split(" vs ")
-                    matches.append((
-                        team1.strip(),
-                        team2.strip(),
-                        forfeit
-                    ))
-    
-    return matches
 
 if __name__ == "__main__":
     generate_pool_matches()

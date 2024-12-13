@@ -7,8 +7,8 @@ TOURNAMENT_DIR = Path(__file__).parent
 # Configuration du tournoi
 NUM_POOLS = 4
 POOLS = ['A', 'B', 'C', 'D']
-RANDOM_SEED = 8016322820246606
-random.seed(RANDOM_SEED)
+# RANDOM_SEED = 8016322820246606
+# random.seed(RANDOM_SEED)
 # Configuration initiale des poules (équipes pré-assignées)
 
 INITIAL_POOLS = {
@@ -18,8 +18,8 @@ INITIAL_POOLS = {
     'D': []
 }
 
-
 CURRENT_POOL = 'C'
+
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Python Trident", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
 FORFEIT_TEAMS = fixed_teams
@@ -41,7 +41,7 @@ TEAMS = [
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""
     return team_name.lower().replace(' ', '').replace('-', '').replace('_', '')\
-        .replace('é', 'e').replace('è', 'e').replace('à', 'a')
+        .replace('é', 'e').replace('è', 'e').replace('à', 'a').replace('.', '')
 
 # Création du mapping des équipes (inclut équipes initiales et restantes)
 all_teams = set(TEAMS) | {team for teams in INITIAL_POOLS.values() for team in teams}
