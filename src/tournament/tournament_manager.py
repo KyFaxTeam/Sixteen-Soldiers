@@ -1,5 +1,6 @@
-from src.tournament.config import TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
-from src.tournament.match_generator import load_matches
+from typing import List, Tuple
+from src.tournament.config import FORFEIT_TEAMS, TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
+
 import json
 from datetime import datetime
 
@@ -39,7 +40,7 @@ class TournamentManager:
         if phase == "RETOUR":
             start_round -= 28
         
-        self.matches = load_matches("matches.txt", start_round, phase, self.current_pool)
+        self.matches = self.load_matches("matches.txt", start_round, phase, self.current_pool)
         self._save_state()
 
     def _save_state(self):
@@ -69,6 +70,59 @@ class TournamentManager:
             "total_rounds": len(self.matches),
             "is_forfeit": is_forfeit
         }
+
+    def load_matches(self, filename: str, start_round: int, phase: str, pool: str) -> List[Tuple[str, str, bool]]:
+        """
+        Charge uniquement les matchs de la pool spécifiée
+        """
+        filepath = TOURNAMENT_DIR / filename
+        matches = []
+
+        with open(filepath, 'r', encoding='utf-8') as f:
+            current_phase = None
+            current_round = 0
+            
+            for line in f:
+                line = line.strip()
+                if line.startswith("======="):
+                    current_phase = line.split()[-2]
+                    current_round = 0
+                elif line.startswith("==="):
+                    current_round += 1
+                    if current_round < start_round:
+                        continue
+                elif ":" in line and current_phase == phase:
+                    pool_info, match = line.split(":")
+                    pool_info = pool_info.strip()
+                    base_pool = pool_info[0]  # A, B, C ou D sans le 'f'
+                    
+                    print(f"Reading match line: {line}")
+                    print(f"Pool info: {pool_info}, Base pool: {base_pool}")
+                    
+                    # Ne traiter que les matchs de la pool demandée
+                    if pool_info.endswith('f'):
+                        team1, team2 = match.strip().split(" vs ")
+                        print(f"Forfeit match detected: {team1} vs {team2}")
+                        if team1 in FORFEIT_TEAMS:
+                            forfeit = team1
+                            print(f"Team {team1} is forfeiting")
+                        if team2 in FORFEIT_TEAMS:
+                            forfeit = team2
+                            print(f"Team {team2} is forfeiting")
+                    else:
+                        forfeit = None
+                        
+                    if base_pool == pool:
+                        team1, team2 = match.strip().split(" vs ")
+                        matches.append((
+                            team1.strip(),
+                            team2.strip(),
+                            forfeit
+                        ))
+                        print(f"Added match to pool {pool}: {team1} vs {team2} (Forfeit: {forfeit})")
+        
+        print(f"Total matches loaded for pool {pool}: {len(matches)}")
+        return matches
 
     def record_match_result(self, winner, moves, forfeit=False):
         """Enregistre le résultat d'un match et met à jour le markdown"""

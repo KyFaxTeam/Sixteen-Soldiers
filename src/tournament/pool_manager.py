@@ -1,6 +1,4 @@
 import random
-
-
 from config import TOURNAMENT_DIR, NUM_POOLS, POOLS, RANDOM_SEED, INITIAL_POOLS, TEAMS
 
 # Set random seed at module level
