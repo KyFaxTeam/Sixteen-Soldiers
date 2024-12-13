@@ -1,5 +1,3 @@
-
-<style>
 .tournament-results {
     font-family: 'Segoe UI', system-ui, sans-serif;
     max-width: 1200px;
@@ -28,16 +26,17 @@
 .tournament-results tr:hover {
     background: #f1f4f7;
 }
-</style>
-
 <div class="tournament-results">
 # Résultats Pool B
-
 ## Matchs
-
 | N° | Vainqueur | Perdant | Coups | Forfait |
 |---|-----------|----------|--------|---------|
 | 27 | Soldier.RED | Némésis | 0 | Non |
-
-_Dernière mise à jour: 12/12/2024 14:51:55_
+| 1 | Soldier.RED | Bee Light | 0 | Non |
+| 2 | Soldier.RED | Questcoders | 0 | Non |
+| 3 | Soldier.RED | Bee Light | 0 | Non |
+| 4 | Soldier.RED | Mind Misters | 0 | Non |
+| 5 | Soldier.RED | Némésis | 0 | Non |
+| 6 | Soldier.RED | Bee Light | 0 | Non |
+_Dernière mise à jour: 13/12/2024 12:02:15_
 </div>

@@ -181,8 +181,9 @@ class AfterGameView(ctk.CTkToplevel):
     def on_closing(self):
         """Handle window closing event properly"""
         try:
-            self.grab_release()  # Relâche le focus modal
-            self.master.focus_set()  # Redonne le focus à la fenêtre principale
+            # self.grab_release()  # Relâche le focus modal
+            # self.master.focus_set()  # Redonne le focus à la fenêtre principale
+            self.sounds.unpause()
             self.destroy()  # Détruit la fenêtre
         except Exception as e:
             print(f"Error closing AfterGameView: {e}")
