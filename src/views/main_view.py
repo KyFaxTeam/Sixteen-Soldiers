@@ -337,6 +337,17 @@ class MainView(BaseView):
 
     def _configure_match_agents(self, match_info):
         """Configure les agents pour le match"""
+        # Si c'est un match forfait, on termine immédiatement le match
+        if match_info["is_forfeit"]:
+            print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
+            self.store.dispatch({
+                "type": "END_GAME",
+                "winner": match_info["is_forfeit"],
+                "reason": "forfeit"
+            })
+            self.match_start_time = None # Pour le délai minimum
+            return False
+        
         for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
             self.store.dispatch({
                 "type": "SELECT_AGENT",
@@ -347,16 +358,7 @@ class MainView(BaseView):
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
         print(f"{match_info['red_agent']} vs {match_info['blue_agent']}\n")
 
-        # Si c'est un match forfait, on termine immédiatement le match
-        if match_info["is_forfeit"]:
-            print("Match forfait - Victoire attribuée à", match_info["blue_agent"])
-            self.store.dispatch({
-                "type": "END_GAME",
-                "winner": match_info["is_forfeit"],
-                "reason": "forfeit"
-            })
-            self.match_start_time = None # Pour le délai minimum
-            return False  # Pour indiquer qu'il ne faut pas démarrer le game_runner
+          # Pour indiquer qu'il ne faut pas démarrer le game_runner
         return True
 
     def end_tournament(self):
