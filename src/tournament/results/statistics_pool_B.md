@@ -4,37 +4,66 @@
                 max-width: 1200px;
                 margin: 2em auto;
                 padding: 0 1em;
+                color: #333333;
             }
-            .stats-section { margin-bottom: 2em; }
+            .stats-section { 
+                margin-bottom: 2em; 
+            }
             .phase-header {
-                background: #2c3e50;
+                background: #1f4e79;
                 color: white;
-                padding: 0.5em;
-                margin: 1em 0;
+                padding: 0.8em;
+                margin: 1.2em 0;
+                font-weight: 600;
+                border-radius: 4px;
             }
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin: 1em 0;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                border: 1px solid #c6c6c6;
             }
             th, td {
                 padding: 12px;
                 text-align: left;
-                border-bottom: 1px solid #ddd;
+                border: 1px solid #c6c6c6;
             }
             th { 
-                background: #3498db;
+                background: #4472c4;
                 color: white;
+                font-weight: 600;
+                position: sticky;
+                top: 0;
             }
-            tr:nth-child(even) { background: #f8f9fa; }
-            tr:hover { background: #f1f4f7; }
+            tr { background: white; }
+            tr:nth-child(even) { background: #f0f4f8; }
+            tr:hover { 
+                background: #d9e2f3;
+                color: #1f4e79;
+                font-weight: 500;
+            }
+            td:hover {
+                background: #b4c7e7;
+                color: #1f4e79;
+                font-weight: 600;
+            }
             .summary-card {
-                background: #f8f9fa;
+                background: #f5f9fe;
                 border-radius: 8px;
-                padding: 1em;
+                padding: 1.2em;
                 margin: 1em 0;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border: 1px solid #c6c6c6;
+            }
+            /* Style spécifique pour les cellules numériques */
+            td:nth-child(4), 
+            td:nth-child(5), 
+            td:nth-child(6),
+            td:nth-child(7) {
+                text-align: right;
+                font-family: 'Consolas', monospace;
+            }
         </style>
 <div class='tournament-stats'>
 
@@ -47,10 +76,8 @@
 
 | Round | Team A | Team B | Gagnant | Pièces (A vs B) | Coups (A vs B) | Temps (A vs B) : ms | Raison |
 |-------|---------|---------|----------|--------------|-------------|-------------|---------|
-| 3 | Bee Light | Némésis | Némésis | 11 vs 11 | 40 vs 40 | 0.497 vs 0.486 | more_pieces_wins |
-| 4 | Mind Misters | Questcoders | Mind Misters | 10 vs 4 | 119 vs 115 | 0.496 vs 0.496 | more_pieces_wins |
-| 5 | Némésis | Phil Kong | Némésis | 15 vs 0 | 23 vs 15 | 0.492 vs 0.500 | no_soldiers |
+| 8 | Phil Kong | 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ | Phil Kong | 16 - 0 | 0 - 0 | 500.000 - 500.000 | Forfeit of 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ |
 
 
-_Dernière mise à jour: 14/12/2024 16:31:11_
+_Dernière mise à jour: 14/12/2024 19:05:23_
 </div>
