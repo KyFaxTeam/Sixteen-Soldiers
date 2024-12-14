@@ -135,6 +135,7 @@ class AfterGameView(ctk.CTkToplevel):
         reason = state.get("reason", "unknown")
         print("YOooooooooo",winner, reason)
         
+        
         # Si c'est un match nul (draw) ou une erreur
         if winner is None:
             # Personnaliser l'affichage selon la raison

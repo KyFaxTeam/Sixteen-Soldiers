@@ -465,6 +465,7 @@ class MainView(BaseView):
                     print(f"\nDétection d'un forfait!")
                     print(f"Équipe forfait: {next_match['forfeit']}")
                     print("Dispatch de l'événement END_GAME avec forfait...")
+                    self._configure_match_agents(next_match)
                     self.store.dispatch({
                         "type": "END_GAME",
                         "winner": next_match["forfeit"],
