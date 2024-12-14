@@ -250,10 +250,10 @@ class GameRunner:
                     break
 
                 if action.get("captured_soldier") is None:
-                    print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
+                    # print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
                     self.moves_without_capture += 1
                 else:
-                    print("Capture detected - Resetting counter to 0")
+                    # print("Capture detected - Resetting counter to 0")
                     self.moves_without_capture = 0
 
             except Exception as e:

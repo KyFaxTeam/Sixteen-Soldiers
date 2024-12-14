@@ -17,5 +17,10 @@
 | 14 | Soldier.BLUE | IFRI | 0 | Non |
 | 14 | Soldier.BLUE | IFRI | 0 | Non |
 | 15 | Python Trident | Black Witches | 0 | Non |
-
 | 15 | Python Trident | Black Witches | 0 | Non |
+| 2 | Black Witches | KACW | 0 | Non |
+| 3 | Soldier.BLUE | Dream team | 0 | Non |
+| 4 | Python Trident | IFRI | 0 | Non |
+| 3 | Soldier.RED | Dream team | 0 | Non |
+
+| 4 | Python Trident | IFRI | 0 | Non |

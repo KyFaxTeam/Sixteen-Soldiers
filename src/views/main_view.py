@@ -264,29 +264,48 @@ class MainView(BaseView):
             return
 
         self.handling_tournament_end = True
-        print("\n=== Début handle_tournament_match_end ===")
-        print("État du tournoi:")
-        print(f"Tournament mode: {self.tournament_mode}")
-        print(f"Current match: {self.tournament_manager.current_match}")
-
+        
         try:
-            # 1. Afficher la vue après-match
-            print("Affichage de la vue après-match...")
+            # Show after game view
             self.show_after_game_view()
-
-            # 2. Enregistrer le résultat du match
+            
+            # Collect match statistics
             state = self.store.get_state()
-            print(f"État du match:")
-            print(f"Winner: {state.get('winner')}")
-            print(f"Nombre de coups: {len(state.get('move_history', []))}")
-            print(f"Forfait: {state.get('forfeit', False)}")
+            history = state.get('move_history', [])
 
+            perf_A, perf_B = [],  []
+            teamA_data, teamB_data = {}, {}
+            info_index = state.get("agents_info_index", {}).get(Soldier.RED)
+            if info_index:
+                teamA_data = state.get("agents", {}).get(info_index, {})
+                perf_A = teamA_data.get("performances", [])[-1]
+
+            info_index = state.get("agents_info_index", {}).get(Soldier.BLUE)
+            if info_index:
+                teamB_data = state.get("agents", {}).get(info_index, {})
+                perf_B = teamB_data.get("performances", [])[-1]
+
+    
+            # Calculate statistics
+            stats = {
+                'pieces_a': state.get("board").count_soldiers(teamA_data.get('soldier_value')), # Red pieces
+                'pieces_b': state.get("board").count_soldiers(teamB_data.get('soldier_value')),  # Blue pieces
+                'moves_a': perf_A['number_of_moves'],    # Number of moves by red
+                'moves_b': perf_B['number_of_moves'],   # Number of moves by blue
+                'time_a': perf_A['time'],   # Time used by red
+                'time_b': perf_A['time'],   # Time used by blue
+                'reason': state.get('reason', 'unknown')
+            }
+
+            # Record match result with stats
             self.tournament_manager.record_match_result(
                 winner=state.get("winner"),
-                moves=len(state.get("move_history", [])),
-                forfeit=state.get("forfeit", False)
+                moves=len(history),
+                forfeit=state.get("forfeit", False),
+                stats=stats
             )
-            # 2. Calculer le délai nécessaire
+
+            # Handle match timing
             if self.match_start_time:
                 elapsed = datetime.now() - self.match_start_time
                 if elapsed < self.match_duration:
@@ -303,7 +322,7 @@ class MainView(BaseView):
                 self.master.after(20000, self._prepare_next_match)
             
         except Exception as e:
-            print(f"Erreur dans handle_tournament_match_end: {e}")
+            print(f"Error in handle_tournament_match_end: {e}")
             self.handling_tournament_end = False
             raise e
 
