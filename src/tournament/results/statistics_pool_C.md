@@ -48,7 +48,8 @@
 | Round | Team A | Team B | Gagnant | Pièces (A vs B) | Coups (A vs B) | Temps (A vs B) : ms | Raison |
 |-------|---------|---------|----------|--------------|-------------|-------------|---------|
 | 2 | Black Witches | KACW | Dream team | 16 vs 0 | 0 vs 0 | 0.000 vs 0.000 | Forfeit of Eriatech |
+| 2 | Black Witches | KACW | Eriatech | 0 vs 16 | 0 vs 0 | 0.000 vs 0.000 | Forfeit of Dream team |
 
 
-_Dernière mise à jour: 14/12/2024 14:42:28_
+_Dernière mise à jour: 14/12/2024 15:21:52_
 </div>
