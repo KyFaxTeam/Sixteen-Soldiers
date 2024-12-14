@@ -276,12 +276,16 @@ class GameRunner:
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
        
-    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
+    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = "", margin: int = 0 ):
         """Handle game conclusion and stats updates"""
         final_state = self.store.get_state()
         time_manager = final_state.get('time_manager')
         total_moves_agent1 = get_move_player_count(final_state['history'], agent1.soldier_value)
         total_moves_agent2 = get_move_player_count(final_state['history'], agent2.soldier_value)
+        remain_soldiers_agent1 = final_state.get("board").count_soldiers(agent1.soldier_value)
+        remain_soldiers_agent2 = final_state.get("board").count_soldiers(agent2.soldier_value)
+        margin = abs(remain_soldiers_agent1 - remain_soldiers_agent2)
+
 
         if winner is None:
             issue1, issue2 = 'draw', 'draw'
@@ -307,14 +311,16 @@ class GameRunner:
             opponent_name=agent2.name,
             number_of_moves=total_moves_agent1,
             time=time_manager.get_remaining_time(agent1.soldier_value),
-            reason=reason  # Pass 'reason' to conclude_game
+            reason=reason,  # Pass 'reason' to conclude_game
+            margin=(margin if issue1 == 'win' else -margin if issue1 == 'loss' else 0)
         )
         agent2.conclude_game(
             issue2,
             opponent_name=agent1.name,
             number_of_moves=total_moves_agent2,
             time=time_manager.get_remaining_time(agent2.soldier_value),
-            reason=reason  # Pass 'reason' to conclude_game
+            reason=reason,  # Pass 'reason' to conclude_game
+            margin=(margin if issue2 == 'win' else -margin if issue2 == 'loss' else 0)
         )
             
         self.store.register_agents(agent1, agent2)
