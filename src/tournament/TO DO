@@ -7,3 +7,4 @@
 - ajouter un reason dans le state
 - revoir states pourquoi ça ne fasse déclencher le match suivant que si on a pas eu de problème avec l'actuel
 - pourquoi ne pas afficher les deux équipes sur le after_game_view
+- en mode normal, vérifier le changement effectif des ia

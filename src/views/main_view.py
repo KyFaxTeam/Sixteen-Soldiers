@@ -316,6 +316,9 @@ class MainView(BaseView):
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
+            # Nettoyer uniquement l'état du match en cours
+            self.game_runner.cleanup(level='match')
+            
             # 2. Réinitialiser le jeu
             self.store.dispatch({"type": "RESTART_GAME"})
             if hasattr(self, 'game_board'):
@@ -384,6 +387,8 @@ class MainView(BaseView):
 
     def end_tournament(self):
         """Termine le tournoi"""
+        # Nettoyage complet à la fin du tournoi
+        self.game_runner.cleanup(level='full')
         self.tournament_mode = False
         self.tournament_manager = None
         self.match_start_time = None
