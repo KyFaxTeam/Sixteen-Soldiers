@@ -101,7 +101,10 @@
 | 22 | BOÏZ | IFRI | IFRI | 0 - 9 | 33 - 34 | 498.713 - 475.642 | no_soldiers |
 | 23 | Black Witches | EL-LINE | EL-LINE | 0 - 16 | 0 - 0 | 500.000 - 500.000 | Forfeit of Black Witches |
 | 24 | BOÏZ | KACW | KACW | 0 - 11 | 73 - 77 | 498.228 - 492.481 | no_soldiers |
+| 25 | EL-LINE | Eriatech | Eriatech | 0 - 6 | 107 - 110 | 494.839 - 494.444 | no_soldiers |
+| 26 | Black Witches | Dream team | Dream team | 0 - 16 | 0 - 0 | 500.000 - 500.000 | Forfeit of Black Witches |
+| 27 | EL-LINE | Python Trident | Python Trident | 15 - 15 | 36 - 35 | 498.643 - 498.412 | more_pieces_wins |
 
 
-_Dernière mise à jour: 14/12/2024 23:44:07_
+_Dernière mise à jour: 15/12/2024 00:11:53_
 </div>

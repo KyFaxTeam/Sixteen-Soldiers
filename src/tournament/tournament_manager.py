@@ -123,8 +123,8 @@ class TournamentManager:
     def record_match_result(self, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
         if not stats or not stats.get('winner'):
+            self.logger.error("Impossible d'enregistrer le match sans gagnant.")
             return
-
         try:
             team1, team2, _ = self.matches[self.current_match_index]
             loser = team2 if stats['winner'] == team1 else team1
