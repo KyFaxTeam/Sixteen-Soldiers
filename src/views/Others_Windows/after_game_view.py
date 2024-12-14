@@ -133,7 +133,7 @@ class AfterGameView(ctk.CTkToplevel):
         """Extract winner data from the state"""
         winner = state.get("winner")
         reason = state.get("reason", "unknown")
-        print("YOooooooooo",winner, reason)
+        # print("YOooooooooo",winner, reason)
         
         if reason == "forfeit": 
             info_index = state.get("agents_info_index", {}).get(winner)

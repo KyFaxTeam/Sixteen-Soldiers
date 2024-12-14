@@ -24,8 +24,7 @@ class Agent(BaseAgent):
             Chosen valid action for the soldier_value
         """
 
-        z = board.get_all_neighbours()
-    
+        
         valid_actions = board.get_valid_actions()
         
         return random.choice(valid_actions) # You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
