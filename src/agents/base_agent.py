@@ -10,6 +10,7 @@ from src.utils.const import AGENT_DIR
 @dataclass
 class MatchPerformance:
     issue: Literal["win", "loss", "draw"]
+    margin: int
     number_of_moves: int
     time: float
     opponent: str
@@ -54,11 +55,12 @@ class BaseAgent:
         return ""  
     
 
-    def conclude_game(self, issue : Literal['win', 'loss', 'draw'], opponent_name: str, number_of_moves : int, time : float, reason: str) -> None:
+    def conclude_game(self, issue : Literal['win', 'loss', 'draw'], margin:int, opponent_name: str, number_of_moves : int, time : float, reason: str) -> None:
         """Updates agent statistics after game conclusion"""
 
         performance = MatchPerformance(
             issue=issue,
+            margin= margin,
             number_of_moves= number_of_moves,
             time=   time,
             opponent=opponent_name,

@@ -18,7 +18,7 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'C'
+CURRENT_POOL = 'D'
 
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
@@ -41,7 +41,7 @@ TEAMS = [
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""
     return team_name.lower().replace(' ', '').replace('-', '').replace('_', '')\
-        .replace('é', 'e').replace('è', 'e').replace('à', 'a').replace('.', '')
+        .replace('é', 'e').replace('è', 'e').replace('à', 'a').replace('.', '').replace("ï", "i")
 
 # Création du mapping des équipes (inclut équipes initiales et restantes)
 all_teams = set(TEAMS) | {team for teams in INITIAL_POOLS.values() for team in teams}
