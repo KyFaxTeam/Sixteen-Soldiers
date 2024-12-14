@@ -15,7 +15,7 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     game → board → history → time
     """
     # Log action reception with simple separator
-    if action['type'] not in ['UPDATE_TIME', 'ADD_MOVE_TO_HISTORY', 'CHANGE_CURRENT_SOLDIER']:
+    if action['type'] not in ['UPDATE_TIME', 'ADD_MOVE_TO_HISTORY', 'CHANGE_CURRENT_SOLDIER', "MOVE_SOLDIER"]:
        logger.info(f"▶ Processing {action['type']}")
     
     # Create single copy of state
