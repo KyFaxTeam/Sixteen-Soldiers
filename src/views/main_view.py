@@ -28,7 +28,7 @@ class MainView(BaseView):
 
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
-        self.logger = logging.getLogger(__name__)
+        
         # Set window title
         self.master.title("Sixteen Soldiers")
         
@@ -517,8 +517,7 @@ class MainView(BaseView):
             self.handling_tournament_end = False
             
             if len(self.tournament_manager.matches) == 0:
-                raise ValueError("Aucun match trouvé pour cette pool")
-            
+                self.logger.error("No matches found in the tournament manager")
             self._prepare_match()
             
         except Exception as e:

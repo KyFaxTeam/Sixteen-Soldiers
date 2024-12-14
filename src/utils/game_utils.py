@@ -296,7 +296,7 @@ class GameRunner:
             issue1, issue2 = 'loss', 'win'
         else:
             issue1, issue2 = 'draw', 'draw'
-            raise ValueError("Invalid winner value in _conclude_game")
+            self.logger.error(f"Invalid winner: {winner}")
             
         # S'assurer que la raison est toujours définie
         if not reason:
