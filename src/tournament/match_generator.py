@@ -99,44 +99,32 @@ def find_best_match(matches: List[Tuple[str, str]], last_round_teams: Set[str]) 
 def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]], 
                 rounds_retour: List[Dict[str, List[Tuple[str, str]]]], 
                 output_file: str):
-    """
-    Sauvegarde les matchs dans un fichier en séparant clairement les phases aller et retour
-    """
+    """Sauvegarde les matchs dans un fichier en séparant clairement les phases aller et retour"""
     filepath = TOURNAMENT_DIR / output_file
     pool_matches_order = {pool: [] for pool in POOLS}
-    
-    # Collect matches by pool in order
-    for rounds in [rounds_aller, rounds_retour]:
-        for round_matches in rounds:
-            for pool, matches in round_matches.items():
-                pool_matches_order[pool].extend(matches)
     
     with open(filepath, 'w', encoding='utf-8') as f:
         # Phase aller
         f.write("======= PHASE ALLER =======\n\n")
         for round_num, round_matches in enumerate(rounds_aller, 1):
             f.write(f"=== Round {round_num} ===\n")
-            for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
+            for pool, matches in round_matches.items():
                 for match in matches:
                     pool_display = pool
                     if any(team in FORFEIT_TEAMS for team in match):
                         pool_display += 'f'
-                        # Skip to next match for the pool
-                        pool_matches_order[pool].pop(0)
                     f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
             
-        # Phase retour
+        # Phase retour - Recommencer à 1 pour la numérotation
         f.write("======= PHASE RETOUR =======\n\n")
-        for round_num, round_matches in enumerate(rounds_retour, 1):
-            f.write(f"=== Round {round_num+28} ===\n")
-            for pool, matches in round_matches.items():  # Garde l'ordre alphabétique des poules
+        for round_num, round_matches in enumerate(rounds_retour, 1):  # Commence à 1, plus de +28
+            f.write(f"=== Round {round_num} ===\n")
+            for pool, matches in round_matches.items():
                 for match in matches:
                     pool_display = pool
                     if any(team in FORFEIT_TEAMS for team in match):
                         pool_display += 'f'
-                        # Skip to next match for the pool
-                        pool_matches_order[pool].pop(0)
                     f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
 

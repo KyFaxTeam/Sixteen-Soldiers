@@ -264,9 +264,16 @@ class MainView(BaseView):
             return
 
         self.handling_tournament_end = True
-        
+
         try:
-            # Show after game view
+            print("\n=== Début handle_tournament_match_end ===")
+            print("État du tournoi:")
+            print(f"Tournament mode: {self.tournament_mode}")
+            print(f"Round actuel: {self.tournament_manager.current_round}")
+
+            # 1. Afficher la vue après-match
+            print("Affichage de la vue après-match...")
+
             self.show_after_game_view()
             
             # Collect match statistics
@@ -305,18 +312,15 @@ class MainView(BaseView):
                 stats=stats
             )
 
-            # Handle match timing
+            # 3. Programmer le prochain match avec délai
+
             if self.match_start_time:
                 elapsed = datetime.now() - self.match_start_time
                 if elapsed < self.match_duration:
                     delay = int((self.match_duration - elapsed).total_seconds() * 1000)
                     print(f"Programmation du nettoyage dans {delay/1000:.1f} secondes")
-                    # Programmer le nettoyage après le délai
                     self.master.after(delay, self._prepare_next_match)
                 else:
-                    
-                    # Attente minimale de 30 secondes
-                    # print("Programmation du nettoyage dans 30 secondes")
                     self.master.after(20000, self._prepare_next_match)
             else:
                 self.master.after(20000, self._prepare_next_match)
@@ -338,6 +342,9 @@ class MainView(BaseView):
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
+            # Nettoyer uniquement l'état du match en cours
+            self.game_runner.cleanup(level='match')
+            
             # 2. Réinitialiser le jeu
             self.store.dispatch({"type": "RESTART_GAME"})
             if hasattr(self, 'game_board'):
@@ -406,6 +413,8 @@ class MainView(BaseView):
 
     def end_tournament(self):
         """Termine le tournoi"""
+        # Nettoyage complet à la fin du tournoi
+        self.game_runner.cleanup(level='full')
         self.tournament_mode = False
         self.tournament_manager = None
         self.match_start_time = None
