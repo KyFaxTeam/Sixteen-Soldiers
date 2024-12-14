@@ -3,7 +3,7 @@ from tkinter import filedialog
 import logging
 import os
 from datetime import datetime, timedelta
-from src.utils.const import  Soldier, resolution, screen_width, screen_height
+from src.utils.const import  TIMINGS, Soldier, resolution, screen_width, screen_height
 
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
@@ -314,7 +314,7 @@ class MainView(BaseView):
 
         # Gestion du cas forfait
         if state.get("reason") == "forfeit":
-            return self._compute_forfeit_statistics(teams_data, state.get("winner"))
+            return self._compute_forfeit_statistics(state.get("winner"))
         
         # Extraction des données des équipes
         teams_data = self._extract_teams_data(state)
@@ -343,7 +343,7 @@ class MainView(BaseView):
     def _compute_forfeit_statistics(self, winner: Soldier) -> dict:
         """Calcule les statistiques pour un match terminé par forfait."""
         
-        teams_data = {'team_a': {}, 'team_b': {}}
+        # teams_data = {'team_a': {}, 'team_b': {}}
         current_match = self.tournament_manager.matches[self.tournament_manager.current_round - 1]  # Utiliser current_round comme index
         team1, team2, _ = current_match
 
@@ -363,8 +363,8 @@ class MainView(BaseView):
             'pieces_b': pieces[1],
             'moves_a': 0,
             'moves_b': 0,
-            'time_a': 0,
-            'time_b': 0,
+            'time_a': TIMINGS['AI_TIMEOUT'],
+            'time_b': TIMINGS['AI_TIMEOUT'],
             'reason': f"Forfeit of {loser}",
         }
 
@@ -390,11 +390,7 @@ class MainView(BaseView):
 
     def _record_match_results(self, stats: dict):
         """Enregistre les résultats du match dans le gestionnaire de tournoi."""
-        self.tournament_manager.record_match_result(
-            winner=stats['winner'],
-            reason=stats['reason'],
-            stats=stats
-        )
+        self.tournament_manager.record_match_result(stats)
 
     def _schedule_next_match(self):
         """Programme le prochain match avec le délai approprié."""
