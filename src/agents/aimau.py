@@ -23,17 +23,17 @@ class Agent(BaseAgent):
         valid_actions = board.get_valid_actions()
 
         if not valid_actions:
-            print("Aucune action valide disponible.")
+            # print("Aucune action valide disponible.")
             return None  # Si aucune action n'est disponible, la partie devrait se terminer
 
         # Étape 1 : Vérifier les actions qui permettent de capturer un soldat ennemi
         capture_action = self.choose_capture_action(board, valid_actions)
         if capture_action:
-            print(f"Capture trouvée : {capture_action}")
+            # print(f"Capture trouvée : {capture_action}")
             return capture_action
 
         # Étape 2 : Si aucune capture n'est possible, choisir une action aléatoire (fallback)
-        print("Aucune capture trouvée, mouvement aléatoire sélectionné.")
+        # print("Aucune capture trouvée, mouvement aléatoire sélectionné.")
         return random.choice(valid_actions)
 
     def choose_capture_action(self, board: Board, valid_actions: List[Dict]) -> Dict:
@@ -85,16 +85,16 @@ class Agent(BaseAgent):
                             to_pos_3 = action_3['to_pos']
                             neighbors_3 = board.get_neighbors(from_pos_3)
                             if to_pos_3 not in neighbors_3['EMPTY']:
-                                print(f"Capture simple détectée : de {from_pos_3} à {to_pos_3}")
+                                # print(f"Capture simple détectée : de {from_pos_3} à {to_pos_3}")
                                 return action_3  # Retourner l'action de capture
                                 
-                        print(f"Capture simple détectée : de {from_pos_2} à {to_pos_2}")
+                        # print(f"Capture simple détectée : de {from_pos_2} à {to_pos_2}")
                         return action_2  # Retourner l'action de capture
                     
-                print(f"Capture simple détectée : de {from_pos} à {to_pos}")
+                # print(f"Capture simple détectée : de {from_pos} à {to_pos}")
                 return action  # Retourner l'action de capture
             
 
         # Si aucune capture n'est possible, retourner None
-        print("Aucune capture trouvée.")
+        # print("Aucune capture trouvée.")
         return None

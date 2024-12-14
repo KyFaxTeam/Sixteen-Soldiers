@@ -136,8 +136,10 @@ class TournamentManager:
         return matches
 
 
-    def record_match_result(self, winner, moves, reason=None, stats=None):
+    def record_match_result(self, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
+        winner = stats['winner'] if stats else None
+
         if not winner or self.current_round == 0:
             print(f"⚠️ Impossible d'enregistrer le résultat: winner={winner}, round={self.current_round}")
             return
@@ -147,7 +149,7 @@ class TournamentManager:
             team1, team2, _ = self.matches[self.current_round - 1]
             loser = team2 if winner == team1 else team1
             print(f"\n✅ Enregistrement du match {self.current_round}: {winner} vs {loser}")
-            self._update_markdown(winner, loser, moves, reason) 
+            self._update_markdown() 
         except Exception as e:
             print(f"❌ Erreur lors de l'enregistrement du match: {e}")
             raise e
@@ -161,10 +163,10 @@ class TournamentManager:
             self._update_statistics(team1, team2, winner, stats)
 
         # Mettre à jour les fichiers markdown
-        self._update_markdown(winner, loser, moves, reason)
+        self._update_markdown()
         
 
-    def _update_statistics(self, team1: str, team2: str, winner: str, stats: dict):
+    def _update_statistics(self, team1: str, team2: str, winner:str, stats: dict):
         """
         Met à jour le fichier des statistiques du tournoi avec un format professionnel.
         
@@ -344,7 +346,7 @@ class TournamentManager:
                         f"| {match['round']} | {match['team_a']} | {match['team_b']} | "
                         f"{match['winner']} | {match['pieces_a']} vs {match['pieces_b']} | "
                         f"{match['moves_a']} vs {match['moves_b']} | "
-                        f"{match['time_a']:.3f} vs {match['time_b']:.3f} | "
+                        f"{match['time_a']*1000:.3f} vs {match['time_b']*1000:.3f} | "
                         f"{match['reason']} |"
                     )
         content.extend([
@@ -404,7 +406,7 @@ class TournamentManager:
     #     summary.append("</div>\n")
     #     return '\n'.join(summary)
 
-    def _update_markdown(self, winner: str, loser: str, moves: int, forfeit: None) -> None:
+    def _update_markdown(self) -> None:
         """
         Updates the tournament markdown file with the ranking and match results.
 
