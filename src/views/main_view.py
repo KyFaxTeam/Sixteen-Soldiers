@@ -184,16 +184,24 @@ class MainView(BaseView):
             on_restart=self.return_to_home,
             on_save=lambda button: self.handle_save(button)
         )
+        # Automatically save the game
+        try:
+            save_game(self.store.get_state())  # Save the game
+            self.logger.info("Game automatically saved when AfterGameView was displayed.")
+            show_popup("Game successfully saved automatically", "Success", "info")
+        except Exception as e:
+            self.logger.error(f"An error occurred while automatically saving the game: {e}")
     
     def handle_save(self, button):
         """Handles the save process and updates the button state."""
-        try:
-            save_game(self.store.get_state())  # Save the game
-            button.configure(text="Saved", state="disabled")  # Update button text and disable it
-            self.logger.info("Game successfully saved.")
-            show_popup("Game successfully saved", "Success", "info")
-        except Exception as e:
-            self.logger.error(f"An error occurred while saving the game: {e}")
+        if self.store.state["reason"]!="forfeit":
+            try:
+                save_game(self.store.get_state())  # Save the game
+                button.configure(text="Saved", state="disabled")  # Update button text and disable it
+                self.logger.info("Game successfully saved.")
+                show_popup("Game successfully saved", "Success", "info")
+            except Exception as e:
+                self.logger.error(f"An error occurred while saving the game: {e}")
 
     def return_to_home(self):
         """Reset game and return to HomeView"""

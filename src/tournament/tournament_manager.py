@@ -444,7 +444,6 @@ class TournamentManager:
         state = self.store.get_state()
         agents = state.get("agents", {})
         team_stats = {}
-
         for agent_id, agent in agents.items():
             team_name = agent_id.rsplit('_', 1)[0]
             if team_name not in team_stats:
@@ -458,7 +457,6 @@ class TournamentManager:
                     "time_total":0,
                     "moves_total": 0,
                 }
-
             for perf in agent.get("performances", []):
                 if perf["issue"] == "win":
                     team_stats[team_name]["wins"] += 1
