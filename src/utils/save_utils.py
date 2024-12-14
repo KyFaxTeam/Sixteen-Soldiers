@@ -5,6 +5,7 @@ import os
 from typing import Dict
 
 from src.agents.base_agent import MatchPerformance
+from src.tournament.config import TEAMS_MAPPING
 from src.utils.const import Soldier
 
 def convert_data(data, to_json=True):
@@ -62,7 +63,11 @@ def save_game(state: Dict) -> Dict:
         # Define the folder and timestamped file path
         save_folder = os.path.join(os.getcwd(), "saved_game")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_file = os.path.join(save_folder, f"game_{timestamp}.json")
+        agent1 = state.get("agents_info_index").get(Soldier.RED)
+        agent2 = state.get("agents_info_index").get(Soldier.BLUE)
+        agent1_pseudo = TEAMS_MAPPING(state.get("agents").get(agent1)["pseudo"])
+        agent2_pseudo = TEAMS_MAPPING(state.get("agents").get(agent2)["pseudo"])
+        save_file = os.path.join(save_folder, f"game_{agent1_pseudo}_vs_{agent2_pseudo}_{timestamp}.json")
         
         # Create the folder if it doesn't exist
         if not os.path.exists(save_folder):
