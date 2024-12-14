@@ -9,11 +9,11 @@ from src.utils.const import Soldier
 class TournamentManager:
     def __init__(self, store):
         self.store = store
-        self.matches = []
+        self.matches = []  # Liste unique de tous les matchs
         self.current_pool = CURRENT_POOL
         self.teams_mapping = TEAMS_MAPPING
-        self.current_phase = "ALLER"
-        self.current_round = 0
+        self.current_phase = "ALLER"  # Par défaut
+        self.current_match_index = 0  # Commencer à 0 directement
         
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
@@ -32,18 +32,53 @@ class TournamentManager:
         if self.state_file.exists():
             with open(self.state_file, 'r', encoding='utf-8') as f:
                 state = json.load(f)
-                self.current_round = state.get('round', 0)
+                self.current_match_index = state.get('match_index', 0)
                 self.current_phase = state.get('phase', "ALLER")
+                if not self.matches:  # Charger les matchs si pas déjà fait
+                    self._parse_matches_file("matches.txt", self.current_pool)
         else:
-            self._initialize_matches()
+            self._parse_matches_file("matches.txt", self.current_pool)
 
     def _initialize_matches(self):
-        """Initialise la liste des matchs pour la pool"""
-       
-        start_round = self.current_round + 1  
+        """Forcer le rechargement des matchs"""
+        self.matches = []  # Vider la liste actuelle
+        self._parse_matches_file("matches.txt", self.current_pool)
+        return True if self.matches else False  # Retourner si on a des matchs
+
+    def _parse_matches_file(self, filename: str, pool: str) -> int:
+        """Charge tous les matchs de la pool spécifiée"""
+        filepath = TOURNAMENT_DIR / filename
+        current_phase = None
+        current_round = 0
         
-        self.matches = self.load_matches("matches.txt", start_round, self.current_phase, self.current_pool)
-        self._save_state()
+        with open(filepath, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("======="):
+                    current_phase = line.split()[-1]  # "ALLER" ou "RETOUR"
+                elif line.startswith("==="):
+                    current_round += 1
+                elif ":" in line and current_phase:
+                    pool_info, match = line.split(":")
+                    pool_info = pool_info.strip()
+                    base_pool = pool_info[0]
+                    
+                    if base_pool == pool:
+                        team1, team2 = match.strip().split(" vs ")
+                        forfeit = None
+                        
+                        if pool_info.endswith('f'):
+                            if team1 in FORFEIT_TEAMS:
+                                forfeit = Soldier.RED
+                            if team2 in FORFEIT_TEAMS:
+                                forfeit = Soldier.BLUE
+                        
+                        self.matches.append((
+                            team1.strip(),
+                            team2.strip(),
+                            forfeit
+                        ))
+        
         return len(self.matches)
 
     def _save_state(self):
@@ -51,36 +86,36 @@ class TournamentManager:
         state = {
             'pool': self.current_pool,
             'phase': self.current_phase,
-            'round': self.current_round
+            'match_index': self.current_match_index
         }
         with open(self.state_file, 'w', encoding='utf-8') as f:
             json.dump(state, f)
 
     def setup_next_match(self):
         """Prépare le prochain match"""
-        if self.current_round >= len(self.matches): 
-            if self.current_phase == "ALLER":
-                self.current_phase = "RETOUR"
-                self.current_round = 0
-                self._save_state()
-                return {"phase_transition": True}
+        if self.current_match_index >= len(self.matches): 
             return None
 
-        current_match = self.matches[self.current_round]  # Utiliser current_round comme index
-        team1, team2, forfeit = current_match
-        self.current_round += 1
-        self._save_state()
+        # Déterminer la phase basée sur l'index
+        self.current_phase = "RETOUR" if self.current_match_index >= 28 else "ALLER"
+        
+        match_data = self.matches[self.current_match_index]
+        team1, team2, forfeit = match_data
 
         return {
             "red_agent": team1,
             "blue_agent": team2,
             "red_agent_file": self.teams_mapping[team1],
             "blue_agent_file": self.teams_mapping[team2],
-            "round": self.current_round,  
-            "total_rounds": len(self.matches),  # Diviser par 2 car on compte par phase
+            "round": self.current_match_index + 1,  # Pour l'affichage
+            "total_rounds": len(self.matches),
             "forfeit": forfeit,
             "phase": self.current_phase
         }
+
+    def get_current_match(self):
+        """Retourne les informations du match en cours"""
+        return self.matches[self.current_match_index]
 
     def load_matches(self, filename: str, start_round: int, phase: str, pool: str) -> List[Tuple[str, str, bool]]:
         """
@@ -138,33 +173,26 @@ class TournamentManager:
 
     def record_match_result(self, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
-        winner = stats['winner'] if stats else None
-
-        if not winner or self.current_round == 0:
-            print(f"⚠️ Impossible d'enregistrer le résultat: winner={winner}, round={self.current_round}")
+        if not stats or not stats.get('winner'):
             return
 
-        # Obtenir les équipes du match qui vient de se terminer
         try:
-            team1, team2, _ = self.matches[self.current_round - 1]
-            loser = team2 if winner == team1 else team1
-            print(f"\n✅ Enregistrement du match {self.current_round}: {winner} vs {loser}")
-            self._update_markdown() 
+            team1, team2, _ = self.matches[self.current_match_index]
+            loser = team2 if stats['winner'] == team1 else team1
+            print(f"\n✅ Enregistrement du match {self.current_match_index + 1}: {stats['winner']} vs {loser}")
+            
+            if stats:
+                self._update_statistics(team1, team2, stats['winner'], stats)
+            
+            # Incrémenter seulement après avoir tout enregistré
+            self.current_match_index += 1
+            self._save_state()
+            
+            self._update_markdown()
+            
         except Exception as e:
             print(f"❌ Erreur lors de l'enregistrement du match: {e}")
             raise e
-        
-        if stats:  # Maintenant on vérifie si stats existe
-            print(f"📊 Enregistrement des statistiques du match {self.current_round}")
-            # print("Winner: ", winner)
-            winner = BACK_TEAMS_MAPPING.get(winner, winner)
-            # print("Winner (back): ", winner)
-
-            self._update_statistics(team1, team2, winner, stats)
-
-        # Mettre à jour les fichiers markdown
-        self._update_markdown()
-        
 
     def _update_statistics(self, team1: str, team2: str, winner:str, stats: dict):
         css_style = """<style>
@@ -173,7 +201,7 @@ class TournamentManager:
                 max-width: 1200px;
                 margin: 2em auto;
                 padding: 0 1em;
-                color: #333333;
+                color:rgb(232, 238, 231);
             }
             .stats-section { 
                 margin-bottom: 2em; 
@@ -205,8 +233,9 @@ class TournamentManager:
                 position: sticky;
                 top: 0;
             }
-            tr { background: white; }
-            tr:nth-child(even) { background: #f0f4f8; }
+            tr { background: white; color: #333333;}
+            tr:nth-child(even) { background: #f0f4f8;
+            color: #333333; }
             tr:hover { 
                 background: #d9e2f3;
                 color: #1f4e79;
@@ -245,7 +274,7 @@ class TournamentManager:
 
         # Ajouter le nouveau match
         new_match = {
-            'round': self.current_round,
+            'round': self.current_match_index + 1,  # Pour l'affichage, on ajoute 1
             'phase': self.current_phase,
             'team_a': team1,
             'team_b': team2,
@@ -373,63 +402,14 @@ class TournamentManager:
                         f"{match['time_a']:.3f} - {match['time_b']:.3f} | "
                         f"{match['reason']} |"
                     )
-        content.extend([
+        content.extend([ 
             "\n\n_Dernière mise à jour: " + datetime.now().strftime('%d/%m/%Y %H:%M:%S') + "_",
             "</div>"
         ])
         
         return '\n'.join(content)
 
-    # def _calculate_team_statistics(self, matches: list) -> dict:
-    #     """Calcule les statistiques globales par équipe."""
-    #     team_stats = {}
-        
-    #     for match in matches:
-    #         for team, prefix in [(match['team_a'], 'a'), (match['team_b'], 'b')]:
-    #             if team not in team_stats:
-    #                 team_stats[team] = {
-    #                     'matches_played': 0,
-    #                     'wins': 0,
-    #                     'total_pieces_kept': 0,
-    #                     'total_moves': 0,
-    #                     'total_time': 0.0
-    #                 }
-                
-    #             stats = team_stats[team]
-    #             stats['matches_played'] += 1
-    #             if match['winner'] == team:
-    #                 stats['wins'] += 1
-    #             stats['total_pieces_kept'] += match[f'pieces_{prefix}']
-    #             stats['total_moves'] += match[f'moves_{prefix}']
-    #             stats['total_time'] += match[f'time_{prefix}']
-        
-    #     return team_stats
-
-    # def _generate_summary_section(self, team_stats: dict) -> str:
-    #     """Génère la section résumé avec les statistiques par équipe."""
-    #     summary = ["<div class='summary-card'>"]
-        
-    #     # Tableau des statistiques par équipe
-    #     summary.extend([
-    #         "| Équipe | Matchs Joués | Victoires | Moyenne Pièces | Moyenne Coups | Temps Moyen |",
-    #         "|--------|--------------|-----------|----------------|---------------|-------------|"
-    #     ])
-        
-    #     for team, stats in team_stats.items():
-    #         matches = stats['matches_played']
-    #         if matches > 0:
-    #             avg_pieces = stats['total_pieces_kept'] / matches
-    #             avg_moves = stats['total_moves'] / matches
-    #             avg_time = stats['total_time'] / matches
-                
-    #             summary.append(
-    #                 f"| {team} | {matches} | {stats['wins']} | "
-    #                 f"{avg_pieces:.1f} | {avg_moves:.1f} | {avg_time:.2f}s |"
-    #             )
-        
-    #     summary.append("</div>\n")
-    #     return '\n'.join(summary)
-
+    
     def _update_markdown(self) -> None:
         """
         Updates the tournament markdown file with the ranking and match results.
@@ -476,18 +456,7 @@ class TournamentManager:
         # Step 2: Generate ranking markdown
         ranking_report = self._generate_ranking_markdown(team_stats)
 
-        # # Step 3: Append the new match result
-        # match_info = f"| {self.current_round} | {winner} | {loser} | {moves} | {'Yes' if forfeit else 'No'} |"
-
-        # if self.results_file.exists():
-        #     with open(self.results_file, 'r', encoding='utf-8') as f:
-        #         existing_content = f.readlines()
-        # else:
-        #     existing_content = []
-
-        # if match_info not in existing_content:
-        #     existing_content.append(match_info)
-
+       
         # Step 4: Combine rankings and match results into the markdown file
         final_content = (
             f"# Tournament Results - Pool {self.current_pool}\n\n"
@@ -525,90 +494,3 @@ class TournamentManager:
         return "\n".join(report)
 
 
-    # def _update_markdown(self, winner: str, loser: str, moves: int, forfeit: bool) -> None:
-    #     """
-    #     Met à jour le fichier markdown des résultats du tournoi.
-        
-    #     Args:
-    #         winner (str): Nom du joueur gagnant
-    #         loser (str): Nom du joueur perdant
-    #         moves (int): Nombre de coups joués
-    #         forfeit (bool): Indique si le match s'est terminé par forfait
-    #     """
-    #     CSS_STYLE = """<style>
-    # .tournament-results {
-    #     font-family: 'Segoe UI', system-ui, sans-serif;
-    #     max-width: 1200px;
-    #     margin: 2em auto;
-    #     padding: 0 1em;
-    # }
-    # .tournament-results table {
-    #     width: 100%;
-    #     border-collapse: collapse;
-    #     margin: 1em 0;
-    #     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    # }
-    # .tournament-results th, 
-    # .tournament-results td {
-    #     padding: 12px;
-    #     text-align: left;
-    #     border-bottom: 1px solid #ddd;
-    # }
-    # .tournament-results th {
-    #     background: #3498db;
-    #     color: white;
-    #     font-weight: 600;
-    # }
-    # .tournament-results tr:nth-child(even) {
-    #     background: #f8f9fa;
-    # }
-    # .tournament-results tr:hover {
-    #     background: #f1f4f7;
-    # }
-    # </style>"""
-        
-    #     template = [
-    #         CSS_STYLE,
-    #         '<div class="tournament-results">',
-    #         '# Résultats Pool {CURRENT_POOL}',
-    #         '',
-    #         '## Classement',
-    #         '',
-    #         '| Position | Équipe         | Points | Marge | Matches | V | N | D | Moy.coups | Temps (ms) |',
-    #         '|----------|----------------|--------| ----- |---------|---|---|---|-----------|------------|'
-    #     ]
-
-        
-    #     # Créer le nouveau match
-    #     match_info = f"| {self.current_round} | {winner} | {loser} | {moves} | {'Oui' if forfeit else 'Non'} |"
-        
-    #     try:
-    #         # Lire les matchs existants
-    #         existing_matches = []
-    #         if self.results_file.exists():
-    #             with open(self.results_file, 'r', encoding='utf-8') as f:
-    #                 for line in f:
-    #                     clean_line = line.strip()
-    #                     if (clean_line.startswith('|') and 
-    #                         not clean_line.startswith('|--') and 
-    #                         '| N° |' not in clean_line):
-    #                         existing_matches.append(clean_line)
-            
-    #         # Ajouter le nouveau match s'il n'existe pas déjà
-    #         if match_info not in existing_matches:
-    #             existing_matches.append(match_info)
-            
-    #         # Assembler le contenu final
-    #         final_content = template + existing_matches + [
-    #             '',
-    #             f"_Dernière mise à jour: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_",
-    #             '</div>'
-    #         ]
-            
-    #         # Écrire le fichier
-    #         with open(self.results_file, 'w', encoding='utf-8') as f:
-    #             f.write('\n'.join(final_content))
-                
-    #     except Exception as e:
-    #         print(f"Erreur lors de la mise à jour du fichier markdown: {str(e)}")
-    #         raise e

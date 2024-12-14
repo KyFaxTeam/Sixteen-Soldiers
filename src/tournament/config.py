@@ -18,7 +18,7 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'D'
+CURRENT_POOL = 'C'
 
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
@@ -30,13 +30,15 @@ for team in sorted(fixed_teams):
 
 
 # Liste des équipes restantes
-TEAMS = [
+TEAMS = [ 
     "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
     "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
     "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW", "Turk_3.0",
     "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
     "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
 ]
+
+SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "Némésis"]
 
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""
