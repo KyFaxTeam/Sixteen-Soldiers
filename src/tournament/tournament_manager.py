@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from src.tournament.config import FORFEIT_TEAMS, TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
+from src.tournament.config import BACK_TEAMS_MAPPING, FORFEIT_TEAMS, TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
 
 import json
 from datetime import datetime
@@ -147,12 +147,17 @@ class TournamentManager:
             team1, team2, _ = self.matches[self.current_round - 1]
             loser = team2 if winner == team1 else team1
             print(f"\n✅ Enregistrement du match {self.current_round}: {winner} vs {loser}")
-            self._update_markdown(winner, loser, moves, reason)
+            self._update_markdown(winner, loser, moves, reason) 
         except Exception as e:
             print(f"❌ Erreur lors de l'enregistrement du match: {e}")
             raise e
         
         if stats:  # Maintenant on vérifie si stats existe
+            print(f"📊 Enregistrement des statistiques du match {self.current_round}")
+            print("Winner: ", winner)
+            winner = BACK_TEAMS_MAPPING.get(winner, winner)
+            print("Winner (back): ", winner)
+
             self._update_statistics(team1, team2, winner, stats)
 
         # Mettre à jour les fichiers markdown
@@ -339,7 +344,7 @@ class TournamentManager:
                         f"| {match['round']} | {match['team_a']} | {match['team_b']} | "
                         f"{match['winner']} | {match['pieces_a']} vs {match['pieces_b']} | "
                         f"{match['moves_a']} vs {match['moves_b']} | "
-                        f"{match['time_a']*1000:.3f} vs {match['time_b'] * 1000:.3f} | "
+                        f"{match['time_a']:.3f} vs {match['time_b']:.3f} | "
                         f"{match['reason']} |"
                     )
 

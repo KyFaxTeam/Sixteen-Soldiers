@@ -311,12 +311,13 @@ class MainView(BaseView):
         Returns:
             dict: Statistiques complètes du match
         """
-        # Extraction des données des équipes
-        teams_data = self._extract_teams_data(state)
-        
+
         # Gestion du cas forfait
         if state.get("reason") == "forfeit":
             return self._compute_forfeit_statistics(teams_data, state.get("winner"))
+        
+        # Extraction des données des équipes
+        teams_data = self._extract_teams_data(state)
             
         # Calcul des statistiques normales
         return self._compute_normal_statistics(teams_data, state)
@@ -325,17 +326,6 @@ class MainView(BaseView):
         """Extrait les données des deux équipes depuis l'état."""
         teams_data = {'team_a': {}, 'team_b': {}}
 
-        if state.get("reason") == "forfeit":
-        
-            current_match = self.tournament_manager.matches[self.tournament_manager.current_round]  # Utiliser current_round comme index
-            team1, team2, _ = current_match
-            teams_data['team_a'] = {'name': team1, 'soldier_value': Soldier.RED}
-            teams_data['team_b'] = {'name': team2, 'soldier_value': Soldier.BLUE}
-            
-            print(f"\nDonnées des équipes extraites forfaits : {teams_data}")
-
-            return teams_data
-        
         for team_key, soldier in [('team_a', Soldier.RED), ('team_b', Soldier.BLUE)]:
             info_index = state.get("agents_info_index", {}).get(soldier)
             if info_index:
@@ -350,19 +340,20 @@ class MainView(BaseView):
         
         return teams_data
 
-    def _compute_forfeit_statistics(self, teams_data: dict, winner: Soldier) -> dict:
+    def _compute_forfeit_statistics(self, winner: Soldier) -> dict:
         """Calcule les statistiques pour un match terminé par forfait."""
-
-        team_a = teams_data['team_a']
-        team_b = teams_data['team_b']
-
-        forfeit_team = team_b['name'] if winner == Soldier.RED else team_a['name']
         
-        if forfeit_team == team_a['name']:
-            winner, loser = team_b['name'], team_a['name']
+        teams_data = {'team_a': {}, 'team_b': {}}
+        current_match = self.tournament_manager.matches[self.tournament_manager.current_round - 1]  # Utiliser current_round comme index
+        team1, team2, _ = current_match
+
+        forfeit_team = team2 if winner == Soldier.RED else team1
+        
+        if forfeit_team == team1:
+            winner, loser = team2, team1
             pieces = (0, 16)
         else:
-            winner, loser = team_a['name'], team_b['name']
+            winner, loser = team1, team2
             pieces = (16, 0)
             
         return {
@@ -401,7 +392,6 @@ class MainView(BaseView):
         """Enregistre les résultats du match dans le gestionnaire de tournoi."""
         self.tournament_manager.record_match_result(
             winner=stats['winner'],
-            moves=stats['moves_a'] + stats['moves_b'],
             reason=stats['reason'],
             stats=stats
         )
