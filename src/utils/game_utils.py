@@ -228,27 +228,41 @@ class GameRunner:
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                if action.get("captured_soldier") is None:
-                    self.moves_without_capture += 1
-                else:
-                    self.moves_without_capture = 0
-
                 if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
+                    print(f"\n=== Debug: Max moves without capture reached ===")
+                    print(f"Moves without capture: {self.moves_without_capture}")
+                    print(f"MAX_MOVES_WITHOUT_CAPTURE: {MAX_MOVES_WITHOUT_CAPTURE}")
+                    print(f"Red pieces: {red_pieces}")
+                    print(f"Blue pieces: {blue_pieces}")
+                    
                     if red_pieces <= 3 and blue_pieces <= 3:
+                        print("Condition: Few pieces draw triggered")
                         winner = None
                         reason = "draw_few_pieces"
                     else:
+                        print("Condition: More pieces wins triggered")
                         if red_pieces > blue_pieces:
+                            print(f"Red wins with {red_pieces} pieces vs {blue_pieces}")
                             winner = Soldier.RED
                         elif blue_pieces > red_pieces:
+                            print(f"Blue wins with {blue_pieces} pieces vs {red_pieces}")
                             winner = Soldier.BLUE
                         else:
+                            print("Equal pieces - draw")
                             winner = None
                         reason = "more_pieces_wins"
+                    print(f"Final result - Winner: {winner}, Reason: {reason}")
                     break
+
+                if action.get("captured_soldier") is None:
+                    # print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
+                    self.moves_without_capture += 1
+                else:
+                    # print("Capture detected - Resetting counter to 0")
+                    self.moves_without_capture = 0
 
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")

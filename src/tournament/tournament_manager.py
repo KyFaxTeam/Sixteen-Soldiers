@@ -16,6 +16,7 @@ class TournamentManager:
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
         self.results_file = TOURNAMENT_DIR / "results" / f"results_pool_{CURRENT_POOL}.md"
+        self.stats_file = TOURNAMENT_DIR / "results" / f"statistics_pool_{CURRENT_POOL}.md"
         
         # Créer les dossiers nécessaires
         self.state_file.parent.mkdir(exist_ok=True)
@@ -132,7 +133,8 @@ class TournamentManager:
         print(f"Total matches loaded for pool {pool}: {len(matches)}")
         return matches
 
-    def record_match_result(self, winner, moves, forfeit=False):
+
+    def record_match_result(self, winner, moves, forfeit=False, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
         if not winner or self.current_round == 0:
             print(f"⚠️ Impossible d'enregistrer le résultat: winner={winner}, round={self.current_round}")
@@ -147,6 +149,31 @@ class TournamentManager:
         except Exception as e:
             print(f"❌ Erreur lors de l'enregistrement du match: {e}")
             raise e
+
+        # Mettre à jour les fichiers markdown
+        self._update_markdown(winner, loser, moves, forfeit)
+        if stats:  # Maintenant on vérifie si stats existe
+            self._update_statistics(team1, team2, winner, stats)
+
+    def _update_statistics(self, team1, team2, winner, stats):
+        """Met à jour le fichier markdown des statistiques"""
+        if not self.stats_file.exists():
+            with open(self.stats_file, 'w', encoding='utf-8') as f:
+                f.write(f"# Statistiques des matchs - Pool {self.current_pool}\n\n")
+                f.write("| Round | Phase | Team A | Team B | Winner | Pieces A | Pieces B | Moves A | Moves B | Time A | Time B | Reason |\n")
+                f.write("|-------|--------|---------|---------|---------|-----------|-----------|---------|---------|---------|--------|\n")
+
+        stats_line = (
+            f"| {self.current_round} | {self.current_phase} | {team1} | {team2} | {winner} | "
+            # f"{stats['winner']}"
+            f"{stats['pieces_a']} | {stats['pieces_b']} | "
+            f"{stats['moves_a']} | {stats['moves_b']} | "
+            f"{stats['time_a']:.3f}ms | {stats['time_b']:.3f}ms |"
+            f" {stats['reason']} |"
+        )
+
+        with open(self.stats_file, 'a', encoding='utf-8') as f:
+            f.write(f"{stats_line}\n")
 
     def _update_markdown(self, winner: str, loser: str, moves: int, forfeit: bool) -> None:
         """
@@ -189,7 +216,7 @@ class TournamentManager:
         background: #f1f4f7;
     }
     </style>"""
-
+        
         template = [
             CSS_STYLE,
             '<div class="tournament-results">',

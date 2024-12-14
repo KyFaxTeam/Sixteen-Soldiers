@@ -18,9 +18,10 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'A'
+CURRENT_POOL = 'C'
 
-fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Python Trident", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
+
+fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
 FORFEIT_TEAMS = fixed_teams
 for team in sorted(fixed_teams):
     available_pools = [pool for pool in INITIAL_POOLS if len(INITIAL_POOLS[pool]) < 2]
@@ -34,7 +35,7 @@ TEAMS = [
     "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
     "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW", "Turk_3.0",
     "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
-    "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella"
+    "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
 ]
 
 def normalize_team_name(team_name):

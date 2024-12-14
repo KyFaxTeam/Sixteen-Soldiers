@@ -10,8 +10,8 @@ class Agent(BaseAgent):
     
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Firesky" # You need to replace Your Team with your team name
- 
+        self.name = "Your Team" # You need to replace Your Team with your team name
+        
     
     
     def choose_action(self, board: Board) -> Dict:
