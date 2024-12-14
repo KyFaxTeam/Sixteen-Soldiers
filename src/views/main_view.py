@@ -259,76 +259,169 @@ class MainView(BaseView):
         self.master.destroy()
 
     def handle_tournament_match_end(self):
-        """Gère la fin d'un match de tournoi"""
-        if not self.tournament_manager or self.handling_tournament_end:
+        """
+        Gère la fin d'un match de tournoi.
+        Cette méthode :
+        1. Vérifie les conditions préalables
+        2. Affiche la vue après-match
+        3. Collecte et enregistre les statistiques
+        4. Programme le prochain match
+        """
+        if not self._validate_tournament_state():
             return
 
-        self.handling_tournament_end = True
-
         try:
-            print("\n=== Début handle_tournament_match_end ===")
-            print("État du tournoi:")
-            print(f"Tournament mode: {self.tournament_mode}")
-            print(f"Round actuel: {self.tournament_manager.current_round}")
-
-            # 1. Afficher la vue après-match
-            print("Affichage de la vue après-match...")
+            """Log l'état actuel du tournoi pour le debugging."""
+            self.logger.info("=== Tournament Match End ===")
+            self.logger.info(f"Tournament mode: {self.tournament_mode}")
+            self.logger.info(f"Current round: {self.tournament_manager.current_round}")
 
             self.show_after_game_view()
+
             
-            # Collect match statistics
             state = self.store.get_state()
-            history = state.get('move_history', [])
-
-            perf_A, perf_B = [],  []
-            teamA_data, teamB_data = {}, {}
-            info_index = state.get("agents_info_index", {}).get(Soldier.RED)
-            if info_index:
-                teamA_data = state.get("agents", {}).get(info_index, {})
-                perf_A = teamA_data.get("performances", [])[-1]
-
-            info_index = state.get("agents_info_index", {}).get(Soldier.BLUE)
-            if info_index:
-                teamB_data = state.get("agents", {}).get(info_index, {})
-                perf_B = teamB_data.get("performances", [])[-1]
-
-    
-            # Calculate statistics
-            stats = {
-                'pieces_a': state.get("board").count_soldiers(teamA_data.get('soldier_value')), # Red pieces
-                'pieces_b': state.get("board").count_soldiers(teamB_data.get('soldier_value')),  # Blue pieces
-                'moves_a': perf_A['number_of_moves'],    # Number of moves by red
-                'moves_b': perf_B['number_of_moves'],   # Number of moves by blue
-                'time_a': perf_A['time'],   # Time used by red
-                'time_b': perf_A['time'],   # Time used by blue
-                'reason': state.get('reason', 'unknown')
-            }
-
-            # Record match result with stats
-            self.tournament_manager.record_match_result(
-                winner=state.get("winner"),
-                moves=len(history),
-                forfeit=state.get("forfeit", False),
-                stats=stats
-            )
-
-            # 3. Programmer le prochain match avec délai
-
-            if self.match_start_time:
-                elapsed = datetime.now() - self.match_start_time
-                if elapsed < self.match_duration:
-                    delay = int((self.match_duration - elapsed).total_seconds() * 1000)
-                    print(f"Programmation du nettoyage dans {delay/1000:.1f} secondes")
-                    self.master.after(delay, self._prepare_next_match)
-                else:
-                    self.master.after(20000, self._prepare_next_match)
-            else:
-                self.master.after(20000, self._prepare_next_match)
+            match_stats = self._compute_match_statistics(state)
             
-        except Exception as e:
-            print(f"Error in handle_tournament_match_end: {e}")
+            self._record_match_results(match_stats)
+            self._schedule_next_match()
+            
+        except Exception as error:
+            """Gère les erreurs survenant pendant le traitement de fin de match."""
+            self.logger.error(f"Error in tournament match end: {error}")
             self.handling_tournament_end = False
-            raise e
+            raise error
+
+    def _validate_tournament_state(self) -> bool:
+        """Vérifie si le tournoi est dans un état valide pour traiter la fin d'un match."""
+        if not self.tournament_manager:
+            self.logger.error("Tournament manager not initialized")
+            return False
+            
+        if self.handling_tournament_end:
+            self.logger.warning("Already handling tournament end")
+            return False
+            
+        self.handling_tournament_end = True
+        return True
+
+
+    def _compute_match_statistics(self, state: dict) -> dict:
+        """
+        Calcule les statistiques du match terminé.
+        Returns:
+            dict: Statistiques complètes du match
+        """
+        # Extraction des données des équipes
+        teams_data = self._extract_teams_data(state)
+        
+        # Gestion du cas forfait
+        if state.get("reason") == "forfeit":
+            return self._compute_forfeit_statistics(teams_data, state.get("winner"))
+            
+        # Calcul des statistiques normales
+        return self._compute_normal_statistics(teams_data, state)
+
+    def _extract_teams_data(self, state: dict) -> dict:
+        """Extrait les données des deux équipes depuis l'état."""
+        teams_data = {'team_a': {}, 'team_b': {}}
+
+        if state.get("reason") == "forfeit":
+        
+            current_match = self.tournament_manager.matches[self.tournament_manager.current_round]  # Utiliser current_round comme index
+            team1, team2, _ = current_match
+            teams_data['team_a'] = {'name': team1, 'soldier_value': Soldier.RED}
+            teams_data['team_b'] = {'name': team2, 'soldier_value': Soldier.BLUE}
+            
+            print(f"\nDonnées des équipes extraites forfaits : {teams_data}")
+
+            return teams_data
+        
+        for team_key, soldier in [('team_a', Soldier.RED), ('team_b', Soldier.BLUE)]:
+            info_index = state.get("agents_info_index", {}).get(soldier)
+            if info_index:
+                agent_data = state.get("agents", {}).get(info_index, {})
+                teams_data[team_key] = {
+                    'name': agent_data.get('pseudo'),
+                    'soldier_value': agent_data.get('soldier_value'),
+                    'performance': agent_data.get('performances', [])[-1] if agent_data.get('performances') else {}
+                }
+
+        print(f"\nDonnées des équipes extraites: {teams_data}")
+        
+        return teams_data
+
+    def _compute_forfeit_statistics(self, teams_data: dict, winner: Soldier) -> dict:
+        """Calcule les statistiques pour un match terminé par forfait."""
+
+        team_a = teams_data['team_a']
+        team_b = teams_data['team_b']
+
+        forfeit_team = team_b['name'] if winner == Soldier.RED else team_a['name']
+        
+        if forfeit_team == team_a['name']:
+            winner, loser = team_b['name'], team_a['name']
+            pieces = (0, 16)
+        else:
+            winner, loser = team_a['name'], team_b['name']
+            pieces = (16, 0)
+            
+        return {
+            'winner': winner,
+            'loser': loser,
+            'pieces_a': pieces[0],
+            'pieces_b': pieces[1],
+            'moves_a': 0,
+            'moves_b': 0,
+            'time_a': 0,
+            'time_b': 0,
+            'reason': f"Forfeit of {loser}",
+        }
+
+    def _compute_normal_statistics(self, teams_data: dict, state: dict) -> dict:
+        """Calcule les statistiques pour un match terminé normalement."""
+        team_a = teams_data['team_a']
+        team_b = teams_data['team_b']
+        
+        winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
+        loser = team_b['name'] if winner == team_a['name'] else team_a['name']
+        
+        return {
+            'winner': winner,
+            'loser': loser,
+            'pieces_a': state.get("board").count_soldiers(team_a['soldier_value']),
+            'pieces_b': state.get("board").count_soldiers(team_b['soldier_value']),
+            'moves_a': team_a['performance'].get('number_of_moves', 0),
+            'moves_b': team_b['performance'].get('number_of_moves', 0),
+            'time_a': team_a['performance'].get('time', 0),
+            'time_b': team_b['performance'].get('time', 0),
+            'reason': state.get('reason', None),
+        }
+
+    def _record_match_results(self, stats: dict):
+        """Enregistre les résultats du match dans le gestionnaire de tournoi."""
+        self.tournament_manager.record_match_result(
+            winner=stats['winner'],
+            moves=stats['moves_a'] + stats['moves_b'],
+            reason=stats['reason'],
+            stats=stats
+        )
+
+    def _schedule_next_match(self):
+        """Programme le prochain match avec le délai approprié."""
+        delay = self._calculate_next_match_delay()
+        self.master.after(delay, self._prepare_next_match)
+
+    def _calculate_next_match_delay(self) -> int:
+        """Calcule le délai avant le prochain match en millisecondes."""
+        if not self.match_start_time:
+            return 20000
+            
+        elapsed = datetime.now() - self.match_start_time
+        if elapsed < self.match_duration:
+            return int((self.match_duration - elapsed).total_seconds() * 1000)
+        return 20000
+
+ 
 
     def _prepare_next_match(self):
         """Prépare le prochain match dans le bon ordre"""
@@ -368,14 +461,14 @@ class MainView(BaseView):
                     self._prepare_next_match()
                     return
                     
-                if next_match["is_forfeit"]:
+                if next_match["forfeit"]:
                     print(f"\nDétection d'un forfait!")
-                    print(f"Équipe forfait: {next_match['is_forfeit']}")
+                    print(f"Équipe forfait: {next_match['forfeit']}")
                     print("Dispatch de l'événement END_GAME avec forfait...")
                     self.store.dispatch({
                         "type": "END_GAME",
-                        "winner": next_match["is_forfeit"],
-                        "reason": "forfait"
+                        "winner": next_match["forfeit"],
+                        "reason": "forfeit"
                     })
                 else:
                     self._configure_match_agents(next_match)
