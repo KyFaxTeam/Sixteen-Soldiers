@@ -55,8 +55,7 @@ class GameRunner:
         # Nettoyer le mode uniquement lors d'un cleanup complet
         if level == 'full':
             self.game_mode = None
-            
-        self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
+            self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
 
     def set_mode(self, mode: str, data=None):
         """Configure le mode de jeu (replay ou nouveau jeu)"""
@@ -239,11 +238,6 @@ class GameRunner:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
-                    print(f"\n=== Debug: Max moves without capture reached ===")
-                    print(f"Moves without capture: {self.moves_without_capture}")
-                    print(f"MAX_MOVES_WITHOUT_CAPTURE: {MAX_MOVES_WITHOUT_CAPTURE}")
-                    print(f"Red pieces: {red_pieces}")
-                    print(f"Blue pieces: {blue_pieces}")
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
                         print("Condition: Few pieces draw triggered")

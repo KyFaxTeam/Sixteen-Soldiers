@@ -275,7 +275,7 @@ class MainView(BaseView):
             match_stats = self._compute_match_statistics(state)
             self._record_match_results(match_stats)
             
-            print("Yoooooooooooooooooooo")
+            
             self._schedule_next_match()
 
     def _validate_tournament_state(self) -> bool:
@@ -406,6 +406,7 @@ class MainView(BaseView):
             print(f"\nTemps estimé Random vs Random: {self.estimation_times['random_vs_random'][0]/self.estimation_times['random_vs_random'][1]}")
 
         if elapsed < self.match_duration:
+            print(f"Temps restant d'attente: {self.match_duration - elapsed}")
             return int((self.match_duration - elapsed).total_seconds() * 1000)
         
         return 20000
@@ -463,6 +464,7 @@ class MainView(BaseView):
                     self.match_start_time = datetime.now()
                     self.game_runner.start()
             else:
+
                 self.end_tournament()
 
         except Exception as e:
@@ -471,15 +473,15 @@ class MainView(BaseView):
 
     def _configure_match_agents(self, match_info):
         """Configure les agents pour le match"""
-        print("\n=== Configuration du match ===")
-        print(f"Match info: {match_info}")
+        # print("\n=== Configuration du match ===")
+        # print(f"Match info: {match_info}")
         
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Phase {match_info['phase']}")
         # ...existing code...
         
-        print("\nConfiguration des agents:")
+        
         for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
-            print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
+            # print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
             self.store.dispatch({
                 "type": "SELECT_AGENT",
                 "soldier_value": agent,
@@ -488,7 +490,7 @@ class MainView(BaseView):
         
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
         print(f"{match_info['red_agent']} vs {match_info['blue_agent']}")
-        print("Configuration du match terminée\n")
+       
 
         return 
 
