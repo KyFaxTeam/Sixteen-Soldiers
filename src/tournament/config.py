@@ -18,7 +18,7 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'C'
+CURRENT_POOL = 'D'
 
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
@@ -46,3 +46,5 @@ def normalize_team_name(team_name):
 # Création du mapping des équipes (inclut équipes initiales et restantes)
 all_teams = set(TEAMS) | {team for teams in INITIAL_POOLS.values() for team in teams}
 TEAMS_MAPPING = {team: normalize_team_name(team) for team in all_teams}
+
+BACK_TEAMS_MAPPING = {v: k for k, v in TEAMS_MAPPING.items()}
