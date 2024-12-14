@@ -24,6 +24,7 @@ class Agent(BaseAgent):
             Chosen valid action for the soldier_value
         """
 
+        z = board.get_all_neighbours()
     
         valid_actions = board.get_valid_actions()
         

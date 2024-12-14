@@ -195,7 +195,14 @@ class GameRunner:
                     board_copy = deepcopy(board)
                     
                     start_time = time.perf_counter()
-                    action = current_agent.choose_action(board=board_copy)
+                    try :
+                        action = current_agent.choose_action(board=board_copy)
+                    except Exception as e:
+                        self.logger.error(f"Error while choosing action: {e}")
+                        winner = opponent_agent.soldier_value
+                        reason = "crash"
+                        # self._conclude_game(agent1, agent2, winner=opponent_agent.soldier_value, reason="crash")
+                        break
                     elapsed_time = time.perf_counter() - start_time
 
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
