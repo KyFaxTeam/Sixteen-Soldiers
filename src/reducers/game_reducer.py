@@ -64,7 +64,7 @@ def end_game(state: Dict, action: Dict) -> Dict:
     new_state["is_game_started"] = False
     new_state["current_soldier_value"] = None
     new_state["winner"] = action.get("winner")
-    new_state["reason"] = action.get("reason", "unknown")  # Ajout de la raison avec valeur par défaut
+    new_state["reason"] = action.get("reason", "unknown")  
     return new_state
 
 def pause_game(state: Dict) -> Dict:
