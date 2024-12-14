@@ -136,8 +136,10 @@ class TournamentManager:
         return matches
 
 
-    def record_match_result(self, winner, reason=None, stats=None):
+    def record_match_result(self, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
+        winner = stats['winner'] if stats else None
+
         if not winner or self.current_round == 0:
             print(f"⚠️ Impossible d'enregistrer le résultat: winner={winner}, round={self.current_round}")
             return
@@ -154,9 +156,9 @@ class TournamentManager:
         
         if stats:  # Maintenant on vérifie si stats existe
             print(f"📊 Enregistrement des statistiques du match {self.current_round}")
-            print("Winner: ", winner)
+            # print("Winner: ", winner)
             winner = BACK_TEAMS_MAPPING.get(winner, winner)
-            print("Winner (back): ", winner)
+            # print("Winner (back): ", winner)
 
             self._update_statistics(team1, team2, winner, stats)
 
@@ -164,53 +166,73 @@ class TournamentManager:
         self._update_markdown()
         
 
-    def _update_statistics(self, team1: str, team2: str, winner: str, stats: dict):
-        """
-        Met à jour le fichier des statistiques du tournoi avec un format professionnel.
-        
-        Args:
-            team1 (str): Première équipe
-            team2 (str): Deuxième équipe
-            winner (str): Équipe gagnante
-            stats (dict): Statistiques détaillées du match
-        """
+    def _update_statistics(self, team1: str, team2: str, winner:str, stats: dict):
         css_style = """<style>
             .tournament-stats {
                 font-family: 'Segoe UI', system-ui, sans-serif;
                 max-width: 1200px;
                 margin: 2em auto;
                 padding: 0 1em;
+                color: #333333;
             }
-            .stats-section { margin-bottom: 2em; }
+            .stats-section { 
+                margin-bottom: 2em; 
+            }
             .phase-header {
-                background: #2c3e50;
+                background: #1f4e79;
                 color: white;
-                padding: 0.5em;
-                margin: 1em 0;
+                padding: 0.8em;
+                margin: 1.2em 0;
+                font-weight: 600;
+                border-radius: 4px;
             }
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin: 1em 0;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                border: 1px solid #c6c6c6;
             }
             th, td {
                 padding: 12px;
                 text-align: left;
-                border-bottom: 1px solid #ddd;
+                border: 1px solid #c6c6c6;
             }
             th { 
-                background: #3498db;
+                background: #4472c4;
                 color: white;
+                font-weight: 600;
+                position: sticky;
+                top: 0;
             }
-            tr:nth-child(even) { background: #f8f9fa; }
-            tr:hover { background: #f1f4f7; }
+            tr { background: white; }
+            tr:nth-child(even) { background: #f0f4f8; }
+            tr:hover { 
+                background: #d9e2f3;
+                color: #1f4e79;
+                font-weight: 500;
+            }
+            td:hover {
+                background: #b4c7e7;
+                color: #1f4e79;
+                font-weight: 600;
+            }
             .summary-card {
-                background: #f8f9fa;
+                background: #f5f9fe;
                 border-radius: 8px;
-                padding: 1em;
+                padding: 1.2em;
                 margin: 1em 0;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border: 1px solid #c6c6c6;
+            }
+            /* Style spécifique pour les cellules numériques */
+            td:nth-child(4), 
+            td:nth-child(5), 
+            td:nth-child(6),
+            td:nth-child(7) {
+                text-align: right;
+                font-family: 'Consolas', monospace;
+            }
         </style>"""
 
         if not self.stats_file.exists():
@@ -232,11 +254,13 @@ class TournamentManager:
             'pieces_b': stats['pieces_b'],
             'moves_a': stats['moves_a'],
             'moves_b': stats['moves_b'],
-            'time_a': stats['time_a'],
-            'time_b': stats['time_b'],
+            'time_a': stats['time_a'] * 1000,
+            'time_b': stats['time_b'] * 1000,
             'reason': stats['reason']
         }
+        print
         matches_data.append(new_match)
+        
 
         # Générer le contenu mis à jour
         updated_content = self._generate_statistics_content(matches_data, css_style)
@@ -287,9 +311,11 @@ class TournamentManager:
                 parts = [part.strip() for part in line.split('|')[1:-1]]
                 if len(parts) >= 7:  # Vérifier qu'on a assez de colonnes
                     # Extraire les statistiques de pièces, coups et temps
-                    pieces = parts[4].split('vs')
-                    moves = parts[5].split('vs')
-                    times = parts[6].replace('ms', '').split('vs')
+                    pieces = parts[4].split('-')
+                    moves = parts[5].split('-')
+                    times = parts[6].split('-')
+
+                    # print(f"************** Times: {times}")
                     
                     # Créer l'entrée du match
                     match = {
@@ -342,9 +368,9 @@ class TournamentManager:
                 for match in phase_matches:
                     content.append(
                         f"| {match['round']} | {match['team_a']} | {match['team_b']} | "
-                        f"{match['winner']} | {match['pieces_a']} vs {match['pieces_b']} | "
-                        f"{match['moves_a']} vs {match['moves_b']} | "
-                        f"{match['time_a']:.3f} vs {match['time_b']:.3f} | "
+                        f"{match['winner']} | {match['pieces_a']} - {match['pieces_b']} | "
+                        f"{match['moves_a']} - {match['moves_b']} | "
+                        f"{match['time_a']:.3f} - {match['time_b']:.3f} | "
                         f"{match['reason']} |"
                     )
         content.extend([
