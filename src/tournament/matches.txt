@@ -21,7 +21,7 @@ D: AI_MAU vs Gojok
 === Round 4 ===
 A: Les leaders vs Limitless Nexus
 B: Mind Misters vs Questcoders
-Cf: IFRI vs Python Trident
+C: IFRI vs Python Trident
 Df: Mugiwara vs Team Zero
 
 === Round 5 ===
@@ -39,7 +39,7 @@ Df: AI_MAU vs Team Zero
 === Round 7 ===
 A: Turk_3.0 vs gildasWebSite
 B: AIverse vs Questcoders
-Cf: KACW vs Python Trident
+C: KACW vs Python Trident
 D: Blacknight01 vs Mugiwara
 
 === Round 8 ===
@@ -51,7 +51,7 @@ D: Firesky vs Gojok
 === Round 9 ===
 A: Les leaders vs gildasWebSite
 B: Bee Light vs Mind Misters
-Cf: BOÏZ vs Python Trident
+C: BOÏZ vs Python Trident
 D: AI_MAU vs Blacknight01
 
 === Round 10 ===
@@ -75,7 +75,7 @@ Df: Bélion vs Gojok
 === Round 13 ===
 A: Limitless Nexus vs Turk_3.0
 B: AIverse vs Bee Light
-Cf: Eriatech vs Python Trident
+C: Eriatech vs Python Trident
 D: Blacknight01 vs Innovation Group (IG)
 
 === Round 14 ===
@@ -123,7 +123,7 @@ Df: Bélion vs Mugiwara
 === Round 21 ===
 A: JoLyCh vs Les sisters
 Bf: Mind Misters vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
-Cf: Dream team vs Python Trident
+C: Dream team vs Python Trident
 Df: Innovation Group (IG) vs Team Zero
 
 === Round 22 ===
@@ -159,7 +159,7 @@ Df: AI_MAU vs Bélion
 === Round 27 ===
 A: Les leaders vs Turk_3.0
 Bf: Némésis vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️
-Cf: EL-LINE vs Python Trident
+C: EL-LINE vs Python Trident
 D: Blacknight01 vs Gojok
 
 === Round 28 ===
@@ -170,169 +170,169 @@ Df: Bélion vs Innovation Group (IG)
 
 ======= PHASE RETOUR =======
 
-=== Round 29 ===
+=== Round 1 ===
 A: Les leaders vs JoLyCh
 B: Phil Kong vs Bee Light
 C: EL-LINE vs Dream team
 D: Mugiwara vs Firesky
 
-=== Round 30 ===
+=== Round 2 ===
 Af: Les sisters vs Bandit binaire
 B: Vegapunk-Stella vs Questcoders
 Cf: KACW vs Black Witches
 Df: Team Zero vs Bélion
 
-=== Round 31 ===
+=== Round 3 ===
 A: Turk_3.0 vs JoLyCh
 B: Némésis vs Bee Light
 C: Eriatech vs Dream team
 D: Gojok vs AI_MAU
 
-=== Round 32 ===
+=== Round 4 ===
 A: Limitless Nexus vs Les leaders
 B: Questcoders vs Mind Misters
-Cf: Python Trident vs IFRI
+C: Python Trident vs IFRI
 Df: Team Zero vs Mugiwara
 
-=== Round 33 ===
+=== Round 5 ===
 Af: Turk_3.0 vs Avec l'IA
 B: Phil Kong vs Némésis
 C: KACW vs EL-LINE
 D: Firesky vs Blacknight01
 
-=== Round 34 ===
+=== Round 6 ===
 A: Les sisters vs Les leaders
 B: Vegapunk-Stella vs Bee Light
 Cf: Black Witches vs BOÏZ
 Df: Team Zero vs AI_MAU
 
-=== Round 35 ===
+=== Round 7 ===
 A: gildasWebSite vs Turk_3.0
 B: Questcoders vs AIverse
-Cf: Python Trident vs KACW
+C: Python Trident vs KACW
 D: Mugiwara vs Blacknight01
 
-=== Round 36 ===
+=== Round 8 ===
 A: Limitless Nexus vs JoLyCh
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Phil Kong
 C: IFRI vs EL-LINE
 D: Gojok vs Firesky
 
-=== Round 37 ===
+=== Round 9 ===
 A: gildasWebSite vs Les leaders
 B: Mind Misters vs Bee Light
-Cf: Python Trident vs BOÏZ
+C: Python Trident vs BOÏZ
 D: Blacknight01 vs AI_MAU
 
-=== Round 38 ===
+=== Round 10 ===
 Af: Bandit binaire vs Avec l'IA
 B: Vegapunk-Stella vs Phil Kong
 C: KACW vs Dream team
 D: Mugiwara vs Gojok
 
-=== Round 39 ===
+=== Round 11 ===
 A: gildasWebSite vs Les sisters
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Bee Light
 Cf: Eriatech vs Black Witches
 Df: Team Zero vs Firesky
 
-=== Round 40 ===
+=== Round 12 ===
 Af: Les leaders vs Avec l'IA
 B: Questcoders vs Phil Kong
 C: IFRI vs Dream team
 Df: Gojok vs Bélion
 
-=== Round 41 ===
+=== Round 13 ===
 A: Turk_3.0 vs Limitless Nexus
 B: Bee Light vs AIverse
-Cf: Python Trident vs Eriatech
+C: Python Trident vs Eriatech
 D: Innovation Group (IG) vs Blacknight01
 
-=== Round 42 ===
+=== Round 14 ===
 Af: gildasWebSite vs Avec l'IA
 B: Questcoders vs Némésis
 C: KACW vs IFRI
 Df: Team Zero vs Gojok
 
-=== Round 43 ===
+=== Round 15 ===
 A: Turk_3.0 vs Les sisters
 B: Phil Kong vs Mind Misters
 Cf: Python Trident vs Black Witches
 D: Innovation Group (IG) vs AI_MAU
 
-=== Round 44 ===
+=== Round 16 ===
 A: gildasWebSite vs Limitless Nexus
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Questcoders
 C: IFRI vs Eriatech
 Df: Team Zero vs Blacknight01
 
-=== Round 45 ===
+=== Round 17 ===
 Af: JoLyCh vs Bandit binaire
 B: Mind Misters vs AIverse
 C: EL-LINE vs BOÏZ
 D: Innovation Group (IG) vs Gojok
 
-=== Round 46 ===
+=== Round 18 ===
 Af: Limitless Nexus vs Avec l'IA
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Vegapunk-Stella
 C: KACW vs Eriatech
 D: Mugiwara vs AI_MAU
 
-=== Round 47 ===
+=== Round 19 ===
 A: gildasWebSite vs JoLyCh
 B: Némésis vs Mind Misters
 Cf: IFRI vs Black Witches
 D: Innovation Group (IG) vs Firesky
 
-=== Round 48 ===
+=== Round 20 ===
 Af: Turk_3.0 vs Bandit binaire
 B: Vegapunk-Stella vs AIverse
 C: Eriatech vs BOÏZ
 Df: Mugiwara vs Bélion
 
-=== Round 49 ===
+=== Round 21 ===
 A: Les sisters vs JoLyCh
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Mind Misters
-Cf: Python Trident vs Dream team
+C: Python Trident vs Dream team
 Df: Team Zero vs Innovation Group (IG)
 
-=== Round 50 ===
+=== Round 22 ===
 Af: Les leaders vs Bandit binaire
 B: Vegapunk-Stella vs Némésis
 C: IFRI vs BOÏZ
 Df: Firesky vs Bélion
 
-=== Round 51 ===
+=== Round 23 ===
 A: Limitless Nexus vs Les sisters
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs AIverse
 Cf: EL-LINE vs Black Witches
 D: Mugiwara vs Innovation Group (IG)
 
-=== Round 52 ===
+=== Round 24 ===
 Af: gildasWebSite vs Bandit binaire
 B: Vegapunk-Stella vs Mind Misters
 C: KACW vs BOÏZ
 D: Firesky vs AI_MAU
 
-=== Round 53 ===
+=== Round 25 ===
 Af: JoLyCh vs Avec l'IA
 B: Phil Kong vs AIverse
 C: Eriatech vs EL-LINE
 Df: Bélion vs Blacknight01
 
-=== Round 54 ===
+=== Round 26 ===
 Af: Limitless Nexus vs Bandit binaire
 B: Questcoders vs Bee Light
 Cf: Dream team vs Black Witches
 Df: Bélion vs AI_MAU
 
-=== Round 55 ===
+=== Round 27 ===
 A: Turk_3.0 vs Les leaders
 Bf: 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️ vs Némésis
-Cf: Python Trident vs EL-LINE
+C: Python Trident vs EL-LINE
 D: Gojok vs Blacknight01
 
-=== Round 56 ===
+=== Round 28 ===
 Af: Les sisters vs Avec l'IA
 B: Némésis vs AIverse
 C: Dream team vs BOÏZ

@@ -5,43 +5,118 @@ from src.models.board import Board
 from src.utils.const import Soldier
 from copy import deepcopy
 
-# This file contains the main AI agent that you will use to play the game. It is a main class that we get if you finish your implementation of the game.
+
+
+
+def compact_move(mouv)->list:
+    mouv_compact=[0,1,'a','a']
+    if mouv['type']=='CAPTURE_SOLDIER':
+        mouv_compact[0]=1
+        mouv_compact.append(mouv['captured_soldier'])
+    if mouv['soldier_value']==Soldier.BLUE:
+        mouv_compact[1]=2
+    mouv_compact[2]=mouv['from_pos']
+    mouv_compact[3]=mouv['to_pos']
+    return mouv_compact
+    
+#chemin inverse
+def decompact_move(mouv_compact:str)->list:
+    mouv={'type': 'MOVE_SOLDIER', 'soldier_value': Soldier.RED, 'from_pos': 'f2', 'to_pos': 'e1'}
+    if mouv_compact[0]==1:
+        mouv['type']='CAPTURE_SOLDIER'
+        mouv['captured_soldier']=mouv_compact[4]
+    if mouv_compact[1]==2:
+        mouv['soldier_value']=Soldier.BLUE
+    mouv['from_pos']=mouv_compact[2]
+    mouv['to_pos']=mouv_compact[3]
+    return mouv
+
+
+
+
+
 class Agent(BaseAgent):
-    """AI agent that plays your choice"""
+    """AI agent that plays random valid moves"""
     
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Your Team" # You need to replace Your Team with your team name
-        
+        self.name = "Némésis"
+       
     
     
     def choose_action(self, board: Board) -> Dict:
-
         """
-        Choose an action from valid moves.
+        Choose a random action from valid moves.
         Args:
             board: Current game board state
         Returns:
-            Chosen valid action for the soldier_value
+            Randomly chosen valid action for the soldier_value
         """
-
-      
+        etat_jeu=board.soldiers
         valid_actions = board.get_valid_actions()
-        liste_indice_capture=[index for index, action in enumerate(valid_actions) if action.get('type') == 'CAPTURE_SOLDIER']
-        safe_indice=[]
-        for i in range (0,len(valid_actions)) :
-            if valid_actions[i]['type']=='MOVE_SOLDIER':
-                board.move_soldier(valid_actions[i])
-                if any(action.get('type') == 'CAPTURE_SOLDIER' for action in  board.get_valid_actions())==False:
-                    safe_indice.append(i)
-                board.move_soldier({'type': 'MOVE_SOLDIER', 'soldier_value':valid_actions[i]['soldier_value'], 'from_pos': valid_actions[i]['to_pos'], 'to_pos':valid_actions[i]['from_pos']})
-        #print(valid_actions)
-        if len(liste_indice_capture)!=0:
-            #print("liste capture",liste_indice_capture)
-            return (valid_actions[random.choice(liste_indice_capture)]) # You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
-        elif len(safe_indice)!=0:
-            #print("safe",safe_indice)
-            return (valid_actions[random.choice(safe_indice)])
+
+        #Transformation de l'état du jeu en clé 
+        positions = [Soldier.EMPTY,Soldier.RED, Soldier.BLUE]
+        etat_numerique = [positions.index(etat_jeu[pos]) for pos in sorted(etat_jeu.keys())]
+        board_key= "".join(map(str, etat_numerique))
+        donnée_RED={"1111111111111111000002222222222222222": [0, 1, "d2", "e1"], "1111111111110111102002220222222222222": [0, 1, "c2", "d2"], "1111111011111111100002222222222222222": [0, 1, "d4", "e5"], "1111111011111101102012022222222222222": [0, 1, "c4", "d4"], "1111111010111111102010222222222222222": [0, 1, "d2", "c2"], "1111111110110111120010222222222222222": [1, 1, "e1", "e3", "e2"], "1111111110112111000010220222222222222": [1, 1, "c3", "e1", "d2"], "1111111100110111100010202222222222222": [0, 1, "b2", "c3"], "1110111110110111100012002222222222222": [0, 1, "c1", "d2"], "1110110110111111100010202222222222222": [0, 1, "c2", "c1"], "1110111010111111100010022222222222222": [0, 1, "c3", "c2"], "1110111100111111100010202222222222222": [0, 1, "b3", "c3"], "1110011110111111100010022222222222222": [0, 1, "c3", "c4"], "1110011101111111100010202222222222222": [0, 1, "b4", "c3"], "1110001111111111100010022222222222222": [0, 1, "d2", "e2"], "1110001111110111110010202222222222222": [0, 1, "c1", "d2"], "1110000111111111110010022222222222222": [0, 1, "c2", "c1"], "1110001011111111110010202222222222222": [0, 1, "c3", "c2"], "1110001101111111110010022222222222222": [0, 1, "c4", "c3"], "1110001110111111110010202222222222222": [0, 1, "c5", "c4"], "1110001111011111110010022222222222222": [0, 1, "d4", "e3"], "1110001111011101111010202222222222222": [0, 1, "c3", "d4"], "1110001101011111111010022222222222222": [0, 1, "c2", "c3"], "1110001011011111111010202222222222222": [0, 1, "c1", "c2"], "1110000111011111111012002222222222222": [0, 1, "c4", "c5"], "1110000110111111111010202222222222222": [0, 1, "c3", "c4"], "1110000101111111111010022222222222222": [0, 1, "d1", "c1"], "1110001101101111111010202222222222222": [0, 1, "c2", "c3"], "1110001011101111111012002222222222222": [0, 1, "e1", "d1"], "1110001011111111011010202222222222222": [0, 1, "c1", "c2"], "1110000111111111011012002222222222222": [0, 1, "e2", "e1"], "1110000111111111101010202222222222222": [0, 1, "d1", "c1"], "1110001111101111101012002222222222222": [0, 1, "e3", "e2"], "1110001111121111010010002222222222222": [1, 1, "c1", "e1", "d1"], "1110000111101111110010202202222222222": [0, 1, "d3", "e3"], "1110000111101011111010022202222222222": [0, 1, "c3", "d3"], "1110000101101111111010022220222222222": [0, 1, "c2", "c1"], "1110001001101111111010022202222222222": [0, 1, "c1", "d1"], "1110000001111111111010022220222222222": [0, 1, "c4", "c3"], "1110000010111111111010022202222222222": [0, 1, "c3", "c2"], "1110000100111111111010022220222222222": [0, 1, "c5", "c4"], "1110000101011111111010022202222222222": [0, 1, "c2", "c1"], "1110001001011111111010022220222222222": [0, 1, "d4", "c3"], "1110001011011101111210020220222222222": [0, 1, "e3", "f4"], "1110001011011101112210020220220222222": [1, 1, "d2", "f4", "e3"], "1110001011010101110210021220220222222": [1, 1, "f4", "d4", "e4"], "1110001011010111110010020220202222222": [0, 1, "c1", "d2"], "1110000011011111110010002220202222222": [0, 1, "c3", "c2"], "1110000101011111110010020220202222222": [0, 1, "c2", "c1"], "1110001001011111110010002220202222222": [0, 1, "c4", "c3"], "1110001010011111110010020220202222222": [0, 1, "c1", "c2"], "1110001110010111110010002220202222222": [0, 1, "c1", "d2"], "1110000110011111110010020220202222222": [0, 1, "d1", "c1"], "1110001110001111110010002220202222222": [0, 1, "d2", "d1"], "1110001110010111110010020220202222222": [0, 1, "c3", "d2"], "1110001100011111110010002220202222222": [0, 1, "c2", "c3"]}
+        donnée_Blue={"1111111111110111100002222222222222222": [0, 2, "f4", "e5"], "1111110111111111100022220222222222222": [0, 2, "g5", "f4"], "1111111111110111100022222222220222222": [0, 2, "g4", "g5"], "1111111111111111000022222222202222222": [0, 2, "f2", "e1"], "1111111111111101201022022222202222222": [0, 2, "g2", "f2"], "1111111110111111201022222220202222222": [0, 2, "f4", "g4"], "1111111110111111210022220220222222222": [1, 2, "e1", "e3", "e2"], "1111111110110111000022221220222222222": [1, 2, "g4", "e4", "f4"], "1111111110110111000222220220202222222": [1, 2, "e4", "c4", "d4"], "1111111112111001000022220220202222222": [0, 2, "g5", "f4"], "1111111112110101000022222220200222222": [0, 2, "g3", "g4"], "1111110112111101000022222220020222222": [0, 2, "h4", "g3"], "1111110112110101100022222220220220222": [0, 2, "f4", "e3"], "1111110112111001102022220220220220222": [1, 2, "e3", "c1", "d2"], "1111111011111111100022222222220222222": [0, 2, "g4", "g5"], "1111110111111111100022222222202222222": [0, 2, "f4", "g4"], "1111111011111111100022220222222222222": [0, 2, "f3", "f4"], "1111110111111111100022202222222222222": [0, 2, "f4", "e4"], "1111110111111101100022201222222222222": [1, 2, "g5", "e3", "f4"], "1111110111111101102022200222220222222": [1, 2, "e3", "c1", "d2"], "1111112111110011100022200222220222222": [0, 2, "f2", "f3"], "1111112111110101100022020222220222222": [0, 2, "g4", "g5"], "1111112111110011100022020222202222222": [0, 2, "g5", "f4"], "1111112111110101100022022222200222222": [0, 2, "g3", "g4"], "1111112111110011100022022222020222222": [0, 2, "h4", "g3"], "1111112111110101100022022222220220222": [0, 2, "g2", "f2"], "1111112111110011100022222220220220222": [0, 2, "g4", "g5"], "1111112111110101100022222220202220222": [0, 2, "f4", "g4"], "1111112111110011100022220220222220222": [0, 2, "g5", "f4"], "1111112111110101100022222220220220222": [0, 2, "f4", "e4"], "1111112111110011100222220220220220222": [0, 2, "f3", "f4"], "1111112111110101100222202220220220222": [0, 2, "g4", "g5"], "1111112111110011100222202220202220222": [0, 2, "f2", "g2"], "1111112111110101100222002222202220222": [0, 2, "g3", "g4"], "1111112111110011100222002222022220222": [0, 2, "h3", "g3"], "1111112111110101100222002222222200222": [0, 2, "e4", "d4"], "1111112110110101100122002222222200222": [1, 2, "f4", "d4", "e4"], "1111112110110121100022000222222200222": [1, 2, "d4", "d2", "d3"], "1111112110100101100022000222222200222": [1, 2, "f1", "d1", "e1"], "1111112110120011000020000222222200222": [0, 2, "g5", "f4"], "1111112111120001000020002222220200222": [0, 2, "g4", "g5"], "1111112110120011000020002222202200222": [0, 2, "g3", "g4"], "1111112111120001000020002222022200222": [0, 2, "h2", "g3"], "1111112110120011000020002222222000222": [0, 2, "g3", "f3"], "1111112111120001000020022222022000222": [0, 2, "g2", "g3"], "1111112110120011000020022220222000222": [0, 2, "g3", "f2"], "1111112111120001000020222220022000222": [0, 2, "g4", "g3"], "1111112110120011000020222220202000222": [0, 2, "g5", "g4"], "1111112111120001000020222220220000222": [0, 2, "g3", "g2"], "1111112110120011000020222202220000222": [0, 2, "f4", "g5"], "1111112111120001000020220202222000222": [0, 2, "g4", "f4"], "1111112110120011000020222202202000222": [0, 2, "g3", "g4"], "1111112111120001000020222202022000222": [0, 2, "g2", "g3"], "1111112110120011000020222200222000222": [0, 2, "f2", "g2"], "1111112111120001000020022202222000222": [0, 2, "g3", "f2"], "1111112110120011000020222202022000222": [0, 2, "g2", "g1"], "1111112110120011000020222222020000222": [0, 2, "g1", "f1"], "1111112111120001000022222202020000222": [0, 2, "g2", "g1"]}
+
+        if self.soldier_value==Soldier.BLUE:
+            if board_key in donnée_Blue:
+                return decompact_move (donnée_Blue[board_key])
         else:
-            return random.choice(valid_actions)
+            if board_key in donnée_RED:
+                return decompact_move(donnée_RED[board_key])
+
+
+
+
+
+        c=len(valid_actions)
+        li=[0] * c
+        cont=0
+        
+        for i in valid_actions:
+            board_copy=deepcopy(board)
+            if i['type']=='CAPTURE_SOLDIER':
+                li[cont]+=100 
+                board_copy.capture_soldier(i)
+                if any(action.get('type') == 'CAPTURE_SOLDIER' and action.get('soldier_value')!=self.soldier_value for action in  board_copy.get_valid_actions()):
+                    li[cont]-=800 
+            else:
+                board.move_soldier(i)
+                valid_actions_advers=board.get_valid_actions()
+                if any(action.get('type') == 'CAPTURE_SOLDIER' for action in  board.get_valid_actions())==False:
+                    li[cont]+=20
+                    if len(valid_actions_advers)>15:
+                        li[cont]-=20
+                    elif len(valid_actions_advers)>14:
+                        li[cont]-=13
+                    elif len(valid_actions_advers)>12:
+                        li[cont]-=10
+                    elif len(valid_actions_advers)>9:
+                        li[cont]-=8
+                    elif len(valid_actions_advers)>7:
+                        li[cont]-=6
+                    elif len(valid_actions_advers)>4:
+                        li[cont]-=4
+                    elif len(valid_actions_advers)>2:
+                        li[cont]-=2
+                    elif len(valid_actions_advers)>0:
+                        li[cont]+=1
+                    else:
+                        li[cont]-=30
+                board.move_soldier({'type': 'MOVE_SOLDIER', 'soldier_value':i['soldier_value'], 'from_pos': i['to_pos'], 'to_pos':i['from_pos']})
+            cont+=1 
+
+
+        t=0
+        for i in li:
+            if i==max(li):
+                u=valid_actions[t]
+                break
+            t=t+1
+        return u
+        
     

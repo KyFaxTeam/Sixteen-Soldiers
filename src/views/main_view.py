@@ -270,12 +270,15 @@ class MainView(BaseView):
         """Gère la fin d'un match de tournoi."""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
+
             self.show_after_game_view()
+
             state = self.store.get_state()
+
             match_stats = self._compute_match_statistics(state)
-            self._record_match_results(match_stats)
-            
-            
+
+            self.tournament_manager.record_match_result(match_stats)
+
             self._schedule_next_match()
 
     def _validate_tournament_state(self) -> bool:
@@ -290,7 +293,6 @@ class MainView(BaseView):
             
         self.handling_tournament_end = True
         return True
-
 
     def _compute_match_statistics(self, state: dict) -> dict:
         """
@@ -323,7 +325,7 @@ class MainView(BaseView):
                     'performance': agent_data.get('performances', [])[-1] if agent_data.get('performances') else {}
                 }
 
-        print(f"\nDonnées des équipes extraites: {teams_data}")
+        # print(f"\nDonnées des équipes extraites: {teams_data}")
         
         return teams_data
 
@@ -357,14 +359,22 @@ class MainView(BaseView):
         team_a = teams_data['team_a']
         team_b = teams_data['team_b']
         
-        winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
-        loser = team_b['name'] if winner == team_a['name'] else team_a['name']
+        pieces_a = state.get("board").count_soldiers(team_a['soldier_value'])
+        pieces_b = state.get("board").count_soldiers(team_b['soldier_value'])
+        
+        # Déterminer le gagnant et le perdant (ou match nul)
+        if state.get("reason") == "draw":
+            winner = "draw"
+            loser = "draw"
+        else:
+            winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
+            loser = team_b['name'] if winner == team_a['name'] else team_a['name']
         
         return {
             'winner': winner,
             'loser': loser,
-            'pieces_a': state.get("board").count_soldiers(team_a['soldier_value']),
-            'pieces_b': state.get("board").count_soldiers(team_b['soldier_value']),
+            'pieces_a': pieces_a,
+            'pieces_b': pieces_b,
             'moves_a': team_a['performance'].get('number_of_moves', 0),
             'moves_b': team_b['performance'].get('number_of_moves', 0),
             'time_a': team_a['performance'].get('time', 0),
@@ -372,9 +382,6 @@ class MainView(BaseView):
             'reason': state.get('reason', None),
         }
 
-    def _record_match_results(self, stats: dict):
-        """Enregistre les résultats du match dans le gestionnaire de tournoi."""
-        self.tournament_manager.record_match_result(stats)
 
     def _schedule_next_match(self):
         """Programme le prochain match avec le délai approprié."""
@@ -411,8 +418,6 @@ class MainView(BaseView):
             return int((self.match_duration - elapsed).total_seconds() * 1000)
         
         return 20000
-
- 
 
     def _prepare_next_match(self):
         """Prépare le prochain match dans le bon ordre"""
