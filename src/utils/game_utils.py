@@ -11,21 +11,24 @@ from src.store.store import Store
 from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier
 from enum import Enum
 
-def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500):
+def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500, modal: bool = False):
     """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
     popup = CTkMessagebox(
         title=title,
         message=message,
         icon="info",
-        width=250,
-        height=150,
-        font=("Roboto", 12),
-        justify="center",
-        fade_in_duration=0.2,
+        width=300, 
+        height=250, 
+        option_1="OK",  # Un seul bouton par défaut
+        border_width=1,  # Bordure fine
+        font=("Roboto", 14, "bold"),  # Police en gras plus grande
     )
     
     if auto_close:
         popup.after(duration, popup.destroy)
+    
+    if modal:
+        popup.wait_window()
 
 class GameMode(Enum):
     REPLAY = 'replay'
