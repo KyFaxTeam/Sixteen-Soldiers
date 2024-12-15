@@ -384,7 +384,7 @@ class MainView(BaseView):
     def _calculate_next_match_delay(self) -> int:
         """Calcule le délai avant le prochain match en millisecondes."""
         if self.store.get_state().get("reason") == "forfeit":
-            return 20000
+            return 30000
             
         elapsed = datetime.now() - self.match_start_time
         # on a déjà record_match_result donc on fera -1 spécialement ici
@@ -410,7 +410,7 @@ class MainView(BaseView):
             print(f"\n Temps restant d'attente: {int((self.match_duration - elapsed).total_seconds())} seconde...")
             return int((self.match_duration - elapsed).total_seconds() * 1000)
         
-        return 20000
+        return 30000
 
  
 
