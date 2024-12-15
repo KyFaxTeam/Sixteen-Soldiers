@@ -387,8 +387,8 @@ class MainView(BaseView):
             return 20000
             
         elapsed = datetime.now() - self.match_start_time
-        
-        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index]
+        # on a déjà record_match_result donc on fera -1 spécialement ici
+        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index - 1]
 
         print("Teams:", team1, team2)
         if team1 in SUBMITTED_TEAMS and team2 in SUBMITTED_TEAMS:
@@ -407,7 +407,7 @@ class MainView(BaseView):
             print(f"\nTemps estimé Random vs Random: {self.estimation_times['random_vs_random'][0]/self.estimation_times['random_vs_random'][1]}")
 
         if elapsed < self.match_duration:
-            print(f"Temps restant d'attente: {int((self.match_duration - elapsed).total_seconds() * 1000)}")
+            print(f"\n Temps restant d'attente: {int((self.match_duration - elapsed).total_seconds())} seconde...")
             return int((self.match_duration - elapsed).total_seconds() * 1000)
         
         return 20000

@@ -9,4 +9,5 @@
 - pourquoi ne pas afficher les deux équipes sur le after_game_view
 - en mode normal, vérifier le changement effectif des ia
 
+- changer les reasons
 -gérer quand winner == None
