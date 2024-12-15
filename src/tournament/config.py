@@ -33,14 +33,14 @@ for team in sorted(fixed_teams):
 TEAMS = [ 
     "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
     "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
-    "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW", "Turk_3.0",
+    "IFRI", "Innovation Group (IG)",  "KACW", "Turk_3.0",
     "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
     "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
 ]
 
 SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "IFRI", "Némésis", 
                    "Blacknight01", "AIverse", "BOÏZ", "Eriatech", "Les sisters", 
-                    "Limitless Nexus", "Turk_3.0"]
+                    "Limitless Nexus", "Turk_3.0", "JoLyCh"]
 
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""

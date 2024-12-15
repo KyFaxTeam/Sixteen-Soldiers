@@ -2,7 +2,7 @@ from itertools import combinations
 from collections import defaultdict
 from typing import Dict, List, Tuple, Set
 import random
-from config import TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED, FORFEIT_TEAMS
+from config import SUBMITTED_TEAMS, TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED, FORFEIT_TEAMS
 
 # Set random seed at module level
 random.seed(RANDOM_SEED)
@@ -50,82 +50,142 @@ def generate_all_matches(teams_by_pool: Dict[str, List[str]]) -> Dict[str, Dict[
     
     return matches
 
-def schedule_matches(phase_matches: Dict[str, List[Tuple[str, str]]]) -> List[Dict[str, List[Tuple[str, str]]]]:
-    """
-    Répartit les matchs d'une phase en rounds en essayant d'optimiser:
-    1. NUM_POOLS matchs par round (un de chaque poule)
-    2. Éviter qu'une équipe joue deux fois de suite si possible
-    """
-    rounds = []
-    unscheduled_matches = {pool: matches.copy() 
-                          for pool, matches in phase_matches.items()}
-    last_round_teams: Set[str] = set()
+class MatchType:
+    AI_VS_AI = "ai_vs_ai"
+    RANDOM_VS_RANDOM = "random_vs_random"
+    AI_VS_RANDOM = "ai_vs_random"
+    FORFEIT = "forfeit"
+
+def get_match_type(team1: str, team2: str) -> str:
+    """Détermine le type de match basé sur les équipes"""
+    if team1 in FORFEIT_TEAMS or team2 in FORFEIT_TEAMS:
+        return MatchType.FORFEIT
     
-    while any(matches for matches in unscheduled_matches.values()):
-        round_matches = defaultdict(list)
-        available_pools = set(POOLS)
+    team1_is_ai = team1 in SUBMITTED_TEAMS
+    team2_is_ai = team2 in SUBMITTED_TEAMS
+
+    if team1_is_ai and team2_is_ai:
+        return MatchType.AI_VS_AI
+    elif team1_is_ai or team2_is_ai:
+        return MatchType.AI_VS_RANDOM 
+    else:
+        return MatchType.RANDOM_VS_RANDOM
+
+
+def schedule_for_pool(matches: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    """Optimise les matchs pour une seule poule"""
+    scheduled = []
+    remaining = matches.copy()
+    last_match_type = None
+    recent_teams = []  # Liste des dernières équipes (mémoire plus longue)
+    forfeit_count = 0
+    
+    while remaining:
+        best_match = None
+        best_score = float('-inf')
         
-        while available_pools and len(round_matches) < NUM_POOLS:
-            for pool in sorted(available_pools):  # Garde l'ordre des poules
-                pool_matches = unscheduled_matches[pool]
-                if not pool_matches:
-                    available_pools.remove(pool)
-                    continue
-                
-                match = find_best_match(pool_matches, last_round_teams)
-                if match:
-                    round_matches[pool].append(match)
-                    pool_matches.remove(match)
-                    last_round_teams.update(match)
-                available_pools.remove(pool)
-        
-        if round_matches:
-            rounds.append(dict(round_matches))
-            last_round_teams = {player for matches in round_matches.values() 
-                              for match in matches 
-                              for player in match}
+        for match in remaining:
+            match_type = get_match_type(match[0], match[1])
+            score = 0
+            
+            # Pénaliser les équipes récemment utilisées (sur les 3 derniers matchs)
+            current_teams = {match[0], match[1]}
+            for i, recent_team in enumerate(recent_teams):
+                if current_teams & recent_team:
+                    score -= (4 - i)  # Pénalité décroissante
+            
+            # Éviter les types consécutifs
+            if match_type == last_match_type:
+                score -= 4
+            
+            # Gestion des forfaits
+            if match_type == MatchType.FORFEIT:
+                if forfeit_count > 0:
+                    score -= 6 * forfeit_count
+                # Pénaliser davantage les forfaits en fin de phase
+                if len(scheduled) > len(matches) * 0.8:  # Dans les 20% derniers matchs
+                    score -= 3
+            else:
+                if forfeit_count > 0:
+                    score += 2  # Bonus pour briser une série de forfaits
+            
+            if score > best_score:
+                best_score = score
+                best_match = match
+
+        if best_match:
+            scheduled.append(best_match)
+            remaining.remove(best_match)
+            match_type = get_match_type(best_match[0], best_match[1])
+            last_match_type = match_type
+            
+            # Mettre à jour la mémoire des équipes
+            recent_teams.insert(0, {best_match[0], best_match[1]})
+            if len(recent_teams) > 3:  # Garder une mémoire des 3 derniers matchs
+                recent_teams.pop()
+            
+            # Mettre à jour le compteur de forfaits
+            if match_type == MatchType.FORFEIT:
+                forfeit_count += 1
+            else:
+                forfeit_count = 0
+    
+    return scheduled
+
+def schedule_matches(phase_matches: Dict[str, List[Tuple[str, str]]]) -> List[Dict[str, List[Tuple[str, str]]]]:
+    """Combine les matchs optimisés de chaque poule en rounds"""
+    # Optimiser chaque poule séparément
+    scheduled_by_pool = {
+        pool: schedule_for_pool(matches) 
+        for pool, matches in phase_matches.items()
+    }
+    
+    # Combiner en rounds
+    rounds = []
+    num_rounds = len(next(iter(scheduled_by_pool.values())))
+    
+    for round_idx in range(num_rounds):
+        round_matches = {
+            pool: [matches[round_idx]] 
+            for pool, matches in scheduled_by_pool.items()
+        }
+        rounds.append(round_matches)
     
     return rounds
-
-def find_best_match(matches: List[Tuple[str, str]], last_round_teams: Set[str]) -> Tuple[str, str]:
-    """
-    Trouve le meilleur match possible en évitant les équipes qui ont joué au round précédent
-    """
-    for match in matches:
-        if not (set(match) & last_round_teams):
-            return match
-    return matches[0] if matches else None
 
 def save_matches(rounds_aller: List[Dict[str, List[Tuple[str, str]]]], 
                 rounds_retour: List[Dict[str, List[Tuple[str, str]]]], 
                 output_file: str):
-    """Sauvegarde les matchs dans un fichier en séparant clairement les phases aller et retour"""
+    """Sauvegarde les matchs dans un fichier en préservant l'ordre des poules"""
     filepath = TOURNAMENT_DIR / output_file
-    pool_matches_order = {pool: [] for pool in POOLS}
     
     with open(filepath, 'w', encoding='utf-8') as f:
         # Phase aller
         f.write("======= PHASE ALLER =======\n\n")
         for round_num, round_matches in enumerate(rounds_aller, 1):
             f.write(f"=== Round {round_num} ===\n")
-            for pool, matches in round_matches.items():
-                for match in matches:
-                    pool_display = pool
-                    if any(team in FORFEIT_TEAMS for team in match):
-                        pool_display += 'f'
-                    f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
+            # Parcourir les poules dans l'ordre défini par POOLS
+            for pool in POOLS:
+                if pool in round_matches:
+                    for match in round_matches[pool]:
+                        pool_display = pool
+                        if any(team in FORFEIT_TEAMS for team in match):
+                            pool_display += 'f'
+                        f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
             
-        # Phase retour - Recommencer à 1 pour la numérotation
+        # Phase retour
         f.write("======= PHASE RETOUR =======\n\n")
-        for round_num, round_matches in enumerate(rounds_retour, 1):  # Commence à 1, plus de +28
+        for round_num, round_matches in enumerate(rounds_retour, 1):
             f.write(f"=== Round {round_num} ===\n")
-            for pool, matches in round_matches.items():
-                for match in matches:
-                    pool_display = pool
-                    if any(team in FORFEIT_TEAMS for team in match):
-                        pool_display += 'f'
-                    f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
+            # Même ordre pour la phase retour
+            for pool in POOLS:
+                if pool in round_matches:
+                    for match in round_matches[pool]:
+                        pool_display = pool
+                        if any(team in FORFEIT_TEAMS for team in match):
+                            pool_display += 'f'
+                        f.write(f"{pool_display}: {match[0]} vs {match[1]}\n")
             f.write("\n")
 
 

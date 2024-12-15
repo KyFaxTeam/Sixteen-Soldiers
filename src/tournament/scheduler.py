@@ -1,8 +1,9 @@
+import os
 import plotly.figure_factory as ff
 import pandas as pd
 from datetime import datetime, timedelta
 from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import SUBMITTED_TEAMS
+from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR
 from typing import List, Dict, Tuple, Optional
 from src.utils.const import Soldier
 
@@ -11,7 +12,7 @@ MATCH_DURATIONS = {
     "ai_vs_ai": 90 + 60,          # ~2.5 minutes
     "random_vs_ai": 90 + 60,      # Using same duration as ai_vs_ai
     "ai_vs_random": 90 + 60,      # Same as random_vs_ai
-    "forfeit": 60                 # 30 seconds
+    "forfeit": 30                 # 30 seconds
 }
 
 class MatchScheduler:
@@ -21,6 +22,8 @@ class MatchScheduler:
         self.pool = pool
         self.PHASE_BREAK_DURATION = 1800  # 30 minutes
         self.MIN_BREAK_DURATION = 300     # 5 minutes
+        self.output_dir = TOURNAMENT_DIR / "schedules" / f"pool_{pool}"
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _classify_match(self, team1: str, team2: str, forfeit: Optional[Soldier]) -> str:
         """Determine match type based on teams and forfeit status."""
@@ -100,8 +103,7 @@ class MatchScheduler:
 ╔══════════════════════════════════════════════════════════════════════════════
 ║ PLANNING DES MATCHS - POOL {self.pool}
 ╠══════════════════════════════════════════════════════════════════════════════
-║ Format: [Heure] Team1 vs Team2 (Type - Durée)
-║ Notes: AI = équipe soumise, Random = équipe non soumise
+║ Format: [Heure] Team1 vs Team2 (Durée)
 ╟──────────────────────────────────────────────────────────────────────────────\n"""
 
         current_phase = None
@@ -118,7 +120,7 @@ class MatchScheduler:
 
             match_line = (f"║ [{start}-{end}] "
                          f"{match['team1']:20} vs {match['team2']:20} "
-                         f"({match['match_type']:13} - {duration:8})")
+                         f"({duration:8})")
             
             formatted.append(match_line + " ║\n")
 
@@ -128,6 +130,22 @@ class MatchScheduler:
     def export_to_excel(self, schedule: List[Dict], filename: str):
         """Export schedule to Excel with conditional formatting and styling."""
         from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+        # Préparer les données pour Excel en formatant les durées et garder match_type pour le style
+        schedule_for_excel = []
+        match_types = []  # Garder une liste séparée des types pour le style
+        for match in schedule:
+            match_dict = {
+                'round': match['round'],
+                'start_time': match['start_time'],
+                'end_time': match['end_time'],
+                'team1': match['team1'],
+                'team2': match['team2'],
+                'duration': f"{match['duration']//60:.0f}min {match['duration']%60:.0f}s",
+                'phase': match['phase']
+            }
+            schedule_for_excel.append(match_dict)
+            match_types.append(match['match_type'])  # Sauvegarder le type pour le style
 
         # Préparer les styles
         header_style = Font(bold=True, color='FFFFFF')
@@ -169,7 +187,7 @@ class MatchScheduler:
         }
 
         # Créer le DataFrame et l'exporter
-        df = pd.DataFrame(schedule)
+        df = pd.DataFrame(schedule_for_excel)
         with pd.ExcelWriter(filename, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Planning')
             worksheet = writer.sheets['Planning']
@@ -181,9 +199,9 @@ class MatchScheduler:
                 cell.alignment = header_alignment
                 cell.border = thin_border
 
-            # Appliquer les styles par type de match
+            # Appliquer les styles par type de match en utilisant la liste match_types
             for idx, row in enumerate(worksheet.iter_rows(min_row=2), start=2):
-                match_type = df.iloc[idx-2]['match_type']
+                match_type = match_types[idx-2]  # Utiliser la liste séparée
                 if match_type in match_styles:
                     fill, font = match_styles[match_type]
                     for cell in row:
@@ -262,17 +280,18 @@ def create_schedule(pool: str, start_hour: int = 13):
     schedule = scheduler.generate_schedule(start_time)
     formatted_schedule = scheduler.format_schedule(schedule)
     
-    # Save schedule to file
-    filename = f"schedule_pool_{pool}.txt"
-    with open(filename, "w", encoding="utf-8") as f:
+    # Save schedule to files in the pool directory
+    base_filename = scheduler.output_dir / "schedule"
+    
+    with open(f"{base_filename}.txt", "w", encoding="utf-8") as f:
         f.write(formatted_schedule)
     
-    print(f"\nSchedule saved to {filename}")
+    print(f"\nSchedule saved to {base_filename}.txt")
     print(formatted_schedule)
     
     # Save schedule to text file and generate Gantt
-    scheduler.export_to_excel(schedule, f"schedule_pool_{pool}.xlsx")
-    scheduler.generate_gantt(schedule, f"schedule_pool_{pool}.html")
+    scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
+    scheduler.generate_gantt(schedule, f"{base_filename}.html")
     
     return schedule
 
