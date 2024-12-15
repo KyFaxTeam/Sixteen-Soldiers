@@ -122,16 +122,20 @@ class TournamentManager:
 
     def record_match_result(self, stats=None):
         """Enregistre le résultat d'un match et met à jour le markdown"""
-        if not stats or not stats.get('winner'):
-            self.logger.error("Impossible d'enregistrer le match sans gagnant.")
+        if not stats:
+            self.logger.error("Impossible d'enregistrer le match sans statistiques.")
             return
         try:
             team1, team2, _ = self.matches[self.current_match_index]
-            loser = team2 if stats['winner'] == team1 else team1
-            print(f"\n✅ Enregistrement du match {self.current_match_index + 1}: {stats['winner']} vs {loser}")
+            # Gestion du cas match nul
+            if stats['winner'] == "draw":
+                print(f"\n✅ Enregistrement du match nul {self.current_match_index + 1}: {team1} vs {team2}")
+            else:
+                loser = team2 if stats['winner'] == team1 else team1
+                print(f"\n✅ Enregistrement du match {self.current_match_index + 1}: {stats['winner']} vs {loser}")
             
             if stats:
-                self._update_statistics(team1, team2, stats['winner'], stats)
+                self._update_statistics(team1, team2, stats)
             
             self.current_match_index += 1
             self._save_state()
@@ -140,7 +144,7 @@ class TournamentManager:
         except Exception as e:
             self.logger.error(f"Erreur lors de l'enregistrement du match: {str(e)}")
 
-    def _update_statistics(self, team1: str, team2: str, winner:str, stats: dict):
+    def _update_statistics(self, team1: str, team2: str, stats: dict):
         css_style = """<style>
             .tournament-stats {
                 font-family: 'Segoe UI', system-ui, sans-serif;
@@ -224,7 +228,7 @@ class TournamentManager:
             'phase': self.current_phase,
             'team_a': team1,
             'team_b': team2,
-            'winner': winner,
+            'winner': stats['winner'],
             'pieces_a': stats['pieces_a'],
             'pieces_b': stats['pieces_b'],
             'moves_a': stats['moves_a'],
@@ -296,7 +300,7 @@ class TournamentManager:
                         'phase': current_phase or "ALLER",  # Utiliser ALLER par défaut si pas de phase
                         'team_a': parts[1],
                         'team_b': parts[2],
-                        'winner': parts[3],
+                        'winner': "draw" if parts[3].lower() == "draw" else parts[3],  # Gestion explicite du match nul
                         'pieces_a': int(pieces[0]),
                         'pieces_b': int(pieces[1]),
                         'moves_a': int(moves[0]),

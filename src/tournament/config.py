@@ -38,7 +38,9 @@ TEAMS = [
     "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
 ]
 
-SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "IFRI", "Némésis"]
+SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "IFRI", "Némésis", 
+                   "Blacknight01", "AIverse", "BOÏZ", "Eriatech", "Les sisters", 
+                    "Limitless Nexus", "Turk_3.0"]
 
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""

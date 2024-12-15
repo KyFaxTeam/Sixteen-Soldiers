@@ -2,7 +2,7 @@ from itertools import combinations
 from collections import defaultdict
 from typing import Dict, List, Tuple, Set
 import random
-from .config import TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED, FORFEIT_TEAMS
+from config import TOURNAMENT_DIR, POOLS, NUM_POOLS, RANDOM_SEED, FORFEIT_TEAMS
 
 # Set random seed at module level
 random.seed(RANDOM_SEED)
