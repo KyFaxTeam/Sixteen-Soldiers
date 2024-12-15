@@ -57,14 +57,35 @@ class AfterGameView(ctk.CTkToplevel):
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
 
-        reason_label = ctk.CTkLabel(
-            self,
-            text=f"Reason: {reason}",
-            font=("Helvetica",14)
+        # reason_label = ctk.CTkLabel(
+        #     self,
+        #     text=f"Reason: {reason}",
+        #     font=("Helvetica",14)
+        # )
+        # # if reason:
+        # #     print(f'Reason: {reason}')
+        # reason_label.place(relx=0.075, rely=0.675)
+
+        # Reason label with "Reason" in blue
+        reason_frame = ctk.CTkFrame(self, fg_color="transparent")  # Use a transparent frame to group labels
+        reason_frame.place(relx=0.075, rely=0.675)
+
+        # "Reason:" in blue
+        reason_label_prefix = ctk.CTkLabel(
+            reason_frame,
+            text="Reason:",
+            font=("Helvetica", 14),
+            text_color="#7F00FF"
         )
-        # if reason:
-        #     print(f'Reason: {reason}')
-        reason_label.place(relx=0.075, rely=0.675)
+        reason_label_prefix.pack(side="left")
+
+        # The actual reason text
+        reason_label_text = ctk.CTkLabel(
+            reason_frame,
+            text=f" {reason}",
+            font=("Helvetica", 14)
+        )
+        reason_label_text.pack(side="left")
 
         # Bottom frame for time, restart button, moves and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
