@@ -587,7 +587,7 @@ class TournamentManager:
             content.append(
                 f"| {team['position']} | {team['team']} | {team['points']} | {team['margin']} | "
                 f"{team['matches']} | {team['wins']} | {team['draws']} | {team['losses']} | "
-                f"{team['avg_moves']:.2f} | {team['avg_time']:.2f} |"
+                f"{team['avg_moves']:.2f} | {team['avg_time']:.f} |"
             )
 
         content.extend([
