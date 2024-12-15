@@ -458,7 +458,7 @@ class MainView(BaseView):
                     show_popup(
                         "Fin de la phase ALLER\nDébut de la phase RETOUR",
                         "Transition de phase",
-                        duration=600*1000,  # 15 secondes de pause
+                        duration=600*1000,  # 10 minutes
                         modal=True
                     )
                     self.retour_popup_shown = True

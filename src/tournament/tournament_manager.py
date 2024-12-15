@@ -8,10 +8,10 @@ from datetime import datetime
 from src.utils.const import Soldier
 
 class TournamentManager:
-    def __init__(self, store):
+    def __init__(self, store, current_pool=CURRENT_POOL):
         self.store = store
         self.matches = []  # Liste unique de tous les matchs
-        self.current_pool = CURRENT_POOL
+        self.current_pool = current_pool
         self.teams_mapping = TEAMS_MAPPING
         self.current_phase = "ALLER"  # Par défaut
         self.current_match_index = 0  # Commencer à 0 directement
@@ -428,19 +428,27 @@ class TournamentManager:
 
         if not self.ranking_file.exists():
             self._initialize_ranking_file(css_style)
-        
+
+        # print('********************************************* An error not occurs here')
         # Lire le classement existant
         with open(self.ranking_file, 'r', encoding='utf-8') as f:
             content = f.read()
             teams_ranking = self._parse_existing_ranking(content)
 
+        # print('********************************************* Parse existing ranking is correct')
+        
         # Mettre à jour le classement
         teams_ranking = self._update_team_ranking(teams_ranking, latest_match)
+
+        # print('********************************************* Teams ranking is correct : ', teams_ranking)
 
         # Générer et sauvegarder le nouveau classement avec les positions déjà mises à jour
         ranking_content = self._generate_ranking_table(teams_ranking, css_style)
         with open(self.ranking_file, 'w', encoding='utf-8') as f:
             f.write(ranking_content)
+
+        # print('********************************************* All Ranking content is correct')
+        
 
     def _initialize_ranking_file(self, css_style: str):
         """Initialise le fichier de statistiques avec la structure de base."""
@@ -587,7 +595,7 @@ class TournamentManager:
             content.append(
                 f"| {team['position']} | {team['team']} | {team['points']} | {team['margin']} | "
                 f"{team['matches']} | {team['wins']} | {team['draws']} | {team['losses']} | "
-                f"{team['avg_moves']:.2f} | {team['avg_time']:.f} |"
+                f"{team['avg_moves']:.2f} | {team['avg_time']:.2f} |"
             )
 
         content.extend([
