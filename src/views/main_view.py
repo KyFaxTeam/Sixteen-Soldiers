@@ -388,6 +388,13 @@ class MainView(BaseView):
         delay = self._calculate_next_match_delay()
         self.master.after(delay, self._prepare_next_match)
 
+    def _format_time(self, seconds: float) -> str:
+        """Formate le temps en minutes et secondes."""
+        td = timedelta(seconds=seconds)
+        minutes = td.seconds // 60
+        seconds = td.seconds % 60
+        return f"{minutes:02d}min {seconds:02d}s"
+
     def _calculate_next_match_delay(self) -> int:
         """Calcule le délai avant le prochain match en millisecondes."""
         if self.store.get_state().get("reason") == "forfeit":
@@ -402,14 +409,14 @@ class MainView(BaseView):
         # Mettre à jour les statistiques de temps pour ce type de match
         self.estimation_times[match_type][0] += elapsed.total_seconds()
         self.estimation_times[match_type][1] += 1
-        avg_time = self.estimation_times[match_type][0] / self.estimation_times[match_type][1]
+        avg_seconds = self.estimation_times[match_type][0] / self.estimation_times[match_type][1]
         
-        print(f"\nTemps moyen {match_type}: {avg_time:.2f} secondes")
+        print(f"\nTemps moyen {match_type}: {self._format_time(avg_seconds)}")
         expected_duration = MATCH_DURATIONS[match_type]
         
         if elapsed < timedelta(seconds=expected_duration):
             remaining = (timedelta(seconds=expected_duration) - elapsed).total_seconds()
-            print(f"\nTemps restant d'attente: {int(remaining)} secondes...")
+            print(f"\nTemps restant d'attente: {self._format_time(remaining)}")
             return int(remaining * 1000)
         
         return 20000
