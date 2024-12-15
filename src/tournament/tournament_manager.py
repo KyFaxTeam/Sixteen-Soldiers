@@ -18,12 +18,12 @@ class TournamentManager:
         
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
-        self.results_file = TOURNAMENT_DIR / "results" / f"results_pool_{CURRENT_POOL}.md"
+        self.ranking_file = TOURNAMENT_DIR / "results" / f"ranking_pool_{CURRENT_POOL}.md"
         self.stats_file = TOURNAMENT_DIR / "results" / f"statistics_pool_{CURRENT_POOL}.md"
         
         # Créer les dossiers nécessaires
         self.state_file.parent.mkdir(exist_ok=True)
-        self.results_file.parent.mkdir(exist_ok=True)
+        self.ranking_file.parent.mkdir(exist_ok=True)
         
         # Charger ou initialiser l'état
         self._load_state()
@@ -133,18 +133,22 @@ class TournamentManager:
             else:
                 loser = team2 if stats['winner'] == team1 else team1
                 print(f"\n✅ Enregistrement du match {self.current_match_index + 1}: {stats['winner']} vs {loser}")
-            
+
+            latest_match = None
             if stats:
-                self._update_statistics(team1, team2, stats)
+                latest_match = self._update_statistics(team1, team2, stats)
             
             self.current_match_index += 1
             self._save_state()
-            self._update_markdown()
             
+            if latest_match: 
+                # print(f"\n📊 Mise à jour du classement... : ", latest_match)
+                self._update_ranking(latest_match)
+
         except Exception as e:
             self.logger.error(f"Erreur lors de l'enregistrement du match: {str(e)}")
 
-    def _update_statistics(self, team1: str, team2: str, stats: dict):
+    def _update_statistics(self, team1: str, team2: str, stats: dict) -> dict:
         css_style = """<style>
             .tournament-stats {
                 font-family: 'Segoe UI', system-ui, sans-serif;
@@ -245,6 +249,8 @@ class TournamentManager:
         # Sauvegarder le fichier mis à jour
         with open(self.stats_file, 'w', encoding='utf-8') as f:
             f.write(updated_content)
+
+        return new_match
 
     def _initialize_statistics_file(self, css_style: str):
         """Initialise le fichier de statistiques avec la structure de base."""
@@ -356,85 +362,240 @@ class TournamentManager:
         ])
         
         return '\n'.join(content)
- 
-    def _update_markdown(self) -> None:
-        """
-        Updates the tournament markdown file with the ranking and match results.
 
+
+    def _update_ranking(self, latest_match: dict) -> None:
+        """Met à jour le classement des équipes et génère un fichier markdown stylisé en vert."""
+        # Définition du style CSS avec des éléments en vert
+        css_style = """<style>
+            .tournament-ranking {
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                max-width: 1200px;
+                margin: 2em auto;
+                padding: 0 1em;
+                color: rgb(232, 238, 231);
+            }
+            .ranking-header {
+                background: #327035;
+                color: white;
+                padding: 0.8em;
+                margin: 1.2em 0;
+                font-weight: 600;
+                border-radius: 4px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1em 0;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                border: 1px solid #c6c6c6;
+            }
+            th, td {
+                padding: 12px;
+                text-align: left;
+                border: 1px solid #c6c6c6;
+            }
+            th {
+                background: #70ad47;
+                color: white;
+                font-weight: 600;
+                position: sticky;
+                top: 0;
+            }
+            tr { background: white; color: #333333;}
+            tr:nth-child(even) { background: #e2efda; color: #333333; }
+            tr:hover {
+                background: #c5e0b4;
+                color: #285227;
+                font-weight: 500;
+            }
+            td:hover {
+                background: #a9d08e;
+                color: #285227;
+                font-weight: 600;
+            }
+            td:nth-child(4),
+            td:nth-child(5),
+            td:nth-child(6),
+            td:nth-child(7),
+            td:nth-child(8),
+            td:nth-child(9),
+            td:nth-child(10) {
+                text-align: right;
+                font-family: 'Consolas', monospace;
+            }
+        </style>"""
+
+        if not self.ranking_file.exists():
+            self._initialize_ranking_file(css_style)
+        
+        # Lire le classement existant
+        with open(self.ranking_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+            teams_ranking = self._parse_existing_ranking(content)
+
+        # Mettre à jour le classement
+        teams_ranking = self._update_team_ranking(teams_ranking, latest_match)
+
+        # Générer et sauvegarder le nouveau classement avec les positions déjà mises à jour
+        ranking_content = self._generate_ranking_table(teams_ranking, css_style)
+        with open(self.ranking_file, 'w', encoding='utf-8') as f:
+            f.write(ranking_content)
+
+    def _initialize_ranking_file(self, css_style: str):
+        """Initialise le fichier de statistiques avec la structure de base."""
+        initial_content = f"{css_style}\n<div class='tournament-ranking'>\n\n"
+        initial_content += f"# Classement du Tournoi - Pool {self.current_pool}\n\n"
+        # initial_content += "## Résumé\n\n"
+        initial_content += "_Aucune donnée disponible_\n\n"
+        initial_content += "## Classement Final\n\n"
+        
+        with open(self.ranking_file, 'w', encoding='utf-8') as f:
+            f.write(initial_content)
+
+    def _parse_existing_ranking(self, content: str) -> list:
+        """
+        Parse le contenu existant du fichier de classement pour extraire les données des équipes.
+        
         Args:
-            winner (str): Name of the winning team.
-            loser (str): Name of the losing team.
-            moves (int): Number of moves played in the match.
-            forfeit (bool): Whether the match ended in a forfeit.
+            content (str): Contenu du fichier markdown
+            
+        Returns:
+            list: Liste des équipes existantes avec leurs statistiques
         """
-        # Step 1: Update team statistics
-        state = self.store.get_state()
-        agents = state.get("agents", {})
-        team_stats = {}
-        for agent_id, agent in agents.items():
-            team_name = agent_id.rsplit('_', 1)[0]
-            if team_name not in team_stats:
-                team_stats[team_name] = {
-                    "points": 0,
-                    "margin": 0,
-                    "matches": 0,
-                    "wins": 0,
-                    "draws": 0,
-                    "losses": 0,
-                    "time_total":0,
-                    "moves_total": 0,
-                }
-            for perf in agent.get("performances", []):
-                if perf["issue"] == "win":
-                    team_stats[team_name]["wins"] += 1
-                    team_stats[team_name]["points"] += 3
-                elif perf["issue"] == "draw":
-                    team_stats[team_name]["draws"] += 1
-                    team_stats[team_name]["points"] += 1
-                else:  # loss
-                    team_stats[team_name]["losses"] += 1
-                team_stats[team_name]["matches"] += 1
-                team_stats[team_name]["moves_total"] += perf["number_of_moves"]
-                team_stats[team_name]["time_total"] += 500 - int(perf["time"]*1000)
-                team_stats[team_name]["margin"] += perf["margin"]
+        teams_ranking = []
+        
+        # Diviser le contenu en lignes
+        lines = content.split('\n')
+        
+        for line in lines:
+            # Ignorer les lignes qui ne sont pas des données d'équipe
+            if not line.startswith('|') or '---' in line:
+                continue
+                
+            # Parser les lignes de données
+            try:
+                parts = [part.strip() for part in line.split('|')[1:-1]]
+                if len(parts) >= 10:  # Vérifier qu'on a assez de colonnes
+                    # Créer l'entrée de l'équipe
+                    team = {
+                        'position': int(parts[0]),
+                        'team': parts[1],
+                        'points': int(parts[2]),
+                        'margin': int(parts[3]),
+                        'matches': int(parts[4]),
+                        'wins': int(parts[5]),
+                        'draws': int(parts[6]),
+                        'losses': int(parts[7]),
+                        'avg_moves': float(parts[8]),
+                        'avg_time': float(parts[9])
+                    }
+                    teams_ranking.append(team)
+            except (IndexError, ValueError) as e:
+                print(f"Erreur lors du parsing de la ligne: {line}")
+                print(f"Erreur détaillée: {str(e)}")
+                continue
+        
+        return teams_ranking
+    
+    def _update_team_ranking(self, teams_ranking: list, latest_match: dict) -> list:
+        """Met à jour le classement des équipes avec les résultats du dernier match."""
+        team_a = latest_match['team_a']
+        team_b = latest_match['team_b']
+        
+        # Fonction helper pour initialiser une nouvelle équipe
+        def create_new_team(team_name):
+            return {
+                'team': team_name,
+                'points': 0,
+                'margin': 0,
+                'matches': 0,
+                'wins': 0,
+                'draws': 0,
+                'losses': 0,
+                'avg_moves': 0,
+                'avg_time': 0
+            }
 
-        # Step 2: Generate ranking markdown
-        ranking_report = self._generate_ranking_markdown(team_stats)
+        # Récupérer ou créer les stats des équipes
+        team_a_stats = next((team for team in teams_ranking if team['team'] == team_a), create_new_team(team_a))
+        team_b_stats = next((team for team in teams_ranking if team['team'] == team_b), create_new_team(team_b))
 
-       
-        # Step 4: Combine rankings and match results into the markdown file
-        final_content = (
-            f"# Tournament Results - Pool {self.current_pool}\n\n"
-            f"## Rankings\n\n{ranking_report}\n\n"
-            + f"\n\n_Last updated: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}_\n"
-        )
+        # Mettre à jour les statistiques du match
+        for team_stats, team_role in [(team_a_stats, 'a'), (team_b_stats, 'b')]:
 
-        # Write to the markdown file
-        with open(self.results_file, 'w', encoding='utf-8') as f:
-            f.write(final_content)
+            # Incrémenter le nombre de matches
+            team_stats['matches'] += 1
+            
+            # Mettre à jour les points et résultats
+            if latest_match['winner'] == team_stats['team']:
+                team_stats['wins'] += 1
+                team_stats['points'] += 3
+            elif latest_match['winner'] == 'draw':
+                team_stats['draws'] += 1
+                team_stats['points'] += 1
+            else:
+                team_stats['losses'] += 1
 
-    def _generate_ranking_markdown(self, team_stats):
-        """Generates the rankings markdown."""
-        report = [
-            "| Position | équipe     | Points | Marge | Matches | V | N | D | Moy. Coups | Moy. Temps |",
-            "|----------|------------|--------|-------|---------|---|---|---|------------|------------|",
+            # Calculer la marge
+            pieces_diff = latest_match[f'pieces_{team_role}'] - latest_match[f'pieces_{"b" if team_role == "a" else "a"}']
+            team_stats['margin'] += pieces_diff
+
+            # Mettre à jour les moyennes de coups et de temps
+            current_moves = team_stats['avg_moves'] * (team_stats['matches'] - 1)
+            new_moves = latest_match[f'moves_{team_role}']
+            team_stats['avg_moves'] = (current_moves + new_moves) / team_stats['matches']
+
+            current_time = team_stats['avg_time'] * (team_stats['matches'] - 1)
+            new_time = latest_match[f'time_{team_role}']
+            team_stats['avg_time'] = (current_time + new_time) / team_stats['matches']
+
+
+            # Ajouter l'équipe au classement si elle n'y est pas déjà
+            if team_stats not in teams_ranking:
+                teams_ranking.append(team_stats)
+
+        # Trier le classement
+        teams_ranking.sort(key=lambda x: (
+            x['points'],           # D'abord par points
+            x['wins'],            # Puis par nombre de victoires
+            x['margin'],          # Puis par marge
+            -x['avg_time']        # Puis par temps moyen (moins c'est mieux)
+            -x['avg_moves'],      # Puis par moyenne de coups (moins c'est mieux)
+        ), reverse=True)
+
+        # Mettre à jour les positions après le tri
+        for i, team in enumerate(teams_ranking, 1):
+            team['position'] = i
+
+        return teams_ranking
+    
+    def _generate_ranking_table(self, teams_ranking: list, css_style: str) -> str:
+        """
+        Génère le contenu du fichier de classement.
+        """
+        content = [
+            css_style,
+            "<div class='tournament-ranking'>",
+            f"\n# Classement du Tournoi - Pool {self.current_pool}\n",
+            "| Position | Équipe | Points | Marge | Matches | V | N | D | Moy. Coups | Moy. Temps |",
+            "|----------|--------|--------|--------|---------|---|---|---|------------|------------|"
         ]
 
-        # Sort teams by points and wins
-        sorted_teams = sorted(
-            team_stats.items(),
-            key=lambda x: (x[1]["points"], x[1]["wins"], x[1]["margin"]),
-            reverse=True,
-        )
-
-        for pos, (team, stats) in enumerate(sorted_teams, 1):
-            avg_moves = stats["moves_total"] / stats["matches"] if stats["matches"] > 0 else 0
-            avg_time = stats["time_total"] / stats["matches"] if stats["matches"] > 0 else 0
-            report.append(
-                f"| {pos} | {team} | {stats['points']} | {stats['margin']} | {stats['matches']} | "
-                f"{stats['wins']} | {stats['draws']} | {stats['losses']} | {avg_moves:.1f} | {avg_time:.1f} |"
+        # Utiliser directement la position stockée dans chaque équipe
+        for team in teams_ranking:
+            content.append(
+                f"| {team['position']} | {team['team']} | {team['points']} | {team['margin']} | "
+                f"{team['matches']} | {team['wins']} | {team['draws']} | {team['losses']} | "
+                f"{team['avg_moves']:.2f} | {team['avg_time']:.2f} |"
             )
 
-        return "\n".join(report)
+        content.extend([
+            "\n\n_Dernière mise à jour : " + datetime.now().strftime('%d/%m/%Y %H:%M:%S') + "_",
+            "</div>"
+        ])
+
+        return '\n'.join(content)
+
 
 
