@@ -21,10 +21,10 @@ INITIAL_POOLS = {
 CURRENT_POOL = 'C'
 
 MATCH_DURATIONS = {
-    "random_vs_random": 300 + 60,  # ~6 minutes
-    "ai_vs_ai": 90 + 60,          # ~2.5 minutes
-    "random_vs_ai": 90 + 60,      # Using same duration as ai_vs_ai
-    "ai_vs_random": 90 + 60,      # Same as random_vs_ai
+    "random_vs_random": 300 + 90,  # ~6.5 minutes
+    "ai_vs_ai": 120 + 60,          # ~2.5 minutes
+    "random_vs_ai": 120 + 60,      # Using same duration as ai_vs_ai
+    "ai_vs_random": 120 + 60,      # Same as random_vs_ai
     "forfeit": 30                 # 30 seconds
 }
 
