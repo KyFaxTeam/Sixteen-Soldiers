@@ -57,10 +57,8 @@ class GameBoard(BaseView):
         # Get resolution of the screen
 
         screen_info = screeninfo.get_monitors()[0]
-        
-        
+    
         screen_height = screen_info.height
-        
 
         # Calculer le self.GAP_ en fonction de la résolution de l'écran
         self.GAP_ = int(screen_height /12)

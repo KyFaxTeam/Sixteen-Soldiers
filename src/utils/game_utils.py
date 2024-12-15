@@ -138,6 +138,7 @@ class GameRunner:
         """Run a game between two AI agents"""
        
         timeout = {"RED": False, "BLUE": False}
+        winner, reason = None, None
         while not self.store.get_state().get("is_game_over", False) and not self.store.get_state().get("is_game_leaved", False):
             
             while self.store.get_state().get("is_game_paused", False):
@@ -187,7 +188,14 @@ class GameRunner:
                     board_copy = deepcopy(board)
                     
                     start_time = time.perf_counter()
-                    action = current_agent.choose_action(board=board_copy)
+                    try:
+                        action = current_agent.choose_action(board=board_copy)
+                    except Exception as e:
+                        self.logger.error(f'Error while choosing action: {e}')
+                        reason = 'crash'
+                        winner = opponent_agent.soldier_value
+                        # print('********', winner, reason)
+                        break
                     elapsed_time = time.perf_counter() - start_time
 
                 if not is_valid_move(action, current_state["board"]) and action not in valid_actions:
@@ -251,6 +259,7 @@ class GameRunner:
         if self.store.get_state().get("is_game_leaved"):
             self.logger.info("Game was left")
         else :
+
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
        
