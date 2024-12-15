@@ -21,7 +21,6 @@ class Agent(BaseAgent):
         Returns:
             Randomly chosen valid action for the soldier_value
         """
-        z = board.ff
         valid_actions = board.get_valid_actions()
         
         return random.choice(valid_actions)
