@@ -3,7 +3,7 @@ import plotly.figure_factory as ff
 import pandas as pd
 from datetime import datetime, timedelta
 from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR
+from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
 from typing import List, Dict, Tuple, Optional
 from src.utils.const import Soldier
 
@@ -15,12 +15,13 @@ MATCH_DURATIONS = {
     "forfeit": 30                 # 30 seconds
 }
 
+
 class MatchScheduler:
     def __init__(self, pool: str):
         self.tournament = TournamentManager(None)  # Just to get matches
         self.matches = self.tournament.matches
         self.pool = pool
-        self.PHASE_BREAK_DURATION = 1800  # 30 minutes
+        self.PHASE_BREAK_DURATION = 600  # 15 minutes
         self.MIN_BREAK_DURATION = 300     # 5 minutes
         self.output_dir = TOURNAMENT_DIR / "schedules" / f"pool_{pool}"
         self.output_dir.mkdir(parents=True, exist_ok=True)

@@ -47,7 +47,7 @@ class GameRunner:
 
     def cleanup(self, level='full'):
         """Nettoie l'état du GameRunner"""
-        self.logger.info(f"Cleaning up GameRunner (level: {level})")
+        #self.logger.info(f"Cleaning up GameRunner (level: {level})")
         
         # Toujours nettoyer ces éléments
         self.game_data = None
@@ -58,7 +58,7 @@ class GameRunner:
         # Nettoyer le mode uniquement lors d'un cleanup complet
         if level == 'full':
             self.game_mode = None
-            self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
+            #self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
 
     def set_mode(self, mode: str, data=None):
         """Configure le mode de jeu (replay ou nouveau jeu)"""
