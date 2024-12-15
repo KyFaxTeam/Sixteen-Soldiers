@@ -205,7 +205,7 @@ class MainView(BaseView):
                 save_game(self.store.get_state())  # Save the game
                 button.configure(text="Saved", state="disabled")  # Update button text and disable it
                 self.logger.info("Game successfully saved.")
-                show_popup("Game successfully saved", "Success", "info")
+                # show_popup("Game successfully saved", "Success", "info")
             except Exception as e:
                 self.logger.error(f"An error occurred while saving the game: {e}")
 
