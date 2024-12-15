@@ -18,7 +18,7 @@ MATCH_DURATIONS = {
 
 class MatchScheduler:
     def __init__(self, pool: str):
-        self.tournament = TournamentManager(None)  # Just to get matches
+        self.tournament = TournamentManager(None, current_pool=pool)  # Just to get matches
         self.matches = self.tournament.matches
         self.pool = pool
         self.PHASE_BREAK_DURATION = 600  # 15 minutes

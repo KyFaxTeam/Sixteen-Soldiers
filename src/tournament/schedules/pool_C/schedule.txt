@@ -36,10 +36,10 @@
 ║ [16:04:00-16:06:30] EL-LINE              vs Eriatech             (2min 30s) ║
 
 ║ ============================== PHASE PAUSE ===============================║
-║ [16:06:30-16:36:30] PAUSE ENTRE PHASES   vs                      (30min 0s) ║
+║ [16:06:30-16:16:30] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
 
 ║ ============================== PHASE RETOUR ==============================║
-║ [16:36:30-16:42:30] EL-LINE              vs Dream team           (6min 0s ) ║
+║ [16:16:30-16:22:30] EL-LINE              vs Dream team           (6min 0s ) ║
 ║ [16:12:30-16:13:00] KACW                 vs Black Witches        (0min 30s) ║
 ║ [16:13:00-16:15:30] Python Trident       vs IFRI                 (2min 30s) ║
 ║ [16:15:30-16:18:00] Eriatech             vs BOÏZ                 (2min 30s) ║

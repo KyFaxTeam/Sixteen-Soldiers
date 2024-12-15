@@ -6,65 +6,65 @@
 ╟──────────────────────────────────────────────────────────────────────────────
 
 ║ ============================== PHASE ALLER ===============================║
-║ [15:00:00-15:06:00] Dream team           vs EL-LINE              (6min 0s ) ║
-║ [15:06:00-15:06:30] Black Witches        vs KACW                 (0min 30s) ║
-║ [15:06:30-15:09:00] IFRI                 vs Python Trident       (2min 30s) ║
-║ [15:09:00-15:11:30] BOÏZ                 vs Eriatech             (2min 30s) ║
-║ [15:11:30-15:14:00] EL-LINE              vs KACW                 (2min 30s) ║
-║ [15:14:00-15:14:30] Black Witches        vs Dream team           (0min 30s) ║
-║ [15:14:30-15:17:00] BOÏZ                 vs Python Trident       (2min 30s) ║
-║ [15:17:00-15:19:30] Eriatech             vs IFRI                 (2min 30s) ║
-║ [15:19:30-15:22:00] Dream team           vs KACW                 (2min 30s) ║
-║ [15:22:00-15:22:30] Black Witches        vs EL-LINE              (0min 30s) ║
-║ [15:22:30-15:25:00] Eriatech             vs Python Trident       (2min 30s) ║
-║ [15:25:00-15:27:30] BOÏZ                 vs IFRI                 (2min 30s) ║
-║ [15:27:30-15:30:00] Dream team           vs Eriatech             (2min 30s) ║
-║ [15:30:00-15:30:30] Black Witches        vs Python Trident       (0min 30s) ║
-║ [15:30:30-15:33:00] EL-LINE              vs IFRI                 (2min 30s) ║
-║ [15:33:00-15:35:30] BOÏZ                 vs KACW                 (2min 30s) ║
-║ [15:35:30-15:36:00] Black Witches        vs Eriatech             (0min 30s) ║
-║ [15:36:00-15:42:00] Dream team           vs Python Trident       (6min 0s ) ║
-║ [15:42:00-15:44:30] IFRI                 vs KACW                 (2min 30s) ║
-║ [15:44:30-15:47:00] BOÏZ                 vs EL-LINE              (2min 30s) ║
-║ [15:47:00-15:49:30] Eriatech             vs KACW                 (2min 30s) ║
-║ [15:49:30-15:52:00] Dream team           vs IFRI                 (2min 30s) ║
-║ [15:52:00-15:52:30] BOÏZ                 vs Black Witches        (0min 30s) ║
-║ [15:52:30-15:58:30] EL-LINE              vs Python Trident       (6min 0s ) ║
-║ [15:58:30-16:01:00] KACW                 vs Python Trident       (2min 30s) ║
-║ [16:01:00-16:01:30] Black Witches        vs IFRI                 (0min 30s) ║
-║ [16:01:30-16:04:00] BOÏZ                 vs Dream team           (2min 30s) ║
-║ [16:04:00-16:06:30] EL-LINE              vs Eriatech             (2min 30s) ║
+║ [15:00:00-15:02:30] Bee Light            vs Phil Kong            (2min 30s) ║
+║ [15:02:30-15:08:30] Questcoders          vs Vegapunk-Stella      (6min 0s ) ║
+║ [15:08:30-15:09:00] Mind Misters         vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:09:00-15:11:30] AIverse              vs Némésis              (2min 30s) ║
+║ [15:11:30-15:14:00] Bee Light            vs Vegapunk-Stella      (2min 30s) ║
+║ [15:14:00-15:20:00] Phil Kong            vs Questcoders          (6min 0s ) ║
+║ [15:20:00-15:22:30] AIverse              vs Mind Misters         (2min 30s) ║
+║ [15:22:30-15:23:00] Némésis              vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:23:00-15:29:00] Phil Kong            vs Vegapunk-Stella      (6min 0s ) ║
+║ [15:29:00-15:31:30] Bee Light            vs Questcoders          (2min 30s) ║
+║ [15:31:30-15:32:00] AIverse              vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:32:00-15:34:30] Mind Misters         vs Némésis              (2min 30s) ║
+║ [15:34:30-15:35:00] Phil Kong            vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:35:00-15:37:30] AIverse              vs Questcoders          (2min 30s) ║
+║ [15:37:30-15:40:00] Bee Light            vs Némésis              (2min 30s) ║
+║ [15:40:00-15:46:00] Mind Misters         vs Vegapunk-Stella      (6min 0s ) ║
+║ [15:46:00-15:46:30] Questcoders          vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:46:30-15:49:00] AIverse              vs Phil Kong            (2min 30s) ║
+║ [15:49:00-15:49:30] Bee Light            vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [15:49:30-15:52:00] Némésis              vs Vegapunk-Stella      (2min 30s) ║
+║ [15:52:00-15:58:00] Mind Misters         vs Questcoders          (6min 0s ) ║
+║ [15:58:00-16:00:30] AIverse              vs Bee Light            (2min 30s) ║
+║ [16:00:30-16:03:00] Némésis              vs Phil Kong            (2min 30s) ║
+║ [16:03:00-16:03:30] Vegapunk-Stella      vs 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       (0min 30s) ║
+║ [16:03:30-16:06:00] Bee Light            vs Mind Misters         (2min 30s) ║
+║ [16:06:00-16:08:30] Némésis              vs Questcoders          (2min 30s) ║
+║ [16:08:30-16:14:30] Mind Misters         vs Phil Kong            (6min 0s ) ║
+║ [16:14:30-16:17:00] AIverse              vs Vegapunk-Stella      (2min 30s) ║
 
 ║ ============================== PHASE PAUSE ===============================║
-║ [16:06:30-16:36:30] PAUSE ENTRE PHASES   vs                      (30min 0s) ║
+║ [16:17:00-16:27:00] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
 
 ║ ============================== PHASE RETOUR ==============================║
-║ [16:36:30-16:42:30] EL-LINE              vs Dream team           (6min 0s ) ║
-║ [16:12:30-16:13:00] KACW                 vs Black Witches        (0min 30s) ║
-║ [16:13:00-16:15:30] Python Trident       vs IFRI                 (2min 30s) ║
-║ [16:15:30-16:18:00] Eriatech             vs BOÏZ                 (2min 30s) ║
-║ [16:18:00-16:20:30] KACW                 vs EL-LINE              (2min 30s) ║
-║ [16:20:30-16:21:00] Dream team           vs Black Witches        (0min 30s) ║
-║ [16:21:00-16:23:30] Python Trident       vs BOÏZ                 (2min 30s) ║
-║ [16:23:30-16:26:00] IFRI                 vs Eriatech             (2min 30s) ║
-║ [16:26:00-16:28:30] KACW                 vs Dream team           (2min 30s) ║
-║ [16:28:30-16:29:00] EL-LINE              vs Black Witches        (0min 30s) ║
-║ [16:29:00-16:31:30] Python Trident       vs Eriatech             (2min 30s) ║
-║ [16:31:30-16:34:00] IFRI                 vs BOÏZ                 (2min 30s) ║
-║ [16:34:00-16:36:30] Eriatech             vs Dream team           (2min 30s) ║
-║ [16:36:30-16:37:00] Python Trident       vs Black Witches        (0min 30s) ║
-║ [16:37:00-16:39:30] IFRI                 vs EL-LINE              (2min 30s) ║
-║ [16:39:30-16:42:00] KACW                 vs BOÏZ                 (2min 30s) ║
-║ [16:42:00-16:42:30] Eriatech             vs Black Witches        (0min 30s) ║
-║ [16:42:30-16:48:30] Python Trident       vs Dream team           (6min 0s ) ║
-║ [16:48:30-16:51:00] KACW                 vs IFRI                 (2min 30s) ║
-║ [16:51:00-16:53:30] EL-LINE              vs BOÏZ                 (2min 30s) ║
-║ [16:53:30-16:56:00] KACW                 vs Eriatech             (2min 30s) ║
-║ [16:56:00-16:58:30] IFRI                 vs Dream team           (2min 30s) ║
-║ [16:58:30-16:59:00] Black Witches        vs BOÏZ                 (0min 30s) ║
-║ [16:59:00-17:05:00] Python Trident       vs EL-LINE              (6min 0s ) ║
-║ [17:05:00-17:07:30] Python Trident       vs KACW                 (2min 30s) ║
-║ [17:07:30-17:08:00] IFRI                 vs Black Witches        (0min 30s) ║
-║ [17:08:00-17:10:30] Dream team           vs BOÏZ                 (2min 30s) ║
-║ [17:10:30-17:13:00] Eriatech             vs EL-LINE              (2min 30s) ║
+║ [16:27:00-16:29:30] Phil Kong            vs Bee Light            (2min 30s) ║
+║ [16:19:30-16:25:30] Vegapunk-Stella      vs Questcoders          (6min 0s ) ║
+║ [16:25:30-16:26:00] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Mind Misters         (0min 30s) ║
+║ [16:26:00-16:28:30] Némésis              vs AIverse              (2min 30s) ║
+║ [16:28:30-16:31:00] Vegapunk-Stella      vs Bee Light            (2min 30s) ║
+║ [16:31:00-16:37:00] Questcoders          vs Phil Kong            (6min 0s ) ║
+║ [16:37:00-16:39:30] Mind Misters         vs AIverse              (2min 30s) ║
+║ [16:39:30-16:40:00] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Némésis              (0min 30s) ║
+║ [16:40:00-16:46:00] Vegapunk-Stella      vs Phil Kong            (6min 0s ) ║
+║ [16:46:00-16:48:30] Questcoders          vs Bee Light            (2min 30s) ║
+║ [16:48:30-16:49:00] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs AIverse              (0min 30s) ║
+║ [16:49:00-16:51:30] Némésis              vs Mind Misters         (2min 30s) ║
+║ [16:51:30-16:52:00] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Phil Kong            (0min 30s) ║
+║ [16:52:00-16:54:30] Questcoders          vs AIverse              (2min 30s) ║
+║ [16:54:30-16:57:00] Némésis              vs Bee Light            (2min 30s) ║
+║ [16:57:00-17:03:00] Vegapunk-Stella      vs Mind Misters         (6min 0s ) ║
+║ [17:03:00-17:03:30] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Questcoders          (0min 30s) ║
+║ [17:03:30-17:06:00] Phil Kong            vs AIverse              (2min 30s) ║
+║ [17:06:00-17:06:30] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Bee Light            (0min 30s) ║
+║ [17:06:30-17:09:00] Vegapunk-Stella      vs Némésis              (2min 30s) ║
+║ [17:09:00-17:15:00] Questcoders          vs Mind Misters         (6min 0s ) ║
+║ [17:15:00-17:17:30] Bee Light            vs AIverse              (2min 30s) ║
+║ [17:17:30-17:20:00] Phil Kong            vs Némésis              (2min 30s) ║
+║ [17:20:00-17:20:30] 🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️       vs Vegapunk-Stella      (0min 30s) ║
+║ [17:20:30-17:23:00] Mind Misters         vs Bee Light            (2min 30s) ║
+║ [17:23:00-17:25:30] Questcoders          vs Némésis              (2min 30s) ║
+║ [17:25:30-17:31:30] Phil Kong            vs Mind Misters         (6min 0s ) ║
+║ [17:31:30-17:34:00] Vegapunk-Stella      vs AIverse              (2min 30s) ║
 ╚══════════════════════════════════════════════════════════════════════════════

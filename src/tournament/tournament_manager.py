@@ -8,10 +8,10 @@ from datetime import datetime
 from src.utils.const import Soldier
 
 class TournamentManager:
-    def __init__(self, store):
+    def __init__(self, store, current_pool=CURRENT_POOL):
         self.store = store
         self.matches = []  # Liste unique de tous les matchs
-        self.current_pool = CURRENT_POOL
+        self.current_pool = current_pool
         self.teams_mapping = TEAMS_MAPPING
         self.current_phase = "ALLER"  # Par défaut
         self.current_match_index = 0  # Commencer à 0 directement
