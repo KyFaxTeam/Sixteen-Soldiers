@@ -28,6 +28,7 @@ class MainView(BaseView):
 
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
+        self.retour_popup_shown = False  # Nouvel attribut
         
         # Set window title
         self.master.title("Sixteen Soldiers")
@@ -205,7 +206,7 @@ class MainView(BaseView):
                 save_game(self.store.get_state())  # Save the game
                 button.configure(text="Saved", state="disabled")  # Update button text and disable it
                 self.logger.info("Game successfully saved.")
-                show_popup("Game successfully saved", "Success", "info")
+                # show_popup("Game successfully saved", "Success", "info")
             except Exception as e:
                 self.logger.error(f"An error occurred while saving the game: {e}")
 
@@ -458,17 +459,16 @@ class MainView(BaseView):
             # 3. Configurer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
-                
-                if self.tournament_manager.current_phase == "RETOUR":
+
+                if self.tournament_manager.current_phase == "RETOUR" and not self.retour_popup_shown:
+
                     show_popup(
                         "Fin de la phase ALLER\nDébut de la phase RETOUR",
                         "Transition de phase",
-                        duration=600*1000,  # 15 secondes de pause
+                        duration=600*1000,  # 10 minutes
                         modal=True
                     )
-                    # self.tournament_manager._initialize_matches()
-                    # self._prepare_next_match()
-                    
+                    self.retour_popup_shown = True
                     
                 if next_match["forfeit"]:
                     print(f"Équipe forfait: {next_match['forfeit']}")
@@ -546,3 +546,4 @@ class MainView(BaseView):
             show_popup(str(e), "Erreur de tournoi")
             self.tournament_mode = False
             self.return_to_home()
+ 
