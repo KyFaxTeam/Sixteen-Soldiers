@@ -18,7 +18,7 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'C'
+CURRENT_POOL = 'D'
 
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
