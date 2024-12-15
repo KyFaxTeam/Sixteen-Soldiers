@@ -28,7 +28,7 @@ class MainView(BaseView):
 
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
-        self.logger = logging.getLogger(__name__)
+        
         # Set window title
         self.master.title("Sixteen Soldiers")
         
@@ -270,12 +270,15 @@ class MainView(BaseView):
         """Gère la fin d'un match de tournoi."""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
+
             self.show_after_game_view()
+
             state = self.store.get_state()
+
             match_stats = self._compute_match_statistics(state)
-            self._record_match_results(match_stats)
-            
-            print("Yoooooooooooooooooooo")
+
+            self.tournament_manager.record_match_result(match_stats)
+
             self._schedule_next_match()
 
     def _validate_tournament_state(self) -> bool:
@@ -290,7 +293,6 @@ class MainView(BaseView):
             
         self.handling_tournament_end = True
         return True
-
 
     def _compute_match_statistics(self, state: dict) -> dict:
         """
@@ -323,7 +325,7 @@ class MainView(BaseView):
                     'performance': agent_data.get('performances', [])[-1] if agent_data.get('performances') else {}
                 }
 
-        print(f"\nDonnées des équipes extraites: {teams_data}")
+        # print(f"\nDonnées des équipes extraites: {teams_data}")
         
         return teams_data
 
@@ -357,14 +359,22 @@ class MainView(BaseView):
         team_a = teams_data['team_a']
         team_b = teams_data['team_b']
         
-        winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
-        loser = team_b['name'] if winner == team_a['name'] else team_a['name']
+        pieces_a = state.get("board").count_soldiers(team_a['soldier_value'])
+        pieces_b = state.get("board").count_soldiers(team_b['soldier_value'])
+        
+        # Déterminer le gagnant et le perdant (ou match nul)
+        if state.get("reason") == "draw":
+            winner = "draw"
+            loser = "draw"
+        else:
+            winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
+            loser = team_b['name'] if winner == team_a['name'] else team_a['name']
         
         return {
             'winner': winner,
             'loser': loser,
-            'pieces_a': state.get("board").count_soldiers(team_a['soldier_value']),
-            'pieces_b': state.get("board").count_soldiers(team_b['soldier_value']),
+            'pieces_a': pieces_a,
+            'pieces_b': pieces_b,
             'moves_a': team_a['performance'].get('number_of_moves', 0),
             'moves_b': team_b['performance'].get('number_of_moves', 0),
             'time_a': team_a['performance'].get('time', 0),
@@ -372,9 +382,6 @@ class MainView(BaseView):
             'reason': state.get('reason', None),
         }
 
-    def _record_match_results(self, stats: dict):
-        """Enregistre les résultats du match dans le gestionnaire de tournoi."""
-        self.tournament_manager.record_match_result(stats)
 
     def _schedule_next_match(self):
         """Programme le prochain match avec le délai approprié."""
@@ -384,12 +391,13 @@ class MainView(BaseView):
     def _calculate_next_match_delay(self) -> int:
         """Calcule le délai avant le prochain match en millisecondes."""
         if self.store.get_state().get("reason") == "forfeit":
-            return 20000
+            return 30000
             
         elapsed = datetime.now() - self.match_start_time
-        
-        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index]
+        # on a déjà record_match_result donc on fera -1 spécialement ici
+        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index - 1]
 
+        print("Teams:", team1, team2)
         if team1 in SUBMITTED_TEAMS and team2 in SUBMITTED_TEAMS:
             self.estimation_times["ai_vs_ai"][0] += elapsed.total_seconds()
             self.estimation_times["ai_vs_ai"][1] += 1  
@@ -406,11 +414,10 @@ class MainView(BaseView):
             print(f"\nTemps estimé Random vs Random: {self.estimation_times['random_vs_random'][0]/self.estimation_times['random_vs_random'][1]}")
 
         if elapsed < self.match_duration:
+            print(f"\n Temps restant d'attente: {int((self.match_duration - elapsed).total_seconds())} seconde...")
             return int((self.match_duration - elapsed).total_seconds() * 1000)
         
-        return 20000
-
- 
+        return 30000
 
     def _prepare_next_match(self):
         """Prépare le prochain match dans le bon ordre"""
@@ -441,12 +448,12 @@ class MainView(BaseView):
                     show_popup(
                         "Fin de la phase ALLER\nDébut de la phase RETOUR",
                         "Transition de phase",
-                        auto_close=True,
-                        duration=10000  # 10 secondes de pause
+                        duration=30000,  # 15 secondes de pause
+                        modal=True
                     )
-                    self.tournament_manager._initialize_matches()
-                    self._prepare_next_match()
-                    return
+                    # self.tournament_manager._initialize_matches()
+                    # self._prepare_next_match()
+                    
                     
                 if next_match["forfeit"]:
                     print(f"Équipe forfait: {next_match['forfeit']}")
@@ -463,6 +470,7 @@ class MainView(BaseView):
                     self.match_start_time = datetime.now()
                     self.game_runner.start()
             else:
+
                 self.end_tournament()
 
         except Exception as e:
@@ -471,15 +479,15 @@ class MainView(BaseView):
 
     def _configure_match_agents(self, match_info):
         """Configure les agents pour le match"""
-        print("\n=== Configuration du match ===")
-        print(f"Match info: {match_info}")
+        # print("\n=== Configuration du match ===")
+        # print(f"Match info: {match_info}")
         
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Phase {match_info['phase']}")
         # ...existing code...
         
-        print("\nConfiguration des agents:")
+        
         for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
-            print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
+            # print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
             self.store.dispatch({
                 "type": "SELECT_AGENT",
                 "soldier_value": agent,
@@ -488,7 +496,7 @@ class MainView(BaseView):
         
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
         print(f"{match_info['red_agent']} vs {match_info['blue_agent']}")
-        print("Configuration du match terminée\n")
+       
 
         return 
 
@@ -515,16 +523,11 @@ class MainView(BaseView):
             self.handling_tournament_end = False
             
             if len(self.tournament_manager.matches) == 0:
-                raise ValueError("Aucun match trouvé pour cette pool")
-            
-            self._prepare_match()
+                self.logger.error("No matches found in the tournament manager")
+            self._prepare_next_match()
             
         except Exception as e:
             self.logger.error(f"Erreur lors du démarrage du tournoi: {e}")
             show_popup(str(e), "Erreur de tournoi")
             self.tournament_mode = False
             self.return_to_home()
-
-    def _prepare_match(self):
-        """Prépare le match actuel"""
-        self._prepare_next_match()  # Garder la compatibilité pour l'instant

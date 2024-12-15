@@ -8,3 +8,12 @@
 - revoir states pourquoi ça ne fasse déclencher le match suivant que si on a pas eu de problème avec l'actuel
 - pourquoi ne pas afficher les deux équipes sur le after_game_view
 - en mode normal, vérifier le changement effectif des ia
+
+- changer les reasons
+-gérer quand winner == None
+
+
+TODO Yanel :
+
+- Ajouter au niveau des stats la logique pour créer un nouveau tableau pour les matchs retour
+

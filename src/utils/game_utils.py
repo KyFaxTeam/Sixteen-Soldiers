@@ -11,21 +11,24 @@ from src.store.store import Store
 from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier
 from enum import Enum
 
-def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500):
+def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500, modal: bool = False):
     """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
     popup = CTkMessagebox(
         title=title,
         message=message,
         icon="info",
-        width=250,
-        height=150,
-        font=("Roboto", 12),
-        justify="center",
-        fade_in_duration=0.2,
+        width=300, 
+        height=250, 
+        option_1="OK",  # Un seul bouton par défaut
+        border_width=1,  # Bordure fine
+        font=("Roboto", 14, "bold"),  # Police en gras plus grande
     )
     
     if auto_close:
         popup.after(duration, popup.destroy)
+    
+    if modal:
+        popup.wait_window()
 
 class GameMode(Enum):
     REPLAY = 'replay'
@@ -55,8 +58,7 @@ class GameRunner:
         # Nettoyer le mode uniquement lors d'un cleanup complet
         if level == 'full':
             self.game_mode = None
-            
-        self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
+            self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
 
     def set_mode(self, mode: str, data=None):
         """Configure le mode de jeu (replay ou nouveau jeu)"""
@@ -239,11 +241,6 @@ class GameRunner:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
-                    print(f"\n=== Debug: Max moves without capture reached ===")
-                    print(f"Moves without capture: {self.moves_without_capture}")
-                    print(f"MAX_MOVES_WITHOUT_CAPTURE: {MAX_MOVES_WITHOUT_CAPTURE}")
-                    print(f"Red pieces: {red_pieces}")
-                    print(f"Blue pieces: {blue_pieces}")
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
                         print("Condition: Few pieces draw triggered")
@@ -302,7 +299,7 @@ class GameRunner:
             issue1, issue2 = 'loss', 'win'
         else:
             issue1, issue2 = 'draw', 'draw'
-            raise ValueError("Invalid winner value in _conclude_game")
+            self.logger.error(f"Invalid winner: {winner}")
             
         # S'assurer que la raison est toujours définie
         if not reason:
