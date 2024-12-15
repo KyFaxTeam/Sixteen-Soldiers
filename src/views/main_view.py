@@ -412,8 +412,6 @@ class MainView(BaseView):
         
         return 30000
 
- 
-
     def _prepare_next_match(self):
         """Prépare le prochain match dans le bon ordre"""
         try:
@@ -443,12 +441,12 @@ class MainView(BaseView):
                     show_popup(
                         "Fin de la phase ALLER\nDébut de la phase RETOUR",
                         "Transition de phase",
-                        auto_close=True,
-                        duration=10000  # 10 secondes de pause
+                        duration=30000,  # 15 secondes de pause
+                        modal=True
                     )
-                    self.tournament_manager._initialize_matches()
-                    self._prepare_next_match()
-                    return
+                    # self.tournament_manager._initialize_matches()
+                    # self._prepare_next_match()
+                    
                     
                 if next_match["forfeit"]:
                     print(f"Équipe forfait: {next_match['forfeit']}")
@@ -519,14 +517,10 @@ class MainView(BaseView):
             
             if len(self.tournament_manager.matches) == 0:
                 self.logger.error("No matches found in the tournament manager")
-            self._prepare_match()
+            self._prepare_next_match()
             
         except Exception as e:
             self.logger.error(f"Erreur lors du démarrage du tournoi: {e}")
             show_popup(str(e), "Erreur de tournoi")
             self.tournament_mode = False
             self.return_to_home()
-
-    def _prepare_match(self):
-        """Prépare le match actuel"""
-        self._prepare_next_match()  # Garder la compatibilité pour l'instant
