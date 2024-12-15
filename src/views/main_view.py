@@ -18,7 +18,7 @@ from src.views.Right_Column.setting_view import SettingsView
 from src.utils.game_utils import GameRunner, show_popup
 
 from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import SUBMITTED_TEAMS
+from src.tournament.config import MATCH_DURATIONS, SUBMITTED_TEAMS
 
 logger = logging.getLogger(__name__)
 class MainView(BaseView):
@@ -28,6 +28,7 @@ class MainView(BaseView):
 
         self.store :Store = store
         self.after_game_view = None  # Initialize the attribute to track the view
+        self.retour_popup_shown = False  # Nouvel attribut
         
         # Set window title
         self.master.title("Sixteen Soldiers")
@@ -80,9 +81,9 @@ class MainView(BaseView):
         self.match_start_time = None
         self.match_duration = timedelta(minutes=4)
         self.estimation_times = {
-            "random_vs_random" : [0, 0], 
-            "random_vs_ai" : [0, 0],
-            "ai_vs_ai" : [0, 0]
+            "random_vs_random" : [MATCH_DURATIONS["random_vs_random"], 0], 
+            "random_vs_ai" : [MATCH_DURATIONS["random_vs_ai"], 0],
+            "ai_vs_ai" : [MATCH_DURATIONS["ai_vs_ai"], 0]
         }
 
     def configure_main_view(self, game_data=None):
@@ -205,7 +206,7 @@ class MainView(BaseView):
                 save_game(self.store.get_state())  # Save the game
                 button.configure(text="Saved", state="disabled")  # Update button text and disable it
                 self.logger.info("Game successfully saved.")
-                show_popup("Game successfully saved", "Success", "info")
+                # show_popup("Game successfully saved", "Success", "info")
             except Exception as e:
                 self.logger.error(f"An error occurred while saving the game: {e}")
 
@@ -388,36 +389,50 @@ class MainView(BaseView):
         delay = self._calculate_next_match_delay()
         self.master.after(delay, self._prepare_next_match)
 
+    def _format_time(self, seconds: float) -> str:
+        """Formate le temps en minutes et secondes."""
+        td = timedelta(seconds=seconds)
+        minutes = td.seconds // 60
+        seconds = td.seconds % 60
+        return f"{minutes:02d}min {seconds:02d}s"
+
     def _calculate_next_match_delay(self) -> int:
         """Calcule le délai avant le prochain match en millisecondes."""
         if self.store.get_state().get("reason") == "forfeit":
-            return 30000
+            return MATCH_DURATIONS["forfeit"] * 1000
             
         elapsed = datetime.now() - self.match_start_time
-        # on a déjà record_match_result donc on fera -1 spécialement ici
         team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index - 1]
 
         print("Teams:", team1, team2)
-        if team1 in SUBMITTED_TEAMS and team2 in SUBMITTED_TEAMS:
-            self.estimation_times["ai_vs_ai"][0] += elapsed.total_seconds()
-            self.estimation_times["ai_vs_ai"][1] += 1  
-            print(f"\nTemps estimé AI vs AI: {self.estimation_times['ai_vs_ai'][0]/self.estimation_times['ai_vs_ai'][1]}")
+        match_type = self._get_match_type(team1, team2)
         
-        elif team1 in SUBMITTED_TEAMS or team2 in SUBMITTED_TEAMS:
-            self.estimation_times["random_vs_ai"][0] += elapsed.total_seconds()
-            self.estimation_times["random_vs_ai"][1] += 1 
-            print(f"\nTemps estimé Random vs AI: {self.estimation_times['random_vs_ai'][0]/self.estimation_times['random_vs_ai'][1]}")
+        # Mettre à jour les statistiques de temps pour ce type de match
+        self.estimation_times[match_type][0] += elapsed.total_seconds()
+        self.estimation_times[match_type][1] += 1
+        avg_seconds = self.estimation_times[match_type][0] / self.estimation_times[match_type][1]
         
-        else:
-            self.estimation_times["random_vs_random"][0] += elapsed.total_seconds()
-            self.estimation_times["random_vs_random"][1] += 1
-            print(f"\nTemps estimé Random vs Random: {self.estimation_times['random_vs_random'][0]/self.estimation_times['random_vs_random'][1]}")
+        print(f"\nTemps moyen {match_type}: {self._format_time(avg_seconds)}")
+        expected_duration = MATCH_DURATIONS[match_type]
+        
+        if elapsed < timedelta(seconds=expected_duration):
+            remaining = (timedelta(seconds=expected_duration) - elapsed).total_seconds()
+            print(f"\nTemps restant d'attente: {self._format_time(remaining)}")
+            return int(remaining * 1000)
+        
+        return 20000
 
-        if elapsed < self.match_duration:
-            print(f"\n Temps restant d'attente: {int((self.match_duration - elapsed).total_seconds())} seconde...")
-            return int((self.match_duration - elapsed).total_seconds() * 1000)
-        
-        return 30000
+    def _get_match_type(self, team1: str, team2: str) -> str:
+        """Détermine le type de match basé sur les équipes."""
+        team1_is_ai = team1 in SUBMITTED_TEAMS
+        team2_is_ai = team2 in SUBMITTED_TEAMS
+
+        if team1_is_ai and team2_is_ai:
+            return "ai_vs_ai"
+        elif team1_is_ai or team2_is_ai:
+            return "random_vs_ai"
+        else:
+            return "random_vs_random"
 
     def _prepare_next_match(self):
         """Prépare le prochain match dans le bon ordre"""
@@ -444,16 +459,16 @@ class MainView(BaseView):
             # 3. Configurer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
-                if self.tournament_manager.current_phase == "RETOUR":
+
+                if self.tournament_manager.current_phase == "RETOUR" and not self.retour_popup_shown:
+
                     show_popup(
                         "Fin de la phase ALLER\nDébut de la phase RETOUR",
                         "Transition de phase",
-                        duration=30000,  # 15 secondes de pause
+                        duration=600*1000,  # 10 minutes
                         modal=True
                     )
-                    # self.tournament_manager._initialize_matches()
-                    # self._prepare_next_match()
-                    
+                    self.retour_popup_shown = True
                     
                 if next_match["forfeit"]:
                     print(f"Équipe forfait: {next_match['forfeit']}")
@@ -531,3 +546,4 @@ class MainView(BaseView):
             show_popup(str(e), "Erreur de tournoi")
             self.tournament_mode = False
             self.return_to_home()
+ 

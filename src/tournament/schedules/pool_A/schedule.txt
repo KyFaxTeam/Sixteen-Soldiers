@@ -1,0 +1,70 @@
+
+╔══════════════════════════════════════════════════════════════════════════════
+║ PLANNING DES MATCHS - POOL A
+╠══════════════════════════════════════════════════════════════════════════════
+║ Format: [Heure] Team1 vs Team2 (Durée)
+╟──────────────────────────────────────────────────────────────────────────────
+
+║ ============================== PHASE ALLER ===============================║
+║ [15:00:00-15:03:00] JoLyCh               vs Les leaders          (3min 0s ) ║
+║ [15:03:00-15:03:30] Bandit binaire       vs Les sisters          (0min 30s) ║
+║ [15:03:30-15:06:30] Turk_3.0             vs gildasWebSite        (3min 0s ) ║
+║ [15:06:30-15:07:00] Avec l'IA            vs Limitless Nexus      (0min 30s) ║
+║ [15:07:00-15:10:00] Les leaders          vs Les sisters          (3min 0s ) ║
+║ [15:10:00-15:10:30] Bandit binaire       vs JoLyCh               (0min 30s) ║
+║ [15:10:30-15:13:30] Limitless Nexus      vs Turk_3.0             (3min 0s ) ║
+║ [15:13:30-15:14:00] Avec l'IA            vs gildasWebSite        (0min 30s) ║
+║ [15:14:00-15:17:00] JoLyCh               vs Les sisters          (3min 0s ) ║
+║ [15:17:00-15:17:30] Bandit binaire       vs Les leaders          (0min 30s) ║
+║ [15:17:30-15:20:30] Limitless Nexus      vs gildasWebSite        (3min 0s ) ║
+║ [15:20:30-15:21:00] Avec l'IA            vs Turk_3.0             (0min 30s) ║
+║ [15:21:00-15:24:00] JoLyCh               vs Limitless Nexus      (3min 0s ) ║
+║ [15:24:00-15:30:30] Les leaders          vs gildasWebSite        (6min 30s) ║
+║ [15:30:30-15:31:00] Avec l'IA            vs Bandit binaire       (0min 30s) ║
+║ [15:31:00-15:34:00] Les sisters          vs Turk_3.0             (3min 0s ) ║
+║ [15:34:00-15:37:00] Les leaders          vs Limitless Nexus      (3min 0s ) ║
+║ [15:37:00-15:37:30] Bandit binaire       vs gildasWebSite        (0min 30s) ║
+║ [15:37:30-15:40:30] JoLyCh               vs Turk_3.0             (3min 0s ) ║
+║ [15:40:30-15:41:00] Avec l'IA            vs Les sisters          (0min 30s) ║
+║ [15:41:00-15:44:00] Les leaders          vs Turk_3.0             (3min 0s ) ║
+║ [15:44:00-15:44:30] Bandit binaire       vs Limitless Nexus      (0min 30s) ║
+║ [15:44:30-15:47:30] JoLyCh               vs gildasWebSite        (3min 0s ) ║
+║ [15:47:30-15:50:30] Les sisters          vs Limitless Nexus      (3min 0s ) ║
+║ [15:50:30-15:51:00] Avec l'IA            vs Les leaders          (0min 30s) ║
+║ [15:51:00-15:54:00] Les sisters          vs gildasWebSite        (3min 0s ) ║
+║ [15:54:00-15:54:30] Bandit binaire       vs Turk_3.0             (0min 30s) ║
+║ [15:54:30-15:55:00] Avec l'IA            vs JoLyCh               (0min 30s) ║
+
+║ ============================== PHASE PAUSE ===============================║
+║ [15:55:00-16:05:00] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
+
+║ ============================== PHASE RETOUR ==============================║
+║ [16:05:00-16:08:00] Les leaders          vs JoLyCh               (3min 0s ) ║
+║ [15:58:00-15:58:30] Les sisters          vs Bandit binaire       (0min 30s) ║
+║ [15:58:30-16:01:30] gildasWebSite        vs Turk_3.0             (3min 0s ) ║
+║ [16:01:30-16:02:00] Limitless Nexus      vs Avec l'IA            (0min 30s) ║
+║ [16:02:00-16:05:00] Les sisters          vs Les leaders          (3min 0s ) ║
+║ [16:05:00-16:05:30] JoLyCh               vs Bandit binaire       (0min 30s) ║
+║ [16:05:30-16:08:30] Turk_3.0             vs Limitless Nexus      (3min 0s ) ║
+║ [16:08:30-16:09:00] gildasWebSite        vs Avec l'IA            (0min 30s) ║
+║ [16:09:00-16:12:00] Les sisters          vs JoLyCh               (3min 0s ) ║
+║ [16:12:00-16:12:30] Les leaders          vs Bandit binaire       (0min 30s) ║
+║ [16:12:30-16:15:30] gildasWebSite        vs Limitless Nexus      (3min 0s ) ║
+║ [16:15:30-16:16:00] Turk_3.0             vs Avec l'IA            (0min 30s) ║
+║ [16:16:00-16:19:00] Limitless Nexus      vs JoLyCh               (3min 0s ) ║
+║ [16:19:00-16:25:30] gildasWebSite        vs Les leaders          (6min 30s) ║
+║ [16:25:30-16:26:00] Bandit binaire       vs Avec l'IA            (0min 30s) ║
+║ [16:26:00-16:29:00] Turk_3.0             vs Les sisters          (3min 0s ) ║
+║ [16:29:00-16:32:00] Limitless Nexus      vs Les leaders          (3min 0s ) ║
+║ [16:32:00-16:32:30] gildasWebSite        vs Bandit binaire       (0min 30s) ║
+║ [16:32:30-16:35:30] Turk_3.0             vs JoLyCh               (3min 0s ) ║
+║ [16:35:30-16:36:00] Les sisters          vs Avec l'IA            (0min 30s) ║
+║ [16:36:00-16:39:00] Turk_3.0             vs Les leaders          (3min 0s ) ║
+║ [16:39:00-16:39:30] Limitless Nexus      vs Bandit binaire       (0min 30s) ║
+║ [16:39:30-16:42:30] gildasWebSite        vs JoLyCh               (3min 0s ) ║
+║ [16:42:30-16:45:30] Limitless Nexus      vs Les sisters          (3min 0s ) ║
+║ [16:45:30-16:46:00] Les leaders          vs Avec l'IA            (0min 30s) ║
+║ [16:46:00-16:49:00] gildasWebSite        vs Les sisters          (3min 0s ) ║
+║ [16:49:00-16:49:30] Turk_3.0             vs Bandit binaire       (0min 30s) ║
+║ [16:49:30-16:50:00] JoLyCh               vs Avec l'IA            (0min 30s) ║
+╚══════════════════════════════════════════════════════════════════════════════

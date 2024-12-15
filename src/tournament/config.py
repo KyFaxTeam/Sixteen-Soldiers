@@ -20,6 +20,15 @@ INITIAL_POOLS = {
 
 CURRENT_POOL = 'D'
 
+MATCH_DURATIONS = {
+    "random_vs_random": 300 + 90,  # ~6.5 minutes
+    "ai_vs_ai": 120 + 60,          # ~2.5 minutes
+    "random_vs_ai": 120 + 60,      # Using same duration as ai_vs_ai
+    "ai_vs_random": 120 + 60,      # Same as random_vs_ai
+    "forfeit": 30                 # 30 seconds
+}
+
+
 
 fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
 FORFEIT_TEAMS = fixed_teams
@@ -33,14 +42,14 @@ for team in sorted(fixed_teams):
 TEAMS = [ 
     "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
     "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
-    "IFRI", "Innovation Group (IG)", "JoLyCh", "KACW", "Turk_3.0",
+    "IFRI", "Innovation Group (IG)",  "KACW", "Turk_3.0",
     "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
     "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
 ]
 
 SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "IFRI", "Némésis", 
                    "Blacknight01", "AIverse", "BOÏZ", "Eriatech", "Les sisters", 
-                    "Limitless Nexus", "Turk_3.0"]
+                    "Limitless Nexus", "Turk_3.0", "JoLyCh"]
 
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""

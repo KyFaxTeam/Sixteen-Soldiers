@@ -1,0 +1,70 @@
+
+╔══════════════════════════════════════════════════════════════════════════════
+║ PLANNING DES MATCHS - POOL C
+╠══════════════════════════════════════════════════════════════════════════════
+║ Format: [Heure] Team1 vs Team2 (Durée)
+╟──────────────────────────────────────────────────────────────────────────────
+
+║ ============================== PHASE ALLER ===============================║
+║ [15:00:00-15:06:30] Dream team           vs EL-LINE              (6min 30s) ║
+║ [15:06:30-15:07:00] Black Witches        vs KACW                 (0min 30s) ║
+║ [15:07:00-15:10:00] IFRI                 vs Python Trident       (3min 0s ) ║
+║ [15:10:00-15:13:00] BOÏZ                 vs Eriatech             (3min 0s ) ║
+║ [15:13:00-15:16:00] EL-LINE              vs KACW                 (3min 0s ) ║
+║ [15:16:00-15:16:30] Black Witches        vs Dream team           (0min 30s) ║
+║ [15:16:30-15:19:30] BOÏZ                 vs Python Trident       (3min 0s ) ║
+║ [15:19:30-15:22:30] Eriatech             vs IFRI                 (3min 0s ) ║
+║ [15:22:30-15:25:30] Dream team           vs KACW                 (3min 0s ) ║
+║ [15:25:30-15:26:00] Black Witches        vs EL-LINE              (0min 30s) ║
+║ [15:26:00-15:29:00] Eriatech             vs Python Trident       (3min 0s ) ║
+║ [15:29:00-15:32:00] BOÏZ                 vs IFRI                 (3min 0s ) ║
+║ [15:32:00-15:35:00] Dream team           vs Eriatech             (3min 0s ) ║
+║ [15:35:00-15:35:30] Black Witches        vs Python Trident       (0min 30s) ║
+║ [15:35:30-15:38:30] EL-LINE              vs IFRI                 (3min 0s ) ║
+║ [15:38:30-15:41:30] BOÏZ                 vs KACW                 (3min 0s ) ║
+║ [15:41:30-15:42:00] Black Witches        vs Eriatech             (0min 30s) ║
+║ [15:42:00-15:48:30] Dream team           vs Python Trident       (6min 30s) ║
+║ [15:48:30-15:51:30] IFRI                 vs KACW                 (3min 0s ) ║
+║ [15:51:30-15:54:30] BOÏZ                 vs EL-LINE              (3min 0s ) ║
+║ [15:54:30-15:57:30] Eriatech             vs KACW                 (3min 0s ) ║
+║ [15:57:30-16:00:30] Dream team           vs IFRI                 (3min 0s ) ║
+║ [16:00:30-16:01:00] BOÏZ                 vs Black Witches        (0min 30s) ║
+║ [16:01:00-16:07:30] EL-LINE              vs Python Trident       (6min 30s) ║
+║ [16:07:30-16:10:30] KACW                 vs Python Trident       (3min 0s ) ║
+║ [16:10:30-16:11:00] Black Witches        vs IFRI                 (0min 30s) ║
+║ [16:11:00-16:14:00] BOÏZ                 vs Dream team           (3min 0s ) ║
+║ [16:14:00-16:17:00] EL-LINE              vs Eriatech             (3min 0s ) ║
+
+║ ============================== PHASE PAUSE ===============================║
+║ [16:17:00-16:27:00] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
+
+║ ============================== PHASE RETOUR ==============================║
+║ [16:27:00-16:33:30] EL-LINE              vs Dream team           (6min 30s) ║
+║ [16:23:30-16:24:00] KACW                 vs Black Witches        (0min 30s) ║
+║ [16:24:00-16:27:00] Python Trident       vs IFRI                 (3min 0s ) ║
+║ [16:27:00-16:30:00] Eriatech             vs BOÏZ                 (3min 0s ) ║
+║ [16:30:00-16:33:00] KACW                 vs EL-LINE              (3min 0s ) ║
+║ [16:33:00-16:33:30] Dream team           vs Black Witches        (0min 30s) ║
+║ [16:33:30-16:36:30] Python Trident       vs BOÏZ                 (3min 0s ) ║
+║ [16:36:30-16:39:30] IFRI                 vs Eriatech             (3min 0s ) ║
+║ [16:39:30-16:42:30] KACW                 vs Dream team           (3min 0s ) ║
+║ [16:42:30-16:43:00] EL-LINE              vs Black Witches        (0min 30s) ║
+║ [16:43:00-16:46:00] Python Trident       vs Eriatech             (3min 0s ) ║
+║ [16:46:00-16:49:00] IFRI                 vs BOÏZ                 (3min 0s ) ║
+║ [16:49:00-16:52:00] Eriatech             vs Dream team           (3min 0s ) ║
+║ [16:52:00-16:52:30] Python Trident       vs Black Witches        (0min 30s) ║
+║ [16:52:30-16:55:30] IFRI                 vs EL-LINE              (3min 0s ) ║
+║ [16:55:30-16:58:30] KACW                 vs BOÏZ                 (3min 0s ) ║
+║ [16:58:30-16:59:00] Eriatech             vs Black Witches        (0min 30s) ║
+║ [16:59:00-17:05:30] Python Trident       vs Dream team           (6min 30s) ║
+║ [17:05:30-17:08:30] KACW                 vs IFRI                 (3min 0s ) ║
+║ [17:08:30-17:11:30] EL-LINE              vs BOÏZ                 (3min 0s ) ║
+║ [17:11:30-17:14:30] KACW                 vs Eriatech             (3min 0s ) ║
+║ [17:14:30-17:17:30] IFRI                 vs Dream team           (3min 0s ) ║
+║ [17:17:30-17:18:00] Black Witches        vs BOÏZ                 (0min 30s) ║
+║ [17:18:00-17:24:30] Python Trident       vs EL-LINE              (6min 30s) ║
+║ [17:24:30-17:27:30] Python Trident       vs KACW                 (3min 0s ) ║
+║ [17:27:30-17:28:00] IFRI                 vs Black Witches        (0min 30s) ║
+║ [17:28:00-17:31:00] Dream team           vs BOÏZ                 (3min 0s ) ║
+║ [17:31:00-17:34:00] Eriatech             vs EL-LINE              (3min 0s ) ║
+╚══════════════════════════════════════════════════════════════════════════════
