@@ -134,6 +134,7 @@ class MainView(BaseView):
         self.content.grid_columnconfigure(1, weight=2)  # Center column expands
         self.content.grid_columnconfigure(2, weight=1)  # Right column
         
+
         # Left column - Players
         self.players_column = PlayersColumn(self.content, self.store)
         self.players_column.frame.grid(row=0, column=0, sticky= self.adjust_player_column[resolution],
@@ -146,8 +147,7 @@ class MainView(BaseView):
         # Créer le GameBoard sans agents
         self.game_board = GameBoard(self.center_column, self.store, self.game_runner)
         self.game_board.frame.grid(row=0, column=0, sticky="nsew")
-        self.game_board.subscribe(self.store)
-        self.game_board.update(self.store.get_state())
+
         
         # Right column - Move history and settings
         self.right_column = ctk.CTkFrame(self.content)#, fg_color="transparent")
@@ -203,43 +203,38 @@ class MainView(BaseView):
         self.master.mainloop()
    
     def update(self, state: dict):
-        """
-        Update the view with new state based on game status.
-        """
+        """Update the view with new state based on game status."""
+        # Handle game cleanup
+        if state.get("is_game_leaved"):
+            self.game_runner.cleanup()
+            if hasattr(self, 'history_view'):
+                self.history_view.clear_moves()
+            if hasattr(self, 'game_board'):    
+                self.game_board.cleanup()
+            self.after_game_view = None
+            self.store.state["is_game_leaved"] = False
+            
+
         # First priority: Check if game is over
         if state["is_game_over"]:
+            self.game_runner.cleanup()
             if not self.after_game_view:
                 self.show_after_game_view()
-            return
-
-        # Handle game reset/cleanup
-        if not state["is_game_started"] and hasattr(self, 'history_view') and hasattr(self, 'game_board'):
-            if state.get("is_game_leaved"):
-                self.history_view.clear_moves()
-                self.game_board.clear_board()
-                # Reset after_game_view reference when game is reset
-                self.after_game_view = None
-
-        # Always update players column for agent selection
-        if hasattr(self, 'players_column'):
-            self.players_column.update(state)
-        
-        # If game hasn't started, don't update game components
-        if not state["is_game_started"]:
-            return
+            
 
         # Normal game updates
         if hasattr(self, 'game_board'):
             self.game_board.update(state)
+
+        # Always update players column for agent selection
+        if hasattr(self, 'players_column'):
+            self.players_column.update(state)
+
+        # Update history view        
         if hasattr(self, 'history_view'):
             self.history_view.update(state)
 
     def on_closing(self):
         """Gestionnaire de l'événement de fermeture de la fenêtre"""
-        # Nettoyer le game_runner
-        if hasattr(self, 'game_runner'):
-            self.store.dispatch({"type": "RESTART_GAME"})
-            self.game_runner.cleanup()
-        
         # Fermer la fenêtre
         self.master.destroy()
