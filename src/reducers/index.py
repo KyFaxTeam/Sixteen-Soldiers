@@ -15,8 +15,14 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     game → board → history → time
     """
     # Log action reception with simple separator
-    logger.info(f"▶ Processing {action['type']}")
+    if action['type'] not in ['UPDATE_TIME', 'ADD_MOVE_TO_HISTORY', 'CHANGE_CURRENT_SOLDIER', "MOVE_SOLDIER"]:
+        if action['type'] in ['CAPTURE_SOLDIER']:
+            logger.info(f"▶ Processing {action['type']} Captured {action['captured_soldier']}")
+        else:  
+            logger.info(f"▶ Processing {action['type']}")
     
+    
+
     # Create single copy of state
     new_state = deepcopy(state)
     
@@ -38,9 +44,7 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
             # mettre le jeu sur pause s'il y a une erreur
             # new_state["is_game_paused"] = True
         
-    if action['type'] in ['MOVE_SOLDIER', 'CAPTURE_SOLDIER']:
-        # logger.info(f"Action done :{action}")
-        ...
+    
         
     return new_state
 
