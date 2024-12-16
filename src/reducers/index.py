@@ -14,10 +14,10 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
     Combine all reducers and apply them in specific order:
     game → board → history → time
     """
-    # Log action reception with simple separator
+    
     if action['type'] not in ['UPDATE_TIME', 'ADD_MOVE_TO_HISTORY', 'CHANGE_CURRENT_SOLDIER', "MOVE_SOLDIER"]:
         if action['type'] in ['CAPTURE_SOLDIER']:
-            logger.info(f"▶ Processing {action['type']} Captured {action['captured_soldier']}")
+            logger.info(f"▶ Processing {action['type']} {action['soldier_value']} at {action['captured_soldier']}")
         else:  
             logger.info(f"▶ Processing {action['type']}")
     
@@ -41,8 +41,6 @@ def root_reducer(state: Dict, action: Dict) -> Dict:
         except Exception as e:
             logger.error(f"Error in {name}_reducer: {e}")
 
-            # mettre le jeu sur pause s'il y a une erreur
-            # new_state["is_game_paused"] = True
         
     
         
