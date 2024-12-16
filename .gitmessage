@@ -1,0 +1,14 @@
+type(scope): summary
+
+# Body: Explain what and why (not how)
+# [Optional] More detailed explanatory text
+# - What was changed?
+# - Why was it changed?
+# - What side effects does this change have?
+
+# Issue/Ticket Reference
+# [Optional] Closes #123, Relates to #456
+
+# Types: feat, fix, docs, style, refactor, test, chore
+# Scope: The module/component being modified (optional)
+# Example: feat(auth): add login with Google

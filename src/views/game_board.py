@@ -1,11 +1,12 @@
+import time
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 import screeninfo
 from src.models.assets.index import Assets
 from src.utils.audio import Sounds
-from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, Soldier, resolution
-from src.utils.game_utils import GameRunner, show_popup
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, resolution
+from src.utils.game_utils import GameRunner
 from src.views.base_view import BaseView
 from src.utils.board_utils import BoardUtils  
 from src.utils.history_utils import get_last_move, is_equals  
@@ -57,8 +58,10 @@ class GameBoard(BaseView):
         # Get resolution of the screen
 
         screen_info = screeninfo.get_monitors()[0]
-    
+        
+        
         screen_height = screen_info.height
+        
 
         # Calculer le self.GAP_ en fonction de la résolution de l'écran
         self.GAP_ = int(screen_height /12)
@@ -182,7 +185,7 @@ class GameBoard(BaseView):
         self.play_pause_button.pack(side="left", padx=10, pady=5)
         self.reset_button.pack(side="left", padx=10, pady=5)
              
-    def _move_soldier_in_board(self, soldier_id: int, target: tuple, player: int, steps=50, delay=7):
+    def _move_soldier_in_board(self, soldier_id: int, target: tuple, timestamp, steps=50, delay=7):
         """
             Moves a piece from its current position to (target_x, target_y) in multiple steps.
             
@@ -195,11 +198,13 @@ class GameBoard(BaseView):
         
         self.canvas.update_idletasks()
         
-        
         if soldier_id is None:
             self.logger.error(f"""\nError: Soldier not found at position {soldier_position}\nFrom: _move_soldier_in_board""")
             return
-            
+        
+        delay = self.store.game_speed.get_delay_time(timestamp)
+        time.sleep(delay)
+
         # Récupérer les coordonnées actuelles
         coords = self.canvas.coords(soldier_id)
         
@@ -213,9 +218,6 @@ class GameBoard(BaseView):
             if step < steps:
                 # Déplace le pion de façon incrémentale
                 self.canvas.move(soldier_id, dh, dv)
-                # Re-appeler la fonction après un délai
-                # print('**************Vitesse de déplacement du board : ', self.store.game_speed.get_board_speed(delay))
-                
                 self.frame.after(self.store.game_speed.get_board_speed(delay), lambda: step_move(step + 1))
             else:
                 # Ajuste les coordonnées finales pour être exactes
@@ -239,16 +241,14 @@ class GameBoard(BaseView):
         from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
         to_pos = move["pos"][-1]
         player = move["soldier_value"].value
- 
-        
-        # print(to_x, to_y, BoardUtils.algebraic_to_cartesian(to))
-        
+        timestamp = move["timestamp"][-1]
+
         soldier_id = self._get_piece_id(position=BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_), player=player)
  
         if soldier_id is None:
             return 
 
-        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), player=player)
+        self._move_soldier_in_board(soldier_id, BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), timestamp=timestamp)
 
         is_capture = move.get("captured_soldier") is not None
    
@@ -269,14 +269,12 @@ class GameBoard(BaseView):
         
     def update(self, state):
         """ Updates the board based on the new state """
-        # update seulement si le jeu est en cours
+        
         if state.get("is_game_leaved"):
             return
         
         if state.get("is_game_over"):
             self.previous_move = None
-            self.logger.info("Game is over - Change the text on play button")
-            # self.play_pause_button.configure(state="disabled")
             self.play_pause_button.configure(
                 image=ctk.CTkImage(
                     light_image=Image.open(Assets.icon_play), size=(20, 20)),
@@ -290,6 +288,8 @@ class GameBoard(BaseView):
         
         try:
             last_move = get_last_move(state)
+            if last_move is None :
+                return
             if not is_equals(last_move, self.previous_move):
                 # self.logger.info(f"Processing new move: {last_move}")
                 try:
@@ -353,21 +353,22 @@ class GameBoard(BaseView):
         self.reset_button.configure(state="disabled" if is_playing else "normal")
 
     def reset_game(self):
-        self.store.dispatch({"type": "RESET_GAME"})
-        self.previous_move = None
-        
-        # Reset buttons
-        self.play_pause_button.configure(
-            image=ctk.CTkImage(
-                light_image=Image.open(Assets.icon_play), size=(20, 20)),
-            text="Play" if self.store.get_state().get("game_mode") == "game" else "Replay"
-        )
-        self.play_pause_button.configure(state="normal")
-        self.reset_button.configure(state="disabled")
+        """Reset the game board"""
 
-    def clear_board(self):
+        if self.store.get_state().get("is_game_leaved"):
+            return
+        else :
+            self.store.dispatch({"type": "RESET_GAME"})
+
+            
+    def cleanup(self):
+        """Nettoie le plateau de jeu"""
         self.canvas.delete("all")
+        self.red_soldiers = []
+        self.blue_soldiers = []
+        self.previous_move = None
+        self.play_pause_button.configure(state="normal")
+        self.reset_button.configure(state="normal")
         self.__draw_board()
         self._draw_pieces()
-
 
