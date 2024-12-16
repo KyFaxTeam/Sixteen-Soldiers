@@ -2,7 +2,7 @@ import os
 import customtkinter as ctk
 from PIL import Image
 from src.utils.audio import Sounds
-from src.utils.const import  Soldier
+from src.utils.const import  AGENT_AVATAR_DIR, TIMINGS, Soldier
 from src.utils.logger_config import get_logger
 from src.models.assets.index import Assets
 
@@ -30,7 +30,7 @@ class AfterGameView(ctk.CTkToplevel):
         state = self.store.get_state()
         winner_data = self.get_winner_data(state)
         
-        # Winner's data"qs
+        # Winner's data"
         profile_img_path = winner_data.get("profile_img")
         team_pseudo = winner_data.get("team_pseudo")
         ai_name = winner_data.get("ai_name")
@@ -42,8 +42,10 @@ class AfterGameView(ctk.CTkToplevel):
 
         total_moves = winner_data.get("total_moves") if winner_data.get("total_moves") else len(state.get("history", []))//2
 
+        reason = winner_data.get("reason")
+
         # Display "Gagnant" title
-        ctk.CTkLabel(self, text="Gagnant", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
+        ctk.CTkLabel(self, text="Winner", font=("Helvetica", 24, "bold")).pack(pady=(20, 10))
 
         # Display profile picturei,ik
         self.profile_image = ctk.CTkLabel(self, text="")
@@ -55,6 +57,35 @@ class AfterGameView(ctk.CTkToplevel):
 
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
+
+        # reason_label = ctk.CTkLabel(
+        #     self,
+        #     text=f"Reason: {reason}",
+        #     font=("Helvetica",14)
+        # )
+        # # if reason:
+        # #     print(f'Reason: {reason}')
+        # reason_label.place(relx=0.075, rely=0.675)
+
+        # Reason label with "Reason" in blue
+        reason_frame = ctk.CTkFrame(self, fg_color="transparent")  # Use a transparent frame to group labels
+        reason_frame.place(relx=0.075, rely=0.675)
+        # "Reason:" in blue
+        reason_label_prefix = ctk.CTkLabel(
+            reason_frame,
+            text="Reason:",
+            font=("Helvetica", 14),
+            text_color="#7F00FF"
+        )
+        
+        reason_label_prefix.pack(side="left")
+        # The actual reason text
+        reason_label_text = ctk.CTkLabel(
+            reason_frame,
+            text=f" {reason}",
+            font=("Helvetica", 14)
+        )
+        reason_label_text.pack(side="left")
 
         # Bottom frame for time, restart button, moves and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
@@ -102,7 +133,7 @@ class AfterGameView(ctk.CTkToplevel):
         # Add label for total moves made by the winner
         total_moves_label = ctk.CTkLabel(
             bottom_frame, 
-            text=f"Coups: {total_moves}", 
+            text=f"Moves: {total_moves}",
             font=("Helvetica", 12)
         )
         total_moves_label.grid(row=0, column=4, padx=((0, 0)))
@@ -120,15 +151,63 @@ class AfterGameView(ctk.CTkToplevel):
 
     def on_closing(self):
         """Handle window closing event - just close the window"""
-        self.destroy()
+        try:
+            self.sounds.unpause()
+            self.destroy()
+
+        except Exception as e:
+
+            print(f"Error closing AfterGameView: {e}")
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
         winner = state.get("winner")
-        if winner is None:
-            # self.logger.info("No winner found in state")
-            return self._get_default_winner_data()
+        reason = state.get("reason", "unknown")
+        
+        if reason == "forfeit": 
+            info_index = state.get("agents_info_index", {}).get(winner)
+            winner_data = state.get("agents", {}).get(info_index, {})
+            self.profile_img = Assets.kyfax_logo
             
+            extensions = ['.png', '.jpg', '.jpeg']
+            for ext in extensions:
+                if os.path.exists(os.path.join(AGENT_AVATAR_DIR, winner_data.get("pseudo")+ ext)):
+                    self.profile_img = os.path.join(AGENT_AVATAR_DIR, winner_data.get("pseudo") + ext)
+                    break
+            default_data = {
+                "profile_img": winner_data.get("profile_img"),
+                "team_pseudo": winner_data.get("pseudo", "Unknown"),
+                "ai_name": winner_data.get("name", "AI"),
+                "soldier_value": winner_data.get('soldier_value'),
+                "remaining_time": TIMINGS["AI_TIMEOUT"],
+                "remaining_pawns": 16,
+                "total_moves": 0,
+                "reason": reason
+        }
+
+        if winner is None:
+            # Personnaliser l'affichage selon la raison
+            default_data = {
+                "profile_img": Assets.kyfax_logo,
+                "team_pseudo": "Match nul",
+                "ai_name": "",
+                "soldier_value": None,
+                "remaining_time": None,
+                "remaining_pawns": None,
+                "total_moves": len(state.get("history", [])) // 2,
+                "reason": reason
+            }
+            if reason == "draw_few_pieces":
+                default_data["team_pseudo"] = "Match nul"
+                default_data["ai_name"] = "Trop peu de pièces"
+
+            elif reason == "error":
+                default_data["team_pseudo"] = "Erreur"
+                default_data["ai_name"] = "Partie invalide"
+            
+            return default_data
+        
+        # Si on a un gagnant
         info_index = state.get("agents_info_index", {}).get(winner)
         #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
@@ -155,7 +234,8 @@ class AfterGameView(ctk.CTkToplevel):
             "soldier_value": winner_data.get('soldier_value'),
             "remaining_time": latest_time,
             "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
-            "total_moves": number_of_moves
+            "total_moves": number_of_moves,
+            "reason": reason
         }
 
     def _get_default_winner_data(self):
@@ -165,7 +245,9 @@ class AfterGameView(ctk.CTkToplevel):
             "ai_name": "Vainqueur",
             "remaining_time": None,
             "remaining_pawns": None,
-            "total_moves": None
+            "total_moves": None,
+            "reason": "No capture"
         }
+
 
 

@@ -39,6 +39,7 @@ def convert_agents_info(agents_info):
 
 def save_game(state: Dict) -> Dict:
     """Save the game history to a JSON file with metadata and timestamps"""
+    print("Saving game in : ")
     try:
         # Get the game history from the state
         history = state.get("history", [])
@@ -62,7 +63,11 @@ def save_game(state: Dict) -> Dict:
         # Define the folder and timestamped file path
         save_folder = os.path.join(os.getcwd(), "saved_game")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_file = os.path.join(save_folder, f"game_{timestamp}.json")
+        agent1 = state.get("agents_info_index").get(Soldier.RED)
+        agent2 = state.get("agents_info_index").get(Soldier.BLUE)
+
+        save_file = os.path.join(save_folder, f"game_{agent1}_vs_{agent2}_{timestamp}.json")
+        print(save_file)
         
         # Create the folder if it doesn't exist
         if not os.path.exists(save_folder):

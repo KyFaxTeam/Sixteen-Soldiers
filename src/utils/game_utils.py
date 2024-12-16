@@ -11,7 +11,7 @@ from src.store.store import Store
 from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier
 from enum import Enum
 
-def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500):
+def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500, modal: bool = False):
     """Show a popup message using CTkMessagebox that auto-closes after duration milliseconds."""
     popup = CTkMessagebox(
         title=title,
@@ -22,10 +22,15 @@ def show_popup(message: str, title: str = "Message", auto_close: bool = True, du
         font=("Roboto", 12),
         justify="center",
         fade_in_duration=0.2,
+        option_1="OK",  # Un seul bouton par défaut
+        border_width=1,  # Bordure fine
     )
     
     if auto_close:
         popup.after(duration, popup.destroy)
+
+    if modal:
+        popup.wait_window()
 
 class GameMode(Enum):
     REPLAY = 'replay'
@@ -42,11 +47,25 @@ class GameRunner:
         self.agents = None
         self.is_prepared = False
 
-    def cleanup(self):
+    def cleanup(self, level: str = 'full'):
         """Nettoie l'état du GameRunner"""
+<<<<<<< HEAD
+=======
+
+        # self.logger.info(f"Cleaning up GameRunner (level: {level})")
+        
+        # Toujours nettoyer ces éléments
+        self.game_data = None
+>>>>>>> 8a279e0ab9a1ac1f7aa14ab6081ab80724db63ee
         self.agents = None
         self.is_prepared = False
         self.moves_without_capture = 0
+
+        # Nettoyer le mode uniquement lors d'un cleanup complet
+        if level == 'full':
+            self.game_mode = None
+            
+            # self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
 
     def set_mode(self, mode: str, data=None):
         """Configure le mode de jeu (replay ou nouveau jeu)"""
@@ -227,10 +246,10 @@ class GameRunner:
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                if action.get("captured_soldier") is None:
-                    self.moves_without_capture += 1
-                else:
-                    self.moves_without_capture = 0
+                # if action.get("captured_soldier") is None:
+                #     self.moves_without_capture += 1
+                # else:
+                #     self.moves_without_capture = 0
 
                 if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
                     red_pieces = board.count_soldiers(Soldier.RED)
@@ -249,6 +268,13 @@ class GameRunner:
                         reason = "more_pieces_wins"
                     break
 
+                if action.get("captured_soldier") is None:
+                    # print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
+                    self.moves_without_capture += 1
+                else:
+                    # print("Capture detected - Resetting counter to 0")
+                    self.moves_without_capture = 0
+
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")
                 self._conclude_game(agent1, agent2, winner=None, reason="error")
@@ -262,12 +288,16 @@ class GameRunner:
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
        
-    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
+    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = "", margin: int = 0):
         """Handle game conclusion and stats updates"""
         final_state = self.store.get_state()
         time_manager = final_state.get('time_manager')
         total_moves_agent1 = get_move_player_count(final_state['history'], agent1.soldier_value)
         total_moves_agent2 = get_move_player_count(final_state['history'], agent2.soldier_value)
+
+        remain_soldiers_agent1 = final_state.get("board").count_soldiers(agent1.soldier_value)
+        remain_soldiers_agent2 = final_state.get("board").count_soldiers(agent2.soldier_value)
+        margin = abs(remain_soldiers_agent1 - remain_soldiers_agent2)
 
         if winner is None:
             issue1, issue2 = 'draw', 'draw'
@@ -277,22 +307,33 @@ class GameRunner:
             issue1, issue2 = 'loss', 'win'
         else:
             issue1, issue2 = 'draw', 'draw'
-            raise ValueError("Invalid winner value in _conclude_game")
+            # raise ValueError("Invalid winner value in _conclude_game")
+            self.logger.error(f"Invalid winner: {winner}")
             
+        # S'assurer que la raison est toujours définie
+        if not reason:
+            if winner is None:
+                reason = "draw"
+            elif winner == agent1.soldier_value:
+                reason = "victory"
+            elif winner == agent2.soldier_value:
+                reason = "victory"
 
         agent1.conclude_game(
             issue1,
             opponent_name=agent2.name,
             number_of_moves=total_moves_agent1,
             time=time_manager.get_remaining_time(agent1.soldier_value),
-            reason=reason  # Pass 'reason' to conclude_game
+            reason=reason,  # Pass 'reason' to conclude_game
+            margin=(margin if issue1 == 'win' else -margin if issue1 == 'loss' else 0)
         )
         agent2.conclude_game(
             issue2,
             opponent_name=agent1.name,
             number_of_moves=total_moves_agent2,
             time=time_manager.get_remaining_time(agent2.soldier_value),
-            reason=reason  # Pass 'reason' to conclude_game
+            reason=reason,  # Pass 'reason' to conclude_game
+            margin=(margin if issue2 == 'win' else -margin if issue2 == 'loss' else 0)
         )
             
         self.store.register_agents(agent1, agent2)

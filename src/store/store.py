@@ -15,6 +15,7 @@ initial_state = {
     "is_game_leaved": False,
     "current_soldier_value": Soldier.RED,
     "winner": None,
+    "reason": None,
     "history": [],
     "agents": {},
     "game_mode": None,  # Can be 'game', 'replay', or None
