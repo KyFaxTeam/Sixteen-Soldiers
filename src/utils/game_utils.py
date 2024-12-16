@@ -44,8 +44,6 @@ class GameRunner:
 
     def cleanup(self):
         """Nettoie l'état du GameRunner"""
-        self.game_mode = None
-        self.game_data = None
         self.agents = None
         self.is_prepared = False
         self.moves_without_capture = 0
@@ -205,8 +203,7 @@ class GameRunner:
 
 
                 self.store.dispatch(action=action)
-                delay = self.store.game_speed.get_delay_time(elapsed_time)
-                time.sleep(delay)
+                
                 
                 self.store.dispatch({
                     "type": "UPDATE_TIME",
@@ -225,6 +222,8 @@ class GameRunner:
                         "capture_multiple": is_multi_capture
                     }
                 })
+
+                
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
