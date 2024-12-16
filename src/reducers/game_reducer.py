@@ -112,7 +112,7 @@ def game_reducer(state: Dict, action: Dict) -> Dict:
         case "CHANGE_CURRENT_SOLDIER":
             return change_current_player(state)
         case "END_GAME":
-            return end_game(state, action.get("winner"))
+            return end_game(state, action)
         case "PAUSE_GAME":
             return pause_game(state)
         case "RESUME_GAME":

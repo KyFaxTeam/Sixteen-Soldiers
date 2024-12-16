@@ -228,10 +228,10 @@ class GameRunner:
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                if action.get("captured_soldier") is None:
-                    self.moves_without_capture += 1
-                else:
-                    self.moves_without_capture = 0
+                # if action.get("captured_soldier") is None:
+                #     self.moves_without_capture += 1
+                # else:
+                #     self.moves_without_capture = 0
 
                 if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
                     red_pieces = board.count_soldiers(Soldier.RED)
@@ -249,6 +249,13 @@ class GameRunner:
                             winner = None
                         reason = "more_pieces_wins"
                     break
+                
+                if action.get("captured_soldier") is None:
+                    print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
+                    self.moves_without_capture += 1
+                else:
+                    print("Capture detected - Resetting counter to 0")
+                    self.moves_without_capture = 0
 
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")
@@ -280,6 +287,14 @@ class GameRunner:
             issue1, issue2 = 'draw', 'draw'
             raise ValueError("Invalid winner value in _conclude_game")
             
+        # S'assurer que la raison est toujours définie
+        if not reason:
+            if winner is None:
+                reason = "draw"
+            elif winner == agent1.soldier_value:
+                reason = "victory"
+            elif winner == agent2.soldier_value:
+                reason = "victory"
 
         agent1.conclude_game(
             issue1,

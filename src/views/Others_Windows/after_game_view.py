@@ -136,16 +136,37 @@ class AfterGameView(ctk.CTkToplevel):
             self.destroy()
 
         except Exception as e:
-            
+
             print(f"Error closing AfterGameView: {e}")
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
         winner = state.get("winner")
+        reason = state.get("reason", "unknown")
+
         if winner is None:
-            # self.logger.info("No winner found in state")
-            return self._get_default_winner_data()
+            # Personnaliser l'affichage selon la raison
+            default_data = {
+                "profile_img": Assets.kyfax_logo,
+                "team_pseudo": "Match nul",
+                "ai_name": "",
+                "soldier_value": None,
+                "remaining_time": None,
+                "remaining_pawns": None,
+                "total_moves": len(state.get("history", [])) // 2,
+                "reason": reason
+            }
+            if reason == "draw_few_pieces":
+                default_data["team_pseudo"] = "Match nul"
+                default_data["ai_name"] = "Trop peu de pièces"
+
+            elif reason == "error":
+                default_data["team_pseudo"] = "Erreur"
+                default_data["ai_name"] = "Partie invalide"
             
+            return default_data
+        
+        # Si on a un gagnant
         info_index = state.get("agents_info_index", {}).get(winner)
         #self.logger.info(f"info_index: {info_index}")
         winner_data = state.get("agents", {}).get(info_index, {})
