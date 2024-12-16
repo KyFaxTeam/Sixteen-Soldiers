@@ -9,6 +9,7 @@ from src.utils.validator import is_valid_move
 from src.agents.base_agent import BaseAgent
 from src.store.store import Store
 from src.utils.const import MAX_MOVES_WITHOUT_CAPTURE, Soldier
+from src.utils.const import GameEndReason
 from enum import Enum
 
 def show_popup(message: str, title: str = "Message", auto_close: bool = True, duration: int = 1500, modal: bool = False):
@@ -31,7 +32,6 @@ def show_popup(message: str, title: str = "Message", auto_close: bool = True, du
 
     if modal:
         popup.wait_window()
-
 class GameMode(Enum):
     REPLAY = 'replay'
     GAME = 'game'
@@ -47,26 +47,16 @@ class GameRunner:
         self.agents = None
         self.is_prepared = False
 
-    def cleanup(self, level: str = 'full'):
+    def cleanup(self, level: str = 'else'):
         """Nettoie l'état du GameRunner"""
-<<<<<<< HEAD
-=======
-
-        # self.logger.info(f"Cleaning up GameRunner (level: {level})")
-        
-        # Toujours nettoyer ces éléments
-        self.game_data = None
->>>>>>> 8a279e0ab9a1ac1f7aa14ab6081ab80724db63ee
         self.agents = None
         self.is_prepared = False
         self.moves_without_capture = 0
-
-        # Nettoyer le mode uniquement lors d'un cleanup complet
+        # Note: game_mode and game_data are now preserved
         if level == 'full':
+            self.game_data = None
             self.game_mode = None
             
-            # self.logger.info(f"Cleanup complete - Mode: {self.game_mode}")
-
     def set_mode(self, mode: str, data=None):
         """Configure le mode de jeu (replay ou nouveau jeu)"""
         self.cleanup()  # Nettoie l'état avant de changer de mode
@@ -177,7 +167,7 @@ class GameRunner:
             if over is not None:
                 self.logger.info(f"No soldiers to move for {current_agent.name}")
                 winner = over
-                reason = "no_soldiers"
+                reason = GameEndReason.NO_SOLDIERS
                 break
             try:
 
@@ -188,7 +178,7 @@ class GameRunner:
                 if not valid_actions:
                     self.logger.info(f"No valid actions for {current_agent.name}")
                     winner = opponent_agent.soldier_value
-                    reason = "no_valid_actions"
+                    reason = GameEndReason.NO_VALID_MOVES
                     break
                 
                 if current_state["time_manager"].is_time_up(current_soldier_value):
@@ -246,18 +236,14 @@ class GameRunner:
                 
                 self.store.dispatch({"type": "CHANGE_CURRENT_SOLDIER"})
 
-                # if action.get("captured_soldier") is None:
-                #     self.moves_without_capture += 1
-                # else:
-                #     self.moves_without_capture = 0
-
+               
                 if self.moves_without_capture >= MAX_MOVES_WITHOUT_CAPTURE:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
                     if red_pieces <= 3 and blue_pieces <= 3:
                         winner = None
-                        reason = "draw_few_pieces"
+                        reason = GameEndReason.DRAW_FEW_PIECES
                     else:
                         if red_pieces > blue_pieces:
                             winner = Soldier.RED
@@ -265,16 +251,14 @@ class GameRunner:
                             winner = Soldier.BLUE
                         else:
                             winner = None
-                        reason = "more_pieces_wins"
+                        reason = GameEndReason.MORE_PIECES_WINS
                     break
-
                 if action.get("captured_soldier") is None:
                     # print(f"Move without capture - Counter: {self.moves_without_capture + 1}")
                     self.moves_without_capture += 1
                 else:
                     # print("Capture detected - Resetting counter to 0")
                     self.moves_without_capture = 0
-
             except Exception as e:
                 self.logger.exception(f"Game error: {e}")
                 self._conclude_game(agent1, agent2, winner=None, reason="error")
@@ -288,16 +272,16 @@ class GameRunner:
             self._conclude_game(agent1, agent2, winner=winner, reason=reason)
             self.logger.info("Game over")
        
-    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = "", margin: int = 0):
+    def _conclude_game(self, agent1: BaseAgent, agent2: BaseAgent, winner: Soldier = None, reason: str = ""):
         """Handle game conclusion and stats updates"""
         final_state = self.store.get_state()
         time_manager = final_state.get('time_manager')
         total_moves_agent1 = get_move_player_count(final_state['history'], agent1.soldier_value)
         total_moves_agent2 = get_move_player_count(final_state['history'], agent2.soldier_value)
-
         remain_soldiers_agent1 = final_state.get("board").count_soldiers(agent1.soldier_value)
         remain_soldiers_agent2 = final_state.get("board").count_soldiers(agent2.soldier_value)
         margin = abs(remain_soldiers_agent1 - remain_soldiers_agent2)
+
 
         if winner is None:
             issue1, issue2 = 'draw', 'draw'
@@ -307,10 +291,9 @@ class GameRunner:
             issue1, issue2 = 'loss', 'win'
         else:
             issue1, issue2 = 'draw', 'draw'
-            # raise ValueError("Invalid winner value in _conclude_game")
             self.logger.error(f"Invalid winner: {winner}")
+
             
-        # S'assurer que la raison est toujours définie
         if not reason:
             if winner is None:
                 reason = "draw"
@@ -318,7 +301,6 @@ class GameRunner:
                 reason = "victory"
             elif winner == agent2.soldier_value:
                 reason = "victory"
-
         agent1.conclude_game(
             issue1,
             opponent_name=agent2.name,
@@ -332,11 +314,16 @@ class GameRunner:
             opponent_name=agent1.name,
             number_of_moves=total_moves_agent2,
             time=time_manager.get_remaining_time(agent2.soldier_value),
-            reason=reason,  # Pass 'reason' to conclude_game
+            reason=reason,  # Pass 'reason' to conclude_game   margin=(margin if issue2 == 'win' else -margin if issue2 == 'loss' else 0)
             margin=(margin if issue2 == 'win' else -margin if issue2 == 'loss' else 0)
-        )
+        )        
             
         self.store.register_agents(agent1, agent2)
+        # Format reason with winner color if applicable
+        if isinstance(reason, GameEndReason) and winner:
+            color = winner.name
+            reason = reason.value.format(color=color)
+            
         if not final_state.get("is_game_over"):
             # print("END game conclude_game")
             self.store.dispatch({
@@ -447,50 +434,3 @@ class GameRunner:
             })
 
 
-# import queue
-# import threading
-# import time
-# class GameRunner:
-#     def __init__(self, store):
-#         self.store = store
-#         self._running = False
-#         self._paused = False
-#         self._pause_queue = queue.Queue()
-#         self._stop_event = threading.Event()
-
-#     def start_game(self, agent1, agent2):
-#         self._running = True
-#         self._stop_event.clear()
-
-#         def game_loop():
-#             while self._running:
-#                 if self._paused:
-#                     # Attente en cas de pause
-#                     self._pause_queue.get()
-#                     continue
-
-#                 state = self.store.get_state()
-#                 try:
-#                     self.execute_turn(state, agent1, agent2)
-#                 except Exception as e:
-#                     self.logger.error(f"Erreur dans la boucle de jeu : {e}")
-#                     break
-
-#         game_thread = threading.Thread(target=game_loop, daemon=True)
-#         game_thread.start()
-
-#     def pause(self):
-#         self._paused = True
-#         self._pause_queue.put(True)
-
-#     def resume(self):
-#         self._paused = False
-#         try:
-#             while not self._pause_queue.empty():
-#                 self._pause_queue.get_nowait()
-#         except queue.Empty:
-#             pass
-
-#     def stop(self):
-#         self._running = False
-#         self._stop_event.set()
