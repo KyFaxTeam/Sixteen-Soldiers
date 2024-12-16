@@ -2,7 +2,7 @@ import os
 import customtkinter as ctk
 from PIL import Image
 from src.utils.audio import Sounds
-from src.utils.const import  Soldier
+from src.utils.const import  AGENT_AVATAR_DIR, TIMINGS, Soldier
 from src.utils.logger_config import get_logger
 from src.models.assets.index import Assets
 
@@ -58,14 +58,34 @@ class AfterGameView(ctk.CTkToplevel):
         # Display winner's pseudo and AI name
         ctk.CTkLabel(self, text=f"{team_pseudo} - {ai_name}", font=("Helvetica", 18)).pack(pady=(0, 10))
 
-        reason_label = ctk.CTkLabel(
-            self,
-            text=f"Reason: {reason}",
-            font=("Helvetica",14)
+        # reason_label = ctk.CTkLabel(
+        #     self,
+        #     text=f"Reason: {reason}",
+        #     font=("Helvetica",14)
+        # )
+        # # if reason:
+        # #     print(f'Reason: {reason}')
+        # reason_label.place(relx=0.075, rely=0.675)
+
+        # Reason label with "Reason" in blue
+        reason_frame = ctk.CTkFrame(self, fg_color="transparent")  # Use a transparent frame to group labels
+        reason_frame.place(relx=0.075, rely=0.675)
+        # "Reason:" in blue
+        reason_label_prefix = ctk.CTkLabel(
+            reason_frame,
+            text="Reason:",
+            font=("Helvetica", 14),
+            text_color="#7F00FF"
         )
-        # if reason:
-        #     print(f'Reason: {reason}')
-        reason_label.place(relx=0.075, rely=0.675)
+        
+        reason_label_prefix.pack(side="left")
+        # The actual reason text
+        reason_label_text = ctk.CTkLabel(
+            reason_frame,
+            text=f" {reason}",
+            font=("Helvetica", 14)
+        )
+        reason_label_text.pack(side="left")
 
         # Bottom frame for time, restart button, moves and save button
         bottom_frame = ctk.CTkFrame(self, height=40)
@@ -143,6 +163,27 @@ class AfterGameView(ctk.CTkToplevel):
         """Extract winner data from the state"""
         winner = state.get("winner")
         reason = state.get("reason", "unknown")
+        
+        if reason == "forfeit": 
+            info_index = state.get("agents_info_index", {}).get(winner)
+            winner_data = state.get("agents", {}).get(info_index, {})
+            self.profile_img = Assets.kyfax_logo
+            
+            extensions = ['.png', '.jpg', '.jpeg']
+            for ext in extensions:
+                if os.path.exists(os.path.join(AGENT_AVATAR_DIR, winner_data.get("pseudo")+ ext)):
+                    self.profile_img = os.path.join(AGENT_AVATAR_DIR, winner_data.get("pseudo") + ext)
+                    break
+            default_data = {
+                "profile_img": winner_data.get("profile_img"),
+                "team_pseudo": winner_data.get("pseudo", "Unknown"),
+                "ai_name": winner_data.get("name", "AI"),
+                "soldier_value": winner_data.get('soldier_value'),
+                "remaining_time": TIMINGS["AI_TIMEOUT"],
+                "remaining_pawns": 16,
+                "total_moves": 0,
+                "reason": reason
+        }
 
         if winner is None:
             # Personnaliser l'affichage selon la raison
