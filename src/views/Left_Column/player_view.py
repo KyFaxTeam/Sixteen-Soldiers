@@ -320,14 +320,8 @@ class PlayerView(BaseView):
             return fallback_image
 
     def update(self, state: dict):
-
-        ## Vérifier le statut de is_game_started, is_game_over, is_game_paused
-        if  state.get('is_game_over', True):
-            return
-        
-        # self.logger.debug("Mise à jour de PlayerView avec le nouvel état")
         """Updates the interface with new state"""
-        self.store.state = state
+        
         try:
             # Enable/disable select button based on game state
             can_select = self.can_select_agent()
@@ -335,7 +329,6 @@ class PlayerView(BaseView):
 
             info_index = state["agents_info_index"].get(self.soldier_value)
             
-            # logger.debug(f"Updating player view for {self.soldier_value.name}")
             if info_index is None:
                 self.logger.debug("No agent selected")
                 self.name_label.configure(text="Select an agent")
@@ -371,20 +364,17 @@ class PlayerView(BaseView):
             if 'time_manager' in state:
                 remaining_time = state['time_manager'].get_remaining_time(self.soldier_value)
                 remaining_time *= 1000  # Convert to milliseconds
-                self.logger.debug(f"Updating timer: {remaining_time}s")
                 self.timer_label.configure(text=f"{int(remaining_time)}ms")
             
             # Update pieces count
             if 'board' in state:
                 
                 soldier_count = state['board'].count_soldiers(self.soldier_value)
-                # self.logger.debug(f"Updating piece count: {soldier_count}")
                 self.pieces_label.configure(text=str(soldier_count))
 
             # Update move count
             if 'history' in state:
                 move_count = get_move_player_count(state['history'], self.soldier_value)
-                # self.logger.debug(f"Updating move count: {move_count}")
                 self.move_count_label.configure(text=str(move_count))
 
 

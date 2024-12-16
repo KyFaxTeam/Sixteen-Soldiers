@@ -215,11 +215,13 @@ class HistoryView(BaseView):
             print(f"Rejouer le mouvement: {move_data}")
 
     def clear_moves(self):
-        """Effacer tous les mouvements de l'historique"""
+        """Clear all moves from history view"""
         for content_frame in self.move_frames:
             content_frame["frame"].destroy()
         self.move_frames = []
-
+        self.previous_move = None  # Reset previous move tracking
+        
+        # Reset scroll position
         self.moves_container._parent_canvas.yview_moveto(0.0)
 
     def update(self, state):

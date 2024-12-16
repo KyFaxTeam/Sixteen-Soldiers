@@ -7,7 +7,6 @@ class BaseView:
 
     def __init__(self, master):
         self.master = master
-        self.store = None
         self.frame = ctk.CTkFrame(self.master)
         
         # Stocker les paramètres de base pour le redimensionnement
@@ -21,5 +20,6 @@ class BaseView:
         store.subscribe(self.update)
 
     def update(self, state):
+
         pass
 

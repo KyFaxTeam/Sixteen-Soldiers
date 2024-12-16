@@ -1,4 +1,4 @@
-import logging
+
 from typing import Dict
 
 from src.models.board import Board
@@ -18,18 +18,18 @@ def init_game(state: Dict) -> Dict:
     return new_state
 
 def reset_game(state: Dict) -> Dict:
-
+    """Reset game state while keeping agents info"""
     new_state = initial_state.copy()
     new_state["game_mode"] = state["game_mode"]
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     new_state["is_game_leaved"] = True
-
     return new_state
 
 def restart_game(state: Dict) -> Dict:
     """Reset game state completely while keeping agents"""
     new_state = initial_state.copy()
+    new_state["game_mode"] = state["game_mode"]
     new_state["agents"] = state["agents"]
     new_state["agents_info_index"] = state["agents_info_index"]
     return new_state

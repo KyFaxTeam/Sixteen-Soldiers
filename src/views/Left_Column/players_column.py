@@ -43,7 +43,7 @@ class PlayersColumn(BaseView):
         self.player2.frame.grid(row=2, column=0, sticky="nsew", pady=(0, 0))
 
     def update(self, state: dict):
-        self.store.state = state
+
         """Update both players with new state"""
         self.player1.update(state)
         self.player2.update(state)
