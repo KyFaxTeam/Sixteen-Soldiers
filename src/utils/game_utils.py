@@ -241,7 +241,7 @@ class GameRunner:
                     red_pieces = board.count_soldiers(Soldier.RED)
                     blue_pieces = board.count_soldiers(Soldier.BLUE)
                     
-                    if red_pieces <= 3 and blue_pieces <= 3:
+                    if red_pieces <= 3 and blue_pieces <= 3 or red_pieces == blue_pieces:
                         winner = None
                         reason = GameEndReason.DRAW_FEW_PIECES
                     else:
@@ -249,8 +249,6 @@ class GameRunner:
                             winner = Soldier.RED
                         elif blue_pieces > red_pieces:
                             winner = Soldier.BLUE
-                        else:
-                            winner = None
                         reason = GameEndReason.MORE_PIECES_WINS
                     break
                 if action.get("captured_soldier") is None:
