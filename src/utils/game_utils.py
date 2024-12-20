@@ -249,6 +249,8 @@ class GameRunner:
                         print("Condition: Few pieces draw triggered")
                         winner = None
                         reason = GameEndReason.DRAW_FEW_PIECES
+                    elif red_pieces == blue_pieces:
+                        reason = GameEndReason.EQUAL_PIECES
                     else:
                         print("Condition: More pieces wins triggered")
                         if red_pieces > blue_pieces:
@@ -257,9 +259,7 @@ class GameRunner:
                         elif blue_pieces > red_pieces:
                             print(f"Blue wins with {blue_pieces} pieces vs {red_pieces}")
                             winner = Soldier.BLUE
-                        else:
-                            print("Equal pieces - draw")
-                            winner = None
+                            
                         reason = GameEndReason.MORE_PIECES_WINS
                     print(f"Final result - Winner: {winner}, Reason: {reason}")
                     break
