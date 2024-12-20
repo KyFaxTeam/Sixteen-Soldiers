@@ -28,6 +28,7 @@ class GameSpeed:
     def set_speed(self, slider_value):
         """Set speed based on slider value"""
         self.current_speed = max(self.min_speed, min(slider_value, self.max_speed))
+        self._set_min_max_delay()
 
     def _set_min_max_delay(self): 
         
@@ -50,8 +51,6 @@ class GameSpeed:
     
     def get_delay_time(self, ai_thinking_time):
         thinking_time_ms = ai_thinking_time * 1000
-
-        self._set_min_max_delay()
         
         # More aggressive logarithmic compression
         compressed_time = math.log1p(thinking_time_ms) / math.log1p(self.BASELINE_THINKING_TIME)
