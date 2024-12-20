@@ -18,7 +18,7 @@ INITIAL_POOLS = {
     'D': []
 }
 
-CURRENT_POOL = 'C'
+CURRENT_POOL = 'D'
 
 MATCH_DURATIONS = {
     "random_vs_random": 300 + 90,  # ~6.5 minutes
