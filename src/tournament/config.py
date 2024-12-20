@@ -6,19 +6,18 @@ TOURNAMENT_DIR = Path(__file__).parent
 
 # Configuration du tournoi
 NUM_POOLS = 4
-POOLS = ['A', 'B', 'C', 'D']
+POOLS = ['A', 'B']
 # RANDOM_SEED = 8016322820246606
 # random.seed(RANDOM_SEED)
 # Configuration initiale des poules (équipes pré-assignées)
 
 INITIAL_POOLS = {
     'A': [],
-    'B': [],
-    'C': [],
-    'D': []
+    'B': []
 }
 
-CURRENT_POOL = 'D'
+CURRENT_POOL = 'A'
+CURRENT_PHASE = 'ALLER'
 
 MATCH_DURATIONS = {
     "random_vs_random": 300 + 90,  # ~6.5 minutes
@@ -30,7 +29,7 @@ MATCH_DURATIONS = {
 
 
 
-fixed_teams = { "🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️", "Bélion", "Bandit binaire", "Team Zero", "Avec l'IA", "Black Witches"}
+fixed_teams = {}
 FORFEIT_TEAMS = fixed_teams
 for team in sorted(fixed_teams):
     available_pools = [pool for pool in INITIAL_POOLS if len(INITIAL_POOLS[pool]) < 2]
@@ -40,16 +39,16 @@ for team in sorted(fixed_teams):
 
 # Liste des équipes restantes
 TEAMS = [ 
-    "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Dream team",
-    "EL-LINE", "Eriatech", "Firesky", "gildasWebSite", "Gojok",
-    "IFRI", "Innovation Group (IG)",  "KACW", "Turk_3.0",
-    "Les leaders", "Les sisters", "Limitless Nexus", "Mind Misters",
-    "Mugiwara", "Némésis", "Phil Kong", "Questcoders", "Vegapunk-Stella", "Python Trident"
+    "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Eriatech", "Firesky",
+    "IFRI",  "KACW", "Les sisters", "Limitless Nexus", "Mind Misters",
+    "Mugiwara", "Némésis", "Jolych", "Les leaders"
 ]
 
-SUBMITTED_TEAMS = ["AI_MAU", "Bee Light", "KACW", "Mugiwara", "IFRI", "Némésis", 
-                   "Blacknight01", "AIverse", "BOÏZ", "Eriatech", "Les sisters", 
-                    "Limitless Nexus", "Turk_3.0", "JoLyCh"]
+SUBMITTED_TEAMS = [ 
+    "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Eriatech", 
+    "IFRI",  "KACW", "Les sisters", "Limitless Nexus", 
+    "Mugiwara", "Némésis", "Jolych",
+]
 
 def normalize_team_name(team_name):
     """Convert team name to valid filename"""
