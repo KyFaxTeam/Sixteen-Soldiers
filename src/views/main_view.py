@@ -460,15 +460,15 @@ class MainView(BaseView):
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
 
-                if self.tournament_manager.current_phase == "RETOUR" and not self.retour_popup_shown:
+                # if self.tournament_manager.current_phase == "RETOUR" and not self.retour_popup_shown:
 
-                    show_popup(
-                        "Fin de la phase ALLER\nDébut de la phase RETOUR",
-                        "Transition de phase",
-                        duration=600*1000,  # 10 minutes
-                        modal=True
-                    )
-                    self.retour_popup_shown = True
+                #     show_popup(
+                #         "Fin de la phase ALLER\nDébut de la phase RETOUR",
+                #         "Transition de phase",
+                #         duration=600*1000,  # 10 minutes
+                #         modal=True
+                #     )
+                #     self.retour_popup_shown = True
                     
                 if next_match["forfeit"]:
                     print(f"Équipe forfait: {next_match['forfeit']}")

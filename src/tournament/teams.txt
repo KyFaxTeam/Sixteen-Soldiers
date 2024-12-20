@@ -1,16 +1,16 @@
-AIverse, 
-AI_MAU, 
-Bee Light, 
-Blacknight01, 
-BOÏZ, 
-Eriatech,
-Firesky,  
-IFRI,  
-KACW, 
-Les sisters, 
-Limitless Nexus, 
-Mind Misters,
-Mugiwara, 
-Némésis, 
-Jolych, 
-Les leaders
+AIverse,B
+AI_MAU,A
+BeeLight,A
+Blacknight01,B
+BOÏZ,B
+Eriatech,B
+Firesky,A
+IFRI,A
+KACW,A
+Lessisters,B
+LimitlessNexus,B
+MindMisters,B
+Mugiwara,B
+Némésis,A
+Jolych,A
+Lesleaders,A

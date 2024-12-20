@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from src.tournament.config import BACK_TEAMS_MAPPING, FORFEIT_TEAMS, TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL
+from src.tournament.config import BACK_TEAMS_MAPPING, FORFEIT_TEAMS, TOURNAMENT_DIR, TEAMS_MAPPING, CURRENT_POOL, CURRENT_PHASE
 import logging
 
 import json
@@ -13,8 +13,8 @@ class TournamentManager:
         self.matches = []  # Liste unique de tous les matchs
         self.current_pool = current_pool
         self.teams_mapping = TEAMS_MAPPING
-        self.current_phase = "ALLER"  # Par défaut
-        self.current_match_index = 0  # Commencer à 0 directement
+        self.current_phase = CURRENT_PHASE # Par défaut
+        self.current_match_index = 0 if self.current_phase == "ALLER" else 28# Commencer à 0 directement
         
         # Chemins des fichiers
         self.state_file = TOURNAMENT_DIR / f"states/tournament_state_pool_{CURRENT_POOL}.json"
@@ -34,8 +34,9 @@ class TournamentManager:
         if self.state_file.exists():
             with open(self.state_file, 'r', encoding='utf-8') as f:
                 state = json.load(f)
-                self.current_match_index = state.get('match_index', 0)
-                self.current_phase = state.get('phase', "ALLER")
+                self.current_phase = state.get('phase', self.current_phase)
+                self.current_match_index = state.get('match_index', 0 if self.current_phase == "ALLER" else 28)
+                
                 if not self.matches:  # Charger les matchs si pas déjà fait
                     self._parse_matches_file("matches.txt", self.current_pool)
         else:
@@ -100,6 +101,7 @@ class TournamentManager:
 
         # Déterminer la phase basée sur l'index
         self.current_phase = "RETOUR" if self.current_match_index >= 28 else "ALLER"
+        
         
         match_data = self.matches[self.current_match_index]
         team1, team2, forfeit = match_data
