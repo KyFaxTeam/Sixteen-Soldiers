@@ -144,7 +144,6 @@ class TournamentManager:
             self._save_state()
             
             if latest_match: 
-                # print(f"\n📊 Mise à jour du classement... : ", latest_match)
                 self._update_ranking(latest_match)
 
         except Exception as e:
@@ -451,7 +450,6 @@ class TournamentManager:
 
         # print('********************************************* All Ranking content is correct')
         
-
     def _initialize_ranking_file(self, css_style: str):
         """Initialise le fichier de statistiques avec la structure de base."""
         initial_content = f"{css_style}\n<div class='tournament-ranking'>\n\n"

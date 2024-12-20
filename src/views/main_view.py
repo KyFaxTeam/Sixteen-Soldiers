@@ -195,7 +195,7 @@ class MainView(BaseView):
         try:
             save_game(self.store.get_state())  # Save the game
             self.logger.info("Game automatically saved when AfterGameView was displayed.")
-            show_popup("Game successfully saved automatically", "Success", "info")
+            # show_popup("Game successfully saved automatically", "Success", "info")
         except Exception as e:
             self.logger.error(f"An error occurred while automatically saving the game: {e}")
     
