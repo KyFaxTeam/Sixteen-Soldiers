@@ -3,7 +3,8 @@ from tkinter import filedialog
 import logging
 import os
 from datetime import datetime, timedelta
-from src.utils.const import  TIMINGS, Soldier, resolution, screen_width, screen_height
+from src.utils.const import  TIMINGS, Soldier, resolution, screen_width, screen_height, GameEndReason
+
 
 from src.store.store import Store
 from src.utils.save_utils import load_game, save_game
@@ -303,7 +304,7 @@ class MainView(BaseView):
         """
 
         # Gestion du cas forfait
-        if state.get("reason") == "forfeit":
+        if state.get("reason") == GameEndReason.FORFEIT.value:
             return self._compute_forfeit_statistics(state.get("winner"))
         
         # Extraction des données des équipes
@@ -364,7 +365,7 @@ class MainView(BaseView):
         pieces_b = state.get("board").count_soldiers(team_b['soldier_value'])
         
         # Déterminer le gagnant et le perdant (ou match nul)
-        if state.get("reason") == "draw":
+        if state.get("reason") == GameEndReason.DRAW_FEW_PIECES.value or state.get("reason") == GameEndReason.EQUAL_PIECES.value : 
             winner = "draw"
             loser = "draw"
         else:
