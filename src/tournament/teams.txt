@@ -1,32 +1,16 @@
-Avec l'IA,A
-Bandit binaire,A
-JoLyCh,A
-Les leaders,A
-Les sisters,A
-Limitless Nexus,A
-Turk_3.0,A
-gildasWebSite,A
-AIverse,B
-Bee Light,B
-Mind Misters,B
-Némésis,B
-Phil Kong,B
-Questcoders,B
-Vegapunk-Stella,B
-🧠𝐏𝐔𝐍𝐊 𝐑𝐄𝐂𝐎𝐑𝐃🛰️,B
-BOÏZ,C
-Black Witches,C
-Dream team,C
-EL-LINE,C
-Eriatech,C
-IFRI,C
-KACW,C
-Python Trident,C
-AI_MAU,D
-Blacknight01,D
-Bélion,D
-Firesky,D
-Gojok,D
-Innovation Group (IG),D
-Mugiwara,D
-Team Zero,D
+AIverse, 
+AI_MAU, 
+Bee Light, 
+Blacknight01, 
+BOÏZ, 
+Eriatech,
+Firesky,  
+IFRI,  
+KACW, 
+Les sisters, 
+Limitless Nexus, 
+Mind Misters,
+Mugiwara, 
+Némésis, 
+Jolych, 
+Les leaders
