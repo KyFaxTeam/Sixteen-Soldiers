@@ -186,45 +186,35 @@ class GameBoard(BaseView):
         self.reset_button.pack(side="left", padx=10, pady=5)
              
     def _move_soldier_in_board(self, soldier_id: int, target: tuple, timestamp, steps=50, delay=7):
-        """
-            Moves a piece from its current position to (target_x, target_y) in multiple steps.
-            
-            Args:
-                piece_index: The index of the soldier in self.red_soldiers
-                target: Tuple (x, y) of the target coordinates
-                steps: Number of steps for the animation
-                delay: Delay between each step in milliseconds
-            """
-        
+        """Moves a piece from its current position to target in multiple steps."""
         self.canvas.update_idletasks()
         
         if soldier_id is None:
-            self.logger.error(f"""\nError: Soldier not found at position {soldier_position}\nFrom: _move_soldier_in_board""")
+            self.logger.error("Error: Soldier not found")
             return
-        
-        delay = self.store.game_speed.get_delay_time(timestamp)
-        time.sleep(delay)
 
+        delay = self.store.game_speed.get_delay_time(timestamp)
+        delay_ms = int(delay * 1000)  # Convertir en millisecondes
+        
         # Récupérer les coordonnées actuelles
         coords = self.canvas.coords(soldier_id)
-        
         current_x, current_y = coords
         target_x, target_y = target
         
         dh = (target_x - current_x) / steps
         dv = (target_y - current_y) / steps
         
-        def step_move(step):
+        def move_step(step=0):
             if step < steps:
                 # Déplace le pion de façon incrémentale
                 self.canvas.move(soldier_id, dh, dv)
-                self.frame.after(self.store.game_speed.get_board_speed(delay), lambda: step_move(step + 1))
+                self.frame.after(self.store.game_speed.get_board_speed(delay), lambda: move_step(step + 1))
             else:
                 # Ajuste les coordonnées finales pour être exactes
                 self.canvas.coords(soldier_id, target_x, target_y)
-        
-        # Lancer l'animation
-        step_move(0)
+
+        # Commencer le mouvement après le délai initial
+        self.frame.after(delay_ms, lambda: move_step())
     
     def _get_piece_id(self, position: tuple, player: int):
         """Retourne l'ID du soldat à partir de sa position et du joueur."""
