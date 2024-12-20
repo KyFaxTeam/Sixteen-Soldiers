@@ -291,7 +291,7 @@ def create_schedule(pool: str, start_hour: int = 13):
     
     # Save schedule to text file and generate Gantt
     scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
-    scheduler.generate_gantt(schedule, f"{base_filename}.html")
+    #scheduler.generate_gantt(schedule, f"{base_filename}.html")
     
     return schedule
 
