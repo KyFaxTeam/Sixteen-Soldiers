@@ -209,7 +209,7 @@ class GameBoard(BaseView):
             delay_ms = int(delay * 10)
             
             # Define capture point
-            capture_step = int(steps * 0.65) # Capture à 60% du mouvement
+            capture_step = int(steps * 0.6) # Capture à 60% du mouvement
             
             # Calculate increments
             dh = (target_x - current_x) / steps
@@ -244,18 +244,18 @@ class GameBoard(BaseView):
 
     def _handle_capture(self, captured_id):
         """Handle piece capture"""
-        self.logger.info(f"""
-        ====== HANDLING CAPTURE =====
-        Captured ID: {captured_id}
-        Exists: {bool(self.canvas.find_withtag(captured_id))}
-        Animation State: {self.animation_state}
-        """)
+        # self.logger.info(f"""
+        # ====== HANDLING CAPTURE =====
+        # Captured ID: {captured_id}
+        # Exists: {bool(self.canvas.find_withtag(captured_id))}
+        # Animation State: {self.animation_state}
+        # """)
         
         if captured_id and self.canvas.find_withtag(captured_id):
             try:
                 self.sounds.kill_soldier()
                 self.canvas.delete(captured_id) 
-                self.logger.info("Capture successful")
+                #self.logger.info("Capture successful")
             except Exception as e:
                 self.logger.error(f"Capture failed: {e}")
 
@@ -290,13 +290,13 @@ class GameBoard(BaseView):
     def _get_piece_id(self, position: tuple, player: int):
         """Retourne l'ID du soldat à partir de sa position et du joueur."""
         soldiers = self.red_soldiers if player == 0 else self.blue_soldiers
-        logging.info(f"Checking position {position} for player {player}")
+        # logging.info(f"Checking position {position} for player {player}")
         for piece in soldiers:
             coords = self.canvas.coords(piece)
-            logging.info(f"Piece ID: {piece}, Coords: {coords}")
+            # logging.info(f"Piece ID: {piece}, Coords: {coords}")
             if tuple(coords) == position:
                 return piece
-        logging.error(f"No soldier found at position {position} for player {player}")
+        self.logger.error(f"No soldier found at position {position} for player {player}")
         return None
         
     def _make_action(self, move: dict) :
@@ -308,23 +308,23 @@ class GameBoard(BaseView):
         timestamp = move["timestamp"][-1]
 
         # Log du mouvement reçu
-        self.logger.info(f"""
-        ====== MOVE RECEIVED =====
-        From: {from_pos}
-        To: {to_pos}
-        Player: {player}
-        Captured: {move.get('captured_soldier')}
-        """)
+        # self.logger.info(f"""
+        # ====== MOVE RECEIVED =====
+        # From: {from_pos}
+        # To: {to_pos}
+        # Player: {player}
+        # Captured: {move.get('captured_soldier')}
+        # """)
 
         # Conversion en coordonnées du plateau
         from_coords = BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_)
         to_coords = BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_)
         
-        self.logger.info(f"""
-        ====== CONVERTED COORDINATES =====
-        From: {from_coords}
-        To: {to_coords}
-        """)
+        # self.logger.info(f"""
+        # ====== CONVERTED COORDINATES =====
+        # From: {from_coords}
+        # To: {to_coords}
+        # """)
 
         soldier_id = self._get_piece_id(position=from_coords, player=player)
         if soldier_id is None:
@@ -338,11 +338,11 @@ class GameBoard(BaseView):
             captured_pos = BoardUtils.algebraic_to_gameboard(captured_soldier, gap=self.GAP_)
             captured_id = self._get_piece_id(position=captured_pos, player=1 - player)
             
-            self.logger.info(f"""
-            ====== CAPTURE INFO =====
-            Captured position: {captured_soldier} -> {captured_pos}
-            Captured ID: {captured_id}
-            """)
+            # self.logger.info(f"""
+            # ====== CAPTURE INFO =====
+            # Captured position: {captured_soldier} -> {captured_pos}
+            # Captured ID: {captured_id}
+            # """)
 
         # Faire le mouvement avec la capture si nécessaire
         self._move_soldier_in_board(
