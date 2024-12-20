@@ -202,12 +202,14 @@ class GameBoard(BaseView):
             current_x, current_y = coords
             target_x, target_y = target
             
-            # Get animation parameters from game speed
             delay = min(self.store.game_speed.get_delay_time(timestamp), 100)
             board_params = self.store.game_speed.get_board_speed(delay)
             
             steps = board_params['steps']
             delay_ms = int(delay * 10)
+            
+            # Define capture point
+            capture_step = int(steps * 0.65) # Capture à 60% du mouvement
             
             # Calculate increments
             dh = (target_x - current_x) / steps
@@ -216,10 +218,16 @@ class GameBoard(BaseView):
             def move_step(step=0):
                 if step < steps and self.canvas.find_withtag(soldier_id):
                     self.canvas.move(soldier_id, dh, dv)
+                    
+                    # Handle capture during movement
+                    if captured_id and step == capture_step:
+                        self.animation_state = AnimationState.CAPTURING
+                        self._handle_capture(captured_id)
+                        
                     step_delay = max(board_params['min_delay'], board_params['animation_delay'] // steps)
                     self.canvas.after(step_delay, lambda: move_step(step + 1))
                 else:
-                    self._finalize_move(soldier_id, target_x, target_y, captured_id)
+                    self._finalize_move(soldier_id, target_x, target_y)
 
             self.current_timeout = self.canvas.after(delay_ms * 3, self._handle_timeout)
             move_step()
@@ -227,14 +235,10 @@ class GameBoard(BaseView):
         except Exception as e:
             self._handle_animation_error(f"Move error: {str(e)}")
 
-    def _finalize_move(self, soldier_id, target_x, target_y, captured_id):
-        """Finalize move and handle capture"""
+    def _finalize_move(self, soldier_id, target_x, target_y):
+        """Finalize move without handling capture (now handled during movement)"""
         try:
-            # Mettre à jour la position du soldat
             self.canvas.coords(soldier_id, target_x, target_y)
-            if captured_id:
-                self.animation_state = AnimationState.CAPTURING
-                self._handle_capture(captured_id)
         finally:
             self._end_animation()
 
