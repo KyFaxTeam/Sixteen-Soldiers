@@ -19,6 +19,19 @@ class Soldier(Enum):
     EMPTY = -1
 
 
+class GameEndReason(Enum):
+    NO_VALID_MOVES = "{color} wins - Opponent has no valid moves"
+    NO_SOLDIERS = "{color} wins - Captured all opponent's soldiers"
+    DRAW_FEW_PIECES = "Draw - Too few pieces remaining"
+    MORE_PIECES_WINS = "{color} wins - More pieces remaining"
+    EQUAL_PIECES = "Draw - Equal number of pieces"
+    TIMEOUT = "{color} wins - Opponent timeout"
+    CRASH = "{color} wins - Opponent crashed"
+    ERROR = "Game error"
+    FORFEIT = "{color} wins by forfeit"
+    REPLAY_COMPLETED = "Replay completed"
+    REPLAY_ERROR = "Error during replay"
+
 screen_info = screeninfo.get_monitors()[0]
 screen_width = screen_info.width
 screen_height = screen_info.height

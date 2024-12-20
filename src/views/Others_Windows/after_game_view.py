@@ -2,7 +2,7 @@ import os
 import customtkinter as ctk
 from PIL import Image
 from src.utils.audio import Sounds
-from src.utils.const import  AGENT_AVATAR_DIR, TIMINGS, Soldier
+from src.utils.const import  AGENT_AVATAR_DIR, TIMINGS, Soldier, GameEndReason
 from src.utils.logger_config import get_logger
 from src.models.assets.index import Assets
 
@@ -155,8 +155,15 @@ class AfterGameView(ctk.CTkToplevel):
         winner = state.get("winner")
         reason = state.get("reason", "unknown")
         # print("YOooooooooo",winner, reason)
-        
-        if reason == "forfeit": 
+         # Format the reason if it's an enum
+        if isinstance(reason, GameEndReason):
+            formatted_reason = reason.value
+            if winner:
+                formatted_reason = formatted_reason.format(color=winner.name)
+        else:
+            formatted_reason = str(reason)
+            
+        if reason == GameEndReason.FORFEIT:
             info_index = state.get("agents_info_index", {}).get(winner)
             winner_data = state.get("agents", {}).get(info_index, {})
             self.profile_img = Assets.kyfax_logo
@@ -174,31 +181,30 @@ class AfterGameView(ctk.CTkToplevel):
                 "remaining_time": TIMINGS["AI_TIMEOUT"],
                 "remaining_pawns": 16,
                 "total_moves": 0,
-                "reason": reason
+                "reason": formatted_reason
             }
         # Si c'est un match nul (draw) ou une erreur
         if winner is None:
             # Personnaliser l'affichage selon la raison
             default_data = {
                 "profile_img": Assets.kyfax_logo,
-                "team_pseudo": "Match nul",
+                "team_pseudo": "Draw",
                 "ai_name": "",
                 "soldier_value": None,
                 "remaining_time": None,
                 "remaining_pawns": None,
                 "total_moves": len(state.get("history", [])) // 2,
-                "reason": reason
+                "reason": formatted_reason,
             }
             
-            if reason == "draw_few_pieces":
-                default_data["team_pseudo"] = "Match nul"
-                default_data["ai_name"] = "Trop peu de pièces"
-            elif reason == "more_pieces_wins":
-                default_data["team_pseudo"] = "Match nul"
-                default_data["ai_name"] = "Même nombre de pièces"
-            elif reason == "error":
-                default_data["team_pseudo"] = "Erreur"
-                default_data["ai_name"] = "Partie invalide"
+            if reason == GameEndReason.DRAW_FEW_PIECES:
+                default_data["team_pseudo"] = "Draw"
+                default_data["ai_name"] = "Too few pieces"
+
+            elif reason == GameEndReason.ERROR:
+                default_data["team_pseudo"] = "Error"
+                default_data["ai_name"] = "Invalid game"
+
             
             return default_data
                 
@@ -227,7 +233,7 @@ class AfterGameView(ctk.CTkToplevel):
             "remaining_time": latest_time,
             "remaining_pawns": self.store.get_state().get("board").count_soldiers(winner_data.get('soldier_value')),
             "total_moves": number_of_moves,
-            "reason": reason
+            "reason": formatted_reason 
         }
 
     def _get_default_winner_data(self):
@@ -239,7 +245,8 @@ class AfterGameView(ctk.CTkToplevel):
             "remaining_time": None,
             "remaining_pawns": None,
             "total_moves": None,
-            "reason": "erreur inattendue"
+            "reason": GameEndReason.ERROR.value  # Use enum value directly
+
         }
 
     def on_closing(self):
