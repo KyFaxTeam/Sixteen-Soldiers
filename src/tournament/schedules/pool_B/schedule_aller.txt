@@ -20,12 +20,7 @@
 ║ [19:03:00-19:06:00] BOÏZ                 vs Mind Misters         (3min 0s ) ║
 ║ [19:06:00-19:09:00] Blacknight01         vs Mugiwara             (3min 0s ) ║
 ║ [19:09:00-19:12:00] AIverse              vs Eriatech             (3min 0s ) ║
-
-║ ============================== PHASE PAUSE ===============================║
-║ [19:12:00-19:22:00] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
-
-║ ============================== PHASE RETOUR ==============================║
-║ [19:22:00-19:25:00] Blacknight01         vs Mind Misters         (3min 0s ) ║
+║ [19:12:00-19:15:00] Blacknight01         vs Mind Misters         (3min 0s ) ║
 ║ [19:15:00-19:18:00] BOÏZ                 vs Les sisters          (3min 0s ) ║
 ║ [19:18:00-19:21:00] Limitless Nexus      vs Mugiwara             (3min 0s ) ║
 ║ [19:21:00-19:24:00] Eriatech             vs Les sisters          (3min 0s ) ║

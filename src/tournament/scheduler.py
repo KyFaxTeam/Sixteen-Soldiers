@@ -1,9 +1,8 @@
 import os
-#import plotly.figure_factory as ff
 import pandas as pd
 from datetime import datetime, timedelta
 from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import CURRENT_PHASE, SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
+from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
 from typing import List, Dict, Tuple, Optional
 from src.utils.const import Soldier
 
@@ -16,13 +15,14 @@ MATCH_DURATIONS = {
 }
 
 class MatchScheduler:
-    def __init__(self, pool: str):
+    def __init__(self, pool: str, phase: str = None):
         self.tournament = TournamentManager(None, current_pool=pool)  # Just to get matches
         matches = self.tournament.matches
+        self.phase = phase
         
         # Filter matches based on current phase if it's set
-        if CURRENT_PHASE:
-            if CURRENT_PHASE == "ALLER":
+        if phase:
+            if phase == "ALLER":
                 self.matches = matches[:len(matches)//2]
             else:  # RETOUR
                 self.matches = matches[len(matches)//2:]
@@ -69,7 +69,7 @@ class MatchScheduler:
                 "team2": team2,
                 "match_type": match_type,
                 "duration": duration,
-                "phase": "RETOUR" if i > len(self.matches)//2 else "ALLER"
+                "phase": self.phase
             }
             
             schedule.append(match_info)
@@ -282,27 +282,15 @@ class MatchScheduler:
         fig.write_html(filename)
 
 def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
-    """Create and display a schedule for a pool starting at given hour.
-    
-    Args:
-        pool (str): Pool identifier ('A', 'B', etc.)
-        start_hour (float): Starting hour (e.g., 13.5 for 13:30)
-        phase (str): Optional phase filter ('ALLER' or 'RETOUR')
-    """
-    # Convert decimal hours to hours and minutes
+    """Create and display a schedule for a pool starting at given hour."""
     hours = int(start_hour)
     minutes = int((start_hour % 1) * 60)
     
     start_time = datetime.now().replace(
         hour=hours, minute=minutes, second=0, microsecond=0)
     
-    # Override config phase if specified
-    original_phase = CURRENT_PHASE
-    if phase:
-        from src.tournament.config import set_current_phase
-        set_current_phase(phase)
-    
-    scheduler = MatchScheduler(pool)
+    # Create scheduler with phase
+    scheduler = MatchScheduler(pool, phase)
     schedule = scheduler.generate_schedule(start_time)
     formatted_schedule = scheduler.format_schedule(schedule)
     
@@ -317,10 +305,6 @@ def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
     print(formatted_schedule)
     
     scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
-    
-    # Restore original phase if changed
-    if phase:
-        set_current_phase(original_phase)
     
     return schedule
 

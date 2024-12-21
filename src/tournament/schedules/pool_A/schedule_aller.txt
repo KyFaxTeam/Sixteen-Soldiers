@@ -20,12 +20,7 @@
 ║ [17:03:00-17:06:00] AI_MAU               vs Jolych               (3min 0s ) ║
 ║ [17:06:00-17:09:00] Firesky              vs Némésis              (3min 0s ) ║
 ║ [17:09:00-17:12:00] AI_MAU               vs Bee Light            (3min 0s ) ║
-
-║ ============================== PHASE PAUSE ===============================║
-║ [17:12:00-17:22:00] PAUSE ENTRE PHASES   vs                      (10min 0s) ║
-
-║ ============================== PHASE RETOUR ==============================║
-║ [17:22:00-17:25:00] IFRI                 vs Les leaders          (3min 0s ) ║
+║ [17:12:00-17:15:00] IFRI                 vs Les leaders          (3min 0s ) ║
 ║ [17:15:00-17:18:00] KACW                 vs Jolych               (3min 0s ) ║
 ║ [17:18:00-17:21:00] AI_MAU               vs Firesky              (3min 0s ) ║
 ║ [17:21:00-17:24:00] Bee Light            vs Némésis              (3min 0s ) ║
