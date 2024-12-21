@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def _parse_existing_ranking(self, content: str) -> list:
+def _parse_existing_ranking(content: str) -> list:
     """
     Parse le contenu existant du fichier de classement pour extraire les données des équipes.
     
@@ -47,104 +47,32 @@ def _parse_existing_ranking(self, content: str) -> list:
     return teams_ranking
 
 
-    def _update_team_ranking(self, teams_ranking: list, latest_match: dict) -> list:
-        """Met à jour le classement des équipes avec les résultats du dernier match."""
-        team_a = latest_match['team_a']
-        team_b = latest_match['team_b']
-        
-        # Fonction helper pour initialiser une nouvelle équipe
-        def create_new_team(team_name):
-            return {
-                'team': team_name,
-                'points': 0,
-                'margin': 0,
-                'matches': 0,
-                'wins': 0,
-                'draws': 0,
-                'losses': 0,
-                'avg_moves': 0,
-                'avg_time': 0
-            }
+def _generate_ranking_table(self, teams_ranking: list, css_style: str) -> str:
+    """
+    Génère le contenu du fichier de classement.
+    """
+    content = [
+        css_style,
+        "<div class='tournament-ranking'>",
+        f"\n# Classement du Tournoi - Pool {self.current_pool}\n",
+        "| Position | Équipe | Points | Marge | Matches | V | N | D | Moy. Coups | Moy. Temps |",
+        "|----------|--------|--------|--------|---------|---|---|---|------------|------------|"
+    ]
 
-        # Récupérer ou créer les stats des équipes
-        team_a_stats = next((team for team in teams_ranking if team['team'] == team_a), create_new_team(team_a))
-        team_b_stats = next((team for team in teams_ranking if team['team'] == team_b), create_new_team(team_b))
+    # Utiliser directement la position stockée dans chaque équipe
+    for team in teams_ranking:
+        content.append(
+            f"| {team['position']} | {team['team']} | {team['points']} | {team['margin']} | "
+            f"{team['matches']} | {team['wins']} | {team['draws']} | {team['losses']} | "
+            f"{team['avg_moves']:.2f} | {team['avg_time']:.2f} |"
+        )
 
-        # Mettre à jour les statistiques du match
-        for team_stats, team_role in [(team_a_stats, 'a'), (team_b_stats, 'b')]:
+    content.extend([
+        "\n\n_Dernière mise à jour : " + datetime.now().strftime('%d/%m/%Y %H:%M:%S') + "_",
+        "</div>"
+    ])
 
-            # Incrémenter le nombre de matches
-            team_stats['matches'] += 1
-            
-            # Mettre à jour les points et résultats
-            if latest_match['winner'] == team_stats['team']:
-                team_stats['wins'] += 1
-                team_stats['points'] += 3
-            elif latest_match['winner'] == 'draw':
-                team_stats['draws'] += 1
-                team_stats['points'] += 1
-            else:
-                team_stats['losses'] += 1
-
-            # Calculer la marge
-            pieces_diff = latest_match[f'pieces_{team_role}'] - latest_match[f'pieces_{"b" if team_role == "a" else "a"}']
-            team_stats['margin'] += pieces_diff
-
-            # Mettre à jour les moyennes de coups et de temps
-            current_moves = team_stats['avg_moves'] * (team_stats['matches'] - 1)
-            new_moves = latest_match[f'moves_{team_role}']
-            team_stats['avg_moves'] = (current_moves + new_moves) / team_stats['matches']
-
-            current_time = team_stats['avg_time'] * (team_stats['matches'] - 1)
-            new_time = latest_match[f'time_{team_role}']
-            team_stats['avg_time'] = (current_time + new_time) / team_stats['matches']
-
-
-            # Ajouter l'équipe au classement si elle n'y est pas déjà
-            if team_stats not in teams_ranking:
-                teams_ranking.append(team_stats)
-
-        # Trier le classement
-        teams_ranking.sort(key=lambda x: (
-            x['points'],           # D'abord par points
-            x['wins'],            # Puis par nombre de victoires
-            x['margin'],          # Puis par marge
-            -x['avg_time'],        # Puis par temps moyen (moins c'est mieux)
-            -x['avg_moves'],      # Puis par moyenne de coups (moins c'est mieux)
-        ), reverse=True)
-
-        # Mettre à jour les positions après le tri
-        for i, team in enumerate(teams_ranking, 1):
-            team['position'] = i
-
-        return teams_ranking
-    
-    def _generate_ranking_table(self, teams_ranking: list, css_style: str) -> str:
-        """
-        Génère le contenu du fichier de classement.
-        """
-        content = [
-            css_style,
-            "<div class='tournament-ranking'>",
-            f"\n# Classement du Tournoi - Pool {self.current_pool}\n",
-            "| Position | Équipe | Points | Marge | Matches | V | N | D | Moy. Coups | Moy. Temps |",
-            "|----------|--------|--------|--------|---------|---|---|---|------------|------------|"
-        ]
-
-        # Utiliser directement la position stockée dans chaque équipe
-        for team in teams_ranking:
-            content.append(
-                f"| {team['position']} | {team['team']} | {team['points']} | {team['margin']} | "
-                f"{team['matches']} | {team['wins']} | {team['draws']} | {team['losses']} | "
-                f"{team['avg_moves']:.2f} | {team['avg_time']:.2f} |"
-            )
-
-        content.extend([
-            "\n\n_Dernière mise à jour : " + datetime.now().strftime('%d/%m/%Y %H:%M:%S') + "_",
-            "</div>"
-        ])
-
-        return '\n'.join(content)
+    return '\n'.join(content)
 
 def merge_rankings(aller_path: str, retour_path: str, output_path: str):
     """
