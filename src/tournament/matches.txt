@@ -2,227 +2,227 @@
 
 === Round 1 ===
 A: Firesky vs IFRI
-B: Blacknight01 vs Lessisters
+B: Blacknight01 vs Les sisters
 
 === Round 2 ===
-A: AI_MAU vs Jolych
-B: LimitlessNexus vs MindMisters
+A: Bee Light vs KACW
+B: Limitless Nexus vs Mind Misters
 
 === Round 3 ===
-A: BeeLight vs KACW
+A: Jolych vs Les leaders
 B: BOÏZ vs Mugiwara
 
 === Round 4 ===
-A: IFRI vs Némésis
-B: Eriatech vs Lessisters
+A: AI_MAU vs Némésis
+B: AIverse vs Mind Misters
 
 === Round 5 ===
-A: Firesky vs Lesleaders
-B: AIverse vs Blacknight01
-
-=== Round 6 ===
-A: AI_MAU vs BeeLight
-B: BOÏZ vs LimitlessNexus
-
-=== Round 7 ===
-A: KACW vs Jolych
-B: Lessisters vs MindMisters
-
-=== Round 8 ===
-A: Firesky vs Némésis
-B: Eriatech vs Mugiwara
-
-=== Round 9 ===
-A: AI_MAU vs IFRI
-B: AIverse vs LimitlessNexus
-
-=== Round 10 ===
-A: BeeLight vs Lesleaders
-B: Blacknight01 vs BOÏZ
-
-=== Round 11 ===
-A: Firesky vs Jolych
-B: Lessisters vs Mugiwara
-
-=== Round 12 ===
-A: KACW vs Némésis
-B: AIverse vs Eriatech
-
-=== Round 13 ===
-A: IFRI vs Lesleaders
-B: Blacknight01 vs MindMisters
-
-=== Round 14 ===
-A: BeeLight vs Firesky
-B: Lessisters vs LimitlessNexus
-
-=== Round 15 ===
-A: Némésis vs Jolych
-B: AIverse vs BOÏZ
-
-=== Round 16 ===
-A: KACW vs Lesleaders
-B: MindMisters vs Mugiwara
-
-=== Round 17 ===
-A: AI_MAU vs Némésis
+A: Bee Light vs Firesky
 B: Blacknight01 vs Eriatech
 
-=== Round 18 ===
-A: BeeLight vs IFRI
-B: BOÏZ vs Lessisters
+=== Round 6 ===
+A: IFRI vs KACW
+B: Les sisters vs Mind Misters
 
-=== Round 19 ===
-A: IFRI vs Jolych
-B: AIverse vs Mugiwara
+=== Round 7 ===
+A: AI_MAU vs Les leaders
+B: BOÏZ vs Limitless Nexus
 
-=== Round 20 ===
+=== Round 8 ===
+A: Némésis vs Jolych
+B: Mind Misters vs Mugiwara
+
+=== Round 9 ===
 A: Firesky vs KACW
-B: Eriatech vs LimitlessNexus
+B: AIverse vs Blacknight01
 
-=== Round 21 ===
-A: AI_MAU vs Lesleaders
+=== Round 10 ===
+A: Bee Light vs IFRI
+B: Eriatech vs Mind Misters
+
+=== Round 11 ===
+A: Némésis vs Les leaders
+B: Les sisters vs Limitless Nexus
+
+=== Round 12 ===
+A: AI_MAU vs Jolych
+B: BOÏZ vs Mind Misters
+
+=== Round 13 ===
+A: Firesky vs Némésis
 B: Blacknight01 vs Mugiwara
 
+=== Round 14 ===
+A: AI_MAU vs Bee Light
+B: AIverse vs Eriatech
+
+=== Round 15 ===
+A: IFRI vs Les leaders
+B: Blacknight01 vs Mind Misters
+
+=== Round 16 ===
+A: KACW vs Jolych
+B: BOÏZ vs Les sisters
+
+=== Round 17 ===
+A: AI_MAU vs Firesky
+B: Limitless Nexus vs Mugiwara
+
+=== Round 18 ===
+A: Bee Light vs Némésis
+B: Eriatech vs Les sisters
+
+=== Round 19 ===
+A: KACW vs Les leaders
+B: Blacknight01 vs BOÏZ
+
+=== Round 20 ===
+A: IFRI vs Jolych
+B: AIverse vs Limitless Nexus
+
+=== Round 21 ===
+A: Firesky vs Les leaders
+B: Les sisters vs Mugiwara
+
 === Round 22 ===
-A: BeeLight vs Némésis
-B: BOÏZ vs MindMisters
-
-=== Round 23 ===
-A: IFRI vs KACW
-B: AIverse vs Lessisters
-
-=== Round 24 ===
-A: Jolych vs Lesleaders
+A: KACW vs Némésis
 B: BOÏZ vs Eriatech
 
+=== Round 23 ===
+A: Bee Light vs Les leaders
+B: Blacknight01 vs Limitless Nexus
+
+=== Round 24 ===
+A: AI_MAU vs IFRI
+B: AIverse vs Mugiwara
+
 === Round 25 ===
-A: AI_MAU vs KACW
-B: LimitlessNexus vs Mugiwara
+A: Firesky vs Jolych
+B: AIverse vs Les sisters
 
 === Round 26 ===
-A: Némésis vs Lesleaders
-B: AIverse vs MindMisters
+A: IFRI vs Némésis
+B: Eriatech vs Limitless Nexus
 
 === Round 27 ===
-A: BeeLight vs Jolych
-B: Blacknight01 vs LimitlessNexus
+A: AI_MAU vs KACW
+B: AIverse vs BOÏZ
 
 === Round 28 ===
-A: AI_MAU vs Firesky
-B: Eriatech vs MindMisters
+A: Bee Light vs Jolych
+B: Eriatech vs Mugiwara
 
 ======= PHASE RETOUR =======
 
 === Round 29 ===
 A: IFRI vs Firesky
-B: Lessisters vs Blacknight01
+B: Les sisters vs Blacknight01
 
 === Round 30 ===
-A: Jolych vs AI_MAU
-B: MindMisters vs LimitlessNexus
+A: KACW vs Bee Light
+B: Mind Misters vs Limitless Nexus
 
 === Round 31 ===
-A: KACW vs BeeLight
+A: Les leaders vs Jolych
 B: Mugiwara vs BOÏZ
 
 === Round 32 ===
-A: Némésis vs IFRI
-B: Lessisters vs Eriatech
+A: Némésis vs AI_MAU
+B: Mind Misters vs AIverse
 
 === Round 33 ===
-A: Lesleaders vs Firesky
-B: Blacknight01 vs AIverse
-
-=== Round 34 ===
-A: BeeLight vs AI_MAU
-B: LimitlessNexus vs BOÏZ
-
-=== Round 35 ===
-A: Jolych vs KACW
-B: MindMisters vs Lessisters
-
-=== Round 36 ===
-A: Némésis vs Firesky
-B: Mugiwara vs Eriatech
-
-=== Round 37 ===
-A: IFRI vs AI_MAU
-B: LimitlessNexus vs AIverse
-
-=== Round 38 ===
-A: Lesleaders vs BeeLight
-B: BOÏZ vs Blacknight01
-
-=== Round 39 ===
-A: Jolych vs Firesky
-B: Mugiwara vs Lessisters
-
-=== Round 40 ===
-A: Némésis vs KACW
-B: Eriatech vs AIverse
-
-=== Round 41 ===
-A: Lesleaders vs IFRI
-B: MindMisters vs Blacknight01
-
-=== Round 42 ===
-A: Firesky vs BeeLight
-B: LimitlessNexus vs Lessisters
-
-=== Round 43 ===
-A: Jolych vs Némésis
-B: BOÏZ vs AIverse
-
-=== Round 44 ===
-A: Lesleaders vs KACW
-B: Mugiwara vs MindMisters
-
-=== Round 45 ===
-A: Némésis vs AI_MAU
+A: Firesky vs Bee Light
 B: Eriatech vs Blacknight01
 
-=== Round 46 ===
-A: IFRI vs BeeLight
-B: Lessisters vs BOÏZ
+=== Round 34 ===
+A: KACW vs IFRI
+B: Mind Misters vs Les sisters
 
-=== Round 47 ===
-A: Jolych vs IFRI
-B: Mugiwara vs AIverse
+=== Round 35 ===
+A: Les leaders vs AI_MAU
+B: Limitless Nexus vs BOÏZ
 
-=== Round 48 ===
+=== Round 36 ===
+A: Jolych vs Némésis
+B: Mugiwara vs Mind Misters
+
+=== Round 37 ===
 A: KACW vs Firesky
-B: LimitlessNexus vs Eriatech
+B: Blacknight01 vs AIverse
 
-=== Round 49 ===
-A: Lesleaders vs AI_MAU
+=== Round 38 ===
+A: IFRI vs Bee Light
+B: Mind Misters vs Eriatech
+
+=== Round 39 ===
+A: Les leaders vs Némésis
+B: Limitless Nexus vs Les sisters
+
+=== Round 40 ===
+A: Jolych vs AI_MAU
+B: Mind Misters vs BOÏZ
+
+=== Round 41 ===
+A: Némésis vs Firesky
 B: Mugiwara vs Blacknight01
 
+=== Round 42 ===
+A: Bee Light vs AI_MAU
+B: Eriatech vs AIverse
+
+=== Round 43 ===
+A: Les leaders vs IFRI
+B: Mind Misters vs Blacknight01
+
+=== Round 44 ===
+A: Jolych vs KACW
+B: Les sisters vs BOÏZ
+
+=== Round 45 ===
+A: Firesky vs AI_MAU
+B: Mugiwara vs Limitless Nexus
+
+=== Round 46 ===
+A: Némésis vs Bee Light
+B: Les sisters vs Eriatech
+
+=== Round 47 ===
+A: Les leaders vs KACW
+B: BOÏZ vs Blacknight01
+
+=== Round 48 ===
+A: Jolych vs IFRI
+B: Limitless Nexus vs AIverse
+
+=== Round 49 ===
+A: Les leaders vs Firesky
+B: Mugiwara vs Les sisters
+
 === Round 50 ===
-A: Némésis vs BeeLight
-B: MindMisters vs BOÏZ
-
-=== Round 51 ===
-A: KACW vs IFRI
-B: Lessisters vs AIverse
-
-=== Round 52 ===
-A: Lesleaders vs Jolych
+A: Némésis vs KACW
 B: Eriatech vs BOÏZ
 
+=== Round 51 ===
+A: Les leaders vs Bee Light
+B: Limitless Nexus vs Blacknight01
+
+=== Round 52 ===
+A: IFRI vs AI_MAU
+B: Mugiwara vs AIverse
+
 === Round 53 ===
-A: KACW vs AI_MAU
-B: Mugiwara vs LimitlessNexus
+A: Jolych vs Firesky
+B: Les sisters vs AIverse
 
 === Round 54 ===
-A: Lesleaders vs Némésis
-B: MindMisters vs AIverse
+A: Némésis vs IFRI
+B: Limitless Nexus vs Eriatech
 
 === Round 55 ===
-A: Jolych vs BeeLight
-B: LimitlessNexus vs Blacknight01
+A: KACW vs AI_MAU
+B: BOÏZ vs AIverse
 
 === Round 56 ===
-A: Firesky vs AI_MAU
-B: MindMisters vs Eriatech
+A: Jolych vs Bee Light
+B: Mugiwara vs Eriatech
 

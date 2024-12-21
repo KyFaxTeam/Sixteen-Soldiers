@@ -7,8 +7,8 @@ TOURNAMENT_DIR = Path(__file__).parent
 # Configuration du tournoi
 NUM_POOLS = 4
 POOLS = ['A', 'B']
-# RANDOM_SEED = 8016322820246606
-# random.seed(RANDOM_SEED)
+RANDOM_SEED = 8016322820246606
+random.seed(RANDOM_SEED)
 # Configuration initiale des poules (équipes pré-assignées)
 
 INITIAL_POOLS = {
@@ -60,3 +60,11 @@ all_teams = set(TEAMS) | {team for teams in INITIAL_POOLS.values() for team in t
 TEAMS_MAPPING = {team: normalize_team_name(team) for team in all_teams}
 
 BACK_TEAMS_MAPPING = {v: k for k, v in TEAMS_MAPPING.items()}
+
+def set_current_phase(phase: str):
+    """Set the current tournament phase."""
+    global CURRENT_PHASE
+    if phase in [None, "ALLER", "RETOUR"]:
+        CURRENT_PHASE = phase
+    else:
+        raise ValueError("Phase must be either 'ALLER', 'RETOUR' or None")

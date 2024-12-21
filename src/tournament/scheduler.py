@@ -1,5 +1,4 @@
 import os
-import plotly.figure_factory as ff
 import pandas as pd
 from datetime import datetime, timedelta
 from src.tournament.tournament_manager import TournamentManager
@@ -16,9 +15,20 @@ MATCH_DURATIONS = {
 }
 
 class MatchScheduler:
-    def __init__(self, pool: str):
+    def __init__(self, pool: str, phase: str = None):
         self.tournament = TournamentManager(None, current_pool=pool)  # Just to get matches
-        self.matches = self.tournament.matches
+        matches = self.tournament.matches
+        self.phase = phase
+        
+        # Filter matches based on current phase if it's set
+        if phase:
+            if phase == "ALLER":
+                self.matches = matches[:len(matches)//2]
+            else:  # RETOUR
+                self.matches = matches[len(matches)//2:]
+        else:
+            self.matches = matches
+            
         self.pool = pool
         self.PHASE_BREAK_DURATION = 600  # 15 minutes
         self.MIN_BREAK_DURATION = 300     # 5 minutes
@@ -59,7 +69,7 @@ class MatchScheduler:
                 "team2": team2,
                 "match_type": match_type,
                 "duration": duration,
-                "phase": "RETOUR" if i > len(self.matches)//2 else "ALLER"
+                "phase": self.phase
             }
             
             schedule.append(match_info)
@@ -70,25 +80,25 @@ class MatchScheduler:
     def _add_breaks(self, schedule: List[Dict]) -> List[Dict]:
         """Add breaks between phases."""
         enhanced_schedule = []
-        last_match_end = None
+        # last_match_end = None
 
         for match in schedule:
             current_time = match["start_time"]
             
-            # Add break between phases only
-            if enhanced_schedule and match["phase"] != enhanced_schedule[-1]["phase"]:
-                phase_break = {
-                    "round": "PAUSE",
-                    "start_time": current_time,
-                    "end_time": current_time + timedelta(seconds=self.PHASE_BREAK_DURATION),
-                    "team1": "PAUSE ENTRE PHASES",
-                    "team2": "",
-                    "match_type": "break",
-                    "duration": self.PHASE_BREAK_DURATION,
-                    "phase": "PAUSE"
-                }
-                enhanced_schedule.append(phase_break)
-                current_time = phase_break["end_time"]
+            # # Add break between phases only
+            # if enhanced_schedule and match["phase"] != enhanced_schedule[-1]["phase"]:
+            #     phase_break = {
+            #         "round": "PAUSE",
+            #         "start_time": current_time,
+            #         "end_time": current_time + timedelta(seconds=self.PHASE_BREAK_DURATION),
+            #         "team1": "PAUSE ENTRE PHASES",
+            #         "team2": "",
+            #         "match_type": "break",
+            #         "duration": self.PHASE_BREAK_DURATION,
+            #         "phase": "PAUSE"
+            #     }
+            #     enhanced_schedule.append(phase_break)
+            #     current_time = phase_break["end_time"]
 
             # Update match timing
             match["start_time"] = current_time
@@ -271,17 +281,22 @@ class MatchScheduler:
         
         fig.write_html(filename)
 
-def create_schedule(pool: str, start_hour: int = 13):
+def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
     """Create and display a schedule for a pool starting at given hour."""
-    start_time = datetime.now().replace(
-        hour=start_hour, minute=0, second=0, microsecond=0)
+    hours = int(start_hour)
+    minutes = int((start_hour % 1) * 60)
     
-    scheduler = MatchScheduler(pool)
+    start_time = datetime.now().replace(
+        hour=hours, minute=minutes, second=0, microsecond=0)
+    
+    # Create scheduler with phase
+    scheduler = MatchScheduler(pool, phase)
     schedule = scheduler.generate_schedule(start_time)
     formatted_schedule = scheduler.format_schedule(schedule)
     
     # Save schedule to files in the pool directory
-    base_filename = scheduler.output_dir / "schedule"
+    phase_suffix = f"_{phase.lower()}" if phase else ""
+    base_filename = scheduler.output_dir / f"schedule{phase_suffix}"
     
     with open(f"{base_filename}.txt", "w", encoding="utf-8") as f:
         f.write(formatted_schedule)
@@ -289,11 +304,9 @@ def create_schedule(pool: str, start_hour: int = 13):
     print(f"\nSchedule saved to {base_filename}.txt")
     print(formatted_schedule)
     
-    # Save schedule to text file and generate Gantt
     scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
-    #scheduler.generate_gantt(schedule, f"{base_filename}.html")
     
     return schedule
 
 if __name__ == "__main__":
-    create_schedule("C", 13)  # Créer un planning pour la poule C commençant à 13h
+    create_schedule("A", 13, "ALLER")  # Example: Create schedule for pool A, phase ALLER

@@ -1,0 +1,37 @@
+
+╔══════════════════════════════════════════════════════════════════════════════
+║ PLANNING DES MATCHS - POOL B
+╠══════════════════════════════════════════════════════════════════════════════
+║ Format: [Heure] Team1 vs Team2 (Durée)
+╟──────────────────────────────────────────────────────────────────────────────
+
+║ ============================== PHASE RETOUR ==============================║
+║ [19:30:00-19:33:00] Les sisters          vs Blacknight01         (3min 0s ) ║
+║ [19:33:00-19:36:00] Mind Misters         vs Limitless Nexus      (3min 0s ) ║
+║ [19:36:00-19:39:00] Mugiwara             vs BOÏZ                 (3min 0s ) ║
+║ [19:39:00-19:42:00] Mind Misters         vs AIverse              (3min 0s ) ║
+║ [19:42:00-19:45:00] Eriatech             vs Blacknight01         (3min 0s ) ║
+║ [19:45:00-19:48:00] Mind Misters         vs Les sisters          (3min 0s ) ║
+║ [19:48:00-19:51:00] Limitless Nexus      vs BOÏZ                 (3min 0s ) ║
+║ [19:51:00-19:54:00] Mugiwara             vs Mind Misters         (3min 0s ) ║
+║ [19:54:00-19:57:00] Blacknight01         vs AIverse              (3min 0s ) ║
+║ [19:57:00-20:00:00] Mind Misters         vs Eriatech             (3min 0s ) ║
+║ [20:00:00-20:03:00] Limitless Nexus      vs Les sisters          (3min 0s ) ║
+║ [20:03:00-20:06:00] Mind Misters         vs BOÏZ                 (3min 0s ) ║
+║ [20:06:00-20:09:00] Mugiwara             vs Blacknight01         (3min 0s ) ║
+║ [20:09:00-20:12:00] Eriatech             vs AIverse              (3min 0s ) ║
+║ [20:12:00-20:15:00] Mind Misters         vs Blacknight01         (3min 0s ) ║
+║ [20:15:00-20:18:00] Les sisters          vs BOÏZ                 (3min 0s ) ║
+║ [20:18:00-20:21:00] Mugiwara             vs Limitless Nexus      (3min 0s ) ║
+║ [20:21:00-20:24:00] Les sisters          vs Eriatech             (3min 0s ) ║
+║ [20:24:00-20:27:00] BOÏZ                 vs Blacknight01         (3min 0s ) ║
+║ [20:27:00-20:30:00] Limitless Nexus      vs AIverse              (3min 0s ) ║
+║ [20:30:00-20:33:00] Mugiwara             vs Les sisters          (3min 0s ) ║
+║ [20:33:00-20:36:00] Eriatech             vs BOÏZ                 (3min 0s ) ║
+║ [20:36:00-20:39:00] Limitless Nexus      vs Blacknight01         (3min 0s ) ║
+║ [20:39:00-20:42:00] Mugiwara             vs AIverse              (3min 0s ) ║
+║ [20:42:00-20:45:00] Les sisters          vs AIverse              (3min 0s ) ║
+║ [20:45:00-20:48:00] Limitless Nexus      vs Eriatech             (3min 0s ) ║
+║ [20:48:00-20:51:00] BOÏZ                 vs AIverse              (3min 0s ) ║
+║ [20:51:00-20:54:00] Mugiwara             vs Eriatech             (3min 0s ) ║
+╚══════════════════════════════════════════════════════════════════════════════
