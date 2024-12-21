@@ -275,16 +275,16 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     # Gemstone color schemes
     GEMSTONE_COLORS = {
         'TOPAZE': {
-            'primary': 'rgba(255, 215, 0, 0.8)',      # Golden
-            'secondary': 'rgba(218, 165, 32, 0.8)',   # Darker golden
-            'background': 'rgba(255, 223, 0, 0.1)',   # Very light golden
-            'separator': 'rgba(184, 134, 11, 0.8)',   # Golden brown
+            'primary': 'rgba(255, 215, 0, 0.85)',      # Golden (more opaque)
+            'secondary': 'rgba(218, 165, 32, 0.95)',   # Darker golden (most opaque)
+            'background': 'rgba(255, 223, 0, 0.1)',    # Very light golden
+            'separator': 'rgba(184, 134, 11, 0.9)',    # Golden brown
         },
         'AMETHYSTE': {
-            'primary': 'rgba(147, 112, 219, 0.8)',    # Purple
-            'secondary': 'rgba(138, 43, 226, 0.8)',   # Darker purple
-            'background': 'rgba(230, 230, 250, 0.1)', # Very light purple
-            'separator': 'rgba(148, 0, 211, 0.8)',    # Deep purple
+            'primary': 'rgba(147, 112, 219, 0.75)',    # Light purple (less opaque)
+            'secondary': 'rgba(138, 43, 226, 0.95)',   # Deep purple (most opaque)
+            'background': 'rgba(230, 230, 250, 0.1)',  # Very light purple
+            'separator': 'rgba(148, 0, 211, 0.9)',     # Vivid purple
         }
     }
 
@@ -387,9 +387,10 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                 opponent = match['team2'] if team == match['team1'] else match['team1']
                 # Enhanced hover text
                 hover_text = (
-                    f"<b>{team}</b> vs <b>{opponent}</b><br>"
-                    f"<i>{match['start_time'].strftime('%H:%M')}</i><br>"
-                    f"Phase {phase}"
+                    f"<b style='font-size: 14px; color: #333;'>{team}</b> vs "
+                    f"<b style='font-size: 14px; color: #333;'>{opponent}</b><br>"
+                    f"<i style='color: #666;'>{match['start_time'].strftime('%H:%M')}</i><br>"
+                    f"<span style='font-weight: 500; color: #444;'>Phase {phase}</span>"
                 )
                 
                 fig.add_trace(go.Scatter(
@@ -399,16 +400,21 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                     mode='markers',
                     marker=dict(
                         symbol='square',
-                        size=16,
+                        size=18,  # Slightly larger markers
                         color=phase_colors[phase],
-                        line=dict(color='white', width=1)
+                        line=dict(color='white', width=1.5)  # Thicker white border
                     ),
                     text=hover_text,
                     hoverinfo='text',
                     hoverlabel=dict(
                         bgcolor='white',
-                        font=dict(color='black'),
-                        bordercolor=phase_colors[phase]
+                        font=dict(
+                            family='Arial',
+                            size=14,
+                            color='black'
+                        ),
+                        bordercolor=phase_colors[phase],
+                        align='left'
                     ),
                     showlegend=False
                 ))
@@ -416,7 +422,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                 # Add connection lines with gradient effect
                 if len(team_matches) > 1:
                     match_idx = team_matches.index(match)
-                    if match_idx < len(team_matches) - 1:
+                    if (match_idx < len(team_matches) - 1):
                         next_match = team_matches[match_idx + 1]
                         fig.add_trace(go.Scatter(
                             x=[match['start_time'], next_match['start_time']],
@@ -437,13 +443,20 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     # Enhanced layout with pool display name
     fig.update_layout(
         title=dict(
-            text=f'Planning des matchs - Pool {pool_name}',
-            font=dict(size=24, color='rgba(0,0,0,0.8)'),
+            text=f'<b style="font-family: Arial;">Planning des matchs - Pool <span style="color: {colors["primary"].replace("0.85", "1.0")}">{pool_name}</span></b>',
+            font=dict(size=28, color='rgba(0,0,0,0.87)'),
             x=0.5,
             y=0.95
         ),
         xaxis=dict(
-            title='Heure',
+            title=dict(
+                text='<b>Heure</b>',
+                font=dict(
+                    family='Arial',
+                    size=16,
+                    color='rgba(0,0,0,0.75)'
+                )
+            ),
             title_font=dict(size=14),
             type='date',
             tickformat='%H:%M',
@@ -451,13 +464,28 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             range=[base_time, end_time],
             showgrid=True,
             gridcolor='rgba(0,0,0,0.1)',
-            zeroline=False
+            zeroline=False,
+            tickfont=dict(
+                family='Arial',
+                size=13,
+                color='rgba(0,0,0,0.75)'
+            )
         ),
         yaxis=dict(
-            title='Équipes',
-            title_font=dict(size=14),
-            ticktext=sorted(teams),
+            title=dict(
+                text='<b>Équipes</b>',
+                font=dict(
+                    family='Arial',
+                    size=16,
+                    color='rgba(0,0,0,0.75)'
+                )
+            ),
+            ticktext=[f'<b style="font-family: Arial;">{team}</b>' for team in sorted(teams)],  # Bold team names
             tickvals=list(range(len(teams))),
+            tickfont=dict(
+                family='Arial',
+                size=13
+            ),
             showgrid=True,
             gridcolor='rgba(0,0,0,0.1)',
             zeroline=False
@@ -492,6 +520,29 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         width=1000,  # Updated from 900 to 1000
         autosize=True,  # Allow responsive scaling above minimum width
     )
+
+    # Add phase labels with enhanced styling
+    for phase, (start, end) in {
+        '<b style="font-family: Arial;">PHASE ALLER</b>': (base_time, phase_change_time),
+        '<b style="font-family: Arial;">PHASE RETOUR</b>': (phase_change_time, end_time)
+    }.items():
+        center_time = start + (end - start) / 2
+        fig.add_annotation(
+            x=center_time,
+            y=len(teams) + 0.5,
+            text=phase,
+            showarrow=False,
+            font=dict(
+                size=16,
+                color='rgba(0,0,0,0.8)',
+                family='Arial'
+            ),
+            bgcolor='rgba(255,255,255,0.9)',
+            bordercolor='rgba(0,0,0,0.2)',
+            borderwidth=1,
+            borderpad=6,
+            yshift=20
+        )
 
     # Save the figure with mobile-friendly configuration
     output_dir = Path(TOURNAMENT_DIR) / "schedules" / f"pool_{pool}"
