@@ -371,7 +371,7 @@ class MainView(BaseView):
         else:
             formatted_reason = str(reason)
         # Déterminer le gagnant et le perdant (ou match nul)
-        print("********************** reason : ", formatted_reason)
+        # print("********************** reason : ", formatted_reason)
         if formatted_reason == GameEndReason.DRAW_FEW_PIECES.value or formatted_reason == GameEndReason.EQUAL_PIECES.value : 
             winner = "draw"
             loser = "draw"
