@@ -1,5 +1,5 @@
 import sys
-
+import argparse
 
 # Force UTF-8 output encoding
 if sys.platform.startswith('win'):
@@ -8,22 +8,26 @@ if sys.platform.startswith('win'):
     subprocess.run(['chcp', '65001'], shell=True)
     sys.stdout.reconfigure(encoding='utf-8')
 
-
 from src.tournament.scheduler import create_schedule
 
 def main():
-    # On définit les heures de début pour chaque poule
-    pools = {
-        'A': 15,  # 13h00
-        'B': 15,  # 13h00
-        'C': 15,  # 15h00
-        'D': 15   # 15h00
+    # On définit les heures de début pour chaque poule et phase
+    schedules = {
+        'A': {
+            'ALLER': 16.5,   # 16h30
+            'RETOUR': 17.5,  # 17h30
+        },
+        'B': {
+            'ALLER': 18.5,   # 18h30
+            'RETOUR': 19.5,  # 19h30
+        }
     }
     
-    for pool, start_hour in pools.items():
-        print(f"\nGénération du planning pour la poule {pool}...")
-        create_schedule(pool, start_hour)
-        print(f"Planning de la poule {pool} terminé.")
+    for pool, phases in schedules.items():
+        for phase, start_hour in phases.items():
+            print(f"\nGénération du planning pour la poule {pool} - Phase {phase}...")
+            create_schedule(pool, start_hour, phase)
+            print(f"Planning de la poule {pool} - Phase {phase} terminé.")
 
 if __name__ == "__main__":
     main()
