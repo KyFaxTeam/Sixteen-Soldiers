@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from sympy import ff
 from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
+from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS, POOL_DISPLAY_NAMES
 from typing import List, Dict, Optional
 from src.utils.const import Soldier
 import plotly.graph_objects as go
@@ -145,25 +145,66 @@ class MatchScheduler:
         """Export schedule to Excel with conditional formatting and styling."""
         from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-        # Préparer les données pour Excel en formatant les durées et garder match_type pour le style
+        # Get pool display name
+        pool_name = POOL_DISPLAY_NAMES.get(self.pool, self.pool)
+        
+        # Color schemes based on gemstones
+        GEMSTONE_COLORS = {
+            'TOPAZE': {
+                'header': '996515',  # Golden brown
+                'ai_vs_ai': 'FFE5B4',  # Light topaz
+                'random_vs_ai': 'FFD700',  # Darker golden
+                'background': 'FFF8DC',  # Very light cream
+            },
+            'AMETHYSTE': {
+                'header': '9966CC',  # Rich purple
+                'ai_vs_ai': 'E6E6FA',  # Light amethyst
+                'random_vs_ai': 'D8BFD8',  # Darker purple
+                'background': 'F8F4FF',  # Very light purple
+            }
+        }
+
+        # Get color scheme based on pool name
+        colors = GEMSTONE_COLORS.get(pool_name, {
+            'header': '4472C4',  # Default blue
+            'ai_vs_ai': 'BDD7EE',
+            'random_vs_ai': 'E2EFDA',
+            'background': 'FFFFFF'
+        })
+
+        # Column names with proper capitalization
+        column_names = {
+            'round': 'Round',
+            'start_time': 'Début',
+            'end_time': 'Fin',
+            'team1': 'Équipe 1',
+            'team2': 'Équipe 2',
+            'duration': 'Durée',
+            'phase': 'Phase'
+        }
+
+        # Prepare Excel data
         schedule_for_excel = []
-        match_types = []  # Garder une liste séparée des types pour le style
+        match_types = []
         for match in schedule:
             match_dict = {
-                'round': match['round'],
-                'start_time': match['start_time'],
-                'end_time': match['end_time'],
-                'team1': match['team1'],
-                'team2': match['team2'],
-                'duration': f"{match['duration']//60:.0f}min {match['duration']%60:.0f}s",
-                'phase': match['phase']
+                column_names['round']: match['round'],
+                column_names['start_time']: match['start_time'],
+                column_names['end_time']: match['end_time'],
+                column_names['team1']: match['team1'],
+                column_names['team2']: match['team2'],
+                column_names['duration']: f"{match['duration']//60:.0f}min {match['duration']%60:.0f}s",
+                column_names['phase']: match['phase']
             }
             schedule_for_excel.append(match_dict)
-            match_types.append(match['match_type'])  # Sauvegarder le type pour le style
+            match_types.append(match['match_type'])
 
-        # Préparer les styles
-        header_style = Font(bold=True, color='FFFFFF')
-        header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
+        # Create DataFrame
+        df = pd.DataFrame(schedule_for_excel)
+
+        # Define styles with gemstone colors
+        header_style = Font(bold=True, color='FFFFFF', name='Arial')
+        header_fill = PatternFill(start_color=colors['header'], end_color=colors['header'], fill_type='solid')
         header_alignment = Alignment(horizontal='center', vertical='center')
         thin_border = Border(
             left=Side(style='thin'),
@@ -172,50 +213,42 @@ class MatchScheduler:
             bottom=Side(style='thin')
         )
 
-        # Styles pour chaque type de match
+        # Match type styles using gemstone colors
         match_styles = {
             'ai_vs_ai': (
-                PatternFill(start_color='BDD7EE', end_color='BDD7EE', fill_type='solid'),
+                PatternFill(start_color=colors['ai_vs_ai'], end_color=colors['ai_vs_ai'], fill_type='solid'),
                 Font(name='Arial')
             ),
             'random_vs_ai': (
-                PatternFill(start_color='E2EFDA', end_color='E2EFDA', fill_type='solid'),
+                PatternFill(start_color=colors['random_vs_ai'], end_color=colors['random_vs_ai'], fill_type='solid'),
                 Font(name='Arial')
             ),
-            'ai_vs_random': (  # Même style que random_vs_ai
-                PatternFill(start_color='E2EFDA', end_color='E2EFDA', fill_type='solid'),
+            'ai_vs_random': (  # Same as random_vs_ai
+                PatternFill(start_color=colors['random_vs_ai'], end_color=colors['random_vs_ai'], fill_type='solid'),
                 Font(name='Arial')
-            ),
-            'random_vs_random': (
-                PatternFill(start_color='FFE699', end_color='FFE699', fill_type='solid'),
-                Font(name='Arial')
-            ),
-            'forfeit': (
-                PatternFill(start_color='F8CBAD', end_color='F8CBAD', fill_type='solid'),
-                Font(name='Arial')
-            ),
-            'break': (
-                PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type='solid'),
-                Font(name='Arial', italic=True)
             )
         }
 
-        # Créer le DataFrame et l'exporter
-        df = pd.DataFrame(schedule_for_excel)
+        # Export to Excel with styling
         with pd.ExcelWriter(filename, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Planning')
             worksheet = writer.sheets['Planning']
+            
+            # Set background color for entire sheet
+            for row in worksheet.iter_rows():
+                for cell in row:
+                    cell.fill = PatternFill(start_color=colors['background'], end_color=colors['background'], fill_type='solid')
 
-            # Appliquer le style d'en-tête
+            # Apply header styles
             for cell in worksheet[1]:
                 cell.font = header_style
                 cell.fill = header_fill
                 cell.alignment = header_alignment
                 cell.border = thin_border
 
-            # Appliquer les styles par type de match en utilisant la liste match_types
+            # Apply match type styles
             for idx, row in enumerate(worksheet.iter_rows(min_row=2), start=2):
-                match_type = match_types[idx-2]  # Utiliser la liste séparée
+                match_type = match_types[idx-2]
                 if match_type in match_styles:
                     fill, font = match_styles[match_type]
                     for cell in row:
@@ -224,7 +257,7 @@ class MatchScheduler:
                         cell.border = thin_border
                         cell.alignment = Alignment(horizontal='left')
 
-            # Ajuster les largeurs de colonnes
+            # Adjust column widths
             for column in worksheet.columns:
                 max_length = 0
                 for cell in column:
@@ -234,12 +267,37 @@ class MatchScheduler:
                         pass
                 worksheet.column_dimensions[column[0].column_letter].width = max_length + 2
 
-
-
 def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     """Generate an interactive timetable-style visualization for pool matches."""
     teams = set()
     
+    # Get pool display name and colors
+    pool_name = POOL_DISPLAY_NAMES.get(pool, pool)
+    
+    # Gemstone color schemes
+    GEMSTONE_COLORS = {
+        'TOPAZE': {
+            'primary': 'rgba(255, 215, 0, 0.85)',      # Golden (more opaque)
+            'secondary': 'rgba(218, 165, 32, 0.95)',   # Darker golden (most opaque)
+            'background': 'rgba(255, 223, 0, 0.1)',    # Very light golden
+            'separator': 'rgba(184, 134, 11, 0.9)',    # Golden brown
+        },
+        'AMETHYSTE': {
+            'primary': 'rgba(147, 112, 219, 0.75)',    # Light purple (less opaque)
+            'secondary': 'rgba(138, 43, 226, 0.95)',   # Deep purple (most opaque)
+            'background': 'rgba(230, 230, 250, 0.1)',  # Very light purple
+            'separator': 'rgba(148, 0, 211, 0.9)',     # Vivid purple
+        }
+    }
+
+    # Get color scheme based on pool name or use default
+    colors = GEMSTONE_COLORS.get(pool_name, {
+        'primary': 'rgba(103, 58, 183, 0.8)',
+        'secondary': 'rgba(0, 150, 136, 0.8)',
+        'background': 'rgba(103, 58, 183, 0.1)',
+        'separator': 'rgba(244, 67, 54, 0.8)'
+    })
+
     # Create base time from start_hour
     base_time = datetime.now().replace(
         hour=int(start_hour),
@@ -258,10 +316,10 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     # Create figure with better styling
     fig = go.Figure()
     
-    # Enhanced color scheme - Deep Purple and Teal color combination
+    # Enhanced color scheme using gemstone colors
     phase_colors = {
-        'ALLER': 'rgba(103, 58, 183, 0.8)',   # Deep Purple
-        'RETOUR': 'rgba(0, 150, 136, 0.8)'    # Teal
+        'ALLER': colors['primary'],
+        'RETOUR': colors['secondary']
     }
     
     # Add shaded regions for phases
@@ -272,7 +330,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         x1=phase_change_time,
         y0=-1,
         y1=len(teams),
-        fillcolor="rgba(103, 58, 183, 0.1)",  # Lighter Deep Purple
+        fillcolor=colors['background'],
         line_width=0,
         layer="below"
     )
@@ -282,7 +340,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         x1=end_time,
         y0=-1,
         y1=len(teams),
-        fillcolor="rgba(0, 150, 136, 0.1)",  # Lighter Teal
+        fillcolor=colors['background'].replace('0.1', '0.15'),  # Slightly darker
         line_width=0,
         layer="below"
     )
@@ -295,7 +353,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         y0=-0.5,
         y1=len(teams) - 0.5,
         line=dict(
-            color="rgba(244, 67, 54, 0.8)",  # Material Red
+            color=colors['separator'],
             width=2,
             dash="dash",
         )
@@ -331,9 +389,10 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                 opponent = match['team2'] if team == match['team1'] else match['team1']
                 # Enhanced hover text
                 hover_text = (
-                    f"<b>{team}</b> vs <b>{opponent}</b><br>"
-                    f"<i>{match['start_time'].strftime('%H:%M')}</i><br>"
-                    f"Phase {phase}"
+                    f"<b style='font-size: 14px; color: #333;'>{team}</b> vs "
+                    f"<b style='font-size: 14px; color: #333;'>{opponent}</b><br>"
+                    f"<i style='color: #666;'>{match['start_time'].strftime('%H:%M')}</i><br>"
+                    f"<span style='font-weight: 500; color: #444;'>Phase {phase}</span>"
                 )
                 
                 fig.add_trace(go.Scatter(
@@ -343,16 +402,21 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                     mode='markers',
                     marker=dict(
                         symbol='square',
-                        size=16,
+                        size=18,  # Slightly larger markers
                         color=phase_colors[phase],
-                        line=dict(color='white', width=1)
+                        line=dict(color='white', width=1.5)  # Thicker white border
                     ),
                     text=hover_text,
                     hoverinfo='text',
                     hoverlabel=dict(
                         bgcolor='white',
-                        font=dict(color='black'),
-                        bordercolor=phase_colors[phase]
+                        font=dict(
+                            family='Arial',
+                            size=14,
+                            color='black'
+                        ),
+                        bordercolor=phase_colors[phase],
+                        align='left'
                     ),
                     showlegend=False
                 ))
@@ -360,7 +424,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                 # Add connection lines with gradient effect
                 if len(team_matches) > 1:
                     match_idx = team_matches.index(match)
-                    if match_idx < len(team_matches) - 1:
+                    if (match_idx < len(team_matches) - 1):
                         next_match = team_matches[match_idx + 1]
                         fig.add_trace(go.Scatter(
                             x=[match['start_time'], next_match['start_time']],
@@ -374,16 +438,27 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                             showlegend=False
                         ))
 
-    # Enhanced layout with fixed minimum width
+    # Enhanced layout with adjusted dimensions
+    # Get display name for pool
+    pool_name = POOL_DISPLAY_NAMES.get(pool, pool)
+    
+    # Enhanced layout with pool display name
     fig.update_layout(
         title=dict(
-            text=f'Planning des matchs - Pool {pool}',
-            font=dict(size=24, color='rgba(0,0,0,0.8)'),
+            text=f'<b style="font-family: Arial;">Planning des matchs - Pool <span style="color: {colors["primary"].replace("0.85", "1.0")}">{pool_name}</span></b>',
+            font=dict(size=28, color='rgba(0,0,0,0.87)'),
             x=0.5,
             y=0.95
         ),
         xaxis=dict(
-            title='Heure',
+            title=dict(
+                text='<b>Heure</b>',
+                font=dict(
+                    family='Arial',
+                    size=16,
+                    color='rgba(0,0,0,0.75)'
+                )
+            ),
             title_font=dict(size=14),
             type='date',
             tickformat='%H:%M',
@@ -391,21 +466,36 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             range=[base_time, end_time],
             showgrid=True,
             gridcolor='rgba(0,0,0,0.1)',
-            zeroline=False
+            zeroline=False,
+            tickfont=dict(
+                family='Arial',
+                size=13,
+                color='rgba(0,0,0,0.75)'
+            )
         ),
         yaxis=dict(
-            title='Équipes',
-            title_font=dict(size=14),
-            ticktext=sorted(teams),
+            title=dict(
+                text='<b>Équipes</b>',
+                font=dict(
+                    family='Arial',
+                    size=16,
+                    color='rgba(0,0,0,0.75)'
+                )
+            ),
+            ticktext=[f'<b style="font-family: Arial;">{team}</b>' for team in sorted(teams)],  # Bold team names
             tickvals=list(range(len(teams))),
+            tickfont=dict(
+                family='Arial',
+                size=13
+            ),
             showgrid=True,
             gridcolor='rgba(0,0,0,0.1)',
             zeroline=False
         ),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        height=max(600, len(teams) * 40),  # Dynamic height based on number of teams
-        margin=dict(l=120, r=50, t=100, b=50),
+        height=max(650, len(teams) * 45),  # Slightly increased height per team
+        margin=dict(l=100, r=40, t=80, b=40),  # Adjusted margins
         showlegend=True,
         legend=dict(
             yanchor="top",
@@ -429,9 +519,32 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         ),
         dragmode='pan',  # Make panning the default instead of zoom box
         hoverdistance=100,  # Increase hover sensitivity
-        width=1200,  # Set minimum width for the plot
+        width=1000,  # Updated from 900 to 1000
         autosize=True,  # Allow responsive scaling above minimum width
     )
+
+    # Add phase labels with enhanced styling
+    for phase, (start, end) in {
+        '<b style="font-family: Arial;">PHASE ALLER</b>': (base_time, phase_change_time),
+        '<b style="font-family: Arial;">PHASE RETOUR</b>': (phase_change_time, end_time)
+    }.items():
+        center_time = start + (end - start) / 2
+        fig.add_annotation(
+            x=center_time,
+            y=len(teams) + 0.5,
+            text=phase,
+            showarrow=False,
+            font=dict(
+                size=16,
+                color='rgba(0,0,0,0.8)',
+                family='Arial'
+            ),
+            bgcolor='rgba(255,255,255,0.9)',
+            bordercolor='rgba(0,0,0,0.2)',
+            borderwidth=1,
+            borderpad=6,
+            yshift=20
+        )
 
     # Save the figure with mobile-friendly configuration
     output_dir = Path(TOURNAMENT_DIR) / "schedules" / f"pool_{pool}"
@@ -439,7 +552,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     output_path = output_dir / f"gantt_pool_{pool}.html"
     print(f"Saving visualization to: {output_path}")
 
-    # First save the basic HTML
+    # First save the basic HTML with improved mobile config
     fig.write_html(
         str(output_path),
         include_plotlyjs=True,
@@ -451,15 +564,15 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             'displayModeBar': 'hover',
             'modeBarButtonsToRemove': [
                 'select2d', 'lasso2d', 'autoScale2d',
-                'toggleSpikelines', 'zoom2d', 'pan2d',
-                'zoomIn2d', 'zoomOut2d', 'resetScale2d'
+                'toggleSpikelines'
             ],
             'displaylogo': False,
+            'doubleClick': 'reset+autosize',  # Better double-click behavior
             'toImageButtonOptions': {
                 'format': 'png',
                 'filename': f'pool_{pool}_schedule',
                 'height': 1200,
-                'width': 800,
+                'width': 900,
                 'scale': 2
             }
         }
@@ -476,33 +589,25 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;            overflow-x: auto;
+            height: 100%;
+            overflow-x: auto;
         }
         .plot-container {
-            min-width: 1200px !important;  /* Match the figure width */
+            min-width: 1000px !important;  /* Updated from 900px */
             height: 100vh;
-            width: auto !important;
         }
-        .js-plotly-plot {
-            min-width: 1200px !important;  /* Ensure minimum plot width */
+        .js-plotly-plot, .plotly-graph-div {
             height: 100% !important;
         }
-        .plotly-graph-div {
-            min-width: 1200px !important;  /* Consistent minimum width */
-            height: 100% !important;
-            width: auto !important;
-        }
-        .main-svg {
-            min-width: 1200px !important;  /* Force minimum SVG width */
-        }
-        .modebar {
-            background: rgba(255,255,255,0.9) !important;
-        }
-        .modebar-container {
-            right: 5px !important;
+        /* Custom zoom controls for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .js-plotly-plot .plotly .modebar {
+                transform: scale(1.5);
+                transform-origin: right top;
+            }
         }
     </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
     """
     
     html_content = html_content.replace('</head>', f'{custom_css}</head>')

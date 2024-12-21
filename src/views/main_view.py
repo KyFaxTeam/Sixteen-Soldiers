@@ -82,9 +82,9 @@ class MainView(BaseView):
         self.match_start_time = None
         self.match_duration = timedelta(minutes=4)
         self.estimation_times = {
-            "random_vs_random" : [MATCH_DURATIONS["random_vs_random"], 0], 
-            "random_vs_ai" : [MATCH_DURATIONS["random_vs_ai"], 0],
-            "ai_vs_ai" : [MATCH_DURATIONS["ai_vs_ai"], 0]
+            "random_vs_random" : [0, 0], 
+            "random_vs_ai" : [0, 0],
+            "ai_vs_ai" : [0, 0]
         }
 
     def configure_main_view(self, game_data=None):
