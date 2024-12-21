@@ -236,7 +236,6 @@ class MatchScheduler:
 
 def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     """Generate an interactive timetable-style visualization for pool matches."""
-    # Get unique teams and global time range
     teams = set()
     
     # Create base time from start_hour
@@ -246,135 +245,189 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         second=0,
         microsecond=0
     )
-    # Set end time to 2 hours after start
     end_time = base_time + timedelta(hours=2)
     
-    # Collect teams info
+    # Collect teams and sort them
     for phase_schedule in schedules.values():
         for match in phase_schedule:
             teams.add(match['team1'])
             teams.add(match['team2'])
     
-    # Create figure
+    # Create figure with better styling
     fig = go.Figure()
     
-    # Color scheme by phase
+    # Enhanced color scheme - Deep Purple and Teal color combination
     phase_colors = {
-        'ALLER': 'rgba(65, 105, 225, 0.7)',  # Royal blue with transparency
-        'RETOUR': 'rgba(60, 179, 113, 0.7)'  # Medium sea green with transparency
+        'ALLER': 'rgba(103, 58, 183, 0.8)',   # Deep Purple
+        'RETOUR': 'rgba(0, 150, 136, 0.8)'    # Teal
     }
     
-    # Fix phase separator calculation - convert to timestamp in milliseconds
+    # Add shaded regions for phases
     phase_change_time = min(m['start_time'] for m in schedules['RETOUR'])
+    fig.add_shape(  # ALLER phase background
+        type="rect",
+        x0=base_time,
+        x1=phase_change_time,
+        y0=-1,
+        y1=len(teams),
+        fillcolor="rgba(103, 58, 183, 0.1)",  # Lighter Deep Purple
+        line_width=0,
+        layer="below"
+    )
+    fig.add_shape(  # RETOUR phase background
+        type="rect",
+        x0=phase_change_time,
+        x1=end_time,
+        y0=-1,
+        y1=len(teams),
+        fillcolor="rgba(0, 150, 136, 0.1)",  # Lighter Teal
+        line_width=0,
+        layer="below"
+    )
+    
+    # Add phase separator with enhanced styling
     fig.add_shape(
         type="line",
         x0=phase_change_time,
         x1=phase_change_time,
-        y0=-0.5,  # Extend slightly below the bottom
-        y1=len(teams) - 0.5,  # Extend slightly above the top
+        y0=-0.5,
+        y1=len(teams) - 0.5,
         line=dict(
-            color="red",
+            color="rgba(244, 67, 54, 0.8)",  # Material Red
             width=2,
             dash="dash",
         )
     )
     
-    # Add annotation for phase separator
-    fig.add_annotation(
-        x=phase_change_time,
-        y=len(teams),
-        text="ALLER | RETOUR",
-        showarrow=False,
-        yshift=10
-    )
-    
-    # Also update the range for x-axis to ensure proper display
-    fig.update_layout(
-        xaxis=dict(
-            title='Heure',
-            type='date',
-            tickformat='%H:%M',
-            dtick=15 * 60 * 1000,  # 15-minute intervals
-            range=[base_time, end_time],  # Use fixed time range
-            showgrid=True,
-            gridcolor='rgba(169, 169, 169, 0.2)'
+    # Add phase labels with better positioning and styling
+    for phase, (start, end) in {
+        'PHASE ALLER': (base_time, phase_change_time),
+        'PHASE RETOUR': (phase_change_time, end_time)
+    }.items():
+        # Calculate center point between two datetimes
+        center_time = start + (end - start) / 2
+        
+        fig.add_annotation(
+            x=center_time,  # Use calculated center time
+            y=len(teams) + 0.5,
+            text=phase,
+            showarrow=False,
+            font=dict(size=14, color="rgba(0,0,0,0.7)"),
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="rgba(0,0,0,0.2)",
+            borderwidth=1,
+            borderpad=4,
+            yshift=20
         )
-    )
-    
-    # Add timeline for each team
+
+    # Add matches with enhanced styling
     for i, team in enumerate(sorted(teams)):
-        # Create separate traces for ALLER and RETOUR phases
         for phase, schedule in schedules.items():
-            team_matches = [
-                m for m in schedule 
-                if team in [m['team1'], m['team2']]
-            ]
+            team_matches = [m for m in schedule if team in [m['team1'], m['team2']]]
             
             for match in team_matches:
                 opponent = match['team2'] if team == match['team1'] else match['team1']
+                # Enhanced hover text
+                hover_text = (
+                    f"<b>{team}</b> vs <b>{opponent}</b><br>"
+                    f"<i>{match['start_time'].strftime('%H:%M')}</i><br>"
+                    f"Phase {phase}"
+                )
+                
                 fig.add_trace(go.Scatter(
-                    x=[match['start_time']],  # Use actual datetime
+                    x=[match['start_time']],
                     y=[i],
                     name=team,
                     mode='markers',
                     marker=dict(
                         symbol='square',
-                        size=20,
-                        color=phase_colors[phase]
+                        size=16,
+                        color=phase_colors[phase],
+                        line=dict(color='white', width=1)
                     ),
-                    text=f"{team} vs {opponent}<br>{match['start_time'].strftime('%H:%M')}",
+                    text=hover_text,
                     hoverinfo='text',
+                    hoverlabel=dict(
+                        bgcolor='white',
+                        font=dict(color='black'),
+                        bordercolor=phase_colors[phase]
+                    ),
                     showlegend=False
                 ))
                 
-                # Add connection line to next match
+                # Add connection lines with gradient effect
                 if len(team_matches) > 1:
                     match_idx = team_matches.index(match)
                     if match_idx < len(team_matches) - 1:
                         next_match = team_matches[match_idx + 1]
                         fig.add_trace(go.Scatter(
-                            x=[match['start_time'], next_match['start_time']],  # Use actual datetime
+                            x=[match['start_time'], next_match['start_time']],
                             y=[i, i],
                             mode='lines',
                             line=dict(
-                                color='rgba(169, 169, 169, 0.3)',
-                                width=1
+                                color='rgba(0,0,0,0.2)',
+                                width=1,
+                                dash='dot'
                             ),
                             showlegend=False
                         ))
 
-    # Update layout
+    # Enhanced layout
     fig.update_layout(
-        title=f'Planning des matchs - Pool {pool}',
+        title=dict(
+            text=f'Planning des matchs - Pool {pool}',
+            font=dict(size=24, color='rgba(0,0,0,0.8)'),
+            x=0.5,
+            y=0.95
+        ),
         xaxis=dict(
             title='Heure',
+            title_font=dict(size=14),
             type='date',
             tickformat='%H:%M',
-            dtick=15 * 60 * 1000,  # 15-minute intervals
+            dtick=15 * 60 * 1000,
+            range=[base_time, end_time],
             showgrid=True,
-            gridcolor='rgba(169, 169, 169, 0.2)'
+            gridcolor='rgba(0,0,0,0.1)',
+            zeroline=False
         ),
         yaxis=dict(
             title='Équipes',
+            title_font=dict(size=14),
             ticktext=sorted(teams),
             tickvals=list(range(len(teams))),
             showgrid=True,
-            gridcolor='rgba(169, 169, 169, 0.2)'
+            gridcolor='rgba(0,0,0,0.1)',
+            zeroline=False
         ),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        height=600,
-        showlegend=False,
+        height=max(600, len(teams) * 40),  # Dynamic height based on number of teams
+        margin=dict(l=120, r=50, t=100, b=50),
+        showlegend=True,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="right",
+            x=0.99,
+            bgcolor='rgba(255,255,255,0.9)',
+            bordercolor='rgba(0,0,0,0.2)',
+            borderwidth=1
+        ),
         hovermode='closest'
     )
-    
-    # Add phase legend
+
+    # Add phase legend with better styling
     for phase, color in phase_colors.items():
         fig.add_trace(go.Scatter(
             x=[],
             y=[],
             mode='markers',
-            marker=dict(size=10, color=color),
+            marker=dict(
+                size=10,
+                color=color,
+                line=dict(color='white', width=1)
+            ),
             name=f'Phase {phase}',
             showlegend=True
         ))
