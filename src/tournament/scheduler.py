@@ -372,7 +372,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                             showlegend=False
                         ))
 
-    # Enhanced layout
+    # Enhanced layout without config parameter
     fig.update_layout(
         title=dict(
             text=f'Planning des matchs - Pool {pool}',
@@ -414,30 +414,90 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             bordercolor='rgba(0,0,0,0.2)',
             borderwidth=1
         ),
-        hovermode='closest'
+        hovermode='closest',
+        modebar=dict(
+            remove=[
+                'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d',
+                'toggleSpikelines', 'hoverClosestCartesian',
+                'hoverCompareCartesian'
+            ],
+            orientation='v',  # Vertical orientation for better mobile view
+            bgcolor='rgba(255,255,255,0.7)',
+            color='rgba(0,0,0,0.5)',
+        ),
+        dragmode='pan',  # Make panning the default instead of zoom box
+        hoverdistance=100  # Increase hover sensitivity
     )
 
-    # Add phase legend with better styling
-    for phase, color in phase_colors.items():
-        fig.add_trace(go.Scatter(
-            x=[],
-            y=[],
-            mode='markers',
-            marker=dict(
-                size=10,
-                color=color,
-                line=dict(color='white', width=1)
-            ),
-            name=f'Phase {phase}',
-            showlegend=True
-        ))
-
-    # Save the figure
+    # Save the figure with mobile-friendly configuration
     output_dir = Path(TOURNAMENT_DIR) / "schedules" / f"pool_{pool}"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"gantt_pool_{pool}.html"
     print(f"Saving visualization to: {output_path}")
-    fig.write_html(str(output_path))
+
+    # First save the basic HTML
+    fig.write_html(
+        str(output_path),
+        include_plotlyjs=True,
+        full_html=True,
+        include_mathjax=False,
+        config={
+            'responsive': True,
+            'scrollZoom': True,
+            'displayModeBar': 'hover',
+            'modeBarButtonsToRemove': [
+                'select2d', 'lasso2d', 'autoScale2d',
+                'toggleSpikelines', 'zoom2d', 'pan2d',
+                'zoomIn2d', 'zoomOut2d', 'resetScale2d'
+            ],
+            'displaylogo': False,
+            'toImageButtonOptions': {
+                'format': 'png',
+                'filename': f'pool_{pool}_schedule',
+                'height': 1200,
+                'width': 800,
+                'scale': 2
+            }
+        }
+    )
+
+    # Then modify the HTML to add our custom styling
+    with open(output_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    # Insert our custom CSS after the <head> tag
+    custom_css = """
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;  /* Enable horizontal scroll */
+        }
+        .plot-container {
+            min-width: 1000px;  /* Ensure minimum width for readability */
+            height: 100vh;      /* Full height */
+        }
+        .js-plotly-plot, .plotly-graph-div {
+            height: 100% !important;
+            width: 100% !important;
+        }
+        .modebar {
+            background: rgba(255,255,255,0.9) !important;
+        }
+        .modebar-container {
+            right: 5px !important;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    """
+    
+    html_content = html_content.replace('</head>', f'{custom_css}</head>')
+
+    # Save the modified HTML
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
 
 def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
     """Create and display a schedule for a pool starting at given hour."""
