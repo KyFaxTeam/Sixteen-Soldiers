@@ -16,6 +16,11 @@ INITIAL_POOLS = {
     'B': []
 }
 
+POOL_DISPLAY_NAMES = {
+    'A': 'TOPAZE',
+    'B': 'AMETHYSTE'
+}
+
 CURRENT_POOL = 'B'
 CURRENT_PHASE = 'ALLER'
 

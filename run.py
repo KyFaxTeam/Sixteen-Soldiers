@@ -1,12 +1,3 @@
-import sys
-
-
-# # Force UTF-8 output encoding
-# if sys.platform.startswith('win'):
-#     import subprocess
-#     # Configure Windows console to use UTF-8
-#     subprocess.run(['chcp', '65001'], shell=True)
-#     sys.stdout.reconfigure(encoding='utf-8')
 
 from src.tournament.scheduler import create_schedule, generate_pool_gantt
 
