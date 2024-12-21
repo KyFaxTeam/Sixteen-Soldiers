@@ -506,8 +506,7 @@ class MainView(BaseView):
         # print(f"Match info: {match_info}")
         
         print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Phase {match_info['phase']}")
-        # ...existing code...
-        
+      
         
         for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
             # print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
