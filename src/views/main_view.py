@@ -364,8 +364,15 @@ class MainView(BaseView):
         pieces_a = state.get("board").count_soldiers(team_a['soldier_value'])
         pieces_b = state.get("board").count_soldiers(team_b['soldier_value'])
         
+        reason = state.get("reason", "unknown")
+         # Format the reason if it's an enum
+        if isinstance(reason, GameEndReason):
+            formatted_reason = reason.value
+        else:
+            formatted_reason = str(reason)
         # Déterminer le gagnant et le perdant (ou match nul)
-        if state.get("reason") == GameEndReason.DRAW_FEW_PIECES.value or state.get("reason") == GameEndReason.EQUAL_PIECES.value : 
+        print("********************** reason : ", formatted_reason)
+        if formatted_reason == GameEndReason.DRAW_FEW_PIECES.value or formatted_reason == GameEndReason.EQUAL_PIECES.value : 
             winner = "draw"
             loser = "draw"
         else:
@@ -381,7 +388,7 @@ class MainView(BaseView):
             'moves_b': team_b['performance'].get('number_of_moves', 0),
             'time_a': team_a['performance'].get('time', 0),
             'time_b': team_b['performance'].get('time', 0),
-            'reason': state.get('reason', None),
+            'reason': formatted_reason,
         }
 
 

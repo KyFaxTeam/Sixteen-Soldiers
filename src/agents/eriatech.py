@@ -10,7 +10,7 @@ class Agent(BaseAgent):
     
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Les Sisters" # You need to replace Your Team with your team name
+        self.name = "Eriatech" # You need to replace Your Team with your team name
         
         
     
@@ -37,13 +37,11 @@ class Agent(BaseAgent):
         if decision_prise_rapide != None:
             return decision_prise_rapide
         else:
-            return random.choice(valid_actions)
-        #scores = self.simulataion(board=board)
-        #max_score = max(scores)
-        #indice_max = scores.index(max_score) 
+            scores = self.simulation(board=board)
+            max_score = max(scores)
+            indice_max = scores.index(max_score)
+            return valid_actions[indice_max]
         
-        # return random.choice(valid_actions) # valid_actions[indice_max] You need to replace random.choice(valid_actions) with your choice of action or method to choose an action
-    
     def prise_rapide(self,board: Board):
         valid_actions = board.get_valid_actions()
         capture_list = []
