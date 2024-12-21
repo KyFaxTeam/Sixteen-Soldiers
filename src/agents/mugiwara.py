@@ -9,7 +9,7 @@ class Agent(BaseAgent):
 
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
-        self.name = "Mugiwara Optimisation"
+        self.name = "Mugiwara"
 
     def choose_action(self, board: Board) -> Dict:
         """Choisit une action optimale."""
@@ -43,6 +43,7 @@ class Agent(BaseAgent):
         score = 0
 
         my_soldier_value = action['soldier_value']
+        opponent_soldier_value = Soldier.RED if my_soldier_value == Soldier.BLUE else Soldier.BLUE
         from_pos = action['from_pos']
         to_pos = action['to_pos']
         # Bonus offensif : priorité aux captures

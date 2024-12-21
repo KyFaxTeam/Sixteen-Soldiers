@@ -1,164 +1,151 @@
-from collections import deque
+"""best agent ai v3"""
 import random
-from typing import Dict
+from typing import Dict, List
 from src.agents.base_agent import BaseAgent
 from src.models.board import Board
 from src.utils.const import Soldier
 
+DEPTH = 1
+HISTORY_SIZE = 4
 
 class Agent(BaseAgent):
-    """AI agent prioritizing multi-captures with loop and opponent move prediction"""
+    """Enhanced AI agent implementing minimax with loop avoidance and evaluation function."""
 
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
         self.name = "IFRI"
-        self.depth_limit = 3  # Max depth for Minimax
-        self.move_history = deque(maxlen=3)  # Track the last 3 moves for loop detection
+        self.move_history: List[Dict] = []  # Track recent moves to detect loops
 
     def choose_action(self, board: Board) -> Dict:
         """
-        Chooses the best move within the allotted time, prioritizing multi-captures.
+        Choose an action from valid moves using minimax algorithm with loop avoidance.
         Args:
-            board (Board): Current game board state.
+            board: Current game board state
         Returns:
-            Dict: Best action to take.
+            Chosen valid action for the soldier_value
         """
         valid_actions = board.get_valid_actions()
+
+        # If no valid actions, return a random fallback (shouldn't happen in normal cases)
         if not valid_actions:
             return random.choice(valid_actions)
 
-        # Prioritize capture actions
-        capture_actions = [action for action in valid_actions if action["type"] == "CAPTURE_SOLDIER"]
-        if capture_actions:
-            return max(capture_actions, key=lambda action: self.evaluate_action(board, action))
+        # Run minimax with depth and avoid loops
+        best_action = None
+        best_score = float('-inf')  # Maximizing player starts with -infinity
 
-        # Evaluate non-capture actions if no captures are available
-        best_action = max(valid_actions, key=lambda action: self.evaluate_action(board, action))
-        self.move_history.append(best_action)  # Track the chosen action
-        return best_action
+        for action in valid_actions:
+            if self.is_looping_action(action):
+                continue  # Skip actions that lead to loops
 
-    def evaluate_action(self, board: Board, action: Dict) -> int:
+            simulated_board = self.simulate_action(board, action)
+            score = self.minimax(simulated_board, depth=DEPTH, maximizing=False)
+
+            if score > best_score:
+                best_score = score
+                best_action = action
+
+        # Update move history to prevent loops
+        if best_action:
+            self.update_move_history(best_action)
+
+        return best_action if best_action else random.choice(valid_actions)
+
+    def is_looping_action(self, action: Dict) -> bool:
         """
-        Evaluates the score of a specific action.
+        Check if the given action creates a loop based on recent move history.
         Args:
-            board (Board): Current game board state.
-            action (Dict): Action to evaluate.
+            action: Action to check
         Returns:
-            int: Score of the action.
+            True if the action causes a loop, False otherwise
         """
-        # Simulate the action
-        prev_state = self.simulate_action(board, action)
+        # Check if this move reverses the previous move
+        if len(self.move_history) >= 2:
+            last_action = self.move_history[-1]
+            second_last_action = self.move_history[-2]
+            if (action['from_pos'] == last_action['to_pos'] and
+                action['to_pos'] == last_action['from_pos'] and
+                last_action['from_pos'] == second_last_action['to_pos']):
+                return True
+        return False
 
-        # Evaluate the board after the action
-        score = self.evaluate_board(board)
-
-        # Predict and penalize for the opponent's best move
-        opponent_action = self.predict_opponent_action(board)
-        if opponent_action:
-            opponent_score = self.simulate_opponent_response(board, opponent_action)
-            score -= opponent_score  # Penalize based on predicted opponent advantage
-
-        # Penalize repeated back-and-forth moves
-        if self.is_repeating_back_and_forth(action):
-            score -= 50  # Penalize heavily to avoid loops
-
-        # Undo the action
-        self.undo_action(board, action, prev_state)
-        return score
-
-    def predict_opponent_action(self, board: Board) -> Dict:
+    def update_move_history(self, action: Dict):
         """
-        Predicts the opponent's best action.
+        Update the move history to track recent moves and avoid loops.
         Args:
-            board (Board): Current game board state.
-        Returns:
-            Dict: Predicted action for the opponent.
+            action: The action to add to the history
         """
-        opponent = Soldier(not bool(self.soldier_value))
-        opponent_actions = board.get_valid_actions()
-        if not opponent_actions:
-            return None
+        self.move_history.append(action)
+        # Limit history size to avoid unnecessary memory usage
+        if len(self.move_history) > HISTORY_SIZE:
+            self.move_history.pop(0)
 
-        # Assume the opponent will choose the action with the highest heuristic value
-        return max(opponent_actions, key=lambda action: self.simulate_opponent_response(board, action))
-
-    def simulate_opponent_response(self, board: Board, action: Dict) -> int:
+    def minimax(self, board: Board, depth: int, maximizing: bool) -> float:
         """
-        Simulates the opponent's response and evaluates the resulting board state.
+        Minimax algorithm with fixed depth for decision-making.
         Args:
-            board (Board): Current game board state.
-            action (Dict): Opponent's action to simulate.
+            board: Current game board state
+            depth: Depth of search
+            maximizing: Boolean, True if maximizing player, False if minimizing
         Returns:
-            int: Heuristic evaluation of the board after the opponent's action.
+            Score of the board state
         """
-        prev_state = self.simulate_action(board, action)
-        opponent_score = self.evaluate_board(board)
-        self.undo_action(board, action, prev_state)
-        return opponent_score
+        if depth == 0 or board.is_game_over():
+            return self.evaluate_board(board)
 
-    def is_repeating_back_and_forth(self, action: Dict) -> bool:
+        valid_actions = board.get_valid_actions()
+        if not valid_actions:
+            return self.evaluate_board(board)
+
+        if maximizing:
+            max_eval = float('-inf')
+            for action in valid_actions:
+                simulated_board = self.simulate_action(board, action)
+                v_eval = self.minimax(simulated_board, depth - 1, False)
+                max_eval = max(max_eval, v_eval)
+            return max_eval
+        else:
+            min_eval = float('inf')
+            for action in valid_actions:
+                simulated_board = self.simulate_action(board, action)
+                v_eval = self.minimax(simulated_board, depth - 1, True)
+                min_eval = min(min_eval, v_eval)
+            return min_eval
+
+    def evaluate_board(self, board: Board) -> float:
         """
-        Checks if the current action creates a back-and-forth loop.
+        Evaluate the desirability of a board state for the agent.
         Args:
-            action (Dict): The action to check.
+            board: Current game board state
         Returns:
-            bool: True if the action is part of a back-and-forth loop.
-        """
-        if len(self.move_history) < 2:
-            return False  # Not enough history for a back-and-forth pattern
-
-        last_action = self.move_history[-1]
-        return (
-            last_action["from_pos"] == action["to_pos"]
-            and last_action["to_pos"] == action["from_pos"]
-        )
-
-    def evaluate_board(self, board: Board) -> int:
-        """
-        Heuristic evaluation of the board state.
+            Evaluation score
         """
         my_soldiers = board.count_soldiers(self.soldier_value)
-        opponent = Soldier(not bool(self.soldier_value))
-        opponent_soldiers = board.count_soldiers(opponent)
+        opponent_soldiers = board.count_soldiers(
+            Soldier.RED if self.soldier_value == Soldier.BLUE else Soldier.BLUE
+        )
 
-        # Emphasize soldier count as the primary metric
-        return (my_soldiers - opponent_soldiers) * 10
+        # Simple heuristic: piece count difference
+        return my_soldiers - opponent_soldiers
 
-    def simulate_action(self, board: Board, action: Dict) -> Dict:
+    def simulate_action(self, board: Board, action: Dict) -> Board:
         """
-        Simulates an action on the board and returns the previous state for undoing.
+        Simulate the result of an action on the board.
         Args:
-            board (Board): Current game board state.
-            action (Dict): Action to simulate.
+            board: Current game board state
+            action: Action to simulate
         Returns:
-            Dict: Previous state of the board at affected positions.
+            A new board object representing the state after the action
         """
-        prev_state = {
-            "from_pos": board.get_soldier_value(action["from_pos"]),
-            "to_pos": board.get_soldier_value(action["to_pos"]),
-            "captured_pos": None,
-        }
+        simulated_board = Board()
+        simulated_board.battle_field = board.battle_field
+        simulated_board.soldiers = board.soldiers.copy()
+        simulated_board.last_action = board.last_action
+        simulated_board.is_multiple_capture = board.is_multiple_capture
 
-        # Move or capture
-        if action["type"] == "CAPTURE_SOLDIER":
-            prev_state["captured_pos"] = board.get_soldier_value(action["captured_soldier"])
-            board.capture_soldier(action)
-        else:
-            board.move_soldier(action)
+        if action['type'] == 'CAPTURE_SOLDIER':
+            simulated_board.capture_soldier(action)
+        elif action['type'] == 'MOVE_SOLDIER':
+            simulated_board.move_soldier(action)
 
-        return prev_state
-
-    def undo_action(self, board: Board, action: Dict, prev_state: Dict):
-        """
-        Undoes a simulated action, restoring the previous state.
-        Args:
-            board (Board): Current game board state.
-            action (Dict): Action to undo.
-            prev_state (Dict): Previous state of the board at affected positions.
-        """
-        # Restore the positions
-        board.soldiers[action["from_pos"]] = prev_state["from_pos"]
-        board.soldiers[action["to_pos"]] = prev_state["to_pos"]
-
-        if action["type"] == "CAPTURE_SOLDIER" and prev_state["captured_pos"] is not None:
-            board.soldiers[action["captured_soldier"]] = prev_state["captured_pos"]
+        return simulated_board
