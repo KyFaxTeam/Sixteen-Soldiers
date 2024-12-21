@@ -47,7 +47,7 @@ TEAMS = [
 SUBMITTED_TEAMS = [ 
     "AIverse", "AI_MAU", "Bee Light", "Blacknight01", "BOÏZ", "Eriatech", 
     "IFRI",  "KACW", "Les sisters", "Limitless Nexus", 
-    "Mugiwara", "Némésis", "Jolych",
+    "Mugiwara", "Némésis", "Jolych", "Firesky",
 ]
 
 def normalize_team_name(team_name):

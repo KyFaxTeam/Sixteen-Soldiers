@@ -6,32 +6,32 @@
 ╟──────────────────────────────────────────────────────────────────────────────
 
 ║ ============================== PHASE ALLER ===============================║
-║ [16:30:00-16:33:00] Firesky              vs IFRI                 (3min 0s ) ║
-║ [16:33:00-16:36:00] Bee Light            vs KACW                 (3min 0s ) ║
-║ [16:36:00-16:39:00] Jolych               vs Les leaders          (3min 0s ) ║
-║ [16:39:00-16:42:00] AI_MAU               vs Némésis              (3min 0s ) ║
-║ [16:42:00-16:45:00] Bee Light            vs Firesky              (3min 0s ) ║
-║ [16:45:00-16:48:00] IFRI                 vs KACW                 (3min 0s ) ║
-║ [16:48:00-16:51:00] AI_MAU               vs Les leaders          (3min 0s ) ║
-║ [16:51:00-16:54:00] Némésis              vs Jolych               (3min 0s ) ║
-║ [16:54:00-16:57:00] Firesky              vs KACW                 (3min 0s ) ║
-║ [16:57:00-17:00:00] Bee Light            vs IFRI                 (3min 0s ) ║
-║ [17:00:00-17:03:00] Némésis              vs Les leaders          (3min 0s ) ║
-║ [17:03:00-17:06:00] AI_MAU               vs Jolych               (3min 0s ) ║
-║ [17:06:00-17:09:00] Firesky              vs Némésis              (3min 0s ) ║
-║ [17:09:00-17:12:00] AI_MAU               vs Bee Light            (3min 0s ) ║
-║ [17:12:00-17:15:00] IFRI                 vs Les leaders          (3min 0s ) ║
-║ [17:15:00-17:18:00] KACW                 vs Jolych               (3min 0s ) ║
-║ [17:18:00-17:21:00] AI_MAU               vs Firesky              (3min 0s ) ║
-║ [17:21:00-17:24:00] Bee Light            vs Némésis              (3min 0s ) ║
-║ [17:24:00-17:27:00] KACW                 vs Les leaders          (3min 0s ) ║
-║ [17:27:00-17:30:00] IFRI                 vs Jolych               (3min 0s ) ║
-║ [17:30:00-17:36:30] Firesky              vs Les leaders          (6min 30s) ║
-║ [17:36:30-17:39:30] KACW                 vs Némésis              (3min 0s ) ║
-║ [17:39:30-17:42:30] Bee Light            vs Les leaders          (3min 0s ) ║
-║ [17:42:30-17:45:30] AI_MAU               vs IFRI                 (3min 0s ) ║
-║ [17:45:30-17:48:30] Firesky              vs Jolych               (3min 0s ) ║
-║ [17:48:30-17:51:30] IFRI                 vs Némésis              (3min 0s ) ║
-║ [17:51:30-17:54:30] AI_MAU               vs KACW                 (3min 0s ) ║
-║ [17:54:30-17:57:30] Bee Light            vs Jolych               (3min 0s ) ║
+║ [21:00:00-21:03:00] Firesky              vs IFRI                 (3min 0s ) ║
+║ [21:03:00-21:06:00] Bee Light            vs KACW                 (3min 0s ) ║
+║ [21:06:00-21:09:00] Jolych               vs Les leaders          (3min 0s ) ║
+║ [21:09:00-21:12:00] AI_MAU               vs Némésis              (3min 0s ) ║
+║ [21:12:00-21:15:00] Bee Light            vs Firesky              (3min 0s ) ║
+║ [21:15:00-21:18:00] IFRI                 vs KACW                 (3min 0s ) ║
+║ [21:18:00-21:21:00] AI_MAU               vs Les leaders          (3min 0s ) ║
+║ [21:21:00-21:24:00] Némésis              vs Jolych               (3min 0s ) ║
+║ [21:24:00-21:27:00] Firesky              vs KACW                 (3min 0s ) ║
+║ [21:27:00-21:30:00] Bee Light            vs IFRI                 (3min 0s ) ║
+║ [21:30:00-21:33:00] Némésis              vs Les leaders          (3min 0s ) ║
+║ [21:33:00-21:36:00] AI_MAU               vs Jolych               (3min 0s ) ║
+║ [21:36:00-21:39:00] Firesky              vs Némésis              (3min 0s ) ║
+║ [21:39:00-21:42:00] AI_MAU               vs Bee Light            (3min 0s ) ║
+║ [21:42:00-21:45:00] IFRI                 vs Les leaders          (3min 0s ) ║
+║ [21:45:00-21:48:00] KACW                 vs Jolych               (3min 0s ) ║
+║ [21:48:00-21:51:00] AI_MAU               vs Firesky              (3min 0s ) ║
+║ [21:51:00-21:54:00] Bee Light            vs Némésis              (3min 0s ) ║
+║ [21:54:00-21:57:00] KACW                 vs Les leaders          (3min 0s ) ║
+║ [21:57:00-22:00:00] IFRI                 vs Jolych               (3min 0s ) ║
+║ [22:00:00-22:03:00] Firesky              vs Les leaders          (3min 0s ) ║
+║ [22:03:00-22:06:00] KACW                 vs Némésis              (3min 0s ) ║
+║ [22:06:00-22:09:00] Bee Light            vs Les leaders          (3min 0s ) ║
+║ [22:09:00-22:12:00] AI_MAU               vs IFRI                 (3min 0s ) ║
+║ [22:12:00-22:15:00] Firesky              vs Jolych               (3min 0s ) ║
+║ [22:15:00-22:18:00] IFRI                 vs Némésis              (3min 0s ) ║
+║ [22:18:00-22:21:00] AI_MAU               vs KACW                 (3min 0s ) ║
+║ [22:21:00-22:24:00] Bee Light            vs Jolych               (3min 0s ) ║
 ╚══════════════════════════════════════════════════════════════════════════════

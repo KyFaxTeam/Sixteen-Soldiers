@@ -1,12 +1,14 @@
-import os
 import pandas as pd
 from datetime import datetime, timedelta
 
 from sympy import ff
 from src.tournament.tournament_manager import TournamentManager
 from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from src.utils.const import Soldier
+import plotly.graph_objects as go
+import numpy as np
+from pathlib import Path
 
 MATCH_DURATIONS = {
     "random_vs_random": 300 + 90,  # ~6.5 minutes
@@ -232,56 +234,282 @@ class MatchScheduler:
                         pass
                 worksheet.column_dimensions[column[0].column_letter].width = max_length + 2
 
-    def generate_gantt(self, schedule: List[Dict], filename: str):
-        """Generate a Gantt chart visualization with enhanced styling."""
-        df_gantt = []
-        colors = {
-            'random_vs_random': 'rgb(255, 196, 51)',  # Orange plus vif
-            'ai_vs_ai': 'rgb(41, 128, 185)',         # Bleu plus profond
-            'random_vs_ai': 'rgb(46, 204, 113)',     # Vert plus vif
-            'ai_vs_random': 'rgb(46, 204, 113)',     # Même couleur que random_vs_ai
-            'forfeit': 'rgb(231, 76, 60)',           # Rouge pour forfait
-            'break': 'rgb(189, 195, 199)'            # Gris clair pour les pauses
-        }
 
-        for match in schedule:
-            task_name = (f"Round {match['round']} - " +
-                        ("PAUSE" if match['match_type'] == 'break' 
-                         else f"{match['team1']} vs {match['team2']}"))
+
+def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
+    """Generate an interactive timetable-style visualization for pool matches."""
+    teams = set()
+    
+    # Create base time from start_hour
+    base_time = datetime.now().replace(
+        hour=int(start_hour),
+        minute=int((start_hour % 1) * 60),
+        second=0,
+        microsecond=0
+    )
+    end_time = base_time + timedelta(hours=2)
+    
+    # Collect teams and sort them
+    for phase_schedule in schedules.values():
+        for match in phase_schedule:
+            teams.add(match['team1'])
+            teams.add(match['team2'])
+    
+    # Create figure with better styling
+    fig = go.Figure()
+    
+    # Enhanced color scheme - Deep Purple and Teal color combination
+    phase_colors = {
+        'ALLER': 'rgba(103, 58, 183, 0.8)',   # Deep Purple
+        'RETOUR': 'rgba(0, 150, 136, 0.8)'    # Teal
+    }
+    
+    # Add shaded regions for phases
+    phase_change_time = min(m['start_time'] for m in schedules['RETOUR'])
+    fig.add_shape(  # ALLER phase background
+        type="rect",
+        x0=base_time,
+        x1=phase_change_time,
+        y0=-1,
+        y1=len(teams),
+        fillcolor="rgba(103, 58, 183, 0.1)",  # Lighter Deep Purple
+        line_width=0,
+        layer="below"
+    )
+    fig.add_shape(  # RETOUR phase background
+        type="rect",
+        x0=phase_change_time,
+        x1=end_time,
+        y0=-1,
+        y1=len(teams),
+        fillcolor="rgba(0, 150, 136, 0.1)",  # Lighter Teal
+        line_width=0,
+        layer="below"
+    )
+    
+    # Add phase separator with enhanced styling
+    fig.add_shape(
+        type="line",
+        x0=phase_change_time,
+        x1=phase_change_time,
+        y0=-0.5,
+        y1=len(teams) - 0.5,
+        line=dict(
+            color="rgba(244, 67, 54, 0.8)",  # Material Red
+            width=2,
+            dash="dash",
+        )
+    )
+    
+    # Add phase labels with better positioning and styling
+    for phase, (start, end) in {
+        'PHASE ALLER': (base_time, phase_change_time),
+        'PHASE RETOUR': (phase_change_time, end_time)
+    }.items():
+        # Calculate center point between two datetimes
+        center_time = start + (end - start) / 2
+        
+        fig.add_annotation(
+            x=center_time,  # Use calculated center time
+            y=len(teams) + 0.5,
+            text=phase,
+            showarrow=False,
+            font=dict(size=14, color="rgba(0,0,0,0.7)"),
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="rgba(0,0,0,0.2)",
+            borderwidth=1,
+            borderpad=4,
+            yshift=20
+        )
+
+    # Add matches with enhanced styling
+    for i, team in enumerate(sorted(teams)):
+        for phase, schedule in schedules.items():
+            team_matches = [m for m in schedule if team in [m['team1'], m['team2']]]
             
-            df_gantt.append(dict(
-                Task=task_name,
-                Start=match['start_time'],
-                Finish=match['end_time'],
-                Resource=match['match_type']
-            ))
+            for match in team_matches:
+                opponent = match['team2'] if team == match['team1'] else match['team1']
+                # Enhanced hover text
+                hover_text = (
+                    f"<b>{team}</b> vs <b>{opponent}</b><br>"
+                    f"<i>{match['start_time'].strftime('%H:%M')}</i><br>"
+                    f"Phase {phase}"
+                )
+                
+                fig.add_trace(go.Scatter(
+                    x=[match['start_time']],
+                    y=[i],
+                    name=team,
+                    mode='markers',
+                    marker=dict(
+                        symbol='square',
+                        size=16,
+                        color=phase_colors[phase],
+                        line=dict(color='white', width=1)
+                    ),
+                    text=hover_text,
+                    hoverinfo='text',
+                    hoverlabel=dict(
+                        bgcolor='white',
+                        font=dict(color='black'),
+                        bordercolor=phase_colors[phase]
+                    ),
+                    showlegend=False
+                ))
+                
+                # Add connection lines with gradient effect
+                if len(team_matches) > 1:
+                    match_idx = team_matches.index(match)
+                    if match_idx < len(team_matches) - 1:
+                        next_match = team_matches[match_idx + 1]
+                        fig.add_trace(go.Scatter(
+                            x=[match['start_time'], next_match['start_time']],
+                            y=[i, i],
+                            mode='lines',
+                            line=dict(
+                                color='rgba(0,0,0,0.2)',
+                                width=1,
+                                dash='dot'
+                            ),
+                            showlegend=False
+                        ))
 
-        fig = ff.create_gantt(
-            df_gantt,
-            colors=colors,
-            index_col='Resource',
-            showgrid_x=True,
-            showgrid_y=True,
-            group_tasks=True,
-            show_colorbar=True,
-            title=f'Planning des matchs - Pool {self.pool}',
-        )
-        
-        # Améliorer le style du graphique
-        fig.update_layout(
-            font=dict(family="Arial", size=12),
-            title=dict(
-                text=f"Planning des matchs - Pool {self.pool}",
-                font=dict(size=24, color='#2C3E50'),
-                x=0.5,
-                y=0.95
-            ),
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            height=800  # Plus grand pour meilleure lisibilité
-        )
-        
-        fig.write_html(filename)
+    # Enhanced layout with fixed minimum width
+    fig.update_layout(
+        title=dict(
+            text=f'Planning des matchs - Pool {pool}',
+            font=dict(size=24, color='rgba(0,0,0,0.8)'),
+            x=0.5,
+            y=0.95
+        ),
+        xaxis=dict(
+            title='Heure',
+            title_font=dict(size=14),
+            type='date',
+            tickformat='%H:%M',
+            dtick=15 * 60 * 1000,
+            range=[base_time, end_time],
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(
+            title='Équipes',
+            title_font=dict(size=14),
+            ticktext=sorted(teams),
+            tickvals=list(range(len(teams))),
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.1)',
+            zeroline=False
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=max(600, len(teams) * 40),  # Dynamic height based on number of teams
+        margin=dict(l=120, r=50, t=100, b=50),
+        showlegend=True,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="right",
+            x=0.99,
+            bgcolor='rgba(255,255,255,0.9)',
+            bordercolor='rgba(0,0,0,0.2)',
+            borderwidth=1
+        ),
+        hovermode='closest',
+        modebar=dict(
+            remove=[
+                'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d',
+                'toggleSpikelines', 'hoverClosestCartesian',
+                'hoverCompareCartesian'
+            ],
+            orientation='v',  # Vertical orientation for better mobile view
+            bgcolor='rgba(255,255,255,0.7)',
+            color='rgba(0,0,0,0.5)',
+        ),
+        dragmode='pan',  # Make panning the default instead of zoom box
+        hoverdistance=100,  # Increase hover sensitivity
+        width=1200,  # Set minimum width for the plot
+        autosize=True,  # Allow responsive scaling above minimum width
+    )
+
+    # Save the figure with mobile-friendly configuration
+    output_dir = Path(TOURNAMENT_DIR) / "schedules" / f"pool_{pool}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"gantt_pool_{pool}.html"
+    print(f"Saving visualization to: {output_path}")
+
+    # First save the basic HTML
+    fig.write_html(
+        str(output_path),
+        include_plotlyjs=True,
+        full_html=True,
+        include_mathjax=False,
+        config={
+            'responsive': True,
+            'scrollZoom': True,
+            'displayModeBar': 'hover',
+            'modeBarButtonsToRemove': [
+                'select2d', 'lasso2d', 'autoScale2d',
+                'toggleSpikelines', 'zoom2d', 'pan2d',
+                'zoomIn2d', 'zoomOut2d', 'resetScale2d'
+            ],
+            'displaylogo': False,
+            'toImageButtonOptions': {
+                'format': 'png',
+                'filename': f'pool_{pool}_schedule',
+                'height': 1200,
+                'width': 800,
+                'scale': 2
+            }
+        }
+    )
+
+    # Then modify the HTML to add our custom styling
+    with open(output_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    # Insert our custom CSS after the <head> tag
+    custom_css = """
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;            overflow-x: auto;
+        }
+        .plot-container {
+            min-width: 1200px !important;  /* Match the figure width */
+            height: 100vh;
+            width: auto !important;
+        }
+        .js-plotly-plot {
+            min-width: 1200px !important;  /* Ensure minimum plot width */
+            height: 100% !important;
+        }
+        .plotly-graph-div {
+            min-width: 1200px !important;  /* Consistent minimum width */
+            height: 100% !important;
+            width: auto !important;
+        }
+        .main-svg {
+            min-width: 1200px !important;  /* Force minimum SVG width */
+        }
+        .modebar {
+            background: rgba(255,255,255,0.9) !important;
+        }
+        .modebar-container {
+            right: 5px !important;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    """
+    
+    html_content = html_content.replace('</head>', f'{custom_css}</head>')
+
+    # Save the modified HTML
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
 
 def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
     """Create and display a schedule for a pool starting at given hour."""
@@ -304,7 +532,7 @@ def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
         f.write(formatted_schedule)
     
     print(f"\nSchedule saved to {base_filename}.txt")
-    print(formatted_schedule)
+    # print(formatted_schedule)
     
     scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
     
