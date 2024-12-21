@@ -372,7 +372,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                             showlegend=False
                         ))
 
-    # Enhanced layout without config parameter
+    # Enhanced layout with fixed minimum width
     fig.update_layout(
         title=dict(
             text=f'Planning des matchs - Pool {pool}',
@@ -426,7 +426,9 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             color='rgba(0,0,0,0.5)',
         ),
         dragmode='pan',  # Make panning the default instead of zoom box
-        hoverdistance=100  # Increase hover sensitivity
+        hoverdistance=100,  # Increase hover sensitivity
+        width=1200,  # Set minimum width for the plot
+        autosize=True,  # Allow responsive scaling above minimum width
     )
 
     # Save the figure with mobile-friendly configuration
@@ -472,16 +474,24 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
-            overflow-x: auto;  /* Enable horizontal scroll */
+            height: 100%;            overflow-x: auto;
         }
         .plot-container {
-            min-width: 1000px;  /* Ensure minimum width for readability */
-            height: 100vh;      /* Full height */
+            min-width: 1200px !important;  /* Match the figure width */
+            height: 100vh;
+            width: auto !important;
         }
-        .js-plotly-plot, .plotly-graph-div {
+        .js-plotly-plot {
+            min-width: 1200px !important;  /* Ensure minimum plot width */
             height: 100% !important;
-            width: 100% !important;
+        }
+        .plotly-graph-div {
+            min-width: 1200px !important;  /* Consistent minimum width */
+            height: 100% !important;
+            width: auto !important;
+        }
+        .main-svg {
+            min-width: 1200px !important;  /* Force minimum SVG width */
         }
         .modebar {
             background: rgba(255,255,255,0.9) !important;
