@@ -1,10 +1,12 @@
-import os
 import pandas as pd
 from datetime import datetime, timedelta
 from src.tournament.tournament_manager import TournamentManager
 from src.tournament.config import SUBMITTED_TEAMS, TOURNAMENT_DIR, MATCH_DURATIONS
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 from src.utils.const import Soldier
+import plotly.graph_objects as go
+import numpy as np
+from pathlib import Path
 
 MATCH_DURATIONS = {
     "random_vs_random": 300 + 90,  # ~6.5 minutes
@@ -230,56 +232,159 @@ class MatchScheduler:
                         pass
                 worksheet.column_dimensions[column[0].column_letter].width = max_length + 2
 
-    def generate_gantt(self, schedule: List[Dict], filename: str):
-        """Generate a Gantt chart visualization with enhanced styling."""
-        df_gantt = []
-        colors = {
-            'random_vs_random': 'rgb(255, 196, 51)',  # Orange plus vif
-            'ai_vs_ai': 'rgb(41, 128, 185)',         # Bleu plus profond
-            'random_vs_ai': 'rgb(46, 204, 113)',     # Vert plus vif
-            'ai_vs_random': 'rgb(46, 204, 113)',     # Même couleur que random_vs_ai
-            'forfeit': 'rgb(231, 76, 60)',           # Rouge pour forfait
-            'break': 'rgb(189, 195, 199)'            # Gris clair pour les pauses
-        }
 
-        for match in schedule:
-            task_name = (f"Round {match['round']} - " +
-                        ("PAUSE" if match['match_type'] == 'break' 
-                         else f"{match['team1']} vs {match['team2']}"))
+
+def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
+    """Generate an interactive timetable-style visualization for pool matches."""
+    # Get unique teams and global time range
+    teams = set()
+    
+    # Create base time from start_hour
+    base_time = datetime.now().replace(
+        hour=int(start_hour),
+        minute=int((start_hour % 1) * 60),
+        second=0,
+        microsecond=0
+    )
+    # Set end time to 2 hours after start
+    end_time = base_time + timedelta(hours=2)
+    
+    # Collect teams info
+    for phase_schedule in schedules.values():
+        for match in phase_schedule:
+            teams.add(match['team1'])
+            teams.add(match['team2'])
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Color scheme by phase
+    phase_colors = {
+        'ALLER': 'rgba(65, 105, 225, 0.7)',  # Royal blue with transparency
+        'RETOUR': 'rgba(60, 179, 113, 0.7)'  # Medium sea green with transparency
+    }
+    
+    # Fix phase separator calculation - convert to timestamp in milliseconds
+    phase_change_time = min(m['start_time'] for m in schedules['RETOUR'])
+    fig.add_shape(
+        type="line",
+        x0=phase_change_time,
+        x1=phase_change_time,
+        y0=-0.5,  # Extend slightly below the bottom
+        y1=len(teams) - 0.5,  # Extend slightly above the top
+        line=dict(
+            color="red",
+            width=2,
+            dash="dash",
+        )
+    )
+    
+    # Add annotation for phase separator
+    fig.add_annotation(
+        x=phase_change_time,
+        y=len(teams),
+        text="ALLER | RETOUR",
+        showarrow=False,
+        yshift=10
+    )
+    
+    # Also update the range for x-axis to ensure proper display
+    fig.update_layout(
+        xaxis=dict(
+            title='Heure',
+            type='date',
+            tickformat='%H:%M',
+            dtick=15 * 60 * 1000,  # 15-minute intervals
+            range=[base_time, end_time],  # Use fixed time range
+            showgrid=True,
+            gridcolor='rgba(169, 169, 169, 0.2)'
+        )
+    )
+    
+    # Add timeline for each team
+    for i, team in enumerate(sorted(teams)):
+        # Create separate traces for ALLER and RETOUR phases
+        for phase, schedule in schedules.items():
+            team_matches = [
+                m for m in schedule 
+                if team in [m['team1'], m['team2']]
+            ]
             
-            df_gantt.append(dict(
-                Task=task_name,
-                Start=match['start_time'],
-                Finish=match['end_time'],
-                Resource=match['match_type']
-            ))
+            for match in team_matches:
+                opponent = match['team2'] if team == match['team1'] else match['team1']
+                fig.add_trace(go.Scatter(
+                    x=[match['start_time']],  # Use actual datetime
+                    y=[i],
+                    name=team,
+                    mode='markers',
+                    marker=dict(
+                        symbol='square',
+                        size=20,
+                        color=phase_colors[phase]
+                    ),
+                    text=f"{team} vs {opponent}<br>{match['start_time'].strftime('%H:%M')}",
+                    hoverinfo='text',
+                    showlegend=False
+                ))
+                
+                # Add connection line to next match
+                if len(team_matches) > 1:
+                    match_idx = team_matches.index(match)
+                    if match_idx < len(team_matches) - 1:
+                        next_match = team_matches[match_idx + 1]
+                        fig.add_trace(go.Scatter(
+                            x=[match['start_time'], next_match['start_time']],  # Use actual datetime
+                            y=[i, i],
+                            mode='lines',
+                            line=dict(
+                                color='rgba(169, 169, 169, 0.3)',
+                                width=1
+                            ),
+                            showlegend=False
+                        ))
 
-        fig = ff.create_gantt(
-            df_gantt,
-            colors=colors,
-            index_col='Resource',
-            showgrid_x=True,
-            showgrid_y=True,
-            group_tasks=True,
-            show_colorbar=True,
-            title=f'Planning des matchs - Pool {self.pool}',
-        )
-        
-        # Améliorer le style du graphique
-        fig.update_layout(
-            font=dict(family="Arial", size=12),
-            title=dict(
-                text=f"Planning des matchs - Pool {self.pool}",
-                font=dict(size=24, color='#2C3E50'),
-                x=0.5,
-                y=0.95
-            ),
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            height=800  # Plus grand pour meilleure lisibilité
-        )
-        
-        fig.write_html(filename)
+    # Update layout
+    fig.update_layout(
+        title=f'Planning des matchs - Pool {pool}',
+        xaxis=dict(
+            title='Heure',
+            type='date',
+            tickformat='%H:%M',
+            dtick=15 * 60 * 1000,  # 15-minute intervals
+            showgrid=True,
+            gridcolor='rgba(169, 169, 169, 0.2)'
+        ),
+        yaxis=dict(
+            title='Équipes',
+            ticktext=sorted(teams),
+            tickvals=list(range(len(teams))),
+            showgrid=True,
+            gridcolor='rgba(169, 169, 169, 0.2)'
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=600,
+        showlegend=False,
+        hovermode='closest'
+    )
+    
+    # Add phase legend
+    for phase, color in phase_colors.items():
+        fig.add_trace(go.Scatter(
+            x=[],
+            y=[],
+            mode='markers',
+            marker=dict(size=10, color=color),
+            name=f'Phase {phase}',
+            showlegend=True
+        ))
+
+    # Save the figure
+    output_dir = Path(TOURNAMENT_DIR) / "schedules" / f"pool_{pool}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"gantt_pool_{pool}.html"
+    print(f"Saving visualization to: {output_path}")
+    fig.write_html(str(output_path))
 
 def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
     """Create and display a schedule for a pool starting at given hour."""
@@ -302,7 +407,7 @@ def create_schedule(pool: str, start_hour: float = 13, phase: str = None):
         f.write(formatted_schedule)
     
     print(f"\nSchedule saved to {base_filename}.txt")
-    print(formatted_schedule)
+    # print(formatted_schedule)
     
     scheduler.export_to_excel(schedule, f"{base_filename}.xlsx")
     
