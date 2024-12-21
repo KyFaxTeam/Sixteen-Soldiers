@@ -372,7 +372,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
                             showlegend=False
                         ))
 
-    # Enhanced layout with fixed minimum width
+    # Enhanced layout with adjusted dimensions
     fig.update_layout(
         title=dict(
             text=f'Planning des matchs - Pool {pool}',
@@ -402,8 +402,8 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         ),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        height=max(600, len(teams) * 40),  # Dynamic height based on number of teams
-        margin=dict(l=120, r=50, t=100, b=50),
+        height=max(650, len(teams) * 45),  # Slightly increased height per team
+        margin=dict(l=100, r=40, t=80, b=40),  # Adjusted margins
         showlegend=True,
         legend=dict(
             yanchor="top",
@@ -427,7 +427,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
         ),
         dragmode='pan',  # Make panning the default instead of zoom box
         hoverdistance=100,  # Increase hover sensitivity
-        width=1200,  # Set minimum width for the plot
+        width=900,  # Reduced from 1200px
         autosize=True,  # Allow responsive scaling above minimum width
     )
 
@@ -437,7 +437,7 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
     output_path = output_dir / f"gantt_pool_{pool}.html"
     print(f"Saving visualization to: {output_path}")
 
-    # First save the basic HTML
+    # First save the basic HTML with improved mobile config
     fig.write_html(
         str(output_path),
         include_plotlyjs=True,
@@ -449,15 +449,15 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             'displayModeBar': 'hover',
             'modeBarButtonsToRemove': [
                 'select2d', 'lasso2d', 'autoScale2d',
-                'toggleSpikelines', 'zoom2d', 'pan2d',
-                'zoomIn2d', 'zoomOut2d', 'resetScale2d'
+                'toggleSpikelines'
             ],
             'displaylogo': False,
+            'doubleClick': 'reset+autosize',  # Better double-click behavior
             'toImageButtonOptions': {
                 'format': 'png',
                 'filename': f'pool_{pool}_schedule',
                 'height': 1200,
-                'width': 800,
+                'width': 900,
                 'scale': 2
             }
         }
@@ -477,30 +477,21 @@ def generate_pool_gantt(schedules: dict, pool: str, start_hour: float = 21.0):
             height: 100%;            overflow-x: auto;
         }
         .plot-container {
-            min-width: 1200px !important;  /* Match the figure width */
+            min-width: 900px !important;  /* Match new width */
             height: 100vh;
-            width: auto !important;
         }
-        .js-plotly-plot {
-            min-width: 1200px !important;  /* Ensure minimum plot width */
+        .js-plotly-plot, .plotly-graph-div {
             height: 100% !important;
         }
-        .plotly-graph-div {
-            min-width: 1200px !important;  /* Consistent minimum width */
-            height: 100% !important;
-            width: auto !important;
-        }
-        .main-svg {
-            min-width: 1200px !important;  /* Force minimum SVG width */
-        }
-        .modebar {
-            background: rgba(255,255,255,0.9) !important;
-        }
-        .modebar-container {
-            right: 5px !important;
+        /* Custom zoom controls for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .js-plotly-plot .plotly .modebar {
+                transform: scale(1.5);  /* Bigger buttons on mobile */
+                transform-origin: right top;
+            }
         }
     </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
     """
     
     html_content = html_content.replace('</head>', f'{custom_css}</head>')
