@@ -345,19 +345,20 @@ class PlayerView(BaseView):
                 if profile_img:
                     try:
                         # Charger l'image avec PIL
-                        pil_image = Image.open(profile_img).convert('RGBA')
-                        # Créer une nouvelle CTkImage
-                        new_avatar_image = ctk.CTkImage(
-                            light_image=pil_image,
-                            dark_image=pil_image,
-                            size=(60, 60)
-                        )
-                        # Mettre à jour l'image du label avec la nouvelle CTkImage
-                        self.avatar.configure(image=new_avatar_image)
-                        # Garder une référence à la nouvelle image
-                        self.avatar_ctk_image = new_avatar_image
-                        # Garder une référence à l'image PIL aussi
-                        self.avatar_image = pil_image
+                        if os.path.exists(profile_img):             
+                            pil_image = Image.open(profile_img).convert('RGBA')
+                            # Créer une nouvelle CTkImage
+                            new_avatar_image = ctk.CTkImage(
+                                light_image=pil_image,
+                                dark_image=pil_image,
+                                size=(60, 60)
+                            )
+                            # Mettre à jour l'image du label avec la nouvelle CTkImage
+                            self.avatar.configure(image=new_avatar_image)
+                            # Garder une référence à la nouvelle image
+                            self.avatar_ctk_image = new_avatar_image
+                            # Garder une référence à l'image PIL aussi
+                            self.avatar_image = pil_image
                     except Exception as e:
                         self.logger.error(f"Error loading profile image: {str(e)}")
             # Update timer
