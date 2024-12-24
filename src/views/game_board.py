@@ -292,7 +292,7 @@ class GameBoard(BaseView):
             if last_move is None :
                 return
             if not is_equals(last_move, self.previous_move):
-                self.logger.info(f"Processing new move: {last_move}")
+                # self.logger.info(f"Processing new move: {last_move}")
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
