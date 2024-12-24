@@ -213,6 +213,8 @@ class GameRunner:
 
                 self.store.dispatch(action=action)
                 
+                delay = self.store.game_speed.get_delay_time(elapsed_time)
+                time.sleep(delay)
                 
                 self.store.dispatch({
                     "type": "UPDATE_TIME",
@@ -220,6 +222,8 @@ class GameRunner:
                     "elapsed_time": elapsed_time
                 })
 
+                
+                
                 self.store.dispatch({
                     "type": "ADD_MOVE_TO_HISTORY",
                     "payload": {

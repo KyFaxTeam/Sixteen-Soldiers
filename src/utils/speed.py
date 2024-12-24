@@ -31,22 +31,22 @@ class GameSpeed:
         self._set_min_max_delay()
 
     def _set_min_max_delay(self): 
-        
-        if 0.5 <= self.current_speed < 1: 
-            self.MIN_VISIBLE_DELAY = 2000  # De 1500 à 2000
-            self.MAX_VISIBLE_DELAY = 8000  # De 7000 à 8000
+        """Configure les délais min/max selon la vitesse actuelle"""
+        if 0.5 <= self.current_speed < 1:  # Très lent
+            self.MIN_VISIBLE_DELAY = 1000  # Réduit de 2000 à 1000
+            self.MAX_VISIBLE_DELAY = 4000  # Réduit de 8000 à 4000
 
-        elif 1 <= self.current_speed < 1.5: 
-            self.MIN_VISIBLE_DELAY = 1500  # De 1000 à 1500
-            self.MAX_VISIBLE_DELAY = 6000  # De 5000 à 6000
+        elif 1 <= self.current_speed < 1.5:  # Lent
+            self.MIN_VISIBLE_DELAY = 800   # Réduit de 1500 à 800
+            self.MAX_VISIBLE_DELAY = 3000  # Réduit de 6000 à 3000
 
-        elif 1.5 <= self.current_speed < 2: 
-            self.MIN_VISIBLE_DELAY = 800   # De 600 à 800
-            self.MAX_VISIBLE_DELAY = 5000  # De 4000 à 5000
+        elif 1.5 <= self.current_speed < 2:  # Normal
+            self.MIN_VISIBLE_DELAY = 400   # Réduit de 800 à 400
+            self.MAX_VISIBLE_DELAY = 2000  # Réduit de 5000 à 2000
 
-        elif 2 <= self.current_speed <= 2.5: 
-            self.MIN_VISIBLE_DELAY = 300   # De 200 à 300
-            self.MAX_VISIBLE_DELAY = 2000  # De 1500 à 2000
+        elif 2 <= self.current_speed <= 2.5:  # Rapide
+            self.MIN_VISIBLE_DELAY = 200   # Réduit de 300 à 200
+            self.MAX_VISIBLE_DELAY = 1000  # Réduit de 2000 à 1000
 
     
     def get_delay_time(self, ai_thinking_time):
@@ -71,29 +71,33 @@ class GameSpeed:
         return self.current_speed
 
 
-    def get_board_speed(self, delay) -> dict:
+    def get_board_speed(self, timestamp) -> dict:
         """Get animation parameters based on current speed"""
-        # Base values - plus conservateurs
-        base_steps = 35  # Plus de steps pour plus de fluidité
-        base_min_delay = 12  # Délai minimum plus élevé
-        
-        # Adjust steps and delay based on speed - changements plus graduels
-        if self.current_speed < 1.0:  # Slow
-            steps = int(base_steps * 1.15)  # ~40 steps
-            min_delay = int(base_min_delay * 1.3)  # ~15-16ms
+        # Base values - ajustés pour plus de fluidité
+        base_steps = 30  # Légèrement réduit pour des animations plus rapides
+        min_delay = 10   # Augmenté à 10ms pour des animations moins rapides
+        max_delay = 50   # Maximum également réduit pour plus de réactivité
+
+        # Ajustement des steps selon la vitesse
+        if self.current_speed < 1.0:  # Lent
+            steps = int(base_steps * 1.2)
+            speed_multiplier = 1.5
         elif self.current_speed < 1.5:  # Normal
-            steps = base_steps  # 35 steps
-            min_delay = base_min_delay  # 12ms
-        else:  # Fast
-            steps = int(base_steps * 0.9)  # ~31 steps
-            min_delay = max(8, int(base_min_delay * 0.85))  # ~10ms
+            steps = base_steps
+            speed_multiplier = 1.0
+        else:  # Rapide
+            steps = int(base_steps * 0.8)
+            speed_multiplier = 0.5
 
-        # Animation delay avec scaling plus doux
-        speed_factor = 3.5 - (self.current_speed * 0.8)  # Réduction plus progressive
-        animation_delay = int(speed_factor * delay)
+        # Calcul du délai basé sur le timestamp avec des limites plus basses
+        base_animation_time = max(10, min(100, timestamp * 1000))
+        animation_delay = int(base_animation_time * speed_multiplier)
+        
+        # Calcul du délai final avec les nouvelles limites
+        final_delay = min(max_delay, max(min_delay, animation_delay))
 
+         
         return {
             'steps': steps,
-            'min_delay': min_delay,
-            'animation_delay': animation_delay
+            'delay': final_delay
         }

@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import screeninfo
 from src.models.assets.index import Assets
 from src.utils.audio import Sounds
-from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, resolution
+from src.utils.const import  LINE_THICKNESS, PADDING, SOLDIER_SIZE, resolution, Soldier
 from src.utils.game_utils import GameRunner
 from src.views.base_view import BaseView
 from src.utils.board_utils import BoardUtils  
@@ -23,11 +23,6 @@ pad_board = {
     "4K Ultra HD": 10
 }
 
-class AnimationState(Enum):
-    IDLE = "idle"
-    MOVING = "moving" 
-    CAPTURING = "capturing"
-    ERROR = "error"
 
 class GameBoard(BaseView):
     
@@ -51,10 +46,7 @@ class GameBoard(BaseView):
         self._init_board()
         
         self.logger = logging.getLogger(__name__)
-        self.move_queue = []  # Pour stocker les mouvements en attente
-        self.animation_state = AnimationState.IDLE
-        self.current_timeout = None
-        
+
     def _init_board(self):
         """Initializes the game board by drawing the board, pieces, playing background music, and setting up the decor."""
         self.__draw_board()
@@ -193,110 +185,45 @@ class GameBoard(BaseView):
         
         self.play_pause_button.pack(side="left", padx=10, pady=5)
         self.reset_button.pack(side="left", padx=10, pady=5)
-             
-    def _move_soldier_in_board(self, soldier_id: int, target: tuple, timestamp, captured_id=None):
-        # ...existing validation code...
 
-        try:
-            coords = self.canvas.coords(soldier_id)
-            current_x, current_y = coords
-            target_x, target_y = target
-            
-            delay = min(self.store.game_speed.get_delay_time(timestamp), 100)
-            board_params = self.store.game_speed.get_board_speed(delay)
-            
-            steps = board_params['steps']
-            delay_ms = int(delay * 10)
-            
-            # Define capture point
-            capture_step = int(steps * 0.6) # Capture à 60% du mouvement
-            
-            # Calculate increments
-            dh = (target_x - current_x) / steps
-            dv = (target_y - current_y) / steps
-            
-            def move_step(step=0):
-                if step < steps and self.canvas.find_withtag(soldier_id):
-                    self.canvas.move(soldier_id, dh, dv)
-                    
-                    # Handle capture during movement
-                    if captured_id and step == capture_step:
-                        self.animation_state = AnimationState.CAPTURING
-                        self._handle_capture(captured_id)
-                        
-                    step_delay = max(board_params['min_delay'], board_params['animation_delay'] // steps)
-                    self.canvas.after(step_delay, lambda: move_step(step + 1))
-                else:
-                    self._finalize_move(soldier_id, target_x, target_y)
+    def _move_soldier_in_board(self, soldier_id: int, target: tuple, timestamp: float = 0.5):
+        self.canvas.update_idletasks()
 
-            self.current_timeout = self.canvas.after(delay_ms * 3, self._handle_timeout)
-            move_step()
-
-        except Exception as e:
-            self._handle_animation_error(f"Move error: {str(e)}")
-
-    def _finalize_move(self, soldier_id, target_x, target_y):
-        """Finalize move without handling capture (now handled during movement)"""
-        try:
-            self.canvas.coords(soldier_id, target_x, target_y)
-        finally:
-            self._end_animation()
-
-    def _handle_capture(self, captured_id):
-        """Handle piece capture"""
-        # self.logger.info(f"""
-        # ====== HANDLING CAPTURE =====
-        # Captured ID: {captured_id}
-        # Exists: {bool(self.canvas.find_withtag(captured_id))}
-        # Animation State: {self.animation_state}
-        # """)
+        if soldier_id is None:
+            self.logger.error("Error: Soldier not found")
+            return
         
-        if captured_id and self.canvas.find_withtag(captured_id):
-            try:
-                self.sounds.kill_soldier()
-                self.canvas.delete(captured_id) 
-                #self.logger.info("Capture successful")
-            except Exception as e:
-                self.logger.error(f"Capture failed: {e}")
+        board_params = self.store.game_speed.get_board_speed(timestamp) 
+        steps = board_params['steps']
+        delay = board_params['delay']
 
-    def _handle_timeout(self):
-        """Force cleanup on timeout"""
-        if self.animation_state != AnimationState.IDLE:
-            self.logger.warning("Animation timeout - forcing cleanup")
-            self._end_animation()
+        # Récupérer les coordonnées actuelles
+        coords = self.canvas.coords(soldier_id)
+        current_x, current_y = coords
+        target_x, target_y = target
 
-    def _handle_animation_error(self, msg):
-        """Handle animation error"""
-        self.logger.error(msg)
-        self._end_animation()
+        # Calculate movement increments
+        dx = (target_x - current_x) / steps
+        dy = (target_y - current_y) / steps
 
-    def _end_animation(self):
-        """End animation and process next move"""
-        if self.current_timeout:
-            self.canvas.after_cancel(self.current_timeout)
-            self.current_timeout = None
+        def step_move(step):
+            if step < steps:
+                self.canvas.move(soldier_id, dx, dy)
+                self.frame.after(delay, lambda: step_move(step + 1))
+            else:
+                # Final position adjustment
+                self.canvas.coords(soldier_id, target_x, target_y)
         
-        # Réinitialiser l'état de l'animation
-        self.animation_state = AnimationState.IDLE
-        
-        self._process_next_move()
+        step_move(0)
 
-    def _process_next_move(self):
-        """Process next move in queue"""
-        if self.move_queue and self.animation_state == AnimationState.IDLE:
-            next_move = self.move_queue.pop(0)
-            self._move_soldier_in_board(*next_move)
-    
-    def _get_piece_id(self, position: tuple, player: int):
-        """Retourne l'ID du soldat à partir de sa position et du joueur."""
-        soldiers = self.red_soldiers if player == 0 else self.blue_soldiers
-        # logging.info(f"Checking position {position} for player {player}")
+    def _get_piece_id(self, position: tuple, soldier_value: Soldier):
+        """Retourne l'ID du soldat à partir de sa position et du type de soldat (RED ou BLUE)."""
+        soldiers = self.red_soldiers if soldier_value == Soldier.RED else self.blue_soldiers
         for piece in soldiers:
             coords = self.canvas.coords(piece)
-            # logging.info(f"Piece ID: {piece}, Coords: {coords}")
             if tuple(coords) == position:
                 return piece
-        self.logger.error(f"No soldier found at position {position} for player {player}")
+        self.logger.error(f"No soldier found at position {position} for {soldier_value.name}")
         return None
         
     def _make_action(self, move: dict) :
@@ -304,53 +231,40 @@ class GameBoard(BaseView):
         """Effectue une action sur le plateau de jeu."""
         from_pos = move["pos"][-2] if len(move["pos"]) >= 2 else move["pos"][0]
         to_pos = move["pos"][-1]
-        player = move["soldier_value"].value
+        player = move["soldier_value"]
         timestamp = move["timestamp"][-1]
-
-        # Log du mouvement reçu
-        # self.logger.info(f"""
-        # ====== MOVE RECEIVED =====
-        # From: {from_pos}
-        # To: {to_pos}
-        # Player: {player}
-        # Captured: {move.get('captured_soldier')}
-        # """)
 
         # Conversion en coordonnées du plateau
         from_coords = BoardUtils.algebraic_to_gameboard(from_pos, gap=self.GAP_)
-        to_coords = BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_)
+        #to_coords = BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_)
         
-        # self.logger.info(f"""
-        # ====== CONVERTED COORDINATES =====
-        # From: {from_coords}
-        # To: {to_coords}
-        # """)
 
-        soldier_id = self._get_piece_id(position=from_coords, player=player)
+        soldier_id = self._get_piece_id(position=from_coords, soldier_value=move["soldier_value"])
         if soldier_id is None:
             self.logger.error(f"No soldier found at position {from_coords} for player {player}")
             return 
 
+        
+        # Faire le mouvement 
+        self._move_soldier_in_board(
+            soldier_id, 
+            BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_),
+            timestamp = timestamp
+        )
         # Préparer l'ID du pion capturé
         captured_id = None
         if move.get("captured_soldier") is not None:
             captured_soldier = move["captured_soldier"][-1]
             captured_pos = BoardUtils.algebraic_to_gameboard(captured_soldier, gap=self.GAP_)
-            captured_id = self._get_piece_id(position=captured_pos, player=1 - player)
+            captured_id = self._get_piece_id(
+                position=captured_pos, 
+                soldier_value=Soldier.BLUE if move["soldier_value"] == Soldier.RED else Soldier.RED
+            )
             
-            # self.logger.info(f"""
-            # ====== CAPTURE INFO =====
-            # Captured position: {captured_soldier} -> {captured_pos}
-            # Captured ID: {captured_id}
-            # """)
+            self.sounds.kill_soldier()
+            self.canvas.delete(captured_id)
+        
 
-        # Faire le mouvement avec la capture si nécessaire
-        self._move_soldier_in_board(
-            soldier_id, 
-            BoardUtils.algebraic_to_gameboard(to_pos, gap=self.GAP_), 
-            timestamp,
-            captured_id=captured_id
-        )
         
     def update(self, state):
         """ Updates the board based on the new state """
@@ -378,7 +292,7 @@ class GameBoard(BaseView):
             if last_move is None :
                 return
             if not is_equals(last_move, self.previous_move):
-                # self.logger.info(f"Processing new move: {last_move}")
+                self.logger.info(f"Processing new move: {last_move}")
                 try:
                     self._make_action(last_move.to_dict())
                 except Exception as e:
@@ -454,11 +368,8 @@ class GameBoard(BaseView):
         self.red_soldiers = []
         self.blue_soldiers = []
         self.previous_move = None
-        self.move_queue = []  # Vider la file d'attente
-        self.animation_state = AnimationState.IDLE
-        if self.current_timeout:
-            self.frame.after_cancel(self.current_timeout)
-            self.current_timeout = None
+
+        
         self.play_pause_button.configure(state="normal")
         self.reset_button.configure(state="normal")
         self.__draw_board()
