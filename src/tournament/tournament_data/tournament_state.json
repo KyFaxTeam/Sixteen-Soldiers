@@ -1,5 +1,5 @@
 {
-  "current_match_id": 2,
+  "current_match_id": 1,
   "matches": {
     "1": {
       "id": 1,
@@ -7,21 +7,11 @@
       "bracket": "WINNER",
       "team1": "AIverse",
       "team2": "IFRI",
-      "winner": "AIverse",
-      "loser": "IFRI",
+      "winner": null,
+      "loser": null,
       "next_match_id": 5,
       "loser_match_id": 7,
-      "stats": {
-        "winner": "AIverse",
-        "loser": "IFRI",
-        "pieces_a": 12,
-        "pieces_b": 8,
-        "moves_a": 48,
-        "moves_b": 45,
-        "time_a": 0.2097954999189824,
-        "time_b": 0.22640430001774803,
-        "reason": "RED wins - More pieces remaining"
-      }
+      "stats": null
     },
     "2": {
       "id": 2,
@@ -63,7 +53,7 @@
       "id": 5,
       "round": 2,
       "bracket": "WINNER",
-      "team1": "AIverse",
+      "team1": null,
       "team2": null,
       "winner": null,
       "loser": null,
@@ -87,7 +77,7 @@
       "id": 7,
       "round": 1,
       "bracket": "LOSER",
-      "team1": "IFRI",
+      "team1": null,
       "team2": null,
       "winner": null,
       "loser": null,

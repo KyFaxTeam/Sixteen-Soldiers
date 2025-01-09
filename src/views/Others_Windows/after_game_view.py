@@ -149,6 +149,7 @@ class AfterGameView(ctk.CTkToplevel):
         # Add protocol for window close button (X)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.grab_set()  # Rend la fenêtre modale
+        self.bind("<Destroy>", self._on_destroy)  # Ajouter un gestionnaire de destruction
 
     def get_winner_data(self, state):
         """Extract winner data from the state"""
@@ -249,14 +250,41 @@ class AfterGameView(ctk.CTkToplevel):
 
         }
 
+    def _on_destroy(self, event):
+        """Handle proper cleanup when window is destroyed"""
+        if event.widget == self:
+            try:
+                # Nettoyer toutes les références aux widgets
+                for child in self.winfo_children():
+                    child.destroy()
+                self.grab_release()
+                self.sounds.unpause()
+            except Exception as e:
+                print(f"Error during AfterGameView cleanup: {e}")
+
     def on_closing(self):
         """Handle window closing event properly"""
         try:
-            # self.grab_release()  # Relâche le focus modal
-            # self.master.focus_set()  # Redonne le focus à la fenêtre principale
+            # Désactiver tous les widgets d'abord
+            for child in self.winfo_children():
+                if hasattr(child, 'configure'):
+                    try:
+                        child.configure(state="disabled")
+                    except Exception:
+                        pass
+            
+            # Retirer les callbacks
+            for child in self.winfo_children():
+                if hasattr(child, 'configure'):
+                    try:
+                        child.configure(command=None)
+                    except Exception:
+                        pass
+                        
             self.sounds.unpause()
-            self.destroy()  # Détruit la fenêtre
+            self.after(100, self.destroy)  # Destruction différée
         except Exception as e:
             print(f"Error closing AfterGameView: {e}")
+            self.destroy()
 
 

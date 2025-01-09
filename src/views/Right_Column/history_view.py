@@ -217,35 +217,23 @@ class HistoryView(BaseView):
 
     def clear_moves(self):
         """Effacer tous les mouvements de l'historique"""
-        if self.is_clearing:  # Éviter les appels multiples
-            print("Already clearing moves")
+        if self.is_clearing:
             return
             
-        print("\n----- CLEARING HISTORY VIEW -----")
         self.is_clearing = True
         
         try:
             if not hasattr(self, 'moves_container') or not self.moves_container.winfo_exists():
-                print("Container not available")
                 return
 
-            print(f"Clearing {len(self.move_frames)} frames")
-            
-            # Désactiver les mises à jour de l'interface
-            self.moves_container.configure(state="disabled")
-            
-            # Détruire chaque frame sans animation
             for frame in self.move_frames:
-                #frame["frame"].configure(state="disabled")
                 frame["frame"].destroy()
             
-            # Vider la liste et forcer le rafraîchissement
             self.move_frames = []
-            #self.moves_container.configure(state="normal")
             self.moves_container._parent_canvas.yview_moveto(0.0)
             
         except Exception as e:
-            print(f"Error in clear_moves: {e}")
+            self.logger.error(f"Error in clear_moves: {e}")
         finally:
             self.is_clearing = False
 
