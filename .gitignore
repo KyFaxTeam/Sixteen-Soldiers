@@ -1,0 +1,59 @@
+# Environnements virtuels
+venv/
+env/
+.venv/
+ENV/
+__pycache__/
+
+utils/__pycache__
+views/__pycache__
+models/__pycache__
+store/__pycache__
+actions/__pycache__
+
+docs/doc_code.pdf
+docs/github.pdf
+docs/rules.pdf
+
+
+saved_game/*
+
+# Fichiers spécifiques à l'IDE (PyCharm, VSCode, etc.)
+.idea/
+.vscode/
+*.iml
+
+# Fichiers de logs
+*.log
+
+# Fichiers de configuration système
+.DS_Store
+*.swp
+structureRepertoir.txt
+
+# Fichiers Python compilés
+*.pyc
+*.pyo
+*.pyd
+
+# Clés API ou fichiers sensibles
+*.env
+*.secret
+*.key
+
+# Fichiers générés par Selenium (si applicable)
+data/
+
+# Fichiers ou dossiers temporaires
+fusion/data/
+tmp/
+temp/
+*.tmp
+
+# Dépendances téléchargées
+*.egg-info/
+dist/
+build/
+
+# TODO
+TODO.md
