@@ -96,6 +96,7 @@ class HistoryView(BaseView):
 
         # Liste pour garder une référence aux mouvements
         self.move_frames = []
+        self.is_clearing = False  # Nouvel attribut pour éviter les destructions multiples
 
         self.previous_move = None
 
@@ -216,15 +217,43 @@ class HistoryView(BaseView):
 
     def clear_moves(self):
         """Effacer tous les mouvements de l'historique"""
-        for content_frame in self.move_frames:
-            content_frame["frame"].destroy()
-        self.move_frames = []
+        if self.is_clearing:  # Éviter les appels multiples
+            print("Already clearing moves")
+            return
+            
+        print("\n----- CLEARING HISTORY VIEW -----")
+        self.is_clearing = True
+        
+        try:
+            if not hasattr(self, 'moves_container') or not self.moves_container.winfo_exists():
+                print("Container not available")
+                return
 
-        self.moves_container._parent_canvas.yview_moveto(0.0)
+            print(f"Clearing {len(self.move_frames)} frames")
+            
+            # Désactiver les mises à jour de l'interface
+            self.moves_container.configure(state="disabled")
+            
+            # Détruire chaque frame sans animation
+            for frame in self.move_frames:
+                #frame["frame"].configure(state="disabled")
+                frame["frame"].destroy()
+            
+            # Vider la liste et forcer le rafraîchissement
+            self.move_frames = []
+            #self.moves_container.configure(state="normal")
+            self.moves_container._parent_canvas.yview_moveto(0.0)
+            
+        except Exception as e:
+            print(f"Error in clear_moves: {e}")
+        finally:
+            self.is_clearing = False
 
     def update(self, state):
         """Updates the move history by adding only new moves"""
-
+        if self.is_clearing:  # Ne pas mettre à jour pendant le nettoyage
+            return
+            
         if not state['is_game_started'] or state['is_game_over'] or state['is_game_paused']: 
             return
         try:

@@ -222,10 +222,19 @@ class MainView(BaseView):
         if self.after_game_view:
             self.after_game_view.destroy()
             self.after_game_view = None
+            self.master.update()  # Force update of UI
+
+        if hasattr(self, 'game_board'):
+            self.game_board.reset_game()
+        
+        if hasattr(self, 'history_view'):
+            self.history_view.clear_moves()
 
         if hasattr(self, 'main_container'):
             self.main_container.pack_forget()
+            self.main_container.destroy()
             del self.main_container
+            self.master.update()  # Force update of UI
 
         # Clean up game runner state
         self.game_runner.cleanup()
@@ -240,13 +249,22 @@ class MainView(BaseView):
    
     def update(self, state: dict):
         """Update the view with new state based on game status."""
+        print("\n----- UPDATE CALLED -----")
+        print(f"Game over: {state['is_game_over']}")
+        print(f"Tournament mode: {self.tournament_mode}")
+        print(f"Handling tournament end: {self.handling_tournament_end}")
+        
         if state["is_game_over"]:
             if self.tournament_mode:
                 if not self.handling_tournament_end:
+                    print("Starting tournament match end handling")
                     self.handle_tournament_match_end()
+                else:
+                    print("Already handling tournament end")
                 return
             else:
                 if not self.after_game_view:
+                    print("Showing normal after game view")
                     self.show_after_game_view()
                 return
 
@@ -276,10 +294,14 @@ class MainView(BaseView):
 
     def handle_tournament_match_end(self):
         """Handle tournament match end"""
+        print("\n----- HANDLING TOURNAMENT MATCH END -----")
         if not self.handling_tournament_end:
+            print("Setting handling_tournament_end to True")
             self.handling_tournament_end = True
+            print("Showing after game view")
             self.show_after_game_view()
             
+            print("Processing match results")
             state = self.store.get_state()
             current_match_id = self.tournament_manager.bracket_manager.current_match_id
             match = self.tournament_manager.bracket_manager.matches[current_match_id]
@@ -303,39 +325,71 @@ class MainView(BaseView):
                 "reason": state["reason"]
             }
             
+            print("Recording match result")
             self.tournament_manager.record_match_result(stats)
+            print("Preparing next match")
             self._prepare_next_match()
+        else:
+            print("Already handling tournament end (should not happen)")
 
     def _prepare_next_match(self):
         """Prepare next match"""
+        print("\n----- PREPARING NEXT MATCH -----")
         try:
-            # Clean up current match UI and state
+            # Pause le jeu immédiatement
+            self.game_runner.cleanup(level='match')
+            #self.store.dispatch({"type": "PAUSE_GAME"})
+            
+            # Séquence de nettoyage dans l'ordre
             if self.after_game_view:
+                print("1. Destroying after game view")
+                self.after_game_view.grab_release()
                 self.after_game_view.destroy()
                 self.after_game_view = None
-
-            self.game_runner.cleanup(level='match')
-            self.store.dispatch({"type": "RESTART_GAME"})
+                
+            # Force une mise à jour
+            self.master.update_idletasks()
             
+            print("2. Resetting game components")
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
+                
             if hasattr(self, 'history_view'):
                 self.history_view.clear_moves()
-
-            self.handling_tournament_end = False
             
-            # Setup next match
-            next_match = self.tournament_manager.setup_next_match()
-            if next_match:
-                self._configure_match_agents(next_match)
-                self.match_start_time = datetime.now()
-                self.game_runner.start()
-            else:
-                self.end_tournament()
+            # Force une autre mise à jour
+            self.master.update_idletasks()
+            
+            print("3. Preparing next game")
+            self.handling_tournament_end = False
+            self.store.dispatch({"type": "RESTART_GAME"})
+            
+            # Utiliser after pour laisser le temps au système de se stabiliser
+            self.master.after(200, self._setup_next_match)
 
         except Exception as e:
+            print(f"ERROR in prepare_next_match: {e}")
             self.logger.error(f"Error preparing next match: {e}")
             self.handling_tournament_end = False
+
+    def _setup_next_match(self):
+        """Setup and start the next match after cleanup"""
+        try:
+            print("Setting up next match")
+            next_match = self.tournament_manager.setup_next_match()
+            if next_match:
+                print(f"Configuring next match: {next_match}")
+                self.match_start_time = datetime.now()
+                self._configure_match_agents(next_match)
+                
+                print("Scheduling game start")
+                self.master.after(100, self.game_runner.start)
+            else:
+                print("No more matches, ending tournament")
+                self.end_tournament()
+        except Exception as e:
+            print(f"ERROR in _setup_next_match: {e}")
+            self.logger.error(f"Error in _setup_next_match: {e}")
 
     def _configure_match_agents(self, match_info):
         """Configure agents for the next match"""

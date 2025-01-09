@@ -14,12 +14,12 @@
       "stats": {
         "winner": "AIverse",
         "loser": "IFRI",
-        "pieces_a": 13,
-        "pieces_b": 12,
-        "moves_a": 39,
-        "moves_b": 38,
-        "time_a": 0.22390210011508316,
-        "time_b": 0.07017829999676906,
+        "pieces_a": 12,
+        "pieces_b": 8,
+        "moves_a": 48,
+        "moves_b": 45,
+        "time_a": 0.2097954999189824,
+        "time_b": 0.22640430001774803,
         "reason": "RED wins - More pieces remaining"
       }
     },
