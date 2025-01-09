@@ -18,8 +18,9 @@ from src.views.Right_Column.history_view import HistoryView
 from src.views.Right_Column.setting_view import SettingsView
 from src.utils.game_utils import GameRunner, show_popup
 
-from src.tournament.tournament_manager import TournamentManager
-from src.tournament.config import MATCH_DURATIONS, SUBMITTED_TEAMS
+from pathlib import Path
+from src.tournament.double_elim_manager import DoubleEliminationManager
+from src.tournament.config import TEAMS
 
 logger = logging.getLogger(__name__)
 class MainView(BaseView):
@@ -76,11 +77,15 @@ class MainView(BaseView):
         # Ajouter un gestionnaire pour la fermeture de la fenêtre
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.tournament_mode = True
+        self.tournament_mode = False
         self.tournament_manager = None
         self.handling_tournament_end = False
         self.match_start_time = None
-        self.match_duration = timedelta(minutes=4)
+        
+        # Create tournament directory
+        self.tournament_dir = Path(__file__).parent.parent / "tournament" / "tournament_data"
+        self.tournament_dir.mkdir(exist_ok=True)
+
         self.estimation_times = {
             "random_vs_random" : [0, 0], 
             "random_vs_ai" : [0, 0],
@@ -269,194 +274,47 @@ class MainView(BaseView):
         self.master.destroy()
 
     def handle_tournament_match_end(self):
-        """Gère la fin d'un match de tournoi."""
+        """Handle tournament match end"""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
-
             self.show_after_game_view()
-
+            
             state = self.store.get_state()
-
-            match_stats = self._compute_match_statistics(state)
-
-            self.tournament_manager.record_match_result(match_stats)
-
-            self._schedule_next_match()
-
-    def _validate_tournament_state(self) -> bool:
-        """Vérifie si le tournoi est dans un état valide pour traiter la fin d'un match."""
-        if not self.tournament_manager:
-            self.logger.error("Tournament manager not initialized")
-            return False
+            current_match_id = self.tournament_manager.bracket_manager.current_match_id
+            match = self.tournament_manager.bracket_manager.matches[current_match_id]
             
-        if self.handling_tournament_end:
-            self.logger.warning("Already handling tournament end")
-            return False
+            winner = state['winner']
+            loser = Soldier.BLUE if winner == Soldier.RED else Soldier.RED
             
-        self.handling_tournament_end = True
-        return True
-
-    def _compute_match_statistics(self, state: dict) -> dict:
-        """
-        Calcule les statistiques du match terminé.
-        Returns:
-            dict: Statistiques complètes du match
-        """
-
-        # Gestion du cas forfait
-        if state.get("reason") == GameEndReason.FORFEIT.value:
-            return self._compute_forfeit_statistics(state.get("winner"))
-        
-        # Extraction des données des équipes
-        teams_data = self._extract_teams_data(state)
+            match.winner = match.team1 if winner == Soldier.RED else match.team2
+            match.loser = match.team2 if winner == Soldier.RED else match.team1
             
-        # Calcul des statistiques normales
-        return self._compute_normal_statistics(teams_data, state)
-
-    def _extract_teams_data(self, state: dict) -> dict:
-        teams_data = {'team_a': {}, 'team_b': {}}
-        team1, team2, _ = self.tournament_manager.get_current_match()
-        
-        for team_key, soldier in [('team_a', Soldier.RED), ('team_b', Soldier.BLUE)]:
-            info_index = state.get("agents_info_index", {}).get(soldier)
-            if info_index:
-                agent_data = state.get("agents", {}).get(info_index, {})
-                teams_data[team_key] = {
-                    'name': team1 if soldier == Soldier.RED else team2,
-                    'soldier_value': agent_data.get('soldier_value'),
-                    'performance': agent_data.get('performances', [])[-1] if agent_data.get('performances') else {}
-                }
-
-        # print(f"\nDonnées des équipes extraites: {teams_data}")
-        
-        return teams_data
-
-    def _compute_forfeit_statistics(self, winner: Soldier) -> dict:
-        """Calcule les statistiques pour un match terminé par forfait."""
-        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index]
-
-        forfeit_team = team2 if winner == Soldier.RED else team1
-        
-        if forfeit_team == team1:
-            winner, loser = team2, team1
-            pieces = (0, 16)
-        else:
-            winner, loser = team1, team2
-            pieces = (16, 0)
+            stats = {
+                "winner": match.winner,
+                "loser": match.loser,
+                "pieces_a": state["pieces_red"],
+                "pieces_b": state["pieces_blue"],
+                "moves_a": len([m for m in state["moves"] if m["soldier"] == Soldier.RED]),
+                "moves_b": len([m for m in state["moves"] if m["soldier"] == Soldier.BLUE]),
+                "time_a": (datetime.now() - self.match_start_time).total_seconds(),
+                "time_b": (datetime.now() - self.match_start_time).total_seconds(),
+                "reason": state["reason"]
+            }
             
-        return {
-            'winner': winner,
-            'loser': loser,
-            'pieces_a': pieces[0],
-            'pieces_b': pieces[1],
-            'moves_a': 0,
-            'moves_b': 0,
-            'time_a': TIMINGS['AI_TIMEOUT'],
-            'time_b': TIMINGS['AI_TIMEOUT'],
-            'reason': f"Forfeit of {loser}",
-        }
-
-    def _compute_normal_statistics(self, teams_data: dict, state: dict) -> dict:
-        """Calcule les statistiques pour un match terminé normalement."""
-        team_a = teams_data['team_a']
-        team_b = teams_data['team_b']
-        
-        pieces_a = state.get("board").count_soldiers(team_a['soldier_value'])
-        pieces_b = state.get("board").count_soldiers(team_b['soldier_value'])
-        
-        reason = state.get("reason", "unknown")
-         # Format the reason if it's an enum
-        if isinstance(reason, GameEndReason):
-            formatted_reason = reason.value
-        else:
-            formatted_reason = str(reason)
-        # Déterminer le gagnant et le perdant (ou match nul)
-        # print("********************** reason : ", formatted_reason)
-        if formatted_reason == GameEndReason.DRAW_FEW_PIECES.value or formatted_reason == GameEndReason.EQUAL_PIECES.value : 
-            winner = "draw"
-            loser = "draw"
-        else:
-            winner = team_a['name'] if state.get("winner") == Soldier.RED else team_b['name']
-            loser = team_b['name'] if winner == team_a['name'] else team_a['name']
-        
-        return {
-            'winner': winner,
-            'loser': loser,
-            'pieces_a': pieces_a,
-            'pieces_b': pieces_b,
-            'moves_a': team_a['performance'].get('number_of_moves', 0),
-            'moves_b': team_b['performance'].get('number_of_moves', 0),
-            'time_a': team_a['performance'].get('time', 0),
-            'time_b': team_b['performance'].get('time', 0),
-            'reason': formatted_reason,
-        }
-
-
-    def _schedule_next_match(self):
-        """Programme le prochain match avec le délai approprié."""
-        delay = self._calculate_next_match_delay()
-        self.master.after(delay, self._prepare_next_match)
-
-    def _format_time(self, seconds: float) -> str:
-        """Formate le temps en minutes et secondes."""
-        td = timedelta(seconds=seconds)
-        minutes = td.seconds // 60
-        seconds = td.seconds % 60
-        return f"{minutes:02d}min {seconds:02d}s"
-
-    def _calculate_next_match_delay(self) -> int:
-        """Calcule le délai avant le prochain match en millisecondes."""
-        if self.store.get_state().get("reason") == "forfeit":
-            return MATCH_DURATIONS["forfeit"] * 1000
-            
-        elapsed = datetime.now() - self.match_start_time
-        team1, team2, _ = self.tournament_manager.matches[self.tournament_manager.current_match_index - 1]
-
-        print("Teams:", team1, team2)
-        match_type = self._get_match_type(team1, team2)
-        
-        # Mettre à jour les statistiques de temps pour ce type de match
-        self.estimation_times[match_type][0] += elapsed.total_seconds()
-        self.estimation_times[match_type][1] += 1
-        avg_seconds = self.estimation_times[match_type][0] / self.estimation_times[match_type][1]
-        
-        print(f"\nTemps moyen {match_type}: {self._format_time(avg_seconds)}")
-        expected_duration = MATCH_DURATIONS[match_type]
-        
-        if elapsed < timedelta(seconds=expected_duration):
-            remaining = (timedelta(seconds=expected_duration) - elapsed).total_seconds()
-            print(f"\nTemps restant d'attente: {self._format_time(remaining)}")
-            return int(remaining * 1000)
-        
-        return 20000
-
-    def _get_match_type(self, team1: str, team2: str) -> str:
-        """Détermine le type de match basé sur les équipes."""
-        team1_is_ai = team1 in SUBMITTED_TEAMS
-        team2_is_ai = team2 in SUBMITTED_TEAMS
-
-        if team1_is_ai and team2_is_ai:
-            return "ai_vs_ai"
-        elif team1_is_ai or team2_is_ai:
-            return "random_vs_ai"
-        else:
-            return "random_vs_random"
+            self.tournament_manager.record_match_result(stats)
+            self._prepare_next_match()
 
     def _prepare_next_match(self):
-        """Prépare le prochain match dans le bon ordre"""
+        """Prepare next match"""
         try:
-            
-            # 1. Nettoyer l'interface actuelle
+            # Clean up current match UI and state
             if self.after_game_view:
-                self.after_game_view.sounds.unpause()
                 self.after_game_view.destroy()
                 self.after_game_view = None
 
-            # Nettoyer uniquement l'état du match en cours
             self.game_runner.cleanup(level='match')
-            
-            # 2. Réinitialiser le jeu
             self.store.dispatch({"type": "RESTART_GAME"})
+            
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
             if hasattr(self, 'history_view'):
@@ -464,93 +322,82 @@ class MainView(BaseView):
 
             self.handling_tournament_end = False
             
-            # 3. Configurer le prochain match
+            # Setup next match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
-
-                if self.tournament_manager.current_phase == "RETOUR" and not self.retour_popup_shown:
-
-                    show_popup(
-                        "Fin de la phase ALLER\nDébut de la phase RETOUR",
-                        "Transition de phase",
-                        duration=600*1000,  # 10 minutes
-                        modal=True
-                    )
-                    self.retour_popup_shown = True
-                    
-                if next_match["forfeit"]:
-                    print(f"Équipe forfait: {next_match['forfeit']}")
-                    winner = Soldier.BLUE if next_match['forfeit'] == Soldier.RED else Soldier.RED
-                    self._configure_match_agents(next_match)
-                    self.store.dispatch({
-                        "type": "END_GAME",
-                        "winner": winner,
-                        "reason": "forfeit"
-                    })
-                    self.match_start_time = None
-                else:
-                    self._configure_match_agents(next_match)
-                    self.match_start_time = datetime.now()
-                    self.game_runner.start()
+                self._configure_match_agents(next_match)
+                self.match_start_time = datetime.now()
+                self.game_runner.start()
             else:
-
                 self.end_tournament()
 
         except Exception as e:
-            print(f"Erreur lors de la préparation du prochain match: {e}")
+            self.logger.error(f"Error preparing next match: {e}")
             self.handling_tournament_end = False
 
     def _configure_match_agents(self, match_info):
-        """Configure les agents pour le match"""
-        # print("\n=== Configuration du match ===")
-        # print(f"Match info: {match_info}")
+        """Configure agents for the next match"""
+        current_match = self.tournament_manager.bracket_manager.matches[
+            self.tournament_manager.bracket_manager.current_match_id
+        ]
         
-        print(f"\nMatch {match_info['round']}/{match_info['total_rounds']} - Phase {match_info['phase']}")
-      
+        print(f"\nMatch {current_match.id} - Round {current_match.round}")
+        print(f"Bracket: {current_match.bracket}")
+        print(f"{current_match.team1} vs {current_match.team2}")
         
-        for color, agent in [("red", Soldier.RED), ("blue", Soldier.BLUE)]:
-            # print(f"Configuration agent {color}: {match_info[f'{color}_agent_file']} - {agent.name}")
-            self.store.dispatch({
-                "type": "SELECT_AGENT",
-                "soldier_value": agent,
-                "info_index": f"{match_info[f'{color}_agent_file']}_{agent.name}"
-            })
+        # Configure Red agent
+        self.store.dispatch({
+            "type": "SELECT_AGENT",
+            "soldier_value": Soldier.RED,
+            "info_index": f"{current_match.team1}_{Soldier.RED.name}"
+        })
         
-        print(f"\nMatch {match_info['round']}/{match_info['total_rounds']}")
-        print(f"{match_info['red_agent']} vs {match_info['blue_agent']}")
-       
+        # Configure Blue agent
+        self.store.dispatch({
+            "type": "SELECT_AGENT",
+            "soldier_value": Soldier.BLUE,
+            "info_index": f"{current_match.team2}_{Soldier.BLUE.name}"
+        })
 
-        return 
+        # Set match duration limit
+        duration = self.tournament_manager.get_match_duration(current_match.id)
+        self.store.dispatch({
+            "type": "SET_TIME_LIMIT",
+            "limit": duration
+        })
 
     def end_tournament(self):
-        """Termine le tournoi"""
-        # Nettoyage complet à la fin du tournoi
+        """End tournament"""
         self.game_runner.cleanup(level='full')
         self.tournament_mode = False
         self.tournament_manager = None
         self.match_start_time = None
         
         show_popup(
-            "Le tournoi est terminé.\nLes résultats ont été sauvegardés dans le dossier 'results'.",
-            "Fin du tournoi"
+            "Tournament completed.\nResults have been saved.",
+            "Tournament End"
         )
         
         self.return_to_home()
 
     def start_tournament(self):
-        """Initialise et démarre un nouveau tournoi"""
+        """Initialize and start a new double elimination tournament"""
         try:
             self.tournament_mode = True
-            self.tournament_manager = TournamentManager(self.store)  # _load_state est déjà appelé
-            self.handling_tournament_end = False
             
-            if len(self.tournament_manager.matches) == 0:
-                self.logger.error("No matches found in the tournament manager")
+            # Initialize tournament manager
+            self.tournament_manager = DoubleEliminationManager(self.tournament_dir)
+            
+            if len(TEAMS) != 8:
+                raise ValueError(f"Tournament requires exactly 8 teams, got {len(TEAMS)}")
+                
+            # Start tournament with teams
+            self.tournament_manager.start_tournament(TEAMS)
             self._prepare_next_match()
             
         except Exception as e:
-            self.logger.error(f"Erreur lors du démarrage du tournoi: {e}")
-            show_popup(str(e), "Erreur de tournoi")
+            self.logger.error(f"Error starting tournament: {e}")
+            show_popup(str(e), "Tournament Error")
             self.tournament_mode = False
             self.return_to_home()
- 
+
