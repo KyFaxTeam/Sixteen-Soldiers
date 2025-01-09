@@ -20,7 +20,8 @@ from src.utils.game_utils import GameRunner, show_popup
 
 from pathlib import Path
 from src.tournament.double_elim_manager import DoubleEliminationManager
-from src.tournament.config import TEAMS
+from src.tournament.config import TEAMS, TEAMS_MAPPING
+from src.utils.history_utils import get_move_player_count
 
 logger = logging.getLogger(__name__)
 class MainView(BaseView):
@@ -77,7 +78,7 @@ class MainView(BaseView):
         # Ajouter un gestionnaire pour la fermeture de la fenêtre
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.tournament_mode = False
+        self.tournament_mode = True
         self.tournament_manager = None
         self.handling_tournament_end = False
         self.match_start_time = None
@@ -289,15 +290,16 @@ class MainView(BaseView):
             match.winner = match.team1 if winner == Soldier.RED else match.team2
             match.loser = match.team2 if winner == Soldier.RED else match.team1
             
+            # Correction des clés pour accéder aux stats
             stats = {
                 "winner": match.winner,
                 "loser": match.loser,
-                "pieces_a": state["pieces_red"],
-                "pieces_b": state["pieces_blue"],
-                "moves_a": len([m for m in state["moves"] if m["soldier"] == Soldier.RED]),
-                "moves_b": len([m for m in state["moves"] if m["soldier"] == Soldier.BLUE]),
-                "time_a": (datetime.now() - self.match_start_time).total_seconds(),
-                "time_b": (datetime.now() - self.match_start_time).total_seconds(),
+                "pieces_a": state["board"].count_soldiers(Soldier.RED),
+                "pieces_b": state["board"].count_soldiers(Soldier.BLUE),
+                "moves_a": get_move_player_count(state["history"], Soldier.RED),
+                "moves_b": get_move_player_count(state["history"], Soldier.BLUE),
+                "time_a": state["time_manager"].get_remaining_time(Soldier.RED),
+                "time_b": state["time_manager"].get_remaining_time(Soldier.BLUE),
                 "reason": state["reason"]
             }
             
@@ -345,18 +347,18 @@ class MainView(BaseView):
         print(f"Bracket: {current_match.bracket}")
         print(f"{current_match.team1} vs {current_match.team2}")
         
-        # Configure Red agent
+        # Configure Red agent using TEAMS_MAPPING for file names
         self.store.dispatch({
             "type": "SELECT_AGENT",
             "soldier_value": Soldier.RED,
-            "info_index": f"{current_match.team1}_{Soldier.RED.name}"
+            "info_index": f"{TEAMS_MAPPING[current_match.team1]}_{Soldier.RED.name}"
         })
         
-        # Configure Blue agent
+        # Configure Blue agent using TEAMS_MAPPING for file names
         self.store.dispatch({
             "type": "SELECT_AGENT",
             "soldier_value": Soldier.BLUE,
-            "info_index": f"{current_match.team2}_{Soldier.BLUE.name}"
+            "info_index": f"{TEAMS_MAPPING[current_match.team2]}_{Soldier.BLUE.name}"
         })
 
         # Set match duration limit

@@ -77,3 +77,12 @@ class DoubleEliminationManager:
         }
         with open(self.state_file, 'w') as f:
             json.dump(state, f, indent=2)
+
+    def get_match_duration(self, match_id: int) -> int:
+        """Get the duration limit for a specific match based on its bracket"""
+        match = self.bracket_manager.matches[match_id]
+        if match.bracket == "GRAND_FINAL":
+            return 900  # 15 minutes for grand final
+        elif match.bracket == "FINAL":
+            return 600  # 10 minutes for finals
+        return 300  # 5 minutes for regular matches
