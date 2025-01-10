@@ -22,6 +22,11 @@ from pathlib import Path
 from src.tournament.double_elim_manager import DoubleEliminationManager
 from src.tournament.config import TEAMS, TEAMS_MAPPING
 from src.utils.history_utils import get_move_player_count
+from src.views.bracket import create_tournament_bracket
+import matplotlib.pyplot as plt
+
+from CTkMessagebox import CTkMessagebox
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 logger = logging.getLogger(__name__)
 class MainView(BaseView):
@@ -85,13 +90,10 @@ class MainView(BaseView):
         
         # Create tournament directory
         self.tournament_dir = Path(__file__).parent.parent / "tournament" / "tournament_data"
+        self.brackets_dir = self.tournament_dir / "brackets"
         self.tournament_dir.mkdir(exist_ok=True)
+        self.brackets_dir.mkdir(exist_ok=True)
 
-        self.estimation_times = {
-            "random_vs_random" : [0, 0], 
-            "random_vs_ai" : [0, 0],
-            "ai_vs_ai" : [0, 0]
-        }
 
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""
@@ -283,6 +285,63 @@ class MainView(BaseView):
         # Fermer la fenêtre
         self.master.destroy()
 
+    def show_transition_popup(self, current_match):
+        """Show transition popup between tournament matches"""
+        try:
+            self.logger.info("Starting transition popup")
+            next_teams = f"{current_match.team1} vs {current_match.team2}"
+            
+            # Créer une fenêtre pour le bracket
+            bracket_window = ctk.CTkToplevel()
+            bracket_window.title("Tournament Bracket")
+            
+            # Mettre en plein écran
+            bracket_window.state('zoomed')  # Pour Windows
+            # Pour Linux/Mac, utiliser:
+            # bracket_window.attributes('-fullscreen', True)
+            
+            def create_and_show_bracket():
+                # Créer et sauvegarder le bracket
+                fig = create_tournament_bracket()
+                plt.tight_layout()
+                
+                # Sauvegarder l'image
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"bracket_match_{current_match.id}_{timestamp}.png"
+                filepath = self.brackets_dir / filename
+                fig.savefig(filepath, dpi=300, bbox_inches='tight', facecolor=fig.get_facecolor())
+                self.logger.info(f"Bracket saved to {filename}")
+                
+                # Intégrer le bracket dans la fenêtre avec Canvas
+                canvas = FigureCanvasTkAgg(fig, master=bracket_window)
+                canvas.draw()
+                canvas_widget = canvas.get_tk_widget()
+                canvas_widget.pack(fill='both', expand=True)
+                plt.close(fig)
+                
+                # Afficher le popup après que le bracket soit chargé
+                next_match = self.tournament_manager.setup_next_match()
+                if next_match:
+                    popup = CTkMessagebox(
+                        master=bracket_window,
+                        title="Tournament Match Complete",
+                        message=f"Match {current_match.id} is complete.\n\nNext match:\n{next_teams}",
+                        icon="info",
+                        option_1="Continue",
+                        width=400,
+                        height=200
+                    )
+                    popup.wait_window()  # Attendre que l'utilisateur ferme le popup
+                    bracket_window.destroy()  # Fermer la fenêtre du bracket
+                    self._prepare_next_match()  # Continuer seulement après que l'utilisateur ait cliqué
+            
+            # Schedule bracket creation in main thread
+            self.master.after(100, create_and_show_bracket)
+                
+        except Exception as e:
+            self.logger.error(f"Error showing transition popup: {e}")
+            self._prepare_next_match()
+
     def handle_tournament_match_end(self):
         """Handle tournament match end"""
         if not self.handling_tournament_end:
@@ -290,19 +349,19 @@ class MainView(BaseView):
             self.show_after_game_view()
             
             state = self.store.get_state()
-            current_match_id = self.tournament_manager.bracket_manager.current_match_id
-            match = self.tournament_manager.bracket_manager.matches[current_match_id]
+            current_match = self.tournament_manager.bracket_manager.matches[
+                self.tournament_manager.bracket_manager.current_match_id
+            ]
             
             winner = state['winner']
             loser = Soldier.BLUE if winner == Soldier.RED else Soldier.RED
             
-            match.winner = match.team1 if winner == Soldier.RED else match.team2
-            match.loser = match.team2 if winner == Soldier.RED else match.team1
+            current_match.winner = current_match.team1 if winner == Soldier.RED else current_match.team2
+            current_match.loser = current_match.team2 if winner == Soldier.RED else current_match.team1
             
-            # Correction des clés pour accéder aux stats
             stats = {
-                "winner": match.winner,
-                "loser": match.loser,
+                "winner": current_match.winner,
+                "loser": current_match.loser,
                 "pieces_a": state["board"].count_soldiers(Soldier.RED),
                 "pieces_b": state["board"].count_soldiers(Soldier.BLUE),
                 "moves_a": get_move_player_count(state["history"], Soldier.RED),
@@ -313,12 +372,11 @@ class MainView(BaseView):
             }
             
             self.tournament_manager.record_match_result(stats)
-            self._prepare_next_match()
+            self.show_transition_popup(current_match)
 
     def _prepare_next_match(self):
         """Prepare next match"""
         try:
-            # Nettoyage
             self.game_runner.cleanup(level='match')
             
             if self.after_game_view:
@@ -329,50 +387,33 @@ class MainView(BaseView):
                                 child.configure(state="disabled")
                             except:
                                 pass
-                            
                     self.after_game_view.grab_release()
                     self.after_game_view.on_closing()
                     self.after_game_view = None
                 except Exception as e:
                     print(f"Error cleaning up AfterGameView: {e}")
-                
-            # Continuer avec le nettoyage
-            self.master.after(200, self._continue_prepare_next_match)
-            
-        except Exception as e:
-            self.logger.error(f"Error preparing next match: {e}")
-            self.handling_tournament_end = False
 
-    def _continue_prepare_next_match(self):
-        """Continue preparation after AfterGameView is destroyed"""
-        try:
+            # Réinitialiser l'interface
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
-                
             if hasattr(self, 'history_view'):
                 self.history_view.clear_moves()
             
             self.handling_tournament_end = False
             self.store.dispatch({"type": "RESTART_GAME"})
             
-            self.master.after(200, self._setup_next_match)
-            
-        except Exception as e:
-            self.handling_tournament_end = False
-
-    def _setup_next_match(self):
-        """Setup and start the next match after cleanup"""
-        try:
+            # Configurer et démarrer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
                 self.match_start_time = datetime.now()
                 self._configure_match_agents(next_match)
-                
-                self.master.after(100, self.game_runner.start)
+                self.game_runner.start()
             else:
                 self.end_tournament()
+                
         except Exception as e:
-            self.logger.error(f"Error in _setup_next_match: {e}")
+            self.logger.error(f"Error preparing next match: {e}")
+            self.handling_tournament_end = False
 
     def _configure_match_agents(self, match_info):
         """Configure agents for the next match"""
@@ -395,25 +436,43 @@ class MainView(BaseView):
         })
 
         # Set match duration limit
-        duration = self.tournament_manager.get_match_duration(current_match.id)
-        self.store.dispatch({
-            "type": "SET_TIME_LIMIT",
-            "limit": duration
-        })
+        # duration = self.tournament_manager.get_match_duration(current_match.id)
+        # self.store.dispatch({
+        #     "type": "SET_TIME_LIMIT",
+        #     "limit": duration
+        # })
 
     def end_tournament(self):
         """End tournament"""
         self.game_runner.cleanup(level='full')
         self.tournament_mode = False
-        self.tournament_manager = None
-        self.match_start_time = None
         
-        show_popup(
-            "Tournament completed.\nResults have been saved.",
-            "Tournament End"
-        )
-        
-        self.return_to_home()
+        try:
+            def show_final_bracket():
+                fig = create_tournament_bracket()
+                plt.tight_layout()
+                
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"bracket_final_{timestamp}.png"
+                filepath = self.brackets_dir / filename
+                fig.savefig(filepath, dpi=300, bbox_inches='tight', facecolor=fig.get_facecolor())
+                plt.close(fig)
+                
+                self.tournament_manager = None
+                self.match_start_time = None
+                
+                show_popup(
+                    f"Tournament completed.\nResults have been saved.\nBracket saved as: {filename}",
+                    "Tournament End"
+                )
+                self.return_to_home()
+                
+            # Schedule final bracket creation in main thread
+            self.master.after(100, show_final_bracket)
+            
+        except Exception as e:
+            self.logger.error(f"Error displaying/saving final bracket: {e}")
+            self.return_to_home()
 
     def start_tournament(self):
         """Initialize and start a new double elimination tournament"""
@@ -435,4 +494,7 @@ class MainView(BaseView):
             show_popup(str(e), "Tournament Error")
             self.tournament_mode = False
             self.return_to_home()
+
+
+
 
