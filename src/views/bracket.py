@@ -15,44 +15,44 @@ def create_tournament_bracket():
     ax.set_facecolor('#1a1a1a')  # Darker background
     fig.patch.set_facecolor('#2d2d2d')  # Darker outer background
 
-    # Enhanced colors and styles with refined gradients and better visual hierarchy
+    # Configuration des couleurs ajustée pour être moins vive
     COLORS = {
         'winner': {
-            'primary': '#00dd77',  # Slightly desaturated
+            'primary': '#00dd77',
             'gradient': ['#00ff88', '#007744'],
             'shadow': '#004d29',
-            'border': '#00ff9955',
-            'glow': '#00ff8822'
+            'border': '#00ff9933',  # Reduced alpha from 55 to 33
+            'glow': '#00ff8815'     # Reduced alpha from 22 to 15
         },
         'loser': {
-            'primary': '#ee3333',  # Slightly desaturated
+            'primary': '#ee3333',
             'gradient': ['#ff4444', '#992222'],
             'shadow': '#4d1414',
-            'border': '#ff444455',
-            'glow': '#ff444422'
+            'border': '#ff444433',   # Reduced alpha
+            'glow': '#ff444415'      # Reduced alpha
         },
         'finals': {
-            'primary': '#00bbee',  # Slightly desaturated
+            'primary': '#00bbee',
             'gradient': ['#00ccff', '#006699'],
             'shadow': '#003d4d',
-            'border': '#00ccff55',
-            'glow': '#00ccff22'
+            'border': '#00ccff33',   # Reduced alpha
+            'glow': '#00ccff15'      # Reduced alpha
         },
         'background': {
             'primary': '#1a1a1a',
             'gradient': ['#1a1a1a', '#222222'],
-            'grid': '#33333322'
+            'grid': '#33333318'      # Reduced alpha from 22 to 18
         },
         'text': {
             'primary': '#ffffff',
-            'shadow': '#00000066'
+            'shadow': '#00000055'    # Reduced alpha from 66 to 55
         },
         'connection': {
-            'winner': '#ff6b6b',   # Connexions du Winner Bracket en rouge vif
-            'loser': '#40ffaa',    # Connexions du Loser Bracket en vert clair
-            'finals': '#40d6ff',   # Garder le bleu pour les finales
-            'glow': '#ffffff66',   # Glow blanc prononcé
-            'node': '#ffffff'      # Nodes blancs
+            'winner': '#ff6b6b',
+            'loser': '#40ffaa',
+            'finals': '#40d6ff',
+            'glow': '#ffffff44',     # Reduced alpha from 66 to 44
+            'node': '#ffffffdd'      # Added slight transparency
         }
     }
     
@@ -168,8 +168,8 @@ def create_tournament_bracket():
         )
         ax.add_patch(curve)
 
-        # Glow effect réduit
-        for alpha, width in [(0.2, 4.0), (0.3, 2.5)]:  # Réduit le nombre de couches et leurs tailles
+        # Reduced glow intensity
+        for alpha, width in [(0.15, 4.0), (0.25, 2.5)]:  # Reduced alpha values
             curve = patches.ConnectionPatch(
                 xyA=start, xyB=end,
                 coordsA='data', coordsB='data',
@@ -184,7 +184,7 @@ def create_tournament_bracket():
             )
             ax.add_patch(curve)
 
-        # Ligne principale plus fine
+        # Main line with slightly reduced opacity
         curve = patches.ConnectionPatch(
             xyA=start, xyB=end,
             coordsA='data', coordsB='data',
@@ -193,8 +193,8 @@ def create_tournament_bracket():
             connectionstyle=f'arc3,rad={rad}',
             color=COLORS['connection'][color],
             linestyle=style,
-            linewidth=1.5,  # Réduit de 2.0 à 1.5
-            alpha=1.0,
+            linewidth=1.5,
+            alpha=0.9,    # Reduced from 1.0 to 0.9
             zorder=10,
             mutation_scale=15  # Réduit de 20 à 15 pour une flèche plus petite
         )
@@ -318,9 +318,9 @@ def create_tournament_bracket():
     legend = ax.legend(
         handles=legend_elements, 
         loc='lower right',  # Changement de position
-        framealpha=0.95,    # Plus opaque
+        framealpha=0.85,    # Reduced from 0.95
         facecolor='#2d2d2d',  # Fond plus foncé
-        edgecolor='white',    # Bordure blanche
+        edgecolor='#ffffff99',    # Added transparency to border
         shadow=True,
         fontsize=10,
         labelcolor='white',   # Texte en blanc
