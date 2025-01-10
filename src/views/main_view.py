@@ -452,7 +452,7 @@ class MainView(BaseView):
         
         show_popup(
             "Tournament completed.\nResults have been saved.",
-            "Tournament End"
+            "Tournament End" 
         )
         
         self.return_to_home()
