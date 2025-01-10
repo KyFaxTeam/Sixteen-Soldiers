@@ -346,7 +346,6 @@ class MainView(BaseView):
         """Handle tournament match end"""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
-            self.show_after_game_view()
             
             state = self.store.get_state()
             current_match = self.tournament_manager.bracket_manager.matches[
@@ -372,7 +371,9 @@ class MainView(BaseView):
             }
             
             self.tournament_manager.record_match_result(stats)
+
             self.show_transition_popup(current_match)
+
 
     def _prepare_next_match(self):
         """Prepare next match"""
@@ -446,6 +447,15 @@ class MainView(BaseView):
         """End tournament"""
         self.game_runner.cleanup(level='full')
         self.tournament_mode = False
+
+        self.tournament_manager = None
+        self.match_start_time = None
+        
+        show_popup(
+            "Tournament completed.\nResults have been saved.",
+            "Tournament End" 
+        )
+
         
         try:
             def show_final_bracket():
@@ -485,7 +495,7 @@ class MainView(BaseView):
             if len(TEAMS) != 8:
                 raise ValueError(f"Tournament requires exactly 8 teams, got {len(TEAMS)}")
                 
-            # Start tournament with teams
+            # Start tournament with teams - will load existing state if valid
             self.tournament_manager.start_tournament(TEAMS)
             self._prepare_next_match()
             
