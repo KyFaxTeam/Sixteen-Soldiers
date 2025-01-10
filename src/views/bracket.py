@@ -7,20 +7,20 @@ import json
 from pathlib import Path
 
 def create_tournament_bracket():
-    # Configuration initiale avec un style moderne et un fond plus sombre
+    # Configuration initiale avec un style moderne et un fond plus clair
     plt.style.use('dark_background')
     sns.set_style("darkgrid", {
-        'axes.facecolor': '#131313',     # Fond des axes légèrement plus sombre
-        'grid.color': '#1f1f1f',         # Grille très subtile
+        'axes.facecolor': '#1a1a1a',     # Éclairci de #131313
+        'grid.color': '#252525',         # Grille plus visible
         'grid.linestyle': '-',
         'grid.alpha': 0.3
     })
     
     fig, ax = plt.subplots(figsize=(20, 12))
-    ax.set_facecolor('#151515')          # Fond principal plus sombre
-    fig.patch.set_facecolor('#111111')   # Fond extérieur encore plus sombre
+    ax.set_facecolor('#1c1c1c')          # Éclairci de #151515
+    fig.patch.set_facecolor('#181818')   # Éclairci de #111111
 
-    # Configuration des couleurs ajustée pour être encore moins vive
+    # Configuration des couleurs ajustée pour le nouveau fond
     COLORS = {
         'winner': {
             'primary': '#00b066',         # Légèrement plus sombre
@@ -44,9 +44,16 @@ def create_tournament_bracket():
             'glow': '#00ccff10'      # Reduced alpha
         },
         'background': {
-            'primary': '#151515',
-            'gradient': ['#131313', '#171717'],
-            'grid': '#1f1f1f22'           # Grille très subtile
+            'primary': '#1c1c1c',         # Fond principal plus clair
+            'gradient': ['#1a1a1a', '#202020'],  # Gradient plus visible
+            'grid': '#25252522',          # Grille plus claire
+            'stars': [
+                '#fff4d6',  # Blanc doré clair
+                '#ffd700',  # Or classique
+                '#b08430'   # Or plus lumineux que #997328
+            ],
+            'star_alphas': [0.2, 0.1, 0.07],    # Légèrement plus visible
+            'star_sizes': [0.003, 0.005, 0.002]  # Tailles inchangées
         },
         'text': {
             'primary': '#ffffff',
@@ -61,10 +68,18 @@ def create_tournament_bracket():
         }
     }
     
+    # Ajout des couleurs pour le scintillement
+    COLORS['background'].update({
+        'stars': ['#ffffff', '#aaaaaa', '#666666'],
+        'star_alphas': [0.4, 0.2, 0.1],
+        'star_sizes': [0.01, 0.02, 0.005]
+    })
+
     FONT = {
         'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
-        'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 12, 'color': COLORS['text']['primary']},
-        'detail': {'family': 'sans-serif', 'weight': 'normal', 'size': 10, 'color': COLORS['text']['primary']}
+        'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
+        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 10, 'color': '#ffffff'},
+        'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
     }
 
     def create_gradient_box(x, y, width, height, colors, is_final=False):
@@ -118,7 +133,7 @@ def create_tournament_bracket():
         return [glow, node]
 
     def draw_match_box(x, y, text, color_scheme, width=2.5, height=1.5):  # Hauteur réduite
-        is_final = 'Finale' in text or 'Grande' in text
+        is_final = 'Finale' in str(text.get('match')) or 'Grande' in str(text.get('match'))
         
         # Draw all box elements
         box_elements = create_gradient_box(x, y, width, height, 
@@ -126,22 +141,39 @@ def create_tournament_bracket():
         for element in box_elements:
             ax.add_patch(element)
         
-        # Text with improved positioning
-        lines = text.split('\n')
-        text_color = COLORS['text']['primary']
+        # Text positioning with enhanced style
+        base_height = y + height
         
-        spacing = height / (len(lines) + 1)  # Espacement dynamique
+        # Match number
+        ax.text(x + width/2, base_height - 0.3,
+               text['match'],
+               horizontalalignment='center',
+               verticalalignment='center',
+               fontdict=FONT['match'],
+               path_effects=[withStroke(linewidth=2, foreground='#000000', alpha=0.5)],
+               zorder=5)
         
-        for i, line in enumerate(lines):
-            y_pos = y + height - (i + 1) * spacing
-            font = FONT['match'] if i == 0 else FONT['detail']
-            ax.text(x + width/2, y_pos,
-                   line,
+        # Team names if present
+        if 'teams' in text:
+            ax.text(x + width/2, base_height - 0.7,
+                   text['teams'],
                    horizontalalignment='center',
                    verticalalignment='center',
-                   fontdict=font,
-                   color=text_color,
-                   path_effects=[withStroke(linewidth=3, foreground=COLORS['text']['shadow'], alpha=0.3)],
+                   fontdict=FONT['team'],
+                   path_effects=[withStroke(linewidth=2.5, foreground='#000000', alpha=0.4)],
+                   zorder=5)
+        
+        # Winner if present
+        if 'winner' in text:
+            ax.text(x + width/2, base_height - 1.1,
+                   text['winner'],
+                   horizontalalignment='center',
+                   verticalalignment='center',
+                   fontdict=FONT['winner'],
+                   path_effects=[
+                       withStroke(linewidth=3, foreground='#000000', alpha=0.5),
+                       withStroke(linewidth=1, foreground='#ffcc4433', alpha=0.5)
+                   ],
                    zorder=5)
         
         return x + width, y + height/2
@@ -211,21 +243,18 @@ def create_tournament_bracket():
         'horizontal': 3.5   # Augmenté pour plus d'espace
     }
 
-    def format_match_text(match_id, state_data):
+    def format_match_text(match_id, state_data, suffix=None):
         """Format le texte d'un match avec les équipes si disponibles"""
         match = state_data['matches'].get(str(match_id))
         if not match:
-            return f'Match {match_id}'
+            return {'match': f'Match {match_id}{" " + suffix if suffix else ""}'}
         
-        text = f'Match {match_id}'
+        result = {'match': f'Match {match_id}{" " + suffix if suffix else ""}'}
         if match['team1'] and match['team2']:
-            # Limiter la longueur des noms d'équipes à 12 caractères
-            team1 = match['team1'][:15]
-            team2 = match['team2'][:15]
-            text += f'\n{team1} vs {team2}'  # Mettre les équipes sur une seule ligne
+            result['teams'] = f'{match["team1"][:15]} vs {match["team2"][:15]}'
             if match['winner']:
-                text += f'\n→ {match["winner"][:12]}'  # Limiter aussi la longueur du gagnant
-        return text
+                result['winner'] = f'→ {match["winner"][:15]}'
+        return result
 
     # Charger l'état du tournoi
     state_file = Path(__file__).parent.parent / "tournament" / "tournament_data" / "tournament_state.json"
@@ -276,7 +305,7 @@ def create_tournament_bracket():
         draw_connection(wb_second[1-i], (pos[0]-2, pos[1]), 'loser', '--')
 
     # Match 9 (Finale WB) - Plus haut pour la symétrie
-    final_wb = draw_match_box(13, 8.0, format_match_text(9, tournament_state) + '\nFinale WB', 'winner', height=height)
+    final_wb = draw_match_box(13, 8.0, format_match_text(9, tournament_state, "Finale WB"), 'winner', height=height)
     draw_connection(wb_second[0], final_wb, 'winner', rad=0.15)
     draw_connection(wb_second[1], final_wb, 'winner', rad=-0.15)
 
@@ -286,17 +315,17 @@ def create_tournament_bracket():
     draw_connection(lb_second[1], match12, 'loser', rad=-0.2)
 
     # Finale Loser Bracket (Match 13) - Ajuster la position pour suivre match12
-    final_lb = draw_match_box(16, 5.0, format_match_text(13, tournament_state) + '\nFinale LB', 'loser', height=height)
+    final_lb = draw_match_box(16, 5.0, format_match_text(13, tournament_state, "Finale LB"), 'loser', height=height)
     draw_connection(match12, final_lb, 'loser', rad=0.2)
     draw_connection(final_wb, (final_lb[0]-2, final_lb[1]), 'loser', '--', rad=-0.5)  # Courbure plus prononcée
 
     # Grande Finale (Match 14)
-    final = draw_match_box(19, 7.5, format_match_text(14, tournament_state) + '\nGrande Finale', 'finals', height=height)
+    final = draw_match_box(19, 7.5, format_match_text(14, tournament_state, "Grande Finale"), 'finals', height=height)
     draw_connection(final_wb, final, 'winner', rad=0.2)
     draw_connection(final_lb, final, 'loser', rad=-0.2)
 
     # Match 15 (Si nécessaire)
-    final_2 = draw_match_box(19, 6, format_match_text(15, tournament_state) + '\nSi nécessaire', 'finals', height=height)
+    final_2 = draw_match_box(19, 6, format_match_text(15, tournament_state, "Si nécessaire"), 'finals', height=height)
     draw_connection(final, final_2, 'finals', '--')
 
     # Configuration finale améliorée
@@ -313,6 +342,53 @@ def create_tournament_bracket():
         zorder=0
     )
     ax.add_patch(background)
+
+    # Création du background scintillant
+    def create_starry_background():
+        np.random.seed(42)  # Pour avoir toujours le même motif
+        
+        # Ajout d'un dégradé subtil en arrière-plan
+        gradient = patches.Rectangle(
+            (0, 0), 22, 10,
+            facecolor=COLORS['background']['primary'],
+            edgecolor='none',
+            alpha=1,
+            zorder=0
+        )
+        ax.add_patch(gradient)
+
+        # Trois couches d'étoiles de différentes tailles
+        for color, alpha, size in zip(
+            COLORS['background']['stars'],
+            COLORS['background']['star_alphas'],
+            COLORS['background']['star_sizes']
+        ):
+            # Générer des positions aléatoires - ajustement de la densité
+            n_stars = int(25 * size * 500)  # Légère réduction du nombre d'étoiles
+            x_pos = np.random.uniform(0, 22, n_stars)
+            y_pos = np.random.uniform(3, 10, n_stars)
+            
+            # Ajouter les points avec un effet de lueur dorée
+            for x, y in zip(x_pos, y_pos):
+                # Lueur externe plus subtile avec teinte dorée
+                glow = plt.Circle(
+                    (x, y), size * 1.5,
+                    color=color,
+                    alpha=alpha * 0.15,   # Encore plus subtil pour l'effet doré
+                    zorder=1
+                )
+                # Point central plus petit
+                star = plt.Circle(
+                    (x, y), size,
+                    color=color,
+                    alpha=alpha * 0.8,    # Légèrement réduit pour l'effet doré
+                    zorder=1
+                )
+                ax.add_patch(glow)
+                ax.add_patch(star)
+
+    # Ajout de l'effet scintillant
+    create_starry_background()
 
     # Ajout d'une grille subtile
     for x in range(0, 23, 1):
