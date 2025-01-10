@@ -7,41 +7,46 @@ import json
 from pathlib import Path
 
 def create_tournament_bracket():
-    # Configuration initiale avec un style moderne
-    plt.style.use('dark_background')  # Changed from seaborn-darkgrid
-    sns.set_style("darkgrid")  # Added explicit seaborn style
+    # Configuration initiale avec un style moderne et un fond plus sombre
+    plt.style.use('dark_background')
+    sns.set_style("darkgrid", {
+        'axes.facecolor': '#131313',     # Fond des axes légèrement plus sombre
+        'grid.color': '#1f1f1f',         # Grille très subtile
+        'grid.linestyle': '-',
+        'grid.alpha': 0.3
+    })
     
     fig, ax = plt.subplots(figsize=(20, 12))
-    ax.set_facecolor('#1a1a1a')  # Darker background
-    fig.patch.set_facecolor('#2d2d2d')  # Darker outer background
+    ax.set_facecolor('#151515')          # Fond principal plus sombre
+    fig.patch.set_facecolor('#111111')   # Fond extérieur encore plus sombre
 
     # Configuration des couleurs ajustée pour être encore moins vive
     COLORS = {
         'winner': {
-            'primary': '#00c066',    # Désaturé de #00dd77
+            'primary': '#00b066',         # Légèrement plus sombre
             'gradient': ['#00dd77', '#006633'],
             'shadow': '#004d29',
             'border': '#00ff9922',   # Reduced alpha from 33 to 22
             'glow': '#00ff8810'      # Reduced alpha from 15 to 10
         },
         'loser': {
-            'primary': '#dd2222',    # Désaturé de #ee3333
+            'primary': '#cc2222',         # Légèrement plus sombre
             'gradient': ['#ee3333', '#881111'],
             'shadow': '#4d1414',
             'border': '#ff444422',   # Reduced alpha
             'glow': '#ff444410'      # Reduced alpha
         },
         'finals': {
-            'primary': '#009acc',    # Désaturé de #00bbee
+            'primary': '#0088cc',         # Légèrement plus sombre
             'gradient': ['#00bbee', '#005577'],
             'shadow': '#003d4d',
             'border': '#00ccff22',   # Reduced alpha
             'glow': '#00ccff10'      # Reduced alpha
         },
         'background': {
-            'primary': '#1a1a1a',
-            'gradient': ['#1a1a1a', '#222222'],
-            'grid': '#33333315'      # Reduced alpha from 18 to 15
+            'primary': '#151515',
+            'gradient': ['#131313', '#171717'],
+            'grid': '#1f1f1f22'           # Grille très subtile
         },
         'text': {
             'primary': '#ffffff',
@@ -299,6 +304,22 @@ def create_tournament_bracket():
     ax.set_ylim(3, 10)  # Ajusté pour mieux centrer sans le titre
     ax.axis('off')
     
+    # Ajout d'un fond sophistiqué avant de dessiner les éléments
+    background = patches.Rectangle(
+        (0, 0), 22, 10,
+        facecolor=COLORS['background']['primary'],
+        edgecolor='none',
+        alpha=1,
+        zorder=0
+    )
+    ax.add_patch(background)
+
+    # Ajout d'une grille subtile
+    for x in range(0, 23, 1):
+        ax.axvline(x=x, color=COLORS['background']['grid'], linestyle='-', zorder=1)
+    for y in range(3, 11, 1):
+        ax.axhline(y=y, color=COLORS['background']['grid'], linestyle='-', zorder=1)
+
     # Ajout d'une légende améliorée
     legend_elements = [
         patches.Patch(facecolor=COLORS['connection']['winner'], 
@@ -318,9 +339,9 @@ def create_tournament_bracket():
     legend = ax.legend(
         handles=legend_elements, 
         loc='lower right',  # Changement de position
-        framealpha=0.85,    # Reduced from 0.95
-        facecolor='#2d2d2d',  # Fond plus foncé
-        edgecolor='#ffffff99',    # Added transparency to border
+        framealpha=0.92,    # Plus opaque pour le fond sombre
+        facecolor='#1a1a1a',  # Légèrement plus clair que le fond
+        edgecolor='#ffffff44',  # Bordure plus subtile
         shadow=True,
         fontsize=10,
         labelcolor='white',   # Texte en blanc
