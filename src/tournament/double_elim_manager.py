@@ -2,7 +2,7 @@ from typing import Dict, Optional, List
 from pathlib import Path
 import json
 from .bracket_manager import BracketManager
-from .match import Match
+from .match import Duel, Match
 
 class DoubleEliminationManager:
     def __init__(self, tournament_dir: Path):
@@ -13,24 +13,55 @@ class DoubleEliminationManager:
         
     def start_tournament(self, teams: List[str]) -> None:
         """Start a new tournament or load existing state"""
-        if self._load_state():
-            # State loaded successfully, continue from last match
-            return
+        print("\n=== Starting Tournament ===")
+        try:
+            if self.state_file.exists():
+                print("Found existing state file...")
+                if self._load_state():
+                    print("Successfully loaded existing tournament state")
+                    return
+                print("State file invalid or corrupted, starting fresh tournament")
             
-        # No valid state found, start new tournament
-        self.bracket_manager.initialize_brackets(teams)
-        self._save_state()
+            print("Initializing new tournament with teams:", teams)
+            self.bracket_manager.initialize_brackets(teams)
+            self._save_state()
+            print("=== Tournament Started ===\n")
+                
+        except Exception as e:
+            print(f"Error in start_tournament: {e}")
+            raise
         
     def setup_next_match(self) -> Optional[Dict]:
         """Get info for next match to be played"""
         if not self.bracket_manager.current_match_id:
             return None
             
-        # Skip matches that are already completed until we find the next unplayed match
         current_id = self.bracket_manager.current_match_id
-        while current_id <= 15:  # 15 is the maximum match ID
+        current_match = self.bracket_manager.matches[current_id]
+        
+        # Check if current match needs second game
+        if current_match.team1 and current_match.team2 and \
+           current_match.duel.current_game <= 2:
+            print(f"\n=== Setup Next Match (Game {current_match.duel.current_game}) ===")
+            print(f"Match {current_id}: {current_match.team1} vs {current_match.team2}")
+            is_second_game = current_match.duel.current_game == 2
+            red_team = current_match.team2 if is_second_game else current_match.team1
+            blue_team = current_match.team1 if is_second_game else current_match.team2
+            print(f"Assigning RED: {red_team}, BLUE: {blue_team}")
+            print("=====================")
+            
+            return {
+                "red_agent": red_team,
+                "blue_agent": blue_team,
+                "match_id": current_id,
+                "round": current_match.round,
+                "bracket": current_match.bracket,
+                "game": current_match.duel.current_game
+            }
+        
+        # Find next unplayed match
+        while current_id <= 15:
             match = self.bracket_manager.matches[current_id]
-            # If match has both teams but no winner, it needs to be played
             if match.team1 and match.team2 and not match.winner:
                 self.bracket_manager.current_match_id = current_id
                 return {
@@ -38,7 +69,8 @@ class DoubleEliminationManager:
                     "blue_agent": match.team2,
                     "match_id": match.id,
                     "round": match.round,
-                    "bracket": match.bracket
+                    "bracket": match.bracket,
+                    "game": 1
                 }
             current_id += 1
             
@@ -47,13 +79,19 @@ class DoubleEliminationManager:
     def record_match_result(self, stats: dict) -> None:
         """Record match result and update tournament state"""
         current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
-        current_match.winner = stats["winner"]
-        current_match.loser = stats["loser"] 
-        current_match.stats = stats
+        current_match.duel.add_game_result(stats)
         
-        self._update_next_matches(current_match)
-        self._save_state()
-        
+        if current_match.duel.current_game > 2:
+            # Duel is complete
+            current_match.winner = current_match.duel.winner
+            current_match.loser = current_match.team2 if current_match.winner == current_match.team1 else current_match.team1
+            current_match.stats = current_match.duel.stats
+            self._update_next_matches(current_match)
+            self._save_state()
+        else:
+            # Switch sides for second game
+            self._save_state()  # Save intermediate state
+
     def _update_next_matches(self, match: Match) -> None:
         # Update winner's next match
         if match.next_match_id:
@@ -82,24 +120,56 @@ class DoubleEliminationManager:
                 break
     
     def _save_state(self) -> None:
+        """Save tournament state to file"""
+        current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
+        print(f"\n=== Saving Tournament State (Match {self.bracket_manager.current_match_id}) ===")
+        print(f"Current Game: {current_match.duel.current_game}")
+        print(f"First Game Winner: {current_match.duel.first_game.winner if current_match.duel.first_game else 'None'}")
+        print(f"Second Game Winner: {current_match.duel.second_game.winner if current_match.duel.second_game else 'None'}")
+        print(f"Match Winner: {current_match.winner}")
+        print("============================")
+
         state = {
             "current_match_id": self.bracket_manager.current_match_id,
-            "matches": {str(k): vars(v) for k, v in self.bracket_manager.matches.items()}
+            "matches": {}
         }
+        
+        # Serialize each match with its duel
+        for k, match in self.bracket_manager.matches.items():
+            match_dict = {
+                "id": match.id,
+                "round": match.round,
+                "bracket": match.bracket,
+                "team1": match.team1,
+                "team2": match.team2,
+                "next_match_id": match.next_match_id,
+                "loser_match_id": match.loser_match_id,
+                "winner": match.winner,
+                "loser": match.loser,
+                "stats": match.stats,
+                "duel": match.duel.to_dict()
+            }
+            state["matches"][str(k)] = match_dict
+            
         with open(self.state_file, 'w') as f:
             json.dump(state, f, indent=2)
 
     def _load_state(self) -> bool:
         """Load tournament state from file if valid"""
         try:
+            print("\n=== Loading Tournament State ===")
             if not self.state_file.exists():
+                print("No state file found")
                 return False
                 
             with open(self.state_file, 'r') as f:
                 state = json.load(f)
                 
+            print(f"Loaded state - Current Match ID: {state['current_match_id']}")
+            
             # Validate state structure
             if not self._is_valid_state(state):
+                print("Invalid state structure")
                 return False
                 
             # Restore tournament state
@@ -120,6 +190,7 @@ class DoubleEliminationManager:
                 match.next_match_id = match_data["next_match_id"]
                 match.loser_match_id = match_data["loser_match_id"]
                 match.stats = match_data["stats"]
+                match.duel = Duel.from_dict(match_data.get("duel"))
                 
                 self.bracket_manager.matches[int(match_id)] = match
                 
@@ -127,36 +198,66 @@ class DoubleEliminationManager:
             current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
             if current_match.winner:
                 self._advance_to_next_unplayed_match()
+
+            # After reconstruction
+            current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
+            print(f"\nReconstructed Current Match ({self.bracket_manager.current_match_id}):")
+            print(f"Teams: {current_match.team1} vs {current_match.team2}")
+            print(f"Duel Status:")
+            print(f"- Current Game: {current_match.duel.current_game}")
+            print(f"- First Game: {current_match.duel.first_game.winner if current_match.duel.first_game else 'None'}")
+            print(f"- Second Game: {current_match.duel.second_game.winner if current_match.duel.second_game else 'None'}")
+            print(f"- Winner: {current_match.winner}")
+            print("============================")
                 
             return True
             
         except Exception as e:
             print(f"Error loading tournament state: {e}")
+            import traceback
+            traceback.print_exc()
             return False
             
     def _is_valid_state(self, state: dict) -> bool:
         """Validate tournament state structure"""
         try:
-            # Check basic structure
+            print("\nValidating state structure...")
+            
+            # Vérifier la structure de base
             required_keys = ["current_match_id", "matches"]
             if not all(key in state for key in required_keys):
+                print(f"Missing keys: {[k for k in required_keys if k not in state]}")
                 return False
                 
-            # Validate matches
+            # Vérifier que matches est un dictionnaire
             if not isinstance(state["matches"], dict):
+                print("Matches is not a dictionary")
                 return False
                 
-            # Check if there are any completed matches
-            has_completed_match = False
-            for match_data in state["matches"].values():
-                if match_data["winner"] is not None:
-                    has_completed_match = True
-                    break
+            # Vérifier que tous les matches ont la structure minimale requise
+            required_match_keys = ["id", "round", "bracket", "team1", "team2", "duel"]
+            for match_id, match_data in state["matches"].items():
+                if not all(key in match_data for key in required_match_keys):
+                    print(f"Match {match_id} missing required keys")
+                    return False
+                
+                # Vérifier la structure du duel
+                duel = match_data["duel"]
+                if not isinstance(duel, dict):
+                    print(f"Match {match_id} duel is not a dictionary")
+                    return False
                     
-            # Only consider state valid if at least one match is completed
-            return has_completed_match
+                required_duel_keys = ["first_game", "current_game", "stats"]
+                if not all(key in duel for key in required_duel_keys):
+                    print(f"Match {match_id} duel missing required keys")
+                    return False
             
-        except Exception:
+            # Si on arrive ici, la structure est valide
+            print("State structure is valid")
+            return True
+            
+        except Exception as e:
+            print(f"State validation error: {e}")
             return False
 
     def _advance_to_next_unplayed_match(self) -> None:
@@ -169,12 +270,3 @@ class DoubleEliminationManager:
                 
         # If no unplayed matches found, set to last match id
         self.bracket_manager.current_match_id = 15
-
-    def get_match_duration(self, match_id: int) -> int:
-        """Get the duration limit for a specific match based on its bracket"""
-        match = self.bracket_manager.matches[match_id]
-        if match.bracket == "GRAND_FINAL":
-            return 900  # 15 minutes for grand final
-        elif match.bracket == "FINAL":
-            return 600  # 10 minutes for finals
-        return 300  # 5 minutes for regular matches

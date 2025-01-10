@@ -289,7 +289,10 @@ class MainView(BaseView):
         """Show transition popup between tournament matches"""
         try:
             self.logger.info("Starting transition popup")
-            next_teams = f"{current_match.team1} vs {current_match.team2}"
+            # Obtenir d'abord les infos du prochain match
+            next_match_info = self.tournament_manager.setup_next_match()
+            next_teams = (f"{next_match_info['red_agent']} vs {next_match_info['blue_agent']}" 
+                         if next_match_info else "Tournoi terminé")
             
             # Créer une fenêtre pour le bracket
             bracket_window = ctk.CTkToplevel()
@@ -320,8 +323,7 @@ class MainView(BaseView):
                 plt.close(fig)
                 
                 # Afficher le popup après que le bracket soit chargé
-                next_match = self.tournament_manager.setup_next_match()
-                if next_match:
+                if next_match_info:
                     popup = CTkMessagebox(
                         master=bracket_window,
                         title="Tournament Match Complete",
@@ -343,7 +345,6 @@ class MainView(BaseView):
             self._prepare_next_match()
 
     def handle_tournament_match_end(self):
-        """Handle tournament match end"""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
             
@@ -355,25 +356,21 @@ class MainView(BaseView):
             winner = state['winner']
             loser = Soldier.BLUE if winner == Soldier.RED else Soldier.RED
             
-            current_match.winner = current_match.team1 if winner == Soldier.RED else current_match.team2
-            current_match.loser = current_match.team2 if winner == Soldier.RED else current_match.team1
-            
+            # Créer le dictionnaire de stats en gardant toutes les informations
             stats = {
-                "winner": current_match.winner,
-                "loser": current_match.loser,
-                "pieces_a": state["board"].count_soldiers(Soldier.RED),
-                "pieces_b": state["board"].count_soldiers(Soldier.BLUE),
-                "moves_a": get_move_player_count(state["history"], Soldier.RED),
-                "moves_b": get_move_player_count(state["history"], Soldier.BLUE),
-                "time_a": state["time_manager"].get_remaining_time(Soldier.RED),
-                "time_b": state["time_manager"].get_remaining_time(Soldier.BLUE),
+                "winner": current_match.team1 if winner == Soldier.RED else current_match.team2,
+                "loser": current_match.team2 if winner == Soldier.RED else current_match.team1,
+                "pieces_winner": state["board"].count_soldiers(winner),
+                "pieces_loser": state["board"].count_soldiers(loser),
+                "time_winner": state["time_manager"].get_remaining_time(winner),
+                "time_loser": state["time_manager"].get_remaining_time(loser),
+                "moves_winner": get_move_player_count(state["history"], winner),
+                "moves_loser": get_move_player_count(state["history"], loser),
                 "reason": state["reason"]
             }
             
             self.tournament_manager.record_match_result(stats)
-
             self.show_transition_popup(current_match)
-
 
     def _prepare_next_match(self):
         """Prepare next match"""
@@ -422,26 +419,23 @@ class MainView(BaseView):
             self.tournament_manager.bracket_manager.current_match_id
         ]
         
+        print(f"\n=== Configuring Match {current_match.id} Game {current_match.duel.current_game} ===")
+        print(f"Teams: {current_match.team1} vs {current_match.team2}")
+        print(f"RED: {match_info['red_agent']}, BLUE: {match_info['blue_agent']}")
+        
         # Configure Red agent using TEAMS_MAPPING for file names
         self.store.dispatch({
             "type": "SELECT_AGENT",
             "soldier_value": Soldier.RED,
-            "info_index": f"{TEAMS_MAPPING[current_match.team1]}_{Soldier.RED.name}"
+            "info_index": f"{TEAMS_MAPPING[match_info['red_agent']]}_{Soldier.RED.name}"
         })
         
         # Configure Blue agent using TEAMS_MAPPING for file names
         self.store.dispatch({
             "type": "SELECT_AGENT",
             "soldier_value": Soldier.BLUE,
-            "info_index": f"{TEAMS_MAPPING[current_match.team2]}_{Soldier.BLUE.name}"
+            "info_index": f"{TEAMS_MAPPING[match_info['blue_agent']]}_{Soldier.BLUE.name}"
         })
-
-        # Set match duration limit
-        # duration = self.tournament_manager.get_match_duration(current_match.id)
-        # self.store.dispatch({
-        #     "type": "SET_TIME_LIMIT",
-        #     "limit": duration
-        # })
 
     def end_tournament(self):
         """End tournament"""
@@ -488,14 +482,12 @@ class MainView(BaseView):
         """Initialize and start a new double elimination tournament"""
         try:
             self.tournament_mode = True
-            
-            # Initialize tournament manager
+            print("\n=== Initializing Tournament ===")
             self.tournament_manager = DoubleEliminationManager(self.tournament_dir)
             
             if len(TEAMS) != 8:
                 raise ValueError(f"Tournament requires exactly 8 teams, got {len(TEAMS)}")
                 
-            # Start tournament with teams - will load existing state if valid
             self.tournament_manager.start_tournament(TEAMS)
             self._prepare_next_match()
             
