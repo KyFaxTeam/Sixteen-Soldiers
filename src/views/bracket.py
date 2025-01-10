@@ -15,44 +15,44 @@ def create_tournament_bracket():
     ax.set_facecolor('#1a1a1a')  # Darker background
     fig.patch.set_facecolor('#2d2d2d')  # Darker outer background
 
-    # Configuration des couleurs ajustée pour être moins vive
+    # Configuration des couleurs ajustée pour être encore moins vive
     COLORS = {
         'winner': {
-            'primary': '#00dd77',
-            'gradient': ['#00ff88', '#007744'],
+            'primary': '#00c066',    # Désaturé de #00dd77
+            'gradient': ['#00dd77', '#006633'],
             'shadow': '#004d29',
-            'border': '#00ff9933',  # Reduced alpha from 55 to 33
-            'glow': '#00ff8815'     # Reduced alpha from 22 to 15
+            'border': '#00ff9922',   # Reduced alpha from 33 to 22
+            'glow': '#00ff8810'      # Reduced alpha from 15 to 10
         },
         'loser': {
-            'primary': '#ee3333',
-            'gradient': ['#ff4444', '#992222'],
+            'primary': '#dd2222',    # Désaturé de #ee3333
+            'gradient': ['#ee3333', '#881111'],
             'shadow': '#4d1414',
-            'border': '#ff444433',   # Reduced alpha
-            'glow': '#ff444415'      # Reduced alpha
+            'border': '#ff444422',   # Reduced alpha
+            'glow': '#ff444410'      # Reduced alpha
         },
         'finals': {
-            'primary': '#00bbee',
-            'gradient': ['#00ccff', '#006699'],
+            'primary': '#009acc',    # Désaturé de #00bbee
+            'gradient': ['#00bbee', '#005577'],
             'shadow': '#003d4d',
-            'border': '#00ccff33',   # Reduced alpha
-            'glow': '#00ccff15'      # Reduced alpha
+            'border': '#00ccff22',   # Reduced alpha
+            'glow': '#00ccff10'      # Reduced alpha
         },
         'background': {
             'primary': '#1a1a1a',
             'gradient': ['#1a1a1a', '#222222'],
-            'grid': '#33333318'      # Reduced alpha from 22 to 18
+            'grid': '#33333315'      # Reduced alpha from 18 to 15
         },
         'text': {
             'primary': '#ffffff',
-            'shadow': '#00000055'    # Reduced alpha from 66 to 55
+            'shadow': '#00000044'    # Reduced alpha from 55 to 44
         },
         'connection': {
-            'winner': '#ff6b6b',
-            'loser': '#40ffaa',
-            'finals': '#40d6ff',
-            'glow': '#ffffff44',     # Reduced alpha from 66 to 44
-            'node': '#ffffffdd'      # Added slight transparency
+            'winner': '#ee5555',     # Désaturé de #ff6b6b
+            'loser': '#33dd99',      # Désaturé de #40ffaa
+            'finals': '#33bbdd',     # Désaturé de #40d6ff
+            'glow': '#ffffff33',     # Reduced alpha from 44 to 33
+            'node': '#ffffffcc'      # Reduced alpha from dd to cc
         }
     }
     
@@ -69,36 +69,36 @@ def create_tournament_bracket():
             width *= 1.1
             height *= 1.1
 
-        # Outer glow
+        # Outer glow with further reduced opacity
         glow = patches.FancyBboxPatch(
-            (x - 0.05, y - 0.05), width + 0.1, height + 0.1,
-            boxstyle=patches.BoxStyle("Round", pad=0.4, rounding_size=0.1),
+            (x - 0.03, y - 0.03), width + 0.06, height + 0.06,  # Réduit de 0.05 à 0.03
+            boxstyle=patches.BoxStyle("Round", pad=0.3, rounding_size=0.08),  # Réduit le padding et l'arrondi
             facecolor='none',
             edgecolor=colors['glow'],
-            linewidth=3,
-            alpha=0.5,
+            linewidth=2,  # Réduit de 3 à 2
+            alpha=0.3,    # Reduced from 0.4 to 0.3
             zorder=2
         )
 
-        # Main box with gradient
+        # Main box with reduced opacity
         main_box = patches.FancyBboxPatch(
             (x, y), width, height,
-            boxstyle=patches.BoxStyle("Round", pad=0.4, rounding_size=0.1),
+            boxstyle=patches.BoxStyle("Round", pad=0.3, rounding_size=0.08),
             facecolor=colors['primary'],
             edgecolor=colors['primary'],
-            linewidth=2.5,
-            alpha=0.95,
+            linewidth=1.5,  # Réduit de 2.5 à 1.5
+            alpha=0.85,    # Reduced from 0.92 to 0.85
             zorder=3
         )
 
-        # Inner border
+        # Inner border with reduced opacity
         inner_border = patches.FancyBboxPatch(
-            (x + 0.05, y + 0.05), width - 0.1, height - 0.1,
-            boxstyle=patches.BoxStyle("Round", pad=0.4, rounding_size=0.1),
+            (x + 0.03, y + 0.03), width - 0.06, height - 0.06,  # Réduit de 0.05 à 0.03
+            boxstyle=patches.BoxStyle("Round", pad=0.3, rounding_size=0.08),
             facecolor='none',
             edgecolor=colors['border'],
-            linewidth=1.5,
-            alpha=0.6,
+            linewidth=1.0,  # Réduit de 1.5 à 1.0
+            alpha=0.3,     # Reduced from 0.4 to 0.3
             zorder=4
         )
 
