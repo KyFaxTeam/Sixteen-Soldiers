@@ -353,19 +353,19 @@ class MainView(BaseView):
                 self.tournament_manager.bracket_manager.current_match_id
             ]
             
-            winner = state['winner']
-            loser = Soldier.BLUE if winner == Soldier.RED else Soldier.RED
-            
-            # Créer le dictionnaire de stats en gardant toutes les informations
+            # Construction des stats cohérentes avec la structure de Duel
+            is_second_game = current_match.duel.current_game == 2
+            red_team = current_match.team2 if is_second_game else current_match.team1
+            blue_team = current_match.team1 if is_second_game else current_match.team2
+
             stats = {
-                "winner": current_match.team1 if winner == Soldier.RED else current_match.team2,
-                "loser": current_match.team2 if winner == Soldier.RED else current_match.team1,
-                "pieces_winner": state["board"].count_soldiers(winner),
-                "pieces_loser": state["board"].count_soldiers(loser),
-                "time_winner": state["time_manager"].get_remaining_time(winner),
-                "time_loser": state["time_manager"].get_remaining_time(loser),
-                "moves_winner": get_move_player_count(state["history"], winner),
-                "moves_loser": get_move_player_count(state["history"], loser),
+                "winner": state['winner'].name,  # "RED" ou "BLUE"
+                "RED_pieces": state["board"].count_soldiers(Soldier.RED),
+                "BLUE_pieces": state["board"].count_soldiers(Soldier.BLUE),
+                "RED_time": state["time_manager"].get_remaining_time(Soldier.RED),
+                "BLUE_time": state["time_manager"].get_remaining_time(Soldier.BLUE),
+                "RED_moves": get_move_player_count(state["history"], Soldier.RED),
+                "BLUE_moves": get_move_player_count(state["history"], Soldier.BLUE),
                 "reason": state["reason"]
             }
             
