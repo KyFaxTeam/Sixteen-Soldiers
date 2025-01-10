@@ -24,7 +24,8 @@ src/tournament/github/script.py
 
 src/tournament/states
 
-src/tournament/tournament_data
+src/tournament/tournament_data/*
+
 
 saved_game/*
 
