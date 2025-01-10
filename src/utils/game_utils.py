@@ -23,7 +23,7 @@ def show_popup(message: str, title: str = "Message", auto_close: bool = True, du
         height=250, 
         option_1="OK",  # Un seul bouton par défaut
         border_width=1,  # Bordure fine
-        font=("Roboto", 14, "bold"),  # Police en gras plus grande
+        font=("Roboto", 14),  # Police en gras plus grande
     )
     
     if auto_close:

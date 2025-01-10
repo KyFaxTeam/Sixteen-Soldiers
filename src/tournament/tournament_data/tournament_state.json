@@ -1,5 +1,5 @@
 {
-  "current_match_id": 1,
+  "current_match_id": 3,
   "matches": {
     "1": {
       "id": 1,
@@ -7,11 +7,21 @@
       "bracket": "WINNER",
       "team1": "AIverse",
       "team2": "IFRI",
-      "winner": null,
-      "loser": null,
+      "winner": "AIverse",
+      "loser": "IFRI",
       "next_match_id": 5,
       "loser_match_id": 7,
-      "stats": null
+      "stats": {
+        "winner": "AIverse",
+        "loser": "IFRI",
+        "pieces_a": 13,
+        "pieces_b": 12,
+        "moves_a": 39,
+        "moves_b": 38,
+        "time_a": 0.21360090011148714,
+        "time_b": 0.11552399984793738,
+        "reason": "RED wins - More pieces remaining"
+      }
     },
     "2": {
       "id": 2,
@@ -19,11 +29,21 @@
       "bracket": "WINNER",
       "team1": "N\u00e9m\u00e9sis",
       "team2": "Limitless Nexus",
-      "winner": null,
-      "loser": null,
+      "winner": "N\u00e9m\u00e9sis",
+      "loser": "Limitless Nexus",
       "next_match_id": 5,
       "loser_match_id": 7,
-      "stats": null
+      "stats": {
+        "winner": "N\u00e9m\u00e9sis",
+        "loser": "Limitless Nexus",
+        "pieces_a": 12,
+        "pieces_b": 0,
+        "moves_a": 68,
+        "moves_b": 65,
+        "time_a": 0.07020819996250793,
+        "time_b": 0.49200580012984574,
+        "reason": "RED wins - Captured all opponent's soldiers"
+      }
     },
     "3": {
       "id": 3,
@@ -53,8 +73,8 @@
       "id": 5,
       "round": 2,
       "bracket": "WINNER",
-      "team1": null,
-      "team2": null,
+      "team1": "AIverse",
+      "team2": "N\u00e9m\u00e9sis",
       "winner": null,
       "loser": null,
       "next_match_id": 9,
@@ -77,8 +97,8 @@
       "id": 7,
       "round": 1,
       "bracket": "LOSER",
-      "team1": null,
-      "team2": null,
+      "team1": "IFRI",
+      "team2": "Limitless Nexus",
       "winner": null,
       "loser": null,
       "next_match_id": 10,

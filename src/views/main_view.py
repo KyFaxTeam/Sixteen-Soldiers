@@ -87,12 +87,7 @@ class MainView(BaseView):
         self.tournament_dir = Path(__file__).parent.parent / "tournament" / "tournament_data"
         self.tournament_dir.mkdir(exist_ok=True)
 
-        self.estimation_times = {
-            "random_vs_random" : [0, 0], 
-            "random_vs_ai" : [0, 0],
-            "ai_vs_ai" : [0, 0]
-        }
-
+     
     def configure_main_view(self, game_data=None):
         """Configure la vue principale"""
         self.home_view.hide()
@@ -287,7 +282,6 @@ class MainView(BaseView):
         """Handle tournament match end"""
         if not self.handling_tournament_end:
             self.handling_tournament_end = True
-            self.show_after_game_view()
             
             state = self.store.get_state()
             current_match_id = self.tournament_manager.bracket_manager.current_match_id
@@ -299,7 +293,6 @@ class MainView(BaseView):
             match.winner = match.team1 if winner == Soldier.RED else match.team2
             match.loser = match.team2 if winner == Soldier.RED else match.team1
             
-            # Correction des clés pour accéder aux stats
             stats = {
                 "winner": match.winner,
                 "loser": match.loser,
@@ -313,6 +306,55 @@ class MainView(BaseView):
             }
             
             self.tournament_manager.record_match_result(stats)
+            
+            # Afficher AfterGameView avec un callback pour montrer le popup de transition
+            self.after_game_view = AfterGameView(
+                self.master,
+                store=self.store,
+                on_restart=self.return_to_home,
+                on_save=lambda button: self.handle_save(button)
+            )
+
+            # Définir une fonction pour gérer la fermeture de l'AfterGameView
+            def handle_after_game_close():
+                if self.after_game_view and self.after_game_view.winfo_exists():
+                    self.after_game_view.destroy()
+                    self.after_game_view = None
+                    # Afficher le popup de transition après que AfterGameView soit complètement fermé
+                    self.master.after(100, lambda: self.show_transition_popup(match))
+
+            # Configurer le bouton de fermeture de l'AfterGameView
+            if self.after_game_view:
+                self.after_game_view.protocol("WM_DELETE_WINDOW", handle_after_game_close)
+                # Fermer automatiquement après 15 secondes
+                self.after_game_view.after(15000, handle_after_game_close)
+
+    def show_transition_popup(self, current_match):
+        """Show transition popup between tournament matches"""
+        try:
+            from CTkMessagebox import CTkMessagebox
+            next_teams = f"{current_match.team1} vs {current_match.team2}"
+            
+            popup = CTkMessagebox(
+                title="Tournament Match Complete",
+                message=f"Match {current_match.id} is complete.\n\nNext match:\n{next_teams}",
+                icon="info",
+                option_1="Continue",
+                width=400,
+                height=200
+            )
+            
+            def continue_tournament():
+                if popup.winfo_exists():
+                    popup.destroy()
+                self._prepare_next_match()
+            
+            popup.configure(command=continue_tournament)
+            # Auto-close après 180 secondes
+            popup.after(180000, continue_tournament)
+            
+        except Exception as e:
+            self.logger.error(f"Error showing transition popup: {e}")
             self._prepare_next_match()
 
     def _prepare_next_match(self):
@@ -426,7 +468,7 @@ class MainView(BaseView):
             if len(TEAMS) != 8:
                 raise ValueError(f"Tournament requires exactly 8 teams, got {len(TEAMS)}")
                 
-            # Start tournament with teams
+            # Start tournament with teams - will load existing state if valid
             self.tournament_manager.start_tournament(TEAMS)
             self._prepare_next_match()
             
