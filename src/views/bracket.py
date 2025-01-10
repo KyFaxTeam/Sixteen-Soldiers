@@ -179,18 +179,18 @@ def create_tournament_bracket():
         return x + width, y + height/2
 
     def draw_connection(start, end, color, style='-', rad=0.3):
-        """Enhanced connection drawing with nodes and improved glow"""
+        """Enhanced connection drawing with improved smoothness"""
         if not ax:
             raise ValueError("Axes not properly initialized")
 
-        # Draw nodes at start and end with higher z-index
-        start_nodes = draw_connection_node(start[0], start[1], COLORS['connection'][color])
-        end_nodes = draw_connection_node(end[0], end[1], COLORS['connection'][color])
+        # Draw nodes with smaller size for better flow
+        start_nodes = draw_connection_node(start[0], start[1], COLORS['connection'][color], size=0.08)
+        end_nodes = draw_connection_node(end[0], end[1], COLORS['connection'][color], size=0.08)
         for node in start_nodes + end_nodes:
             node.set_zorder(10)
             ax.add_patch(node)
 
-        # Effet de halo blanc réduit
+        # Smooth white undertone for better flow
         curve = patches.ConnectionPatch(
             xyA=start, xyB=end,
             coordsA='data', coordsB='data',
@@ -199,14 +199,19 @@ def create_tournament_bracket():
             connectionstyle=f'arc3,rad={rad}',
             color='white',
             linestyle=style,
-            linewidth=2.0,  # Réduit de 4.0 à 2.0
-            alpha=0.1,      # Réduit de 0.15 à 0.1
-            zorder=8
+            linewidth=3.0,
+            alpha=0.05,
+            zorder=8,
+            capstyle='round',
+            joinstyle='round'
         )
         ax.add_patch(curve)
 
-        # Reduced glow intensity
-        for alpha, width in [(0.15, 4.0), (0.25, 2.5)]:  # Reduced alpha values
+        # Multiple layers with decreasing width for smooth gradient effect
+        widths = [4.0, 3.0, 2.0]
+        alphas = [0.1, 0.15, 0.2]
+        
+        for width, alpha in zip(widths, alphas):
             curve = patches.ConnectionPatch(
                 xyA=start, xyB=end,
                 coordsA='data', coordsB='data',
@@ -217,11 +222,13 @@ def create_tournament_bracket():
                 linestyle=style,
                 linewidth=width,
                 alpha=alpha,
-                zorder=9
+                zorder=9,
+                capstyle='round',
+                joinstyle='round'
             )
             ax.add_patch(curve)
 
-        # Main line with slightly reduced opacity
+        # Main line with refined appearance
         curve = patches.ConnectionPatch(
             xyA=start, xyB=end,
             coordsA='data', coordsB='data',
@@ -231,9 +238,11 @@ def create_tournament_bracket():
             color=COLORS['connection'][color],
             linestyle=style,
             linewidth=1.5,
-            alpha=0.9,    # Reduced from 1.0 to 0.9
+            alpha=0.9,
             zorder=10,
-            mutation_scale=15  # Réduit de 20 à 15 pour une flèche plus petite
+            mutation_scale=12,  # Slightly smaller arrow
+            capstyle='round',
+            joinstyle='round'
         )
         ax.add_patch(curve)
 
