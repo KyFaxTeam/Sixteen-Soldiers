@@ -136,15 +136,15 @@ class DoubleEliminationManager:
         
         # Adapter l'affichage aux nouvelles structures
         game1_winner = "None"
-        if current_match.duel.games[1]:
-            team1_won = current_match.duel.games[1]["team1"]["is_winner"]
-            team2_won = current_match.duel.games[1]["team2"]["is_winner"]
+        if current_match.duel.games.get(1):
+            team1_won = current_match.duel.games[1]["team1"].get("is_winner", False)
+            team2_won = current_match.duel.games[1]["team2"].get("is_winner", False)
             game1_winner = "team1" if team1_won else "team2" if team2_won else "None"
             
         game2_winner = "None"
-        if current_match.duel.games[2]:
-            team1_won = current_match.duel.games[2]["team1"]["is_winner"]
-            team2_won = current_match.duel.games[2]["team2"]["is_winner"]
+        if current_match.duel.games.get(2):
+            team1_won = current_match.duel.games[2]["team1"].get("is_winner", False)
+            team2_won = current_match.duel.games[2]["team2"].get("is_winner", False)
             game2_winner = "team1" if team1_won else "team2" if team2_won else "None"
             
         print(f"First Game Winner: {game1_winner}")

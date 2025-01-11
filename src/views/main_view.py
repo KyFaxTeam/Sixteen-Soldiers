@@ -358,8 +358,9 @@ class MainView(BaseView):
             red_team = current_match.team2 if is_second_game else current_match.team1
             blue_team = current_match.team1 if is_second_game else current_match.team2
 
+            winner_name = state['winner'].name if state['winner'] else None
             stats = {
-                "winner": state['winner'].name,  # "RED" ou "BLUE"
+                "winner": winner_name,  # "RED" ou "BLUE"
                 "RED_pieces": state["board"].count_soldiers(Soldier.RED),
                 "BLUE_pieces": state["board"].count_soldiers(Soldier.BLUE),
                 "RED_time": state["time_manager"].get_remaining_time(Soldier.RED),
