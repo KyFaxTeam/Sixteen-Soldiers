@@ -74,24 +74,34 @@ class Duel:
         self.stats["victories"]["team2"] = team2_wins
         self.stats["sum_pieces"]["team1"] = sum(game["team1"]["pieces"] for game in self.games.values() if game)
         self.stats["sum_pieces"]["team2"] = sum(game["team2"]["pieces"] for game in self.games.values() if game)
-        self.stats["sum_time"]["team1"] = sum(game["team1"]["time"] for game in self.games.values() if game)
-        self.stats["sum_time"]["team2"] = sum(game["team2"]["time"] for game in self.games.values() if game)
         self.stats["sum_moves"]["team1"] = sum(game["team1"]["moves"] for game in self.games.values() if game)
         self.stats["sum_moves"]["team2"] = sum(game["team2"]["moves"] for game in self.games.values() if game)
+        self.stats["sum_time"]["team1"] = sum(game["team1"]["time"] for game in self.games.values() if game)
+        self.stats["sum_time"]["team2"] = sum(game["team2"]["time"] for game in self.games.values() if game)
 
-        # Determine winner based on victories then pieces
+        # Determine winner based on priority order:
+        # 1. Victories
+        # 2. Total pieces
+        # 3. Total moves (less is better)
+        # 4. Remaining time (more is better)
         if team1_wins > team2_wins:
             self.winner = "team1"
         elif team2_wins > team1_wins:
             self.winner = "team2"
-        else:  # Equal victories
-            pieces_diff = self.stats["sum_pieces"]["team1"] - self.stats["sum_pieces"]["team2"]
-            if pieces_diff > 0:
-                self.winner = "team1"
-            elif pieces_diff < 0:
-                self.winner = "team2"
-            else:
-                self.winner = None  # Draw
+        elif self.stats["sum_pieces"]["team1"] > self.stats["sum_pieces"]["team2"]:
+            self.winner = "team1"
+        elif self.stats["sum_pieces"]["team2"] > self.stats["sum_pieces"]["team1"]:
+            self.winner = "team2"
+        elif self.stats["sum_moves"]["team1"] < self.stats["sum_moves"]["team2"]:
+            self.winner = "team1"
+        elif self.stats["sum_moves"]["team2"] < self.stats["sum_moves"]["team1"]:
+            self.winner = "team2"
+        elif self.stats["sum_time"]["team1"] > self.stats["sum_time"]["team2"]:
+            self.winner = "team1"
+        elif self.stats["sum_time"]["team2"] > self.stats["sum_time"]["team1"]:
+            self.winner = "team2"
+        else:
+            self.winner = "team1"  # Default winner in case of complete tie
 
     def to_dict(self) -> dict:
         return {
