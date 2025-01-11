@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 from .bracket_manager import BracketManager
 from .match import Duel, Match
+from .stats_updater import TournamentMarkdownUpdater
 
 class DoubleEliminationManager:
     def __init__(self, tournament_dir: Path):
@@ -10,6 +11,7 @@ class DoubleEliminationManager:
         self.tournament_dir = tournament_dir
         self.state_file = tournament_dir / "tournament_state.json"
         self.tournament_dir.mkdir(exist_ok=True)
+        self.updater = TournamentMarkdownUpdater(tournament_dir / "tournament_state.json", tournament_dir / "stats.md")
         
     def start_tournament(self, teams: List[str]) -> None:
         """Start a new tournament or load existing state"""
@@ -80,6 +82,8 @@ class DoubleEliminationManager:
         """Record match result and update tournament state"""
         current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
         current_match.duel.add_game_result(stats)
+
+        self.updater.update_markdown()
         
         if current_match.duel.current_game > 2:
             # Duel is complete

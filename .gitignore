@@ -18,6 +18,8 @@ docs/rules.pdf
 # Fichiers de sauvegarde
 src/tournament/states/*
 
+src/tournament/ai/*
+
 # Fichiers github
 src/tournament/github/*
 src/tournament/github/script.py
