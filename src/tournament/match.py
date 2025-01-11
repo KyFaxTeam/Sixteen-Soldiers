@@ -3,14 +3,8 @@ from typing import Optional, Dict
 
 class Duel:
     def __init__(self):
-        # Initialize games with proper structure
-        self.games = {
-            1: {
-                "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "reason": None
-            }
-        }
+        # Initialize with empty games dict instead of pre-initializing game 1
+        self.games = {}
         self.current_game = 1
         self.winner = None
         self.stats = {
@@ -21,13 +15,14 @@ class Duel:
         }
 
     def add_game_result(self, game_stats: dict) -> None:
-        # Ensure current game exists in games dict
-        if self.current_game not in self.games:
-            self.games[self.current_game] = {
-                "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "reason": None
-            }
+        """Add game result to the duel"""
+        # Create new game entry without checking if it exists
+        # This évite la duplication potentielle de la clé "1"
+        self.games[self.current_game] = {
+            "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
+            "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
+            "reason": None
+        }
 
         # Map RED/BLUE stats to team1/team2 based on current game number
         is_second_game = self.current_game == 2
@@ -116,10 +111,11 @@ class Duel:
         if data is None:
             return cls()
         duel = cls()
-        duel.games = data.get("games", {
-            1: None,
-            2: None
-        })
+        # Ensure we don't have duplicate keys by using a clean dict
+        duel.games = {}
+        if isinstance(data.get("games"), dict):
+            for game_num, game_data in data["games"].items():
+                duel.games[int(game_num)] = game_data
         duel.current_game = data.get("current_game", 1)
         duel.winner = data.get("winner")
         duel.stats = data.get("stats", {

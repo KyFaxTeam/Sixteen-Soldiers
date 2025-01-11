@@ -44,8 +44,10 @@ class GameSpeed:
             self.MAX_VISIBLE_DELAY = 4000
 
         elif 2 <= self.current_speed <= 2.5: 
-            self.MIN_VISIBLE_DELAY = 200
-            self.MAX_VISIBLE_DELAY = 1500
+            # self.MIN_VISIBLE_DELAY = 200
+            # self.MAX_VISIBLE_DELAY = 1500
+            self.MIN_VISIBLE_DELAY = 100
+            self.MAX_VISIBLE_DELAY = 500
 
     
     def get_delay_time(self, ai_thinking_time):
