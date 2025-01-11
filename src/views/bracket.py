@@ -60,11 +60,11 @@ def create_tournament_bracket():
             'shadow': '#00000044'    # Reduced alpha from 55 to 44
         },
         'connection': {
-            'winner': '#ee5555',     # Désaturé de #ff6b6b
-            'loser': '#33dd99',      # Désaturé de #40ffaa
-            'finals': '#33bbdd',     # Désaturé de #40d6ff
-            'glow': '#ffffff33',     # Reduced alpha from 44 to 33
-            'node': '#ffffffcc'      # Reduced alpha from dd to cc
+            'winner': '#44dd88',     # Vert émeraude doux
+            'loser': '#ff5577',      # Rose-rouge vif
+            'finals': '#40d6ff',     # Bleu électrique
+            'glow': '#ffffff22',     # Réduit l'alpha de 33 à 22
+            'node': '#ffffff99'      # Réduit l'alpha de cc à 99
         }
     }
     
@@ -78,7 +78,7 @@ def create_tournament_bracket():
     FONT = {
         'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
         'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
-        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11, 'color': '#ffffff'},  # Augmenté de 10 à 12
+        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11.7, 'color': '#ffffff'},  # Augmenté de 10 à 12
         'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
     }
 
@@ -151,7 +151,7 @@ def create_tournament_bracket():
                verticalalignment='center',
                fontdict=FONT['match'],
                path_effects=[withStroke(linewidth=2, foreground='#000000', alpha=0.5)],
-               zorder=5)
+               zorder=15)  # Augmenté de 5 à 15
         
         # Team names if present
         if 'teams' in text:
@@ -161,7 +161,7 @@ def create_tournament_bracket():
                    verticalalignment='center',
                    fontdict=FONT['team'],
                    path_effects=[withStroke(linewidth=1.5, foreground='#000000', alpha=0.3)],  # Réduit de 2.5 à 1.5 et alpha de 0.4 à 0.3
-                   zorder=5)
+                   zorder=15)  # Augmenté de 5 à 15
         
         # Winner if present
         if 'winner' in text:
@@ -174,7 +174,7 @@ def create_tournament_bracket():
                        withStroke(linewidth=3, foreground='#000000', alpha=0.5),
                        withStroke(linewidth=1, foreground='#ffcc4433', alpha=0.5)
                    ],
-                   zorder=5)
+                   zorder=15)  # Augmenté de 5 à 15
         
         return x + width, y + height/2
 
@@ -184,8 +184,8 @@ def create_tournament_bracket():
             raise ValueError("Axes not properly initialized")
 
         # Draw nodes with smaller size for better flow
-        start_nodes = draw_connection_node(start[0], start[1], COLORS['connection'][color], size=0.08)
-        end_nodes = draw_connection_node(end[0], end[1], COLORS['connection'][color], size=0.08)
+        start_nodes = draw_connection_node(start[0], start[1], COLORS['connection'][color], size=0.06)  # Réduit de 0.08 à 0.06
+        end_nodes = draw_connection_node(end[0], end[1], COLORS['connection'][color], size=0.06)   # Réduit de 0.08 à 0.06
         for node in start_nodes + end_nodes:
             node.set_zorder(10)
             ax.add_patch(node)
@@ -209,7 +209,7 @@ def create_tournament_bracket():
 
         # Multiple layers with decreasing width for smooth gradient effect
         widths = [4.0, 3.0, 2.0]
-        alphas = [0.1, 0.15, 0.2]
+        alphas = [0.08, 0.1, 0.15]  # Réduit les valeurs d'alpha (précédemment 0.1, 0.15, 0.2)
         
         for width, alpha in zip(widths, alphas):
             curve = patches.ConnectionPatch(
@@ -238,7 +238,7 @@ def create_tournament_bracket():
             color=COLORS['connection'][color],
             linestyle=style,
             linewidth=1.5,
-            alpha=0.9,
+            alpha=0.7,     # Réduit de 0.9 à 0.7
             zorder=10,
             mutation_scale=12,  # Slightly smaller arrow
             capstyle='round',
@@ -248,8 +248,8 @@ def create_tournament_bracket():
 
     # Espacements optimisés
     SPACING = {
-        'vertical': 1.2,    # Augmenté pour plus d'espace
-        'horizontal': 3.5   # Augmenté pour plus d'espace
+        'vertical': 1.3,    # Augmenté pour plus d'espace
+        'horizontal': 3.9   # Augmenté pour plus d'espace
     }
 
     def format_match_text(match_id, state_data, suffix=None):
@@ -373,7 +373,7 @@ def create_tournament_bracket():
             COLORS['background']['star_sizes']
         ):
             # Générer des positions aléatoires - ajustement de la densité
-            n_stars = int(25 * size * 500)  # Légère réduction du nombre d'étoiles
+            n_stars = int(25 * size * 600)  # Légère réduction du nombre d'étoiles
             x_pos = np.random.uniform(0, 22, n_stars)
             y_pos = np.random.uniform(3, 10, n_stars)
             
