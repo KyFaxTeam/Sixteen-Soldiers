@@ -286,11 +286,16 @@ class DoubleEliminationManager:
 
     def _advance_to_next_unplayed_match(self) -> None:
         """Find the next unplayed match and set it as current"""
-        for match_id in range(1, 16):
-            match = self.bracket_manager.matches[match_id]
-            if match.team1 and match.team2 and not match.winner:
-                self.bracket_manager.current_match_id = match_id
-                return
-                
-        # If no unplayed matches found, set to last match id
-        self.bracket_manager.current_match_id = 15
+        current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
+        
+        # Check if current match is complete (either won or drawn after game 3)
+        if current_match.winner is not None or current_match.duel.current_game > 2:
+            # Start from the next match after current
+            for match_id in range(self.bracket_manager.current_match_id + 1, 16):
+                match = self.bracket_manager.matches[match_id]
+                if match.team1 and match.team2 and not match.winner:
+                    self.bracket_manager.current_match_id = match_id
+                    return
+                    
+            # If no unplayed matches found, set to last match id
+            self.bracket_manager.current_match_id = 15
