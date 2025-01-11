@@ -8,13 +8,13 @@ TOURNAMENT_DIR = Path(__file__).parent
 # Liste des équipes finalistes
 TEAMS = [
     "AIverse",
+    "Mugiwara",
     "Némésis",
-    "KACW",
+    "IFRI",
     "Blacknight01",
     "Jolych", 
-    "Mugiwara",
     "Limitless Nexus",
-    "IFRI"
+    "KACW",
 ]
 
 def normalize_team_name(team_name):
