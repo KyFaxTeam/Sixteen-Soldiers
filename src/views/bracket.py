@@ -21,54 +21,177 @@ def create_tournament_bracket():
     fig.patch.set_facecolor('#181818')   # Éclairci de #111111
 
     # Configuration des couleurs ajustée pour le nouveau fond
+    # COLORS = {
+    #     'winner': {
+    #         'primary': '#00b066',         # Légèrement plus sombre
+    #         'gradient': ['#00dd77', '#006633'],
+    #         'shadow': '#004d29',
+    #         'border': '#00ff9922',   # Reduced alpha from 33 to 22
+    #         'glow': '#00ff8810'      # Reduced alpha from 15 to 10
+    #     },
+    #     'loser': {
+    #         'primary': '#cc2222',         # Légèrement plus sombre
+    #         'gradient': ['#ee3333', '#881111'],
+    #         'shadow': '#4d1414',
+    #         'border': '#ff444422',   # Reduced alpha
+    #         'glow': '#ff444410'      # Reduced alpha
+    #     },
+    #     'finals': {
+    #         'primary': '#0088cc',         # Légèrement plus sombre
+    #         'gradient': ['#00bbee', '#005577'],
+    #         'shadow': '#003d4d',
+    #         'border': '#00ccff22',   # Reduced alpha
+    #         'glow': '#00ccff10'      # Reduced alpha
+    #     },
+    #     'background': {
+    #         'primary': '#1c1c1c',         # Fond principal plus clair
+    #         'gradient': ['#1a1a1a', '#202020'],  # Gradient plus visible
+    #         'grid': '#25252522',          # Grille plus claire
+    #         'stars': [
+    #             '#fff4d6',  # Blanc doré clair
+    #             '#ffd700',  # Or classique
+    #             '#b08430'   # Or plus lumineux que #997328
+    #         ],
+    #         'star_alphas': [0.2, 0.1, 0.07],    # Légèrement plus visible
+    #         'star_sizes': [0.003, 0.005, 0.002]  # Tailles inchangées
+    #     },
+    #     'text': {
+    #         'primary': '#ffffff',
+    #         'shadow': '#00000044'    # Reduced alpha from 55 to 44
+    #     },
+    #     'connection': {
+    #         'winner': '#44dd88',     # Vert émeraude doux
+    #         'loser': '#ff5577',      # Rose-rouge vif
+    #         'finals': '#40d6ff',     # Bleu électrique
+    #         'glow': '#ffffff22',     # Réduit l'alpha de 33 à 22
+    #         'node': '#ffffff99'      # Réduit l'alpha de cc à 99
+    #     }
+    # }
+    
+    # # Ajout des couleurs pour le scintillement
+    # COLORS['background'].update({
+    #     'stars': ['#ffffff', '#aaaaaa', '#666666'],
+    #     'star_alphas': [0.4, 0.2, 0.1],
+    #     'star_sizes': [0.01, 0.02, 0.005]
+    # })
+
+    # FONT = {
+    #     'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
+    #     'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
+    #     'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11.7, 'color': '#ffffff'},  # Augmenté de 10 à 12
+    #     'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
+    # }
+
+
+    # COLORS = {
+    #     'winner': {
+    #         'primary': '#8bc34a',         # Soft green
+    #         'gradient': ['#a5d6a7', '#66bb6a'],  # Light to medium green gradient
+    #         'shadow': '#4caf50',          # Slightly darker green shadow
+    #         'border': '#c8e6c922',        # Light green border with reduced alpha
+    #         'glow': '#a5d6a710'           # Soft green glow with reduced alpha
+    #     },
+    #     'loser': {
+    #         'primary': '#ef9a9a',         # Soft red
+    #         'gradient': ['#f48fb1', '#e57373'],  # Light to medium red gradient
+    #         'shadow': '#e57373',         # Slightly darker red shadow
+    #         'border': '#ffcdd222',        # Light red border with reduced alpha
+    #         'glow': '#f48fb110'           # Soft red glow with reduced alpha
+    #     },
+    #     'finals': {
+    #         'primary': '#90caf9',         # Soft blue
+    #         'gradient': ['#bbdefb', '#42a5f5'],  # Light to medium blue gradient
+    #         'shadow': '#2196f3',         # Slightly darker blue shadow
+    #         'border': '#e3f2fd22',        # Light blue border with reduced alpha
+    #         'glow': '#bbdefb10'           # Soft blue glow with reduced alpha
+    #     },
+    #     'background': {
+    #         'primary': '#1c1c1c',         # Dark background
+    #         'gradient': ['#1a1a1a', '#202020'],  # Slight gradient for background
+    #         'grid': '#25252522',          # Light grid lines
+    #         'stars': [
+    #             '#fff4d6',  # Light golden white
+    #             '#ffd700',  # Classic gold
+    #             '#b08430'   # Brighter gold
+    #         ],
+    #         'star_alphas': [0.2, 0.1, 0.07],    # Star transparency
+    #         'star_sizes': [0.003, 0.005, 0.002]  # Star sizes
+    #     },
+    #     'text': {
+    #         'primary': '#ffffff',
+    #         'shadow': '#00000044'    # Reduced alpha for text shadow
+    #     },
+    #     'connection': {
+    #         'winner': '#8bc34a',     # Soft green for winner connections
+    #         'loser': '#ef9a9a',      # Soft red for loser connections
+    #         'finals': '#90caf9',     # Soft blue for finals connections
+    #         'glow': '#ffffff22',     # Reduced alpha for connection glow
+    #         'node': '#ffffff99'      # Reduced alpha for connection nodes
+    #     }
+    # }
+
+    # # Ajout des couleurs pour le scintillement
+    # COLORS['background'].update({
+    #     'stars': ['#ffffff', '#aaaaaa', '#666666'],
+    #     'star_alphas': [0.4, 0.2, 0.1],
+    #     'star_sizes': [0.01, 0.02, 0.005]
+    # })
+
+    # FONT = {
+    #     'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
+    #     'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
+    #     'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11.7, 'color': '#ffffff'},  # Increased from 10 to 12
+    #     'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
+    # }
+
     COLORS = {
         'winner': {
-            'primary': '#00b066',         # Légèrement plus sombre
-            'gradient': ['#00dd77', '#006633'],
-            'shadow': '#004d29',
-            'border': '#00ff9922',   # Reduced alpha from 33 to 22
-            'glow': '#00ff8810'      # Reduced alpha from 15 to 10
+            'primary': '#66bb6a',         # Softened green
+            'gradient': ['#81c784', '#43a047'],  # Lighter and darker shades of the softened green
+            'shadow': '#388e3c',
+            'border': '#81c78422',        # Reduced alpha
+            'glow': '#81c78410'       # Reduced alpha
         },
         'loser': {
-            'primary': '#cc2222',         # Légèrement plus sombre
-            'gradient': ['#ee3333', '#881111'],
-            'shadow': '#4d1414',
-            'border': '#ff444422',   # Reduced alpha
-            'glow': '#ff444410'      # Reduced alpha
+            'primary': '#ef5350',         # Softened red
+            'gradient': ['#f44336', '#d32f2f'],  # Lighter and darker shades of the softened red
+            'shadow': '#c62828',
+            'border': '#f4433622',        # Reduced alpha
+            'glow': '#f4433610'       # Reduced alpha
         },
         'finals': {
-            'primary': '#0088cc',         # Légèrement plus sombre
+            'primary': '#0088cc',
             'gradient': ['#00bbee', '#005577'],
             'shadow': '#003d4d',
-            'border': '#00ccff22',   # Reduced alpha
-            'glow': '#00ccff10'      # Reduced alpha
+            'border': '#00ccff22',
+            'glow': '#00ccff10'
         },
         'background': {
-            'primary': '#1c1c1c',         # Fond principal plus clair
-            'gradient': ['#1a1a1a', '#202020'],  # Gradient plus visible
-            'grid': '#25252522',          # Grille plus claire
+            'primary': '#1c1c1c',
+            'gradient': ['#1a1a1a', '#202020'],
+            'grid': '#25252522',
             'stars': [
-                '#fff4d6',  # Blanc doré clair
-                '#ffd700',  # Or classique
-                '#b08430'   # Or plus lumineux que #997328
+                '#fff4d6',  # Soft gold
+                '#ffd700',  # Classic gold
+                '#b08430'   # Brighter gold
             ],
-            'star_alphas': [0.2, 0.1, 0.07],    # Légèrement plus visible
-            'star_sizes': [0.003, 0.005, 0.002]  # Tailles inchangées
+            'star_alphas': [0.2, 0.1, 0.07],
+            'star_sizes': [0.003, 0.005, 0.002]
         },
         'text': {
             'primary': '#ffffff',
-            'shadow': '#00000044'    # Reduced alpha from 55 to 44
+            'shadow': '#00000044'
         },
         'connection': {
-            'winner': '#44dd88',     # Vert émeraude doux
-            'loser': '#ff5577',      # Rose-rouge vif
-            'finals': '#40d6ff',     # Bleu électrique
-            'glow': '#ffffff22',     # Réduit l'alpha de 33 à 22
-            'node': '#ffffff99'      # Réduit l'alpha de cc à 99
+            'winner': '#44dd88',
+            'loser': '#ff5577',
+            'finals': '#40d6ff',
+            'glow': '#ffffff22',
+            'node': '#ffffff99'
         }
     }
-    
-    # Ajout des couleurs pour le scintillement
+
+    # Add the colors for the star glow
     COLORS['background'].update({
         'stars': ['#ffffff', '#aaaaaa', '#666666'],
         'star_alphas': [0.4, 0.2, 0.1],
@@ -78,9 +201,10 @@ def create_tournament_bracket():
     FONT = {
         'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
         'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
-        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11.7, 'color': '#ffffff'},  # Augmenté de 10 à 12
+        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11.7, 'color': '#ffffff'},
         'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
     }
+
 
     def create_gradient_box(x, y, width, height, colors, is_final=False):
         """Create an enhanced box with multiple layers and gradients"""
