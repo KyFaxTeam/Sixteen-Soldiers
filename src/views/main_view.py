@@ -296,12 +296,9 @@ class MainView(BaseView):
             
             # Créer une fenêtre pour le bracket
             bracket_window = ctk.CTkToplevel()
-            bracket_window.title("Tournament Bracket")
             
-            # Mettre en plein écran
-            bracket_window.state('zoomed')  # Pour Windows
-            # Pour Linux/Mac, utiliser:
-            # bracket_window.attributes('-fullscreen', True)
+            # Schedule zoomed state in main thread
+            bracket_window.after(0, lambda: bracket_window.state("zoomed"))
             
             def create_and_show_bracket():
                 # Créer et sauvegarder le bracket
@@ -334,11 +331,14 @@ class MainView(BaseView):
                         height=200
                     )
                     popup.wait_window()  # Attendre que l'utilisateur ferme le popup
-                    bracket_window.destroy()  # Fermer la fenêtre du bracket
+                    try:
+                        bracket_window.after(0, bracket_window.destroy)
+                    except Exception as e:
+                        self.logger.error(f"Error closing bracket window: {e}")
                     self._prepare_next_match()  # Continuer seulement après que l'utilisateur ait cliqué
             
             # Schedule bracket creation in main thread
-            self.master.after(100, create_and_show_bracket)
+            self.master.after(50, create_and_show_bracket)
                 
         except Exception as e:
             self.logger.error(f"Error showing transition popup: {e}")
@@ -382,7 +382,16 @@ class MainView(BaseView):
             }
             
             self.tournament_manager.record_match_result(stats)
-            self.show_transition_popup(current_match)
+            if not self.master.winfo_exists():
+                self.logger.warning("Main window is not available. Skipping UI updates.")
+                return
+
+            # Wrap UI calls in a try-except
+            try:
+                self.master.after(0, lambda: self.show_transition_popup(current_match))
+            except RuntimeError as e:
+                self.logger.warning(f"UI update skipped: {e}")
+                return
 
     def _prepare_next_match(self):
         """Prepare next match"""
