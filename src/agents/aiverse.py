@@ -8,7 +8,7 @@ from src.utils.const import Soldier
 
 
 class Agent(BaseAgent):
-    """AI agent with Alpha-Beta pruning and time optimization"""
+    """AI agent with Alpha-Beta pruning and time optimization: last version."""
 
     def __init__(self, soldier_value: Soldier, data: Dict = None):
         super().__init__(soldier_value, data)
@@ -77,11 +77,6 @@ class Agent1(BaseAgent):
                 alpha = score
                 best_action = action
 
-            # Check time elapsed
-            elapsed_time = (time.time() - start_time) * 1000
-            if self.time_used + elapsed_time >= self.time_budget:
-                break
-
         self.time_used += (time.time() - start_time) * 1000
         
         return best_action
@@ -125,7 +120,7 @@ class Agent1(BaseAgent):
         soldier_count = board.count_soldiers(self.pionSoldier)
         ennemy_count = board.count_soldiers(self.pionEnnemy)
         if maximizing:
-            score = -200 if any(next_action['soldier_value'] == self.pionEnnemy and next_action.get("type") == "CAPTURE_SOLDIER" for next_action in board.get_valid_actions()) else 0
+            score = -200 if any(next_action['soldier_value'] == self.pionEnnemy and next_action.get("type") == "CAPTURE_SOLDIER" for next_action in board.get_valid_actions()) else -1
             if soldier_count < ennemy_count:
                 return soldier_count - ennemy_count - 1 + score
             if soldier_count - ennemy_count > 2:
@@ -141,12 +136,15 @@ class Agent1(BaseAgent):
                     return soldier_count - ennemy_count + 3
                 return soldier_count - ennemy_count + 2
             return soldier_count - ennemy_count + 1
+        
 
     def prioritize_actions(self, actions: list, board: Board) -> list:
         """
         Prioritize actions to explore better moves first.
         """
         return sorted(actions, key=lambda action: self.heuristic_action_value(action, board), reverse=True)
+    
+
 
     def heuristic_action_value(self, action: Dict, board: Board) -> int:
         """
@@ -158,9 +156,9 @@ class Agent1(BaseAgent):
 
         value = 0
         if captured:
-            value += 100 
+            value += 100
             temp_board = self.apply_action_return(board, action)
-            if any(next_action['soldier_value'] == self.pionSoldier and next_action.get("type") == "CAPTURE_SOLDIER"
+            if any(next_action.get("type") == "CAPTURE_SOLDIER"
                 for next_action in temp_board.get_valid_actions()):
                 value += 200
         if to_pos in board.get_neighbors(from_pos)[Soldier.EMPTY.name]:
@@ -192,7 +190,8 @@ class Agent1(BaseAgent):
         new_board.soldiers = board.soldiers.copy()
         new_board.is_multiple_capture = board.is_multiple_capture
         return new_board
-    
+
+
 class Agent2(BaseAgent):
     """
     Agent IA défensif et opportuniste :
@@ -257,10 +256,9 @@ class Agent2(BaseAgent):
         """
         Vérifie si une action est sûre (ne met pas le soldat en danger de capture).
         """
-        temp_board = self.apply_action(board, action)
         return not any(
             enemy_move.get("type") == "CAPTURE_SOLDIER"
-            for enemy_move in temp_board.get_valid_actions()
+            for enemy_move in self.apply_action(board, action).get_valid_actions()
         )
 
     def apply_action(self, board: Board, action: Dict) -> Board:
@@ -279,6 +277,6 @@ class Agent2(BaseAgent):
         Crée une copie indépendante du plateau pour les simulations.
         """
         new_board = Board()
-        new_board.soldiers = board.soldiers.copy()  # Copie profonde de l'état des soldats
+        new_board.soldiers = board.soldiers.copy()
         new_board.is_multiple_capture = board.is_multiple_capture
         return new_board
