@@ -300,15 +300,18 @@ class MainView(BaseView):
                 try:
                     if canvas:
                         canvas.get_tk_widget().destroy()
+                    if hasattr(self, 'history_view'):
+                        self.history_view.clear_moves()  # Nettoyer l'historique
                     if bracket_window and bracket_window.winfo_exists():
+                        bracket_window.grab_release()  # Relâcher le focus
                         for widget in bracket_window.winfo_children():
                             widget.destroy()
                         bracket_window.after(100, bracket_window.destroy)
                 except Exception as e:
                     self.logger.error(f"Error in cleanup: {e}")
                 finally:
-                    plt.close('all')  # Fermer toutes les figures matplotlib
-                    self._prepare_next_match()
+                    plt.close('all')
+                    self.master.after(100, self._prepare_next_match)  # Délai pour laisser le temps de nettoyer
 
             bracket_window = ctk.CTkToplevel(self.master)
             bracket_window.protocol("WM_DELETE_WINDOW", cleanup)
@@ -335,7 +338,7 @@ class MainView(BaseView):
                         def show_popup():
                             # Message différent selon le numéro de jeu
                             if current_match.duel.current_game <= 2:
-                                message = (f"Game {current_match.duel.current_game} of Match {current_match.id} "
+                                message = (f"Game {current_match.duel.current_game -1 } of Match {current_match.id} "
                                          f"is complete.\nMatch still in progress.\n\nNext game: {next_teams}")
                             else:
                                 message = (f"Match {current_match.id} is complete.\n\n"
@@ -417,7 +420,17 @@ class MainView(BaseView):
     def _prepare_next_match(self):
         """Prepare next match"""
         try:
-            # Sécuriser la destruction des objets d'interface
+            # Nettoyer l'historique et les ressources actuelles
+            if hasattr(self, 'history_view'):
+                self.history_view.clear_moves()
+            
+            if hasattr(self, 'game_board'):
+                self.game_board.reset_game()
+
+            # Attendre que les widgets soient nettoyés
+            self.master.update_idletasks()
+            
+            # S'assurer que AfterGameView est bien détruit
             try:
                 if self.after_game_view:
                     if hasattr(self.after_game_view, 'grab_release'):
@@ -427,14 +440,8 @@ class MainView(BaseView):
             except Exception as e:
                 self.logger.error(f"Error cleaning up AfterGameView: {e}")
 
-            # Reste de la méthode inchangé
+            # Nettoyage du game runner et préparation du prochain match
             self.game_runner.cleanup(level='match')
-            
-            if hasattr(self, 'game_board'):
-                self.game_board.reset_game()
-            if hasattr(self, 'history_view'):
-                self.history_view.clear_moves()
-            
             self.handling_tournament_end = False
             self.store.dispatch({"type": "RESTART_GAME"})
             
@@ -442,7 +449,7 @@ class MainView(BaseView):
             if next_match:
                 self.match_start_time = datetime.now()
                 self._configure_match_agents(next_match)
-                self.game_runner.start()
+                self.master.after(50, self.game_runner.start)  # Délai pour s'assurer que tout est prêt
             else:
                 self.end_tournament()
                 
