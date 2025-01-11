@@ -387,23 +387,19 @@ class MainView(BaseView):
     def _prepare_next_match(self):
         """Prepare next match"""
         try:
+            # Sécuriser la destruction des objets d'interface
+            try:
+                if self.after_game_view:
+                    if hasattr(self.after_game_view, 'grab_release'):
+                        self.after_game_view.grab_release()
+                    self.after_game_view.destroy()
+                    self.after_game_view = None
+            except Exception as e:
+                self.logger.error(f"Error cleaning up AfterGameView: {e}")
+
+            # Reste de la méthode inchangé
             self.game_runner.cleanup(level='match')
             
-            if self.after_game_view:
-                try:
-                    for child in self.after_game_view.winfo_children():
-                        if hasattr(child, 'configure'):
-                            try:
-                                child.configure(state="disabled")
-                            except:
-                                pass
-                    self.after_game_view.grab_release()
-                    self.after_game_view.on_closing()
-                    self.after_game_view = None
-                except Exception as e:
-                    print(f"Error cleaning up AfterGameView: {e}")
-
-            # Réinitialiser l'interface
             if hasattr(self, 'game_board'):
                 self.game_board.reset_game()
             if hasattr(self, 'history_view'):
@@ -412,7 +408,6 @@ class MainView(BaseView):
             self.handling_tournament_end = False
             self.store.dispatch({"type": "RESTART_GAME"})
             
-            # Configurer et démarrer le prochain match
             next_match = self.tournament_manager.setup_next_match()
             if next_match:
                 self.match_start_time = datetime.now()
