@@ -78,7 +78,7 @@ def create_tournament_bracket():
     FONT = {
         'title': {'family': 'sans-serif', 'weight': 'bold', 'size': 28, 'color': COLORS['text']['primary']},
         'match': {'family': 'sans-serif', 'weight': 'bold', 'size': 11, 'color': '#cccccc'},
-        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 12, 'color': '#ffffff'},  # Augmenté de 10 à 12
+        'team': {'family': 'sans-serif', 'weight': 'normal', 'size': 11, 'color': '#ffffff'},  # Augmenté de 10 à 12
         'winner': {'family': 'sans-serif', 'weight': 'bold', 'size': 10, 'color': '#ffcc44'}
     }
 
