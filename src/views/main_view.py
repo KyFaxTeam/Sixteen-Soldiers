@@ -296,12 +296,9 @@ class MainView(BaseView):
             
             # Créer une fenêtre pour le bracket
             bracket_window = ctk.CTkToplevel()
-            bracket_window.title("Tournament Bracket")
             
-            # Mettre en plein écran
-            bracket_window.state('zoomed')  # Pour Windows
-            # Pour Linux/Mac, utiliser:
-            # bracket_window.attributes('-fullscreen', True)
+            # Schedule zoomed state in main thread
+            bracket_window.after(0, lambda: bracket_window.state("zoomed"))
             
             def create_and_show_bracket():
                 # Créer et sauvegarder le bracket
