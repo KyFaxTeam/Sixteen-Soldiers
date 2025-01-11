@@ -83,7 +83,7 @@ class DoubleEliminationManager:
         current_match = self.bracket_manager.matches[self.bracket_manager.current_match_id]
         current_match.duel.add_game_result(stats)
 
-        self.updater.update_markdown()
+        
         
         if current_match.duel.current_game > 2:
             # Duel is complete
@@ -104,6 +104,8 @@ class DoubleEliminationManager:
             self._save_state()
         else:
             self._save_state()  # Save intermediate state
+
+        self.updater.update_markdown()
 
     def _update_next_matches(self, match: Match) -> None:
         # Update winner's next match
