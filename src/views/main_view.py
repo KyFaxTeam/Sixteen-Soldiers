@@ -358,15 +358,27 @@ class MainView(BaseView):
             red_team = current_match.team2 if is_second_game else current_match.team1
             blue_team = current_match.team1 if is_second_game else current_match.team2
 
+            winner_name = state['winner'].name if state['winner'] else None
+            
+            # Handle GameEndReason formatting
+            reason = state["reason"]
+            if isinstance(reason, GameEndReason):
+                if winner_name and "{color}" in reason.value:
+                    formatted_reason = reason.value.format(color=winner_name)
+                else:
+                    formatted_reason = reason.value
+            else:
+                formatted_reason = str(reason)
+            
             stats = {
-                "winner": state['winner'].name,  # "RED" ou "BLUE"
+                "winner": winner_name,  # "RED" ou "BLUE"
                 "RED_pieces": state["board"].count_soldiers(Soldier.RED),
                 "BLUE_pieces": state["board"].count_soldiers(Soldier.BLUE),
                 "RED_time": state["time_manager"].get_remaining_time(Soldier.RED),
                 "BLUE_time": state["time_manager"].get_remaining_time(Soldier.BLUE),
                 "RED_moves": get_move_player_count(state["history"], Soldier.RED),
                 "BLUE_moves": get_move_player_count(state["history"], Soldier.BLUE),
-                "reason": state["reason"]
+                "reason": formatted_reason
             }
             
             self.tournament_manager.record_match_result(stats)

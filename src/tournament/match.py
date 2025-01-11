@@ -3,14 +3,13 @@ from typing import Optional, Dict
 
 class Duel:
     def __init__(self):
-        # Structure pour chaque partie
+        # Initialize games with proper structure
         self.games = {
             1: {
                 "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
                 "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
                 "reason": None
-            },
-            2: None
+            }
         }
         self.current_game = 1
         self.winner = None
@@ -22,20 +21,21 @@ class Duel:
         }
 
     def add_game_result(self, game_stats: dict) -> None:
+        # Ensure current game exists in games dict
+        if self.current_game not in self.games:
+            self.games[self.current_game] = {
+                "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
+                "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
+                "reason": None
+            }
+
         # Map RED/BLUE stats to team1/team2 based on current game number
         is_second_game = self.current_game == 2
         team1_color = "BLUE" if is_second_game else "RED"
         team2_color = "RED" if is_second_game else "BLUE"
         
-        # Initialize game structure if second game
-        if is_second_game:
-            self.games[2] = {
-                "team1": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "team2": {"pieces": 0, "time": 0, "moves": 0, "is_winner": False},
-                "reason": None
-            }
-        
         current = self.games[self.current_game]
+        
         # Update game stats
         current["team1"]["pieces"] = game_stats[f"{team1_color}_pieces"]
         current["team1"]["time"] = game_stats[f"{team1_color}_time"]
@@ -45,11 +45,17 @@ class Duel:
         current["team2"]["moves"] = game_stats[f"{team2_color}_moves"]
         current["reason"] = game_stats["reason"]
 
-        # Update winner
-        if game_stats["winner"] == team1_color:
+        # Update winner based on game_stats
+        if game_stats.get("winner") == team1_color:
             current["team1"]["is_winner"] = True
-        elif game_stats["winner"] == team2_color:
+            current["team2"]["is_winner"] = False
+        elif game_stats.get("winner") == team2_color:
+            current["team1"]["is_winner"] = False
             current["team2"]["is_winner"] = True
+        else:
+            # Handle case where there's no winner
+            current["team1"]["is_winner"] = False
+            current["team2"]["is_winner"] = False
 
         if self.current_game == 2:
             self._compute_duel_winner()
