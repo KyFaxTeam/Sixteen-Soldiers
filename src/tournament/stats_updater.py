@@ -259,16 +259,11 @@ class TournamentMarkdownUpdater:
                 is_next_match = any(next_match['id'] == match['id'] for next_match in next_matches)
                 if not is_next_match:
                     for game_id, game in match['duel']['games'].items():
-                        # team1_pieces = game['team1']['pieces']
-                        # team2_pieces = game['team2']['pieces']
-                        # team1_moves = game['team1']['moves']
-                        # team2_moves = game['team2']['moves']
-                        # team1_time = game['team1']['time'] * 1000
-                        # team2_time = game['team2']['time'] * 1000
                         
                         if game['team1']['is_winner'] == game['team2']['is_winner']:
                             game_winner = "draw"
-                        game_winner = match['team1'] if game['team1']['is_winner'] else match['team2']
+                        else : 
+                            game_winner = match['team1'] if game['team1']['is_winner'] else match['team2']
                         reason = game['reason']
                         
                         # Determine team order based on game number (1-indexed)
